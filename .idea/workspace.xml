@@ -4,21 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 3">
-      <change afterPath="$PROJECT_DIR$/bot/routers/resources_router/balance_router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/resources_router/routers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_change_age.py" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 4">
+      <change afterPath="$PROJECT_DIR$/bot/routers/rating/rating_router.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/rating/router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/character/menu_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/character/menu_character.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/models/character.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models/character.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/load_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schedulers/scheduler_energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/schedulers/scheduler_energy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/character_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/character_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/generate_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/generate_character.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schedulers/scheduler_change_age.py" beforeDir="false" afterPath="$PROJECT_DIR$/schedulers/scheduler_change_age.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +120,7 @@
       <option name="presentableId" value="Default" />
       <updated>1754664359681</updated>
       <workItem from="1754664360773" duration="18480000" />
-      <workItem from="1754750003140" duration="57520000" />
+      <workItem from="1754750003140" duration="60973000" />
     </task>
     <task id="LOCAL-00001" summary="comi 1">
       <option name="closed" value="true" />
@@ -153,7 +146,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754848226540</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="comi 4">
+      <option name="closed" value="true" />
+      <created>1754858293360</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754858293360</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -163,9 +164,10 @@
     <MESSAGE value="comi 1" />
     <MESSAGE value="comi 2" />
     <MESSAGE value="comi 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 3" />
+    <MESSAGE value="comi 4" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 4" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1754848741418" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1754860941391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

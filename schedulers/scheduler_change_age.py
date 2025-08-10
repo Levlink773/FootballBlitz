@@ -27,10 +27,10 @@ class AgeUpdateScheduler:
         except Exception as e:
             logger.error(f"Ошибка при обновлении возраста персонажей: {e}")
 
-    def start(self):
+    async def start(self):
         # Запускаем задачу 1-го числа каждого месяца в 00:00
         self.scheduler.add_job(
-            lambda: asyncio.create_task(self._job_wrapper()),
+            self._job_wrapper,
             CronTrigger(day=1, hour=0, minute=0)
         )
         self.scheduler.start()

@@ -14,32 +14,31 @@ def make_character_cb(character_id: int, action: str = "view"):
     return f"character:{character_id}:{action}"
 
 @menu_character_router.message(
-    F.text.regexp(r"(✅\s*)?🏃‍♂️ Моя команда (\s*✅)?")
+    F.text.regexp(r"(✅\s*)?🧍‍♂️ Моя команда(\s*✅)?")
 )
 async def show_team(
         message: Message,
         user: UserBot,
-        characters: list[Character]
 ):
     vip_status = "🟢 Активний" if user.vip_pass_is_active else "🔴 Неактивний"
 
     text = (
         f"💰 Гроші: <b>{user.money}</b>\n"
-        f"⚡ Енергія: <b>{user.energy}</b> / 200\n"
+        f"⚡ Енергія: <b>{user.energy}</b>\n"
         f"🎟 VIP статус: <b>{vip_status}</b>\n"
         f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
-        "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     )
+    text1 = "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
+    await message.answer(text, reply_markup=menu_plosha().as_markup(resize_keyboard=True))
 
     kb = InlineKeyboardBuilder()
+    characters: list[Character] = user.characters
     for c in characters:
         name_button = f"{c.name}"
         if user.main_character_id == c.id:
             name_button += " ✅ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
-    await message.answer(text, reply_markup=kb.as_markup(), parse_mode="HTML")
-    msg = await message.answer("≡", reply_markup=menu_plosha())
-    await msg.delete()
+    await message.answer(text1, reply_markup=kb.as_markup(), parse_mode="HTML")
 
 @menu_character_router.callback_query(F.data.startswith("character:"))
 async def handle_character_callback(callback: CallbackQuery, user: UserBot):
@@ -79,8 +78,6 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         kb.row(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
         await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
         await callback.answer()
-        msg = await callback.message.answer("≡", reply_markup=menu_plosha())
-        await msg.delete()
 
     elif action == "set_main":
         # Меняем главного персонажа
@@ -105,20 +102,13 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         kb.add(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
 
         await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
-        msg =  await callback.message.answer("≡", reply_markup=menu_plosha())
-        await msg.delete()
 
 
 @menu_character_router.callback_query(F.data == "back_to_team")
 async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
     # Вернемся к списку персонажей (повторим функцию show_team)
-    vip_status = "🟢 Активний" if user.vip_pass_is_active else "🔴 Неактивний"
 
     text = (
-        f"💰 Гроші: <b>{user.money}</b>\n"
-        f"⚡ Енергія: <b>{user.energy}</b> / 200\n"
-        f"🎟 VIP статус: <b>{vip_status}</b>\n"
-        f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
         "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     )
 
@@ -131,5 +121,3 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
     kb.adjust(1)
     await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
     await callback.answer()
-    msg = await callback.message.answer("≡", reply_markup=menu_plosha())
-    await msg.delete()
