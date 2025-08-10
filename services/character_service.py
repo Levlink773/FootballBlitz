@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Any, Coroutine
 
 from sqlalchemy import select, update, or_
 from sqlalchemy.orm import selectinload
@@ -31,10 +32,7 @@ class CharacterService:
                 .where(UserBot.status_register == STATUS_USER_REGISTER.END_REGISTER)
                 .join(ReminderCharacter)
                 .where(
-                    or_(
-                        ReminderCharacter.education_reward_date >= months_ago,
-                        ReminderCharacter.time_to_join_club >= months_ago
-                    )
+                    ReminderCharacter.education_reward_date >= months_ago
                 )
                 .options(
                     selectinload(Character.owner),
@@ -53,10 +51,7 @@ class CharacterService:
                     select(Character)
                     .join(ReminderCharacter)
                     .where(
-                        or_(
-                            ReminderCharacter.education_reward_date >= two_months_ago,
-                            ReminderCharacter.time_to_join_club >= two_months_ago
-                        )
+                        ReminderCharacter.education_reward_date >= two_months_ago
                     )
                 )
                 result = await session.execute(stmt)
@@ -93,8 +88,8 @@ class CharacterService:
                 return current_character
 
     @classmethod
-    async def create_character(cls, data: CharacterData, user_id: int) -> Character:
-        async with get_session() as session:
+    async def create_character(cls, data: CharacterData, user_id: int) -> Character | None:
+        async for session in get_session():
             ch = Character(
                 characters_user_id=user_id,
                 name=data.name,

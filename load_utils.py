@@ -5,7 +5,6 @@ from blitz.start_blitz import StartBlitzs, BlitzData
 from schedulers.scheduler_energy import EnergyResetScheduler, EnergyApliedClubResetScheduler
 from schedulers.scheduler_education import EducationRewardReminderScheduler
 from schedulers.scheduler_buy_energy import ReminderBuyEnergy
-from schedulers.scheduler_gym_rasks import GymStartReseter
 from schedulers.scheduler_training import ReminderTraning
 from schedulers.scheduler_vip_pass import VipPassSchedulerService
 from schedulers.scheduler_reset_training_key import ResetTrainingKeyScheduler
@@ -21,10 +20,10 @@ from database.events.event_listener import (
 
 async def start_utils():
 
-    asyncio.create_task(StartBlitzs.start([
-        BlitzData(start_time=time(15, 0), stages_of_final=4, reward_exp=30),
-        BlitzData(start_time=time(19, 0), stages_of_final=5, path_register_image="blitz/blitz_match/photos/reg_blitz19.png")
-    ])) # bltiz init
+    # asyncio.create_task(StartBlitzs.start([
+    #    BlitzData(start_time=time(15, 0), stages_of_final=4, reward_exp=30),
+    #    BlitzData(start_time=time(19, 0), stages_of_final=5, path_register_image="blitz/blitz_match/photos/reg_blitz19.png")
+    # ])) # bltiz init
     await energy_listener.start_listener()
     await exp_listener.start_listener()
     await new_member_exp_listener.start_listener()

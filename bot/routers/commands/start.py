@@ -13,6 +13,7 @@ from bot.routers.register_user.state.register_user_state import RegisterUserStat
 from config import VIDEO_ID
 from constants import PLOSHA_PEREMOGU
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
+from logging_config import logger
 
 start_router = Router()
 
@@ -48,7 +49,7 @@ async def start_command_handler(
                 reply_markup=get_first_character_keyboard()
             )
 
-    video_start = FSInputFile("src\start_video.MP4", filename="video_start") if not VIDEO_ID else VIDEO_ID
+    video_start = FSInputFile(r"src/start_video.MP4", filename="video_start") if not VIDEO_ID else VIDEO_ID
 
     await state.clear()
     bot_name = await message.bot.get_my_name()
@@ -68,11 +69,12 @@ async def start_command_handler(
 🔽<b>НАТИСКАЙ КНОПКУ СТВОРИТИ КОМАНДУ</b>🔽
     """
 
-    await message.answer_video(
+    msg = await message.answer_video(
         video=video_start,
         caption=text,
         reply_markup=main_menu(user)
     )
+    logger.info(f"START_COMMAND FILE ID: {msg.video.file_id}")
     return None
 
 

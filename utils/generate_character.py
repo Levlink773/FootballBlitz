@@ -4,7 +4,6 @@ from enum import Enum
 
 from config import Gender, Country
 from constants import POWER_MUL, TALENT_MUL, AGE_MUL, MIN_PRICE_FIRST_CHARACTER
-from services.character_service import CharacterService
 
 
 @dataclass
@@ -232,6 +231,7 @@ def generate_character(male_names: set[str]) -> CharacterData:
 
 
 async def check_character(character_data: CharacterData) -> CheckCharacterType:
+    from services.character_service import CharacterService
     if character_data.price < MIN_PRICE_FIRST_CHARACTER:
         return CheckCharacterType.INVALID_MIN_PRICE
     character = await CharacterService.get_character_by_name(character_data.name)

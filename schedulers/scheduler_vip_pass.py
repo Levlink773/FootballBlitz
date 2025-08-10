@@ -67,7 +67,6 @@ class VipPassScheduler:
 class VipPassSchedulerService:
     def __init__(self):
         self._character_vip_pass_service = VipPassService()
-        self._club_service = ClubService()
 
     async def start_timers(self):
         characters = await self._character_vip_pass_service.get_have_vip_pass_characters()

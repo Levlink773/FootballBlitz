@@ -5,10 +5,8 @@ from sqlalchemy import select, update
 from bot.routers.stores.vip_pass.types import VipPassTypes
 from database.models.payment.box_payment import BoxPayment, TypeBox
 from database.models.payment.energy_payment import EnergyPayment
-from database.models.payment.key_payment import KeyPayment
 from database.models.payment.money_payment import MoneyPayment
 from database.models.payment.payments import Payment
-from database.models.payment.vip_pass_payment import VipPassPayment
 from database.session import get_session
 from logging_config import logger
 
@@ -57,24 +55,6 @@ class PaymentServise:
                 except Exception as E:
                     logger.error(f"err change payment status: {E}")
 
-    @classmethod
-    async def create_vip_pass_payment(
-            cls,
-            order_id: str,
-            type_vip_pass: VipPassTypes
-    ):
-        async for session in get_session():
-            async with session as sess:
-                try:
-                    new_payment = VipPassPayment(
-                        order_id=order_id,
-                        type_vip_pass=type_vip_pass
-                    )
-                    sess.add(new_payment)
-                    await sess.commit()
-                    return new_payment
-                except Exception as E:
-                    logger.error(f"err create vip pass payment: {E}")
 
     @classmethod
     async def create_money_payment(
@@ -133,19 +113,3 @@ class PaymentServise:
                 except Exception as E:
                     logger.error(f"err create vip pass payment: {E}")
 
-    @classmethod
-    async def create_buy_training_key_payment(
-            cls,
-            order_id: str
-    ):
-        async for session in get_session():
-            async with session as sess:
-                try:
-                    new_payment = KeyPayment(
-                        order_id=order_id,
-                    )
-                    sess.add(new_payment)
-                    await sess.commit()
-                    return new_payment
-                except Exception as E:
-                    logger.error(f"err create vip pass payment: {E}")

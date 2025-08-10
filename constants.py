@@ -5,7 +5,7 @@ from enum import Enum as PyEnum
 from aiogram.types import FSInputFile
 from apscheduler.triggers.cron import CronTrigger
 
-from database.models.character import Character
+from config import Gender
 
 
 class ItemCategory(PyEnum):
@@ -13,58 +13,55 @@ class ItemCategory(PyEnum):
     SHORTS = "Shorts"
     GAITERS = "Gaiters"
     BOOTS = "Boots"
-    
-
 
 
 chance_add_point = {
-    timedelta(minutes = 2)   : 60,
-    timedelta(seconds = 5)   : 90,
-    timedelta(minutes = 5)   : 100, #ПЕРВАЯ ТРЕНИРОВКА
-    timedelta(minutes = 30)  : 35,
-    timedelta(minutes = 60)  : 45,
-    timedelta(minutes = 90)  : 55,
-    timedelta(minutes = 120) : 75,
+    timedelta(minutes=2): 60,
+    timedelta(seconds=5): 90,
+    timedelta(minutes=5): 100,  # ПЕРВАЯ ТРЕНИРОВКА
+    timedelta(minutes=30): 35,
+    timedelta(minutes=60): 45,
+    timedelta(minutes=90): 55,
+    timedelta(minutes=120): 75,
 }
 
 CHANCE_VIP_PASS = 5
 
 const_energy_by_time = {
-    timedelta(seconds = 5)   : 5,
-    timedelta(minutes = 2)   : 20,
-    timedelta(minutes = 30)  : 10,
-    timedelta(minutes = 60)  : 20,
-    timedelta(minutes = 90)  : 40,
-    timedelta(minutes = 120) : 60,
+    timedelta(seconds=5): 5,
+    timedelta(minutes=2): 20,
+    timedelta(minutes=30): 10,
+    timedelta(minutes=60): 20,
+    timedelta(minutes=90): 40,
+    timedelta(minutes=120): 60,
 }
-
 
 const_name_characteristics = {
-    "technique"        : "🎯 Техніка",
-    "kicks"            : "🥋 Удари",
-    "ball_selection"   : "🛡️ Відбір м’яча",
-    "speed"            : "⚡ Швидкість",
-    "endurance"        : "🏃 Витривалість"
+    "technique": "🎯 Техніка",
+    "kicks": "🥋 Удари",
+    "ball_selection": "🛡️ Відбір м’яча",
+    "speed": "⚡ Швидкість",
+    "endurance": "🏃 Витривалість"
 }
 
-GYM_PHOTO        = FSInputFile("src/gym_photo.jpg")
-CLUB_PHOTO       = FSInputFile("src/club_photo.jpg")
+GYM_PHOTO = FSInputFile("src/gym_photo.jpg")
+CLUB_PHOTO = FSInputFile("src/club_photo.jpg")
 CHARACTER_SEND_OFFER_JOIN_TO_CLUB = FSInputFile("src/character_send_offer_join_to_club.png")
-FIGHT_MENU       = FSInputFile("src/fight_club_menu.jpg")
-JOIN_TO_FIGHT    = FSInputFile("src/join_to_fight.jpg")
-LEAGUE_PHOTO     = FSInputFile("src/league_photo.jpg")
-PLOSHA_PEREMOGU  = FSInputFile("src/plosha_peremogu.jpg") 
+FIGHT_MENU = FSInputFile("src/fight_club_menu.jpg")
+JOIN_TO_FIGHT = FSInputFile("src/join_to_fight.jpg")
+LEAGUE_PHOTO = FSInputFile("src/league_photo.jpg")
+PLOSHA_PEREMOGU = FSInputFile("src/plosha_peremogu.jpg")
 EDUCATION_CENTER = FSInputFile("src/education_center_photo.jpg")
-HALL_FAME_PHOTO  = FSInputFile("src/hall_fame_photo.jpg")
-DUEL_PHOTO       = FSInputFile("src/duel_photo.jpg")
+HALL_FAME_PHOTO = FSInputFile("src/hall_fame_photo.jpg")
+DUEL_PHOTO = FSInputFile("src/duel_photo.jpg")
 CHRISTMAS_TREE_PHOTO = FSInputFile("src/сhristmas_tree.jpg")
-MAGAZINE_PHOTO   = FSInputFile("src/magazine_photo.jpg")
-BOXES_PHOTO      = FSInputFile("src/boxes_photo.jpg")
+MAGAZINE_PHOTO = FSInputFile("src/magazine_photo.jpg")
+BOXES_PHOTO = FSInputFile("src/boxes_photo.jpg")
 DEFAULT_MAGAZINE_PHOTO = FSInputFile("src/default_store.jpg")
 LUXE_STORE_PHOTO = FSInputFile("src/luxe_store.jpg")
 ENERGY_STORE_PHOTO = FSInputFile("src/energy_store.jpg")
-VIP_PASS_PHOTO   = FSInputFile("src/vip_pass_photo.jpg")
-BANK_PHOTO       = FSInputFile("src/bank_photo.jpg")
+VIP_PASS_PHOTO = FSInputFile("src/vip_pass_photo.jpg")
+BANK_PHOTO = FSInputFile("src/bank_photo.jpg")
 CHANGE_POSITION_PHOTO = FSInputFile("src/change_position_photo.jpg")
 END_VIP_PASS_PHOTO = FSInputFile("src/end_vip_pass_photo.jpg")
 LOW_ENERGY_PHOTO = FSInputFile("src/low_energy_photo.jpg")
@@ -83,7 +80,6 @@ BUFFER_TIME = timedelta(minutes=3)
 TIME_RESET_ENERGY_CLUB = CronTrigger(hour=22, minute=10)
 TIME_RESET_ENERGY_CHARACTER = CronTrigger(hour=22, minute=15)
 
-
 DELTA_TIME_EDUCATION_REWARD = timedelta(hours=12)
 
 HOURS_END_TIME = 22
@@ -93,29 +89,27 @@ KOEF_ENERGY_DONATE = 2
 PROCENT_TO_SELL = 30
 
 REFERAL_EXP = 20
-ALL_COUNT_ENERGY_BIT = [30,50,100,150]
-
-
+ALL_COUNT_ENERGY_BIT = [30, 50, 100, 150]
 
 TIME_TO_JOIN_TO_CLUB = timedelta(minutes=2)
 
-#KEY - COUNT ENERGY | VALUE - PRICE UAH
-count_energys = [5,10,20,50,70]
+# KEY - COUNT ENERGY | VALUE - PRICE UAH
+count_energys = [5, 10, 20, 50, 70]
 CONST_PRICE_ENERGY = {
-    100  : 100,
-    150  : 150,
-    300  : 270,
-    600  : 490,
-    900  : 670
+    100: 100,
+    150: 150,
+    300: 270,
+    600: 490,
+    900: 670
 }
 
 START_DAY_DEFAULT_LEAGUE = 1
 
 DUEL_START_DAY_SEASON = 21
-DUEL_END_DAY_SEASON   = 28
+DUEL_END_DAY_SEASON = 28
 
 X2_REWARD_WEEKEND_START_DAY = 21
-X2_REWARD_WEEKEND_END_DAY   = 28
+X2_REWARD_WEEKEND_END_DAY = 28
 
 START_DAY_BEST_LEAGUE = 21
 END_DAY_BEST_LEAGUE = 30
@@ -123,24 +117,22 @@ END_DAY_BEST_LEAGUE = 30
 START_DAY_BEST_20_CLUB_LEAGUE = 3
 END_DAY_BEST_20_CLUB_LEAGUE = 21
 
-END_MATCH_TOP_20_CLUB = CronTrigger(day = END_DAY_BEST_20_CLUB_LEAGUE,hour=8)
+END_MATCH_TOP_20_CLUB = CronTrigger(day=END_DAY_BEST_20_CLUB_LEAGUE, hour=8)
 
 SEND_GONGRATULATION_END_BEST_MATCH = CronTrigger(
-    day = END_DAY_BEST_20_CLUB_LEAGUE,
+    day=END_DAY_BEST_20_CLUB_LEAGUE,
     hour=19,
     minute=30
 )
 
-
 ITEM_PER_PAGE = 9
 
-def GET_RANDOM_NUMBER(LIMIT_1 = 1, LIMIT_2 = 5):
-    return random.randint(LIMIT_1,LIMIT_2)
+
+def GET_RANDOM_NUMBER(LIMIT_1=1, LIMIT_2=5):
+    return random.randint(LIMIT_1, LIMIT_2)
 
 
-
-
-#CHRISTMAS
+# CHRISTMAS
 def date_is_get_reward_christmas_tree() -> bool:
     today = datetime.now().date()
     today_month_day = (today.month, today.day)
@@ -148,13 +140,14 @@ def date_is_get_reward_christmas_tree() -> bool:
     end_date = (1, 10)
     return start_date <= today_month_day or today_month_day <= end_date
 
+
 MIN_ENERGY_CHRISTMAS_REWARD = 10
 MAX_ENERGY_CHRISTMAS_REWARD = 50
 
 MIN_MONEY_CHRISTMAS_REWARD = 5
 MAX_MONEY_CHRISTMAS_REWARD = 10
 
-#======================================================
+# ======================================================
 
 
 lootboxes = {
@@ -188,7 +181,7 @@ lootboxes = {
         "max_exp": 15,
         "price": 245
     },
-    "new_member_box" : {
+    "new_member_box": {
         "name_lootbox": "Бокс новачка",
         "min_energy": 100,
         "max_energy": 200,
@@ -210,6 +203,21 @@ TALENT_MUL = 60
 AGE_MUL = 15
 
 MIN_PRICE_FIRST_CHARACTER = 700
+photos = {
+    Gender.MAN: [
+        'src/photo_character/man_midfielder.jpg',
+        'src/photo_character/man_defender.jpg',
+        'src/photo_character/man_goalkeeper.jpg',
+        'src/photo_character/man_attacker.jpg',
+    ],
+    Gender.WOMAN: [
+        'src/photo_character/woman_midfielder.jpg',
+        'src/photo_character/woman_defender.jpg',
+        'src/photo_character/woman_goalkeeper.jpg',
+        'src/photo_character/woman_attacker.jpg',
+    ],
+}
 
-def get_photo_character(character: Character) -> FSInputFile:
-    return FSInputFile(photos.get((character.gender), 'path/to/default_photo.jpg'))
+
+def get_photo_character(character) -> FSInputFile:
+    return FSInputFile(random.choice(photos.get(character.gender, ['path/to/default_photo.jpg'])))

@@ -7,7 +7,6 @@ from .gym.router import gym_main_router
 from .communication.router import communication_main_router
 from .commands.admins_functional.newsletter import admin_newsletter_commands
 from .commands.admins_functional.info_new_members import admin_info_new_member_router
-from .statistic.router import statistic_router
 from bot.training.routers.answer_stage import answer_etap_router
 from bot.training.routers.joined_in_training import join_trainig_router
 from bot.training.routers.qte_stage import qte_router
@@ -34,5 +33,4 @@ main_router.include_routers(
     end_training_router,
     buy_training_key_router,
     training_duel_router,
-    statistic_router
 )

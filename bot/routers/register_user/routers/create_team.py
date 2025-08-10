@@ -4,6 +4,7 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from bot.keyboards.menu_keyboard import remove_keyboard
 from bot.routers.register_user.config import (
     PHOTO_STAGE_REGISTER_USER,
     TEXT_STAGE_REGISTER_USER
@@ -35,7 +36,8 @@ async def start_command_handler(
         caption=TEXT_STAGE_REGISTER_USER[new_status],
         photo=PHOTO_STAGE_REGISTER_USER[new_status],
     )
-
+    msg = await message.answer(".", reply_markup=remove_keyboard())
+    await msg.delete()
     await state.set_state(RegisterUserState.send_team_name)
 
 
@@ -47,12 +49,9 @@ async def save_name_handler(
         state: FSMContext,
         user: UserBot,
 ):
-    character = await CharacterService.get_character(
-        character_user_id=user.user_id
-    )
-    if character and user.team_name:
+    if user.team_name:
         return await message.answer(
-            text="Ви вже маєте Команду!"
+            text=f"Ви вже маєте Команду {user.team_name}!"
         )
 
     await state.update_data(

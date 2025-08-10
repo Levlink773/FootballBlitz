@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from aiogram import Router, F
@@ -9,6 +10,7 @@ from bot.routers.register_user.config import (
     TEXT_STAGE_REGISTER_USER
 )
 from bot.routers.register_user.keyboard.get_character import get_first_character_keyboard
+from constants import get_photo_character
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from services.character_service import CharacterService
 from services.user_service import UserService
@@ -56,27 +58,26 @@ async def approved_position_handler(
         status=new_status
     )
     if user.main_character:
-        await query.answer("У вас уже есть стартовий персонаж!")
+        await query.answer("У вас уже есть стартовий персонаж!", show_alert=True)
         await query.message.edit_media(
             media=InputMediaPhoto(
                 media=PHOTO_STAGE_REGISTER_USER[new_status],
                 caption=TEXT_STAGE_REGISTER_USER[new_status]
             ),
-            reply_markup=main_menu(user)
         )
+        await query.message.answer("У вас уже есть стартовий персонаж!", reply_markup=main_menu(user))
     character_data: CharacterData = await get_character()
-    await CharacterService.create_character(character_data, user.user_id)
+    character = await CharacterService.create_character(character_data, user.user_id)
     text = character_created_message(character_data)
     await query.message.edit_media(
         media=InputMediaPhoto(
-            media=PHOTO_STAGE_REGISTER_USER[new_status],
+            media=get_photo_character(character),
             caption=text
-        ),
-        reply_markup=main_menu(user)
+        )
     )
-    await UserService.assign_main_character_if_none(user.user_id)
-    await query.message.answer_photo(
-        photo=PHOTO_STAGE_REGISTER_USER[new_status],
-        caption=TEXT_STAGE_REGISTER_USER[new_status],
+    await asyncio.sleep(2)
+    user = await UserService.assign_main_character_if_none(user.user_id)
+    await query.message.answer(
+        text=TEXT_STAGE_REGISTER_USER[new_status],
         reply_markup=main_menu(user)
     )

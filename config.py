@@ -41,7 +41,7 @@ CONST_VIP_ENERGY = 300
 
 EPOCH_ZERO = datetime(1970, 1, 1)
 
-ADMINS = [6790393255, 577395732]
+ADMINS = [1646823843]
 
 class DatabaseType(Enum):
     USER = 'bot'

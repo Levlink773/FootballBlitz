@@ -3,14 +3,9 @@ from services.character_service import CharacterService
 
 from sqlalchemy.orm.exc import DetachedInstanceError
 
-from constants import Gender, REFERAL_EXP
 from loader import bot
 
 def get_character_text(character: Character) -> str:
-    gender_specific_text = {
-        Gender.MAN: "Він завжди перемагає!",
-        Gender.WOMAN: "Вона - зірка на полі!"
-    }
 
     current_level = character.level
     if current_level >= len(character.LEVEL_THRESHOLDS):

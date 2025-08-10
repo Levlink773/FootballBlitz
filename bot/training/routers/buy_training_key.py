@@ -1,8 +1,6 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, CallbackQuery
 
-from api.monobank.create_payment import CreatePayment
-
 from bot.training.keyboard.buy_training_key import buy_training_key
 
 from database.models.character import Character

@@ -41,7 +41,8 @@ class UserBot(Base):
         "Character",
         back_populates="owner",
         lazy="selectin",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        foreign_keys="Character.characters_user_id"
     )
     main_character_id = Column(
         BigInteger,

@@ -10,7 +10,6 @@ from database.models.reminder_character import ReminderCharacter
 from database.model_base import Base
 
 
-
 class Character(Base):
     __tablename__ = 'characters'
 
@@ -27,7 +26,11 @@ class Character(Base):
 
     created_at = Column(DateTime, default=datetime.datetime.now)
 
-    owner = relationship("UserBot", back_populates="characters", lazy="selectin")
+    owner = relationship("UserBot",
+                         back_populates="characters",
+                         lazy="selectin",
+                         foreign_keys=[characters_user_id]
+                         )
 
     reminder: Mapped["ReminderCharacter"] = relationship(
         "ReminderCharacter",
