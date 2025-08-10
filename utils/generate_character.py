@@ -173,19 +173,7 @@ class CheckCharacterType(Enum):
     INVALID_NAME = 1
     INVALID_MIN_PRICE = 2
 
-
-def generate_character(male_names: set[str]) -> CharacterData:
-    # Определяем пол
-    gender = Gender.MAN
-
-    # Выбираем имя по полу
-    name = random.choice(list(male_names))
-
-    # Выбираем страну с учетом весов
-    countries = list(COUNTRY_WEIGHTS.keys())
-    weights = list(COUNTRY_WEIGHTS.values())
-    country = random.choices(countries, weights=weights, k=1)[0]
-
+def generate_talent():
     # Генерация таланта по вероятностям
     talent_ranges = [
         (list(range(1, 4)), 0.60),  # 1–3 → 60%
@@ -201,8 +189,22 @@ def generate_character(male_names: set[str]) -> CharacterData:
     chosen_range = random.choices(range_choices, weights=range_weights, k=1)[0]
 
     # Потом случайное значение из диапазона
-    talent = random.choice(chosen_range)
+    return random.choice(chosen_range)
+def generate_power():
+    return random.randint(20, 100)
 
+def generate_character(male_names: set[str]) -> CharacterData:
+    # Определяем пол
+    gender = Gender.MAN
+
+    # Выбираем имя по полу
+    name = random.choice(list(male_names))
+
+    # Выбираем страну с учетом весов
+    countries = list(COUNTRY_WEIGHTS.keys())
+    weights = list(COUNTRY_WEIGHTS.values())
+    country = random.choices(countries, weights=weights, k=1)[0]
+    talent = generate_talent()
     age_ranges = [
         (range(18, 24), 0.50),  # 18–23 → 50%
         (range(24, 31), 0.35),  # 24–30 → 35%
@@ -218,7 +220,7 @@ def generate_character(male_names: set[str]) -> CharacterData:
     age = random.choice(list(chosen_age_range))
 
     # Сила
-    power = random.randint(20, 100)
+    power = generate_power()
 
     return CharacterData(
         name=name,

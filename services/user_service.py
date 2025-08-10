@@ -4,6 +4,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
+from database.models.character import Character
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
 
@@ -134,6 +135,30 @@ class UserService:
                 user.money += amount_money_add
 
                 session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def update_main_character(cls, user_id: int, new_main_character_id: int):
+        async for session in get_session():
+            async with session.begin():
+                # Проверяем, что персонаж принадлежит пользователю
+                stmt_check = select(Character).where(
+                    Character.id == new_main_character_id,
+                    Character.characters_user_id == user_id
+                )
+                result = await session.execute(stmt_check)
+                character = result.scalar_one_or_none()
+                if not character:
+                    raise ValueError("Персонаж не найден или не принадлежит пользователю")
+
+                # Обновляем главного персонажа
+                stmt_update = (
+                    update(UserBot)
+                    .where(UserBot.id == user_id)
+                    .values(main_character_id=new_main_character_id)
+                    .execution_options(synchronize_session="fetch")
+                )
+                await session.execute(stmt_update)
                 await session.commit()
 
     @classmethod

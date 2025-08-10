@@ -46,12 +46,8 @@ class Character(Base):
     points = Column(BigInteger, nullable=False, default=0)
 
     @property
-    def absolute_age(self):
-        return self.age / 12 + 18
-
-    @property
     def character_price(self):
-        return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.absolute_age * AGE_MUL)
+        return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
 
     def how_much_power_can_add(self, duration_seconds: int):
         duration_minutes = duration_seconds // 60

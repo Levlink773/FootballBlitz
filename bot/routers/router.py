@@ -15,6 +15,7 @@ from bot.training.routers.buy_training_key import buy_training_key_router
 from bot.training.routers.duel_stage import training_duel_router
 from bot.routers.register_user.router import register_user_router
 from .commands.block_users import block_uses_router
+from .resources_router.routers import user_balance_router
 
 main_router = Router()
 main_router.include_routers(
@@ -33,4 +34,5 @@ main_router.include_routers(
     end_training_router,
     buy_training_key_router,
     training_duel_router,
+    user_balance_router,
 )

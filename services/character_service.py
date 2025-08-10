@@ -8,7 +8,7 @@ from database.models.character import Character
 from database.models.reminder_character import ReminderCharacter
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
-from utils.generate_character import CharacterData
+from utils.generate_character import CharacterData, generate_talent, generate_power
 
 
 class CharacterService:
@@ -94,7 +94,7 @@ class CharacterService:
                 characters_user_id=user_id,
                 name=data.name,
                 talent=data.talent,
-                age=((data.age - 18) * 12),
+                age=data.age,
                 power=data.power,
                 gender=data.gender,
                 country=data.country
@@ -112,6 +112,32 @@ class CharacterService:
                 merged_obj.power += power_to_add
             return merged_obj
 
+    @classmethod
+    async def update_age(cls, character_obj: Character, age_to_add: int) -> Character | None:
+        async for session in get_session():
+            async with session.begin():
+                merged_obj = await session.merge(character_obj)
+                merged_obj.age += age_to_add
+            return merged_obj
+    @classmethod
+    async def update_age_characters(cls):
+        async for session in get_session():
+            async with session.begin():
+                result = await session.execute(select(Character))
+                characters = result.scalars().all()
+                old_characters = []
+
+                for character in characters:
+                    character.age += 1
+                    if character.age >= 40:
+                        old_characters.append(character)
+
+                # Обновляем старых персонажей в рамках той же транзакции
+                for old_character in old_characters:
+                    old_character.age = 18
+                    old_character.talent = generate_talent()
+                    old_character.power = generate_power()
+                return old_characters
     @classmethod
     async def add_trainin_key(
             cls,

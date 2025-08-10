@@ -2,7 +2,7 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from constants import TIME_RESET_ENERGY_CHARACTER, TIME_RESET_ENERGY_CLUB
+from constants import TIME_RESET_ENERGY_CHARACTER
 from database.models.user_bot import UserBot
 from loader import bot
 from logging_config import logger
@@ -15,9 +15,9 @@ class EnergyResetScheduler:
         self.scheduler = AsyncIOScheduler()
 
     async def __send_message_bot(
-        self, 
-        users: list[UserBot],
-        is_vip: bool      
+            self,
+            users: list[UserBot],
+            is_vip: bool
     ):
         if is_vip:
             text = """
@@ -38,8 +38,7 @@ class EnergyResetScheduler:
                     text=text
                 )
             except Exception as E:
-                logger.error(f"Не смог отправить сообщение {user.user_name}")
-
+                logger.error(f"Не смог отправить сообщение {user.user_name} {E}")
 
     async def reset_energy_character(self):
         all_users = await UserService.get_users_how_update_energy()
@@ -48,28 +47,10 @@ class EnergyResetScheduler:
         asyncio.create_task(self.__send_message_bot(all_users, False))
         asyncio.create_task(self.__send_message_bot(all_vip_users, True))
         logger.info("Обновил енергию для пользователей")
-        
-        
+
     async def start_reset_energy(self):
-        self.scheduler.add_job(self.reset_energy_character, 
+        self.scheduler.add_job(self.reset_energy_character,
                                TIME_RESET_ENERGY_CHARACTER,
-                               misfire_grace_time = 10
-)
-        self.scheduler.start()
-
-        
-        
-class EnergyApliedClubResetScheduler:
-    def __init__(self) -> None:
-        self.scheduler = AsyncIOScheduler()
-        
-    async def reset_energy_aplied(self):
-        await ClubService.reset_energy_aplied_not_bot_clubs()
-        logger.info("Убрал усиление с команд")
-
-    async def start_reset_energy(self):
-        self.scheduler.add_job(self.reset_energy_aplied, 
-                               TIME_RESET_ENERGY_CLUB,
-                                misfire_grace_time = 10
-)
+                               misfire_grace_time=10
+                               )
         self.scheduler.start()
