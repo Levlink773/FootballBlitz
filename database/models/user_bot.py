@@ -35,7 +35,7 @@ class UserBot(Base):
     user_time_register = Column(DateTime, default=datetime.datetime.now)
     money = Column(BigInteger, default=0)
     energy = Column(BigInteger, default=0)
-    team_name = Column(String(255), unique=True, index=True)
+    team_name = Column(String(255), nullable=True)
     
     characters = relationship(
         "Character",

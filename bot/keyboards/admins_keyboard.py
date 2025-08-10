@@ -1,7 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from bot.callbacks.admins_callbacks import AdminSelectPvpDuel
-
 
 
 

@@ -1,6 +1,5 @@
 from aiogram import Router
 from .start import start_router
-from .instruction import send_instruction_router
 from .admins_functional.get_logging_file import get_logger_router
 
 commands_router = Router()

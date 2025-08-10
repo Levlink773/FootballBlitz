@@ -7,6 +7,7 @@ from database.models.character import Character
 from database.models.reminder_character import ReminderCharacter
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
+from utils.generate_character import CharacterData
 
 
 class CharacterService:
@@ -92,19 +93,21 @@ class CharacterService:
                 return current_character
 
     @classmethod
-    async def create_character(cls, character_obj: Character) -> Character | None:
-        character_obj.gender = character_obj.gender.value
-        character_obj.position = character_obj.position.value
-
-        async for session in get_session():
-            async with session.begin():
-                try:
-                    session.add(character_obj)
-                except:
-                    pass
-                merged_obj = await session.merge(character_obj)
-                await session.commit()
-                return merged_obj
+    async def create_character(cls, data: CharacterData, user_id: int) -> Character:
+        async with get_session() as session:
+            ch = Character(
+                characters_user_id=user_id,
+                name=data.name,
+                talent=data.talent,
+                age=((data.age - 18) * 12),
+                power=data.power,
+                gender=data.gender,
+                country=data.country
+            )
+            session.add(ch)
+            await session.commit()
+            await session.refresh(ch)
+            return ch
 
     @classmethod
     async def update_power(cls, character_obj: Character, power_to_add) -> Character | None:

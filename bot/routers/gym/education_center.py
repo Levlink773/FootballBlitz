@@ -6,8 +6,6 @@ from aiogram.types import Message, CallbackQuery
 from datetime import datetime
 
 from bot.keyboards.gym_keyboard import menu_education_cernter
-from bot.club_infrastructure.types import InfrastructureType
-from bot.club_infrastructure.utils import calculate_bonus_by_character
 
 from constants import GET_RANDOM_NUMBER, DELTA_TIME_EDUCATION_REWARD, EDUCATION_CENTER
 from constants import X2_REWARD_WEEKEND_START_DAY, X2_REWARD_WEEKEND_END_DAY
@@ -19,8 +17,6 @@ from services.character_service import CharacterService
 from services.user_service import UserService
 
 from schedulers.scheduler_education import EducationRewardReminderScheduler
-
-from utils.club_utils import get_text_education_center_reward
 
 
 education_center_router = Router()

@@ -40,6 +40,8 @@ class Character(Base):
     training_key = Column(Integer, default=1, server_default="1", nullable=False)
     time_get_member_bonus = Column(DateTime, nullable=True)
 
+    points = Column(BigInteger, nullable=False, default=0)
+
     @property
     def absolute_age(self):
         return self.age / 12 + 18

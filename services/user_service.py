@@ -57,6 +57,47 @@ class UserService:
                     raise e
 
     @classmethod
+    async def assign_main_character_if_none(cls, user_id: int) -> "UserBot | None":
+        async for session in get_session():
+            async with session.begin():
+                result = await session.execute(
+                    select(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .options(selectinload(UserBot.characters))
+                )
+                user = result.scalar_one_or_none()
+                if not user:
+                    return None  # Пользователь не найден
+
+                if user.main_character is None and user.characters:
+                    main_char_id = user.characters[0].id
+                    stmt = (
+                        update(UserBot)
+                        .where(UserBot.user_id == user_id)
+                        .values(main_character_id=main_char_id)
+                    )
+                    await session.execute(stmt)
+                    # Обновляем локальный объект, чтобы отражать изменения
+                    user.main_character_id = main_char_id
+
+                return user
+
+    @classmethod
+    async def edit_team_name(cls, user_id: int, team_name: str):
+        async for session in get_session():
+            async with session.begin():
+                try:
+                    stmt = (
+                        update(UserBot)
+                        .where(UserBot.user_id == user_id)
+                        .values(team_name=team_name)
+                    )
+                    await session.execute(stmt)
+                    await session.commit()
+                except Exception as e:
+                    raise e
+
+    @classmethod
     async def add_energy_user(cls, user_id: int, amount_energy_add: int):
         async for session in get_session():
             async with session.begin():

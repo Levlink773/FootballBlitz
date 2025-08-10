@@ -263,3 +263,38 @@ async def get_character():
         attempts += 1
     random_name: str = random.choice(list(male_names))
     return generate_character({f"{random_name} {random.randint(5000, 100000)}"})
+
+
+def character_created_message(character: CharacterData) -> str:
+    country_flag = COUNTRY_FLAGS.get(character.country)
+    return (
+        f"🎉 Поздравляем! Вам выпал новый персонаж — **{character.name} {country_flag}**.\n\n"
+        f"🔹 Возраст: {character.age} лет\n"
+        f"🔹 Талант: {character.talent}\n"
+        f"🔹 Сила: {character.power}\n"
+        f"🔹 Страна: {character.country.name.capitalize()} {country_flag}\n\n"
+        f"Пусть этот персонаж принесёт вам много побед и радости!"
+    )
+COUNTRY_FLAGS = {
+    Country.UKRAINE: "🇺🇦",
+    Country.ARGENTINA: "🇦🇷",
+    Country.BRAZIL: "🇧🇷",
+    Country.FRANCE: "🇫🇷",
+    Country.GERMANY: "🇩🇪",
+    Country.SPAIN: "🇪🇸",
+    Country.ENGLAND: "🇬🇧",  # флаг Англии отдельный, но часто используют Великобритании 🇬🇧
+    Country.ITALY: "🇮🇹",
+    Country.PORTUGAL: "🇵🇹",
+    Country.NETHERLANDS: "🇳🇱",
+    Country.BELGIUM: "🇧🇪",
+    Country.CROATIA: "🇭🇷",
+    Country.URUGUAY: "🇺🇾",
+    Country.MEXICO: "🇲🇽",
+    Country.USA: "🇺🇸",
+    Country.CANADA: "🇨🇦",
+    Country.JAPAN: "🇯🇵",
+    Country.SOUTH_KOREA: "🇰🇷",
+    Country.MOROCCO: "🇲🇦",
+    Country.SENEGAL: "🇸🇳",
+    Country.NIGERIA: "🇳🇬",
+}

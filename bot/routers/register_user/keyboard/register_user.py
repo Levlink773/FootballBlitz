@@ -5,7 +5,7 @@ from aiogram.utils.keyboard import (
     ReplyKeyboardBuilder
 )
 
-def create_character() -> ReplyKeyboardMarkup: 
+def create_team() -> ReplyKeyboardMarkup:
     return (
         ReplyKeyboardBuilder()
         .button(

@@ -18,7 +18,7 @@ from .constans import (
     COUNT_FORGOT_MESSAGE
 )
 from .config import PHOTO_STAGE_REGISTER_USER, TEXT_STAGE_REGISTER_USER
-from .keyboard.register_user import create_character
+from .keyboard.register_user import create_team
 
 class StartRegisterUser:
     _bot: Bot = bot
@@ -49,7 +49,7 @@ class StartRegisterUser:
         await self._send_message(
             text = TEXT_STAGE_REGISTER_USER[self._status],
             photo = PHOTO_STAGE_REGISTER_USER[self._status],
-            keyboard = create_character()
+            keyboard = create_team()
         )
         
         

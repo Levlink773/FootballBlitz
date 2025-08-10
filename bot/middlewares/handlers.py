@@ -39,9 +39,11 @@ async def message_middleware(
     data: Dict[str, Any]
 ) -> Any:
     user  = await get_user(event.from_user)
-    
-    
-    character = user.main_character if user.main_character else None
+    character = None
+    if user.characters:
+        if not user.main_character:
+            user = await UserService.assign_main_character_if_none(user.user_id)
+        character = user.main_character if user.main_character else None
     data.update({"user":user, "character":character})
     result = await handler(event, data)
     if isinstance(event, CallbackQuery):

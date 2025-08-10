@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import CallbackQuery
 
 from bot.callbacks.blitz_callback import BoxRewardCallback

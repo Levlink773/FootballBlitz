@@ -1,8 +1,6 @@
 from aiogram import Router, F
-from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-
-from database.models.character import Character
+from aiogram.types import Message
 
 from config import LINK_TO_CHAT
 

@@ -5,6 +5,8 @@ from enum import Enum as PyEnum
 from aiogram.types import FSInputFile
 from apscheduler.triggers.cron import CronTrigger
 
+from database.models.character import Character
+
 
 class ItemCategory(PyEnum):
     T_SHIRT = "T-shirt"
@@ -208,3 +210,6 @@ TALENT_MUL = 60
 AGE_MUL = 15
 
 MIN_PRICE_FIRST_CHARACTER = 700
+
+def get_photo_character(character: Character) -> FSInputFile:
+    return FSInputFile(photos.get((character.gender), 'path/to/default_photo.jpg'))

@@ -11,15 +11,9 @@ from database.models.user_bot import (
 
 from services.character_service import CharacterService
 from services.reminder_character_service import RemniderCharacterService
-from services.club_infrastructure_service import ClubInfrastructureService
 
 from bot.keyboards.gym_keyboard import select_type_gym, select_time_to_gym, no_energy_keyboard
 from bot.callbacks.gym_calbacks import SelectGymType, SelectTimeGym
-from bot.club_infrastructure.types import InfrastructureType
-from bot.club_infrastructure.config import INFRASTRUCTURE_BONUSES
-
-from gym_character.core.gym import Gym
-from gym_character.core.manager import GymCharacterManager
 
 from constants import GYM_PHOTO, const_name_characteristics, const_energy_by_time
 from datetime import timedelta

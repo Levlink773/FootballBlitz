@@ -20,14 +20,6 @@ from logging_config import logger
 
 admin_newsletter_commands = Router()
 
-# @admin_newsletter_commands.message(Command("/test"))
-# async def send_message(massage: Message):
-#     for _ in range(500):
-#         await send_message_to_character(
-#             message = massage,
-#             user_id = 6790393255
-#         )
-
 @admin_newsletter_commands.message(Command("send_message"), CheckUserIsAdmin())
 async def send_message_all_user(message: Message, state: FSMContext):
     await message.answer("Выберите тип рассылки", 

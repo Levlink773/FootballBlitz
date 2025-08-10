@@ -4,241 +4,47 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/FootballBlitz.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/constans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/core/goal_generator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/core/manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/core/match.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/entities.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/enum_blitz_match.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/message_sender/match_sender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/message_sender/render_scene.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/message_sender/templates.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/message_sender/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/1v2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/1v4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/1v8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/done_energy.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/done_energy_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/done_energy_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/end_blitz.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/end_match_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/end_match_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/end_match_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/final.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/goal_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/goal_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/goal_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/goal_4.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/goal_5.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/medium_blitz_box.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/mvp.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/no_goal_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/no_goal_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/no_goal_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/no_goal_4.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/no_goal_5.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/notification_send_energy_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/notification_send_energy_22.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/reg_blitz.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/reg_blitz19.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/send_info_character_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/send_info_character_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/send_info_character_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/small_blitz_box.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/start_blitz.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/start_match_photo.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/photos/team.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_match/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/blitz_reminder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/enum_blitz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/exception.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/blitz_announce_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/blitz_character_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/blitz_reward_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/blitz_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/blitz_team_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/message_sender/blitz_sender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/services/message_sender/rate_limiter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/blitz/start_blitz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/boxes/base_box.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/boxes/base_item.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/boxes/base_open.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/admins_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/bank_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/blitz_callback.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/gym_calbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/items_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/massage_room_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/menu_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/switcher.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/callbacks/vip_pass_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/filters/block_buttons_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/filters/check_admin_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/filters/check_time_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/filters/donate_energy_filter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/admins_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/bank_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/blitz_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/get_christmas_reward.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/menu_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/training_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/utils_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/vip_pass.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/middlewares/handlers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/blitz/add_energy_in_blitz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/blitz/blitz_register_router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/blitz/reward_blitz_router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/blitz/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/character/items_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/character/menu_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/character/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/admins_functional/get_logging_file.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/admins_functional/info_new_members.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/admins_functional/newsletter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/block_users.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/instruction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/commands/start.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/communication/communication.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/communication/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/gym/donate_club_energy_handler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/gym/education_center.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/gym/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/gym/traning_base_menu.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/callbacks/create_character_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/constans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/keyboard/get_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/keyboard/get_new_member_bonus.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/keyboard/register_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/keyboard/select_gender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/message_new_member.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/create_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/end_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/get_first_character_router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/register_user/state/register_user_state.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/callbacks/club_league_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/callbacks/match_statistic_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_club_league_statistic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_match_statistic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_statistic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/routers/menu_choice_statistic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/statistic/routers/statistic_club_league.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/routers/stores/box/open_box.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/states/admin_comands_state.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/states/create_character_state.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/states/gym_state.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/callbacks/training_callbacks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/filter/get_duel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/filter/get_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/filter/training_is_active.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/buy_training_key.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/duel_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/keyboard_re_invite.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/qte_keyboard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/select_stat.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/keyboard/training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/answer_stage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/buy_training_key.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/duel_stage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/end_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/joined_in_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/qte_stage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/training/routers/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/utils/get_top_24_club_by_league.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/utils/user_lock.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/utils/xls/base_xls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/utils/xls/generate_new_member.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/base_acces.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/base_event.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/character_low_or_no_energy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/character_reached_exp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/event_listener.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/events/event_new_member_exp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/model_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/blitz.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/blitz_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/blitz_team.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/item.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/payment/box_payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/payment/energy_payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/payment/money_payment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/payment/payments.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/reminder_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/models/user_bot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/session.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/load_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/loader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logging_config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_buy_energy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_education.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_energy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_gym_rasks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_reset_training_key.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_vip_pass.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/admins_functional_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/character_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/payment_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/reminder_character_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/training_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/vip_pass_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/constans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/core/end_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/core/manager_training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/core/training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/duel/core_duel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/duel/duel_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/duel/duel_sender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/duel/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/sender/sender_message.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/sender/sender_notification.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/text/stage_1.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/text/stage_2.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/text/stage_3.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/text/stage_5.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/text/stage_7.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/timers/base_timer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/timers/starter_taimers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/timers/training_timer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/types.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/utils/get_count_stats_by_score.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/utils/get_params_by_stage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/training/utils/text_stage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/admins_functional_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/blitz_photo_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/character_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/club_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/generate_character.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/gym_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/item_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/photo_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/randomaizer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/rate_limitter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/vip_pass_title.py" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 1">
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/vip_pass/types.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/bank_keyboard.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/get_christmas_reward.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/menu_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/menu_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/training_base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/utils_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/utils_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/middlewares/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/middlewares/handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/blitz/reward_blitz_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/blitz/reward_blitz_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/character/items_character.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/character/menu_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/character/menu_character.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/character/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/character/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/commands/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/commands/start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/communication/communication.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/communication/communication.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/donate_club_energy_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/education_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/education_center.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/traning_base_menu.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/keyboard/get_new_member_bonus.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/keyboard/register_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/keyboard/register_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/keyboard/select_gender.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/routers/create_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/create_team.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/routers/get_first_character_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/get_first_character_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/state/register_user_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/state/register_user_state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/callbacks/club_league_callbacks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/callbacks/match_statistic_callbacks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_club_league_statistic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_match_statistic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/keyboard/menu_statistic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/router.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/routers/menu_choice_statistic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/statistic/routers/statistic_club_league.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/models/user_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models/user_bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/character_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/character_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/user_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/generate_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/generate_character.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -255,6 +61,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Levlink773"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Levlink773/FootballBlitz.git",
+    "accountId": "a9013888-97d5-4424-90f1-606c8775513f"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -271,7 +89,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/devlink007/PycharmProjects/FootballBlitz/bot/routers",
+    "last_opened_file_path": "/Users/devlink007/PycharmProjects/FootballBlitz/bot/routers/stores",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -282,6 +100,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/bot/routers/stores" />
       <recent name="$PROJECT_DIR$/bot/routers" />
       <recent name="$PROJECT_DIR$/utils" />
       <recent name="$PROJECT_DIR$" />
@@ -334,12 +153,25 @@
       <option name="presentableId" value="Default" />
       <updated>1754664359681</updated>
       <workItem from="1754664360773" duration="18480000" />
-      <workItem from="1754750003140" duration="33965000" />
+      <workItem from="1754750003140" duration="40756000" />
     </task>
+    <task id="LOCAL-00001" summary="comi 1">
+      <option name="closed" value="true" />
+      <created>1754829222400</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1754829222400</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="comi 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1754773326100" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
