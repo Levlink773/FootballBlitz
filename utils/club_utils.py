@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 from typing import Optional
 
 from aiogram.types import FSInputFile, Message
@@ -35,5 +36,18 @@ async def send_message_user_team(
             logger.error(f"НЕ СМОГ ОТПРАВИТЬ СООБЩЕНИЕ ПЕРСОНАЖУ {user.user_name}")
     
     return random.choice(messages_photos) if messages_photos else []
-            
-            
+
+
+def get_text_education_center_reward(coins: int, energy: int, delta_time_education_reward: timedelta) -> str:
+    current_time = datetime.now()
+    next_reward_time = current_time + delta_time_education_reward
+    next_reward_time_formatted = next_reward_time.strftime("%d-%m-%Y %H:%M:%S")
+
+    message = f"""
+🎓 <b>Після навчального центру ваш персонаж отримав:</b>
+💰 {coins} <b>монет</b>
+🔋 {energy} <b>енергії</b>
+
+🕒 <b>Ви зможете отримати наступну нагороду через:</b> {delta_time_education_reward} <b>о {next_reward_time_formatted}</b>
+"""
+    return message

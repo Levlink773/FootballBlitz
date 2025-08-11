@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery
 
 from bot.callbacks.gym_calbacks import SelectTimeGym
 from bot.keyboards.gym_keyboard import select_time_to_gym, no_energy_keyboard
-from constants import const_name_characteristics, const_energy_by_time
+from constants import const_energy_by_time
 from database.models.character import Character
 from database.models.user_bot import (
     UserBot
@@ -52,11 +52,12 @@ async def start_gym(
         character: Character,
 ):
     _time_training = callback_data.gym_time
-
+    if not character:
+        return await query.message.reply("<b>У вас поки що немає оновного персонжа</b>")
     if character.reminder.character_in_training:
         return await query.message.reply("<b>Ваш персонаж і так уже тренується</b>")
-
-    if user.energy < const_energy_by_time[callback_data.gym_time]:
+    cost_gym = const_energy_by_time[callback_data.gym_time]
+    if user.energy < cost_gym:
         try:
             return await query.message.answer(
                 text="У вас не вистачає енергії, ви можете купити енергію в Крамниці енергії",
@@ -69,16 +70,13 @@ async def start_gym(
     end_time_training = datetime.now() + timedelta(seconds=reduction_time)
 
     caption = """
-🚀 <b>Починаю тренування характеристики</b> - <u>{type_gym}</u>
+🚀 <b>Починаю тренування</b>
 
 👟 До завершення тренування - {end_time} хв
-💡 Завдяки покращенням інфраструктури клубу, фактичний час тренування скорочено до {update_time} хв!
 
 ⏰ Тренування завершиться в <b>{end_time_full}</b>
 """.format(
-        type_gym=const_name_characteristics[callback_data.gym_type],
         end_time=int(_time_training.total_seconds() / 60),
-        update_time=int(reduction_time / 60),
         end_time_full=end_time_training.strftime("%Y-%m-%d %H:%M")
     )
     await query.message.edit_caption(caption=caption, reply_markup=None)
@@ -97,8 +95,7 @@ async def start_gym(
         time_training_seconds=int(callback_data.gym_time.total_seconds())
     )
     await RemniderCharacterService.toggle_character_training_status(character_id=character.id)
-    await UserService.consume_energy(user_id=user.user_id,
-                                     amount_energy_consume=const_energy_by_time[callback_data.gym_time])
+    await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=cost_gym)
 
 
 @gym_router.callback_query(F.data == "get_out_of_gym")
