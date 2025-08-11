@@ -4,8 +4,8 @@ from sqlalchemy import select, delete, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-from blitz.exception import BlitzCloseError, CharacterExistsInBlitzError, MaxUsersInBlitzError
-from database.models.blitz import Blitz
+from blitz.exception import BlitzCloseError, UserExistsInBlitzError, MaxUsersInBlitzError
+from database.models.blitz import Blitz, BlitzType
 from database.models.blitz_character import BlitzUser
 from database.models.character import Character
 from database.models.user_bot import UserBot
@@ -14,14 +14,18 @@ from database.session import get_session
 
 class BlitzService:
     @classmethod
-    async def get_or_create_blitz_by_start(cls, start_datetime) -> Blitz | None:
+    async def get_or_create_blitz_by_start(cls, start_datetime, cost: int, blitz_type: BlitzType) -> Blitz | None:
         async for session in get_session():
             async with session.begin():
                 result = await session.execute(select(Blitz).where(Blitz.start_at == start_datetime))
                 blitz: Blitz = result.scalar_one_or_none()
 
                 if not blitz:
-                    new_blitz = Blitz(start_at=start_datetime)
+                    new_blitz = Blitz(
+                        start_at=start_datetime,
+                        cost=cost,
+                        blitz_type=blitz_type
+                    )
                     try:
                        session.add(new_blitz)
                        await session.flush()
@@ -58,7 +62,7 @@ class BlitzService:
                 )
                 existing: BlitzUser = result.scalar_one_or_none()
                 if existing:
-                    raise CharacterExistsInBlitzError(f"Blitz User with id {existing.id} already exists!")
+                    raise UserExistsInBlitzError(f"Blitz User with id {existing.id} already exists!")
 
                 # Получаем текущее количество персонажей в блице
                 result = await session.execute(
@@ -78,13 +82,19 @@ class BlitzService:
                     return blitz_user
                 except IntegrityError as e:
                     # второй уровень защиты от дубликата
-                    raise CharacterExistsInBlitzError(str(e)) from e
+                    raise UserExistsInBlitzError(str(e)) from e
 
     @classmethod
     async def get_blitz_by_id(cls, blitz_id: int) -> Blitz | None:
         async for session in get_session():
             result = await session.execute(select(Blitz).where(Blitz.id == blitz_id).options(selectinload(Blitz.users)))
             return result.scalar_one_or_none()
+
+    @classmethod
+    async def get_all_blitz(cls) -> list[Blitz] | None:
+        async for session in get_session():
+            result = await session.execute(select(Blitz).options(selectinload(Blitz.users)))
+            return list(result.scalars().all())
 
     @classmethod
     async def remove_blitz_by_id(cls, blitz_id: int) -> Any | None:

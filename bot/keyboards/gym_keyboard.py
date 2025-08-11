@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
-from ..callbacks.gym_calbacks import SelectGymType, SelectTimeGym, SelectCountDonateEnergy
+from ..callbacks.gym_calbacks import SelectTimeGym, SelectCountDonateEnergy
 from ..callbacks.massage_room_callbacks import SelectCountGetEnergy
 
 from .utils_keyboard import menu_plosha
@@ -21,56 +21,14 @@ def menu_gym():
             .as_markup(resize_keyboard=True)
             )
 
-def select_type_gym(new_user: bool = False):
-    return (InlineKeyboardBuilder()
-        .button(
-            text="🎯 Техніку",
-            callback_data=SelectGymType(
-                gym_type="technique",
-                new_user=new_user
-            )
-        )
-        .button(
-            text="🥋 Удари",
-            callback_data=SelectGymType(
-                gym_type="kicks",
-                new_user=new_user
-            )
-        )
-        .button(
-            text="🛡️ Відбір м’яча",
-            callback_data=SelectGymType(
-                gym_type="ball_selection",
-                new_user=new_user
-            )
-        )
-        .button(
-            text="⚡ Швидкість",
-            callback_data=SelectGymType(
-                gym_type="speed",
-                new_user=new_user
-            )
-        )
-        .button(
-            text="🏃 Витривалість",
-            callback_data=SelectGymType(
-                gym_type="endurance",
-                new_user=new_user
-            )
-        )
-        .adjust(2)
-        .as_markup()
-    )
 
-
-def select_time_to_gym(gym_type: str):
+def select_time_to_gym():
     return (InlineKeyboardBuilder()
-            .button(text="🕑 30 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 30) , gym_type = gym_type))
-            .button(text="🕒 60 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 60) , gym_type = gym_type))
-            .button(text="🕓 90 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 90) , gym_type = gym_type))
-            .button(text="🕔 120 хвилин" , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 120), gym_type = gym_type))
-            .button(text="⬅️ Назад до вибору", callback_data="back_to_select_gym_type")
-            .adjust(2,2,1)
+            .button(text="🕑 30 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 30)))
+            .button(text="🕒 60 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 60)))
+            .button(text="🕓 90 хвилин"  , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 90)))
+            .button(text="🕔 120 хвилин" , callback_data=SelectTimeGym(gym_time=timedelta(minutes = 120)))
+            .adjust(2,2)
             .as_markup()
             )
 

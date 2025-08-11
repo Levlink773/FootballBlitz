@@ -67,8 +67,7 @@ class RemniderCharacterService:
                 
     @classmethod
     async def update_training_info(cls, 
-                        character_id: int,  
-                        training_stats: str = None,
+                        character_id: int,
                         time_start_training: datetime = None,
                         time_training_seconds: int = None
                                    ):
@@ -77,7 +76,6 @@ class RemniderCharacterService:
                 result = await session.execute(select(ReminderCharacter).where(ReminderCharacter.character_id == character_id))
                 reminder_character = result.scalars().first()
 
-                reminder_character.training_stats = training_stats
                 reminder_character.time_start_training = time_start_training
                 reminder_character.time_training_seconds = time_training_seconds
 
@@ -91,7 +89,6 @@ class RemniderCharacterService:
                 try:
                     stmt = (update(ReminderCharacter)
                             .where(ReminderCharacter.character_id == character_id)
-                            .values(training_stats = None)
                             .values(time_start_training = None)
                             .values(time_training_seconds = None)
                             )
@@ -99,18 +96,7 @@ class RemniderCharacterService:
                     await sess.commit()
                 except Exception as E:
                     logger.error(f"Произошла ошибка при онулирования состояния тренировки {E}")
-        
-            
-    @classmethod
-    async def edit_status_duel_character(cls, character_id: int, status: bool):
-        async for session in get_session():
-            async with session.begin():
-                await session.execute(
-                    update(ReminderCharacter)
-                    .where(ReminderCharacter.character_id == character_id)
-                    .values(character_in_duel=status)
-                )
-                await session.commit()
+
                 
     @classmethod
     async def get_characters_not_training(cls) -> list[ReminderCharacter] | None:

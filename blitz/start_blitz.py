@@ -178,11 +178,15 @@ class StartBlitz:
         return final_winner
 
     async def start(self) -> BlitzStatus:
-        blitz: Blitz = await BlitzService().get_or_create_blitz_by_start(self.start_datetime)
+        blitz: Blitz = await BlitzService.get_or_create_blitz_by_start(
+            self.start_datetime,
+            self.registration_cost,
+            self.blitz_pack.blitz_type
+        )
         try:
             status = await BlitzReminder(
                 blitz=blitz,
-                register_cost=self.registration_cost,
+                registration_cost=self.registration_cost,
                 remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 20,
                 remind_for_vip_users=30,
                 necessary_count_users=self.necessary_users,

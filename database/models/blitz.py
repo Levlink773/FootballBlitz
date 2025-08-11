@@ -17,7 +17,7 @@ class Blitz(Base):
     id = Column(Integer, primary_key=True)
     start_at = Column(DateTime, default=datetime.now)
     blitz_type = Column(Enum(BlitzType), nullable=False, default=BlitzType.BLITZ_V16)
-
+    cost = Column(Integer, nullable=False, default=0)
     users = relationship("BlitzUser", back_populates="blitz", cascade="all, delete-orphan")
 
     @property

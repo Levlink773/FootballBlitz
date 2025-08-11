@@ -10,7 +10,7 @@ def get_base():
     from database.models.payment.payments import Payment
     from database.models.training import TrainingTimer, CharacterJoinTraining
     from database.models.blitz import Blitz
-    from database.models.blitz_character import BlitzCharacter
+    from database.models.blitz_character import BlitzUser
     from database.models.blitz_team import BlitzTeam
 
     return Base

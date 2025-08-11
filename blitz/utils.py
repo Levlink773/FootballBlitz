@@ -18,6 +18,7 @@ class BlitzRewardPack:
 @dataclass
 class BlitzPack:
     stages_of_final: int
+    blitz_type: BlitzType
     blitz_reward_pack: BlitzRewardPack
     vip_blitz: bool = False
 
@@ -33,6 +34,7 @@ class BlitzData:
 blitz_pack_getter = {
     BlitzType.BLITZ_V16: BlitzPack(
         stages_of_final=4,
+        blitz_type=BlitzType.BLITZ_V16,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(40)],
             reward_semi_final=[RewardMoneyBlitzTeam(50)],
@@ -42,6 +44,7 @@ blitz_pack_getter = {
     ),
     BlitzType.BLITZ_V8: BlitzPack(
         stages_of_final=3,
+        blitz_type=BlitzType.BLITZ_V8,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50)],
             reward_semi_final=[RewardSmallBoxBlitzTeam()],
@@ -51,6 +54,7 @@ blitz_pack_getter = {
     ),
     BlitzType.VIP_BLITZ_V8: BlitzPack(
         stages_of_final=3,
+        blitz_type=BlitzType.VIP_BLITZ_V8,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50)],
             reward_semi_final=[RewardSmallBoxBlitzTeam()],
@@ -61,6 +65,7 @@ blitz_pack_getter = {
     ),
     BlitzType.BLITZ_V32: BlitzPack(
         stages_of_final=5,
+        blitz_type=BlitzType.BLITZ_V32,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(30)],
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(30)],
@@ -70,6 +75,7 @@ blitz_pack_getter = {
     ),
     BlitzType.BLITZ_V64: BlitzPack(
         stages_of_final=6,
+        blitz_type=BlitzType.BLITZ_V64,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(30)],
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(60), RewardEnergyBlitzTeam(50)],

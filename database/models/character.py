@@ -48,7 +48,6 @@ class Character(Base):
     @property
     def character_price(self):
         return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
-
-    def how_much_power_can_add(self, duration_seconds: int):
-        duration_minutes = duration_seconds // 60
-        return max((duration_minutes / 60) * (0.4 * self.talent) * (1 - self.age * 0.02), 0)
+    @property
+    def how_much_power_can_add(self):
+        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0)
