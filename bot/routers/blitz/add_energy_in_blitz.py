@@ -6,20 +6,20 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
-from blitz.blitz_match.core.manager import TeamBlitzMatchManager
-from blitz.blitz_match.entities import BlitzMatchData
-from bot.callbacks.blitz_callback import EpizodeDonateEnergyToBlitzMatch
-from bot.filters.donate_energy_filter import CheckTimeDonateEnergyMatch
-from bot.keyboards.gym_keyboard import no_energy_keyboard
-from database.models.character import Character
 from blitz.blitz_match.constans import (
     MIN_DONATE_ENERGY_TO_BONUS_KOEF,
     KOEF_DONATE_ENERGY,
     DONE_ENERGY_PHOTOS
 )
-from services.character_service import CharacterService
-from utils.club_utils import send_message_characters_club
+from blitz.blitz_match.core.manager import TeamBlitzMatchManager
+from blitz.blitz_match.entities import BlitzMatchData
+from bot.callbacks.blitz_callback import EpizodeDonateEnergyToBlitzMatch
+from bot.filters.donate_energy_filter import CheckTimeDonateEnergyMatch
+from bot.keyboards.gym_keyboard import no_energy_keyboard
+from database.models.user_bot import UserBot
+from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
+from utils.club_utils import send_message_user_team
 
 add_energy_in_match_router = Router()
 
@@ -44,7 +44,7 @@ class DonateEnergyInBlitzMatch(StatesGroup):
 async def donate_energy_from_blitz_match_handler(
         query: CallbackQuery,
         callback_data: EpizodeDonateEnergyToBlitzMatch,
-        character: Character,
+        user: UserBot,
         state: FSMContext
 ):
     if int(time.time()) > callback_data.time_end_goal:
@@ -56,7 +56,7 @@ async def donate_energy_from_blitz_match_handler(
     if not match_data:
         return
 
-    if character.characters_user_id not in match_data.all_characters_user_ids_in_match:
+    if user.user_id not in match_data.all_user_ids_in_match:
         await query.answer("Ви не берете участь у цьому бліц-матчі", show_alert=True)
         return await query.message.delete()
 
@@ -64,7 +64,8 @@ async def donate_energy_from_blitz_match_handler(
     await state.update_data(end_time=callback_data.time_end_goal)
     await state.set_state(DonateEnergyInBlitzMatch.send_epizode_donate_energy)
     await query.message.answer(
-        f"Напишіть скільки ви хочете поповнити енергії в поточний бліц-матч\n1 енергія + 1 сила до команди в матчі\n\nПоточна енергія у тебе - {character.current_energy} 🔋")
+        f"Напишіть скільки ви хочете поповнити енергії в поточний бліц-матч\n1 енергія + 1 сила до команди в матчі\n\nПоточна енергія у тебе - {user.energy} 🔋")
+    return None
 
 
 @add_energy_in_match_router.message(
@@ -74,7 +75,7 @@ async def donate_energy_from_blitz_match_handler(
 )
 async def donate_epizode_energy(
         message: Message,
-        character: Character,
+        user: UserBot,
         state: FSMContext
 ):
     MIN_ENERGY_DONATE_MATCH = 10
@@ -83,7 +84,7 @@ async def donate_epizode_energy(
         await state.clear()
         return await message.answer(f"Мінімум {MIN_ENERGY_DONATE_MATCH} енергії")
 
-    if character.current_energy < energy:
+    if user.energy < energy:
         await state.clear()
         return await message.answer(
             text="У вас не вистачає енергії, ви можете купити енергію в Крамниці енергії",
@@ -107,11 +108,11 @@ async def donate_epizode_energy(
     old_first_club_chance = old_chance_team[0] * 100
     old_second_club_chance = old_chance_team[1] * 100
 
-    if character.id in match_data.first_team.charactets_match_ids:
+    if user.user_id in match_data.first_team.users_in_match:
         match_data.first_team.episode_donate_energy += energy
         my_team = match_data.first_team
 
-    elif character.id in match_data.second_team.charactets_match_ids:
+    elif user.user_id in match_data.second_team.users_match_ids:
         match_data.second_team.episode_donate_energy += energy
         my_team = match_data.second_team
     else:
@@ -128,9 +129,9 @@ async def donate_epizode_energy(
                 koef_add_power_from_donat=KOEF_DONATE_ENERGY * 100
             )
 
-            message_photo = await send_message_characters_club(
-                characters_club=match_data.all_characters,
-                my_character=None,
+            message_photo = await send_message_user_team(
+                user_team=match_data.all_users,
+                my_user=None,
                 text=text_epizode_donate,
                 photo=photo,
             )
@@ -146,7 +147,7 @@ async def donate_epizode_energy(
     chance_second_team_after = after_chance_club[1] * 100
 
     text = f"""
-⚽️ <b>{character.character_name} додав {energy}🔋 до сил команді {my_team.team_name}!</b> ⚽️  
+⚽️ <b>{user.main_character.name} додав {energy}🔋 до сил команді {my_team.team_name}!</b> ⚽️  
 
 🔥 <b>Зміни шансів на гол:</b>  
 - ⚽️ Команда: {match_data.first_team.team_name} - <b>{old_first_club_chance:.2f}%</b> → <b>{chance_first_team_after:.2f}%</b>  
@@ -154,9 +155,9 @@ async def donate_epizode_energy(
 
 💪 Завдяки підтримці команда {my_team.team_name} отримала значний поштовх! 🚀 
     """
-    await CharacterService.consume_energy(character_id=character.id, energy_consumed=energy)
-    await send_message_characters_club(
-        characters_club=match_data.all_characters,
-        my_character=None,
+    await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=energy)
+    await send_message_user_team(
+        user_team=match_data.all_users,
+        my_user=None,
         text=text
     )

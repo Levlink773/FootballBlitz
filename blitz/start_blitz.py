@@ -1,9 +1,7 @@
 import asyncio
 import random
-from dataclasses import dataclass
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 
-from blitz.blitz_match.constans import REGISTER_BLITZ_PHOTO
 from blitz.blitz_match.core.manager import TeamBlitzMatchManager
 from blitz.blitz_match.core.match import BlitzMatch
 from blitz.blitz_match.entities import MatchTeamBlitz, BlitzMatchData
@@ -11,21 +9,15 @@ from blitz.blitz_match.utils import generate_blitz_match_id
 from blitz.blitz_reminder import BlitzReminder
 from blitz.enum_blitz import BlitzStatus
 from blitz.services.blitz_announce_service import BlitzAnnounceService
-from blitz.services.blitz_reward_service import BlitzRewardService, RewardWinnerBlitzTeam, RewardPreWinnerBlitzTeam, \
-    RewardSimpleBlitzTeam
+from blitz.services.blitz_reward_service import BlitzRewardService
 from blitz.services.blitz_service import BlitzService
 from blitz.services.blitz_team_service import BlitzTeamService
 from blitz.services.message_sender.blitz_sender import BlitzTeamSender
+from blitz.utils import BlitzData
 from database.models.blitz import Blitz
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from logging_config import logger
-@dataclass
-class BlitzData:
-    start_time: time
-    stages_of_final: int
-    reward_exp: int = 50
-    path_register_image: str = REGISTER_BLITZ_PHOTO
 
 
 class StartBlitzs:
@@ -51,7 +43,7 @@ class StartBlitzs:
                     next_start_datetime = potential_start
                     selected_blitz_data = bd
 
-            logger.info(f"Планирую следующий блиц на {next_start_datetime} (стадий: {selected_blitz_data.stages_of_final})")
+            logger.info(f"Планирую следующий блиц на {next_start_datetime} (стадий: {selected_blitz_data.blitz_pack.stages_of_final})")
             await StartBlitz(
                 start_datetime=next_start_datetime,
                 blitz_data=selected_blitz_data
@@ -65,7 +57,7 @@ class StartBlitzs:
 
         # Проверка stages_of_final > 1 для каждого элемента
         for bd in blitzs_data:
-            if bd.stages_of_final <= 1:
+            if bd.blitz_pack.stages_of_final <= 1:
                 raise ValueError(f"Для времени {bd.start_time} количество стадий должно быть > 1")
 
         # Проверка интервалов между временами (не менее 1 часа), включая переход через полночь
@@ -93,12 +85,14 @@ class StartBlitz:
                  blitz_data: BlitzData,
                  ):
         self.start_datetime = start_datetime.replace(microsecond=0)
-        if blitz_data.stages_of_final <= 1:
+        if blitz_data.blitz_pack.stages_of_final <= 1:
             raise ValueError("count of final must be greater than 1")
-        self.stages_of_final = blitz_data.stages_of_final
-        self.necessary_users = 2 ** blitz_data.stages_of_final
-        self.reward_exp = blitz_data.reward_exp
+        self.stages_of_final = blitz_data.blitz_pack.stages_of_final
+        self.necessary_users = 2 ** blitz_data.blitz_pack.stages_of_final
         self.register_photo_path = blitz_data.path_register_image
+        self.registration_cost = blitz_data.registration_cost
+        self.blitz_pack = blitz_data.blitz_pack
+        self.blitz_reward_pack = blitz_data.blitz_pack.blitz_reward_pack
 
     @staticmethod
     async def _start_blitz_match(teams: tuple[BlitzTeam, BlitzTeam], stage: int) -> tuple[BlitzTeam, BlitzTeam]:
@@ -129,9 +123,11 @@ class StartBlitz:
         random.shuffle(teams)
         await BlitzTeamSender.send_teams_message(teams)
         logger.info("Teams sended")
-        characters: list[Character] = await BlitzService.get_characters_from_blitz_character(blitz_id)
-        looser_team = []
+        users: list[UserBot] = await BlitzService.get_users_from_blitz_users(blitz_id)
+        semifinal_teams = []
         while len(teams) > 2:
+            if len(teams) == 4:
+                semifinal_teams = teams.copy()
             pair_teams = BlitzTeamService.pair_teams(teams)
             logger.info(f"pair_teams: {pair_teams} for stage {len(pair_teams)}")
             asyncio.create_task(BlitzAnnounceService.announce_matchups(pair_teams))
@@ -147,10 +143,8 @@ class StartBlitz:
             looser_teams_stage = [looser for _, looser in results_match]
             winner_teams_stage = [winner for winner, _ in results_match]
             logger.info(f"winner_teams_stage: {winner_teams_stage}")
-            logger.info(f"looser_teams_stage: {looser_team}")
             asyncio.create_task(
                 BlitzAnnounceService.announce_round_results(winner_teams_stage, looser_teams_stage))
-            looser_team.extend(looser_teams_stage)
             teams = winner_teams_stage
         pair_teams = [(teams[0], teams[1])]
         logger.info(f"pair_teams final: {pair_teams}")
@@ -159,14 +153,24 @@ class StartBlitz:
         logger.info("Blitz match final started")
         final_winner, final_looser = await StartBlitz._start_blitz_match(pair_teams[0], 1)
         logger.info(f"final_winner: {final_winner}")
+        pure_semifinal_losers = [
+            team for team in semifinal_teams
+            if team not in (final_winner, final_looser)
+        ]
         bz_reward = BlitzRewardService.reward_blitz_team
-        await BlitzAnnounceService.announce_end(characters, final_winner, final_looser)
+        await BlitzAnnounceService.announce_end(users, final_winner, final_looser)
         await asyncio.gather(
-            bz_reward(RewardWinnerBlitzTeam(final_winner, self.reward_exp)),
-            bz_reward(RewardPreWinnerBlitzTeam(final_looser, self.reward_exp)),
+            bz_reward(self.blitz_reward_pack.reward_winner, final_winner),
+            bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser),
             *[
-                bz_reward(RewardSimpleBlitzTeam(lose_team, self.reward_exp))
-                for lose_team in looser_team
+                bz_reward(self.blitz_reward_pack.reward_semi_final, semi_team)
+                for semi_team in pure_semifinal_losers
+            ],
+        )
+        await asyncio.gather(
+            *[
+                bz_reward(self.blitz_reward_pack.reward_guaranteed, team)
+                for team in teams
             ]
         )
         logger.info("Reward blitz match")
@@ -178,7 +182,8 @@ class StartBlitz:
         try:
             status = await BlitzReminder(
                 blitz=blitz,
-                remind_for_simple_users=20,
+                register_cost=self.registration_cost,
+                remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 20,
                 remind_for_vip_users=30,
                 necessary_count_users=self.necessary_users,
                 register_photo_path=self.register_photo_path

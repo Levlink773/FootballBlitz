@@ -7,23 +7,21 @@ from blitz.blitz_match.constans import TEAM_BLITZ_PHOTO
 from blitz.services.blitz_team_service import BlitzTeamService
 from blitz.services.message_sender.rate_limiter import rate_limiter_simple
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from loader import bot
 from logging_config import logger
 from utils.blitz_photo_utils import get_photo, save_photo_id
 
 
 @rate_limiter_simple
-async def send_message(character: Character, text: str, reply_markup: InlineKeyboardMarkup = None,
+async def send_message(user: UserBot, text: str, reply_markup: InlineKeyboardMarkup = None,
                        photo_path: str = None):
     try:
-        if character.is_bot:
-            return
         if photo_path:
             is_save, photo = await get_photo(photo_path)
             msg = await bot.send_photo(
                 photo=photo,
-                chat_id=character.characters_user_id,
+                chat_id=user.user_id,
                 caption=text,
                 reply_markup=reply_markup
             )
@@ -34,21 +32,21 @@ async def send_message(character: Character, text: str, reply_markup: InlineKeyb
                 )
             return
         await bot.send_message(
-            chat_id=character.characters_user_id,
+            chat_id=user.user_id,
             text=text,
             reply_markup=reply_markup
         )
     except TelegramForbiddenError:
-        logger.error(f"User {character.characters_user_id} blocked the bot")
+        logger.error(f"User {user.user_id} blocked the bot")
     except Exception as E:
         traceback.print_exc()
         print(E)
 
 
-async def send_message_all_characters(characters: list[Character], text: str, reply_markup: InlineKeyboardMarkup = None,
+async def send_message_all_users(users: list[UserBot], text: str, reply_markup: InlineKeyboardMarkup = None,
                                       photo_path: str = None):
-    for character in characters:
-        await send_message(character, text, reply_markup, photo_path)
+    for user in users:
+        await send_message(user, text, reply_markup, photo_path)
 
 
 class BlitzTeamSender:

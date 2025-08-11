@@ -3,13 +3,13 @@ from asyncio import Semaphore
 from datetime import datetime, timedelta
 
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from .goal_generator import GoalGenerator
 from ..constans import TIME_EVENT_DONATE_ENERGY, TIME_BLITZ_FIGHT
 from ..entities import BlitzMatchData, MatchTeamBlitz
 from ..enum_blitz_match import TypeGoalEvent
 from ..message_sender.match_sender import BlitzMatchSender
-from ...services.blitz_character_service import BlitzCharacterService
+from ...services.blitz_character_service import BlitzUserService
 
 semaphore_add_key = Semaphore(2)
 
@@ -70,19 +70,19 @@ class BlitzMatch:
     async def no_goal_event(self) -> None:
         TYPE_EVENT = TypeGoalEvent.NO_GOAL
 
-        first_character = self.match_data.first_team.get_character_by_power()
-        second_character = self.match_data.second_team.get_character_by_power()
-        characters_scene = [character for character in [first_character, second_character] if character]
+        first_user = self.match_data.first_team.get_user_by_power()
+        second_user = self.match_data.second_team.get_user_by_power()
+        users_scene = [user for user in [first_user, second_user] if user]
         await self.match_sender.send_event_scene(
             goal_event=TYPE_EVENT,
-            characters_scene=characters_scene
+            users_scene=users_scene
         )
-        for character in [first_character, second_character]:
-            if not character:
+        for user in [first_user, second_user]:
+            if not user:
                 continue
 
             await self._add_event(
-                character=character,
+                user=user,
                 score_add=0.25
             )
 
@@ -95,33 +95,32 @@ class BlitzMatch:
     async def goal_event(self) -> None:
         goal_team = self.match_data.get_goal_team()
         goal_team.add_goal()
-        character_goal = goal_team.get_character_by_power()
-        if not character_goal:
+        user_goal = goal_team.get_user_by_power()
+        if not user_goal:
             return
 
-        assist_character = goal_team.get_character_by_power(
-            no_character=character_goal
+        assist_character = goal_team.get_user_by_power(
+            no_user=user_goal
         )
         character_enemy = self.match_data.get_opposite_team(
-            goal_team.team_id).get_character_by_power() if random.random() > 0.5 else None
+            goal_team.team_id).get_user_by_power() if random.random() > 0.5 else None
         await self.match_sender.send_event_scene(
             goal_event=TypeGoalEvent.GOAL,
-            character_goal=character_goal,
+            user_goal=user_goal,
             goal_team=goal_team,
-            character_assist=assist_character,
-            character_enemy=character_enemy
+            user_enemy=character_enemy
         )
         await self._add_event(
-            character=character_goal,
+            user=user_goal,
             score_add=1
         )
-        await BlitzCharacterService.add_goal_to_character(
-            character_id=character_goal.id,
+        await BlitzUserService.add_goal_to_user(
+            user_id=user_goal.user_id,
         )
 
         if assist_character:
             await self._add_event(
-                character=assist_character,
+                user=assist_character,
                 score_add=0.75
             )
 
@@ -133,10 +132,10 @@ class BlitzMatch:
 
     async def _add_event(
             self,
-            character: Character,
+            user: UserBot,
             score_add: float = 0.25
     ) -> None:
-        await BlitzCharacterService.add_score_to_character(
-            character_id=character.id,
+        await BlitzUserService.add_score_to_user(
+            user_id=user.user_id,
             add_score=score_add
         )

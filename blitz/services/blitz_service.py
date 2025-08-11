@@ -1,13 +1,14 @@
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from blitz.exception import BlitzCloseError, CharacterExistsInBlitzError, MaxUsersInBlitzError
 from database.models.blitz import Blitz
-from database.models.blitz_character import BlitzCharacter
+from database.models.blitz_character import BlitzUser
 from database.models.character import Character
+from database.models.user_bot import UserBot
 from database.session import get_session
 
 
@@ -34,13 +35,13 @@ class BlitzService:
                 return blitz
 
     @classmethod
-    async def add_character_to_blitz(cls, blitz_id: int, character: Character,
-                                     max_character: int) -> BlitzCharacter | None:
+    async def add_users_to_blitz(cls, blitz_id: int, user: UserBot,
+                                     max_users: int) -> BlitzUser | None:
         async for session in get_session():
             async with session.begin():
                 # Получаем блиц
                 result = await session.execute(
-                    select(Blitz).where(Blitz.id == blitz_id)
+                    select(Blitz).where(Blitz.id == blitz_id).with_for_update()
                 )
                 blitz: Blitz = result.scalar_one_or_none()
                 if not blitz:
@@ -50,40 +51,39 @@ class BlitzService:
 
                 # Проверка — уже есть такой персонаж в блице?
                 result = await session.execute(
-                    select(BlitzCharacter).where(
-                        BlitzCharacter.character_id == character.id,
-                        BlitzCharacter.blitz_id == blitz_id
+                    select(BlitzUser).where(
+                        BlitzUser.user_id == user.user_id,
+                        BlitzUser.blitz_id == blitz_id
                     )
                 )
-                existing: BlitzCharacter = result.scalar_one_or_none()
+                existing: BlitzUser = result.scalar_one_or_none()
                 if existing:
-                    raise CharacterExistsInBlitzError(f"Blitz Character with id {existing.id} already exists!")
+                    raise CharacterExistsInBlitzError(f"Blitz User with id {existing.id} already exists!")
 
                 # Получаем текущее количество персонажей в блице
                 result = await session.execute(
-                    select(BlitzCharacter).where(
-                        BlitzCharacter.blitz_id == blitz_id
-                    )
+                    select(func.count()).select_from(BlitzUser).where(
+                        BlitzUser.blitz_id == blitz_id).with_for_update()
                 )
-                current_characters = result.scalars().all()
-
-                if len(current_characters) >= max_character:
+                current_count = result.scalar_one()
+                if current_count >= max_users:
                     raise MaxUsersInBlitzError(
-                        f"Blitz with id {blitz_id} already has {len(current_characters)} characters. Max is {max_character}.")
+                        f"Blitz with id {blitz_id} already has {current_count} users. Max is {max_users}.")
 
                 # Добавляем персонажа
-                blitz_character = BlitzCharacter(
-                    character_id=character.id,
-                    blitz_id=blitz_id
-                )
-                session.add(blitz_character)
-                await session.flush()
-                return blitz_character
+                try:
+                    blitz_user = BlitzUser(user_id=user.user_id, blitz_id=blitz_id)
+                    session.add(blitz_user)
+                    await session.flush()
+                    return blitz_user
+                except IntegrityError as e:
+                    # второй уровень защиты от дубликата
+                    raise CharacterExistsInBlitzError(str(e)) from e
 
     @classmethod
     async def get_blitz_by_id(cls, blitz_id: int) -> Blitz | None:
         async for session in get_session():
-            result = await session.execute(select(Blitz).where(Blitz.id == blitz_id).options(selectinload(Blitz.characters)))
+            result = await session.execute(select(Blitz).where(Blitz.id == blitz_id).options(selectinload(Blitz.users)))
             return result.scalar_one_or_none()
 
     @classmethod
@@ -105,23 +105,23 @@ class BlitzService:
                 return result.rowcount
 
     @classmethod
-    async def get_blitz_character(cls, blitz_id: int) -> list[BlitzCharacter]:
+    async def get_blitz_user(cls, blitz_id: int) -> list[BlitzUser]:
         blitz: Blitz = await cls.get_blitz_by_id(blitz_id)
-        return blitz.characters
+        return blitz.users
 
     @classmethod
-    async def get_characters_from_blitz_character(cls, blitz_id: int) -> None | list[Any] | list[Character]:
-        blitz_characters: list[BlitzCharacter] = await cls.get_blitz_character(blitz_id)
-        character_ids = [bc.character_id for bc in blitz_characters]
+    async def get_users_from_blitz_users(cls, blitz_id: int) -> None | list[Any] | list[Character]:
+        blitz_users: list[BlitzUser] = await cls.get_blitz_user(blitz_id)
+        users_ids = [bc.user_id for bc in blitz_users]
 
-        if not character_ids:
+        if not users_ids:
             return []
 
         async for session in get_session():
             result = await session.execute(
-                select(Character)
-                .where(Character.id.in_(character_ids))
-                .options(selectinload(Character.owner), selectinload(Character.club))
+                select(UserBot)
+                .where(UserBot.user_id.in_(users_ids))
+                .options(selectinload(UserBot.characters), selectinload(UserBot.main_character))
             )
             characters = result.scalars().all()
             return list(characters)

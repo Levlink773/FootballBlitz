@@ -2,9 +2,9 @@ import asyncio
 
 from blitz.blitz_match.constans import END_BLITZ_PHOTO, BLITZ_STAGES_PATCH
 from blitz.services.blitz_team_service import BlitzTeamService
-from blitz.services.message_sender.blitz_sender import send_message_all_characters
+from blitz.services.message_sender.blitz_sender import send_message_all_users
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 
 
 class BlitzAnnounceService:
@@ -34,34 +34,32 @@ class BlitzAnnounceService:
         # 👥 Собираем всех участников из команд
         involved_characters = []
         for team_a, team_b in pairs:
-            char_a1, char_a2 = await BlitzTeamService.get_characters_from_blitz_team(team_a)
-            char_b1, char_b2 = await BlitzTeamService.get_characters_from_blitz_team(team_b)
-            involved_characters.extend([char_a1, char_a2, char_b1, char_b2])
+            users = await BlitzTeamService.get_user_from_blitz_team(team_a)
+            users1 = await BlitzTeamService.get_user_from_blitz_team(team_b)
+            involved_characters.extend(users + users1)
 
         # 🧹 Убираем дубликаты по ID (если надо)
-        unique_characters = {char.id: char for char in involved_characters}.values()
-        await send_message_all_characters(list(unique_characters), text, photo_path=stage[1])
+        unique_user = {user.user_id: user for user in involved_characters}.values()
+        await send_message_all_users(list(unique_user), text, photo_path=stage[1])
 
     @classmethod
-    async def announce_end(cls, characters: list[Character], final_winner: BlitzTeam, final_looser: BlitzTeam) -> None:
+    async def announce_end(cls, users: list[UserBot], final_winner: BlitzTeam, final_looser: BlitzTeam) -> None:
         res_winner, res_looser = await asyncio.gather(
-            BlitzTeamService.get_characters_from_blitz_team(final_winner),
-            BlitzTeamService.get_characters_from_blitz_team(final_looser)
+            BlitzTeamService.get_user_from_blitz_team(final_winner),
+            BlitzTeamService.get_user_from_blitz_team(final_looser)
         )
-        ch_win_first = res_winner[0].owner.user_name if res_winner[0].owner.user_name else res_winner[0].character_name
-        ch_win_second = res_winner[1].owner.user_name if res_winner[1].owner.user_name else res_winner[1].character_name
-        ch_loose_first = res_looser[0].owner.user_name if res_looser[0].owner.user_name else res_looser[0].character_name
-        ch_loose_second = res_looser[1].owner.user_name if res_looser[1].owner.user_name else res_looser[1].character_name
+        ch_win_first = res_winner[0].main_character.name or res_winner[0].user_name
+        ch_loose_first = res_looser[0].main_character.name or res_looser[0].user_name
         end_text = f"""
 🏆 <b>Результати блиц-турніру!</b>
 
-🥇 Команда <b>«{final_winner.name}»</b> здобуває 1 місце та отримує середній лутбокс! Вітаємо {ch_win_first} і {ch_win_second} — справжні чемпіони! 🎉
+🥇 Команда <b>«{final_winner.name}»</b> здобуває 1 місце та отримує середній лутбокс! Вітаємо {ch_win_first} — справжні чемпіони! 🎉
 
-🥈 Команда <b>«{final_looser.name}»</b> посідає 2 місце та отримує маленький лутбокс — чудова гра від {ch_loose_first} і {ch_loose_second}! 👏
+🥈 Команда <b>«{final_looser.name}»</b> посідає 2 місце та отримує маленький лутбокс — чудова гра від {ch_loose_first}! 👏
 
 ⚡ Усі учасники отримують +50 енергії! Дякуємо за гру — до наступного блиц-турніру! 💪
 """
-        await send_message_all_characters(characters, end_text, photo_path=END_BLITZ_PHOTO)
+        await send_message_all_users(users, end_text, photo_path=END_BLITZ_PHOTO)
 
     @classmethod
     async def announce_round_results(cls, winners: list[BlitzTeam], losers: list[BlitzTeam]):
@@ -93,9 +91,9 @@ class BlitzAnnounceService:
         text = "\n".join(lines)
         involved_characters = []
         for team in winners + losers:
-            char_a, char_b = await BlitzTeamService.get_characters_from_blitz_team(team)
-            involved_characters.extend([char_a, char_b])
-        await send_message_all_characters(involved_characters, text)
+            users = await BlitzTeamService.get_user_from_blitz_team(team)
+            involved_characters.extend(users)
+        await send_message_all_users(involved_characters, text)
 
         # Нотифікація команд індивідуально
         for w in winners:
@@ -107,20 +105,20 @@ class BlitzAnnounceService:
     async def notify_team_advancement(cls,
                                       team: BlitzTeam,
                                       next_stage: str):
-        char_a, char_b = await BlitzTeamService.get_characters_from_blitz_team(team)
+        users = await BlitzTeamService.get_user_from_blitz_team(team)
         prep_text = 'раунду, який вирішить долю вашої команди у цьому Бліц турнірі 🔥' if next_stage == 'ФІНАЛ 🏆' else 'наступного раунду'
         text = (
             f"🎉 Ваша команда <b>{team.name}</b> проходить у <b>{next_stage}</b>! 🎉\n"
             f"У вас є 60 секунд на підготовку до {prep_text}. ⏱️"
         )
-        await send_message_all_characters([char_a, char_b], text)
+        await send_message_all_users(users, text)
 
     @classmethod
     async def notify_team_elimination(cls,
                                       team: BlitzTeam):
-        char_a, char_b = await BlitzTeamService.get_characters_from_blitz_team(team)
+        users = await BlitzTeamService.get_user_from_blitz_team(team)
         text = (
             f"⚠️ Ваша команда <b>{team.name}</b> не пройшла далі цього раунду. ⚠️\n"
             f"Дякуємо за участь! Наприкінці турніру вам буде нараховано +50 енергії."
         )
-        await send_message_all_characters([char_a, char_b], text)
+        await send_message_all_users(users, text)

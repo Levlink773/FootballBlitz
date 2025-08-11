@@ -143,6 +143,30 @@ GOAL_EVENT_SCENES = [
         text="<b>{scorer}</b> бере ініціативу на себе, йде в сольний прохід і завершує його ідеальним ударом! Все зробив сам! 🦁",
         required_positions=["scorer"]
     ),
+    SceneTemplate(
+        text="<b>{scorer}</b> перехоплює м'яч у центрі поля, розганяє атаку і завдає потужного удару! Це гол! 🚀",
+        required_positions=["scorer"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> опиняється в потрібному місці та в потрібний час — точний удар і м'яч у воротах! Інстинкт бомбардира! 🦅",
+        required_positions=["scorer"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> зміщується з флангу в центр і пробиває з-за меж штрафного! Гол-красень! 🌟",
+        required_positions=["scorer"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> виграє боротьбу у повітрі та забиває головою після подачі! Повітряний ас! 🛫",
+        required_positions=["scorer"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> обманним рухом залишає суперника позаду та пробиває в дальній кут! Холоднокровно! ❄️",
+        required_positions=["scorer"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> миттєво реагує на відскок і з близької відстані відправляє м'яч у сітку! Легкий, але важливий гол! 🎯",
+        required_positions=["scorer"]
+    ),
 
     # --- Roles: ["scorer", "enemy_team_character"] ---
     SceneTemplate(
@@ -155,6 +179,26 @@ GOAL_EVENT_SCENES = [
     ),
     SceneTemplate(
         text="<b>{scorer}</b> потужно пробиває по центру воріт, <b>{enemy_team_character}</b> не встигає зреагувати на силу удару! Прошив воротаря! 🚀",
+        required_positions=["scorer", "enemy_team_character"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> обігрує <b>{enemy_team_character}</b> на замаху та пробиває в дальній кут! Красиве завершення атаки! 🎯",
+        required_positions=["scorer", "enemy_team_character"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> виграє боротьбу у <b>{enemy_team_character}</b> та відправляє м'яч під поперечину! Жорстка дуель завершилась голом! 💥",
+        required_positions=["scorer", "enemy_team_character"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> пробиває з-за меж штрафного, м'яч пролітає повз <b>{enemy_team_character}</b> і влітає у ворота! Неймовірна дальня спроба! 🚀",
+        required_positions=["scorer", "enemy_team_character"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> перехоплює пас від <b>{enemy_team_character}</b>, виходить сам на сам і холоднокровно забиває! Помилка суперника коштувала дорого! 😱",
+        required_positions=["scorer", "enemy_team_character"]
+    ),
+    SceneTemplate(
+        text="<b>{scorer}</b> пробиває після рикошету від <b>{enemy_team_character}</b> — м'яч зрикошетив у ворота! Доля посміхнулась атакуючому! 🍀",
         required_positions=["scorer", "enemy_team_character"]
     ),
 ]
@@ -323,8 +367,8 @@ class GetterTemplatesMatch:
             'goals_second_team': self.match_data.second_team.goals,
             'power_first_team': self.match_data.first_team.team_power,
             'power_second_team': self.match_data.second_team.team_power,
-            'members_first_team': len(self.match_data.first_team.characters_in_match),
-            'members_second_team': len(self.match_data.second_team.characters_in_match)
+            'members_first_team': len(self.match_data.first_team.users_in_match),
+            'members_second_team': len(self.match_data.second_team.users_in_match)
         }
         if extra_context:
             context.update(extra_context)

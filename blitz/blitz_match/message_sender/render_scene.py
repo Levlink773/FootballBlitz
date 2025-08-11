@@ -2,7 +2,7 @@ import random
 import re
 from typing import Optional
 
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from .templates import (
     NO_GOAL_EVENT_SCENES,
     GOAL_EVENT_SCENES
@@ -23,26 +23,26 @@ class SceneRenderer:
         self, 
         match_data: BlitzMatchData,
         goal_event: TypeGoalEvent,
-        characters_scene: list[Character] = [],  # Список персонажей, участвующих в моменте
-        scorer: Optional[Character] = None,     # Игрок, забивший гол
-        assistant: Optional[Character] = None, # Игрок, сделавший ассист
-        character_enemy: Optional[Character] = None,
+        users_scene: list[UserBot] = [],  # Список персонажей, участвующих в моменте
+        scorer: Optional[UserBot] = None,     # Игрок, забивший гол
+        assistant: Optional[UserBot] = None, # Игрок, сделавший ассист
+        user_enemy: Optional[UserBot] = None,
     ):
         self.match_data = match_data
         self.scenes = EVENT_SCENES[goal_event]
-        self.characters_scene = characters_scene
+        self.users_scene = users_scene
         self.scorer = scorer
         self.assistant = assistant
-        self.character_enemy = character_enemy
+        self.user_enemy = user_enemy
         self.custom_mapping = self._map_characters_to_positions()
 
-    def _map_characters_to_positions(self) -> dict[str, Character]:
+    def _map_characters_to_positions(self) -> dict[str, UserBot]:
         """
         Определить роли персонажей и их принадлежность к командам.
         """
         mapping = {}
 
-        for character in self.characters_scene:
+        for character in self.users_scene:
             team, prefix = self._get_team_and_prefix(character)
             if not team:
                 continue
@@ -52,15 +52,15 @@ class SceneRenderer:
             mapping["scorer"] = self.scorer
         if self.assistant:
             mapping["assistant"] = self.assistant
-        if self.character_enemy:
-            mapping[f"enemy_team_character"] = self.character_enemy
+        if self.user_enemy:
+            mapping[f"enemy_team_character"] = self.user_enemy
 
         return mapping
 
-    def _get_team_and_prefix(self, character: Character) -> tuple[Optional[object], str]:
-        if self.match_data.first_team.is_character_in_team(character):
+    def _get_team_and_prefix(self, user: UserBot) -> tuple[Optional[object], str]:
+        if self.match_data.first_team.is_user_in_team(user):
             return self.match_data.first_team, ""
-        elif self.match_data.second_team.is_character_in_team(character):
+        elif self.match_data.second_team.is_user_in_team(user):
             return self.match_data.second_team, "enemy_"
         return None, ""
 
@@ -88,7 +88,7 @@ class SceneRenderer:
     ) -> str:
         def get_nick(position_key: str) -> str:
             if position_key in self.custom_mapping:
-                return self.custom_mapping[position_key].name
+                return self.custom_mapping[position_key].main_character.name
 
             return "<i>Неизвестный игрок</i>"
 

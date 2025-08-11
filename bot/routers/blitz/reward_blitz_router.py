@@ -3,8 +3,8 @@ from aiogram.types import CallbackQuery
 
 from bot.callbacks.blitz_callback import BoxRewardCallback
 from bot.routers.stores.box.open_box import OpenBoxService
-from database.models.character import Character
 from database.models.types import TypeBox
+from database.models.user_bot import UserBot
 
 reward_blitz_router = Router()
 BOX_TYPE = {
@@ -16,13 +16,13 @@ BOX_TYPE = {
 async def reward_blitz_medium_box(
         query: CallbackQuery,
         callback_data: BoxRewardCallback,
-        character: Character
+        user: UserBot,
 ):
     await query.message.delete()
     box_type = BOX_TYPE.get(callback_data.box_type, TypeBox.MEDIUM_BOX)
     open_box = OpenBoxService(
         type_box=box_type,
-        character=character,
+        user=user,
         bot=query.bot
     )
     await open_box.open_box()

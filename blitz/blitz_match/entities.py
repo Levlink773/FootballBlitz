@@ -2,14 +2,14 @@ import random
 from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
-from database.models.blitz_character import BlitzCharacter
+from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from logging_config import logger
 from .utils import (
     calculate_bonus_donate_energy
 )
-from ..services.blitz_character_service import BlitzCharacterService
+from ..services.blitz_character_service import BlitzUserService
 from ..services.blitz_team_service import BlitzTeamService
 
 
@@ -22,25 +22,23 @@ class MatchTeamBlitz:
     episode_donate_energy: int = 0
 
     team: Optional[BlitzTeam] = None
-    characters_in_match: set[Character] = field(default_factory=set)
+    users_in_match: set[UserBot] = field(default_factory=set)
 
     text_is_send_epizode_donate_energy: bool = False
 
     async def init_data(self):
         self.team: BlitzTeam = await BlitzTeamService.get_by_id(team_id=self.team_id)
-        blitzs_characters: list[BlitzCharacter] = self.team.characters
-        for blitz_character in blitzs_characters:
-            character = await BlitzCharacterService.get_character_from_blitz_character(blitz_character)
-            self.characters_in_match.add(character)
-
+        blitzs_users: list[BlitzUser] = self.team.users
+        for blitz_user in blitzs_users:
+            user = await BlitzUserService.get_user_from_blitz_user(blitz_user)
+            self.users_in_match.add(user)
 
     @property
     def team_power(self) -> int:
         return sum(
-            [
-                character.full_power
-                for character in self.characters_in_match
-            ]
+            character.power
+            for user in self.users_in_match
+            for character in user.characters
         )
 
     @property
@@ -50,38 +48,42 @@ class MatchTeamBlitz:
         return self.team.name
 
     @property
-    def charactets_match_ids(self) -> list[int]:
+    def users_match_ids(self) -> list[int]:
         return [
-            character.id
-            for character in self.characters_in_match
+            user.id
+            for user in self.users_in_match
         ]
 
-    def get_character_by_power(
+    def get_user_by_power(
         self,
-        no_character: Optional[Character] = None
-    ) -> Optional[Character]:
-        if not self.characters_in_match:
+        no_user: Optional[UserBot] = None
+    ) -> Optional[UserBot]:
+        if not self.users_in_match:
             return None
 
-        filtered_characters = [
-            character for character in self.characters_in_match
-            if not no_character or character.characters_user_id != no_character.characters_user_id
+        filtered_users = [
+            user for user in self.users_in_match
+            if not no_user or user.user_id != no_user.user_id
         ]
 
-        if not filtered_characters:
+        if not filtered_users:
             return None
 
-        weights = [character.full_power for character in filtered_characters]
+        weights = [
+            character.power
+            for user in filtered_users
+            for character in user.characters
+        ]
 
-        selected_character = random.choices(filtered_characters, weights=weights, k=1)[0]
-        return selected_character
+        selected_user = random.choices(filtered_users, weights=weights, k=1)[0]
+        return selected_user
 
-    def is_character_in_team(self, character: Character) -> bool:
+    def is_user_in_team(self, user: UserBot) -> bool:
         characters_ids = [
-            character.id
-            for character in self.characters_in_match
+            user.user_id
+            for user in self.users_in_match
         ]
-        return character.id in characters_ids
+        return user.user_id in characters_ids
 
     def add_goal(self) -> None:
         self.goals += 1
@@ -119,18 +121,18 @@ class BlitzMatchData:
         ]
 
     @property
-    def all_characters(self) -> list[Character]:
+    def all_users(self) -> list[UserBot]:
         return [
-            character for team in self.all_teams
-            for character in team.characters_in_match
+            user for team in self.all_teams
+            for user in team.users_in_match
         ]
 
     @property
-    def all_characters_user_ids_in_match(self) -> list[int]:
+    def all_user_ids_in_match(self) -> list[int]:
         return [
-            character.characters_user_id
+            user.user_id
             for team in self.all_teams
-            for character in team.characters_in_match
+            for user in team.users_in_match
         ]
 
     def get_chance_teams(self) -> Tuple[int, int]:

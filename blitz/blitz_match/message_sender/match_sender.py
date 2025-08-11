@@ -1,11 +1,12 @@
 import random
-from typing import Optional
+from typing import Optional, Any, Coroutine
 
 from aiogram import Bot
 from aiogram.types import FSInputFile, Message
 
 from bot.keyboards.blitz_keyboard import donate_energy_to_blitz_match
 from database.models.character import Character
+from database.models.user_bot import UserBot
 from loader import bot
 from logging_config import logger
 from utils.blitz_photo_utils import get_photo, save_photo_id
@@ -35,19 +36,17 @@ class Sender:
     async def send_messages(
             self,
             text: str,
-            characters: list[Character],
+            users: list[UserBot],
             photo: Optional[str | FSInputFile] = None,
             keyboard: Optional[dict] = None,
     ) -> Message:
         message_photo = None
-        for character in characters:
-            if character.is_bot:
-                continue
+        for user in users:
 
             if photo:
                 message: Message = await self._send_photo(
                     photo=photo,
-                    character=character,
+                    user=user,
                     caption=text,
                     keyboard=keyboard
                 )
@@ -56,7 +55,7 @@ class Sender:
             else:
                 await self._send_message(
                     text=text,
-                    character=character,
+                    user=user,
                     keyboard=keyboard
                 )
         return message_photo
@@ -65,38 +64,38 @@ class Sender:
     async def _send_message(
             self,
             text: str,
-            character: Character,
+            user: UserBot,
             keyboard: Optional[dict] = None,
     ) -> Message | None:
         try:
             return await self._bot.send_message(
-                chat_id=character.characters_user_id,
+                chat_id=user.user_id,
                 text=text,
                 reply_markup=keyboard
             )
         except Exception as E:
             logger.error(
-                f"Error sending message to {character.character_name}: {E}"
+                f"Error sending message to {user.user_name}: {E}"
             )
 
     @rate_limiter
     async def _send_photo(
             self,
-            character: Character,
+            user: UserBot,
             caption: str,
             photo: str | FSInputFile,
             keyboard: Optional[dict] = None,
-    ) -> Message:
+    ) -> Message | None:
         try:
             return await self._bot.send_photo(
-                chat_id=character.characters_user_id,
+                chat_id=user.user_id,
                 caption=caption,
                 photo=photo,
                 reply_markup=keyboard
             )
         except Exception as E:
             logger.error(
-                f"Error sending photo to {character.character_name}: {E}"
+                f"Error sending photo to {user.user_name}: {E}"
             )
 
 
@@ -121,7 +120,7 @@ class BlitzMatchSender:
         )
         message_photo = await self.sender.send_messages(
             text=text,
-            characters=self.match_data.all_characters,
+            users=self.match_data.all_users,
             photo=photo
         )
         if message_photo and not is_save:
@@ -131,17 +130,16 @@ class BlitzMatchSender:
             )
 
     async def send_participants_match(self) -> None:
-        def text_participants(characters: list[Character]) -> str:
-            if not characters:
+        def text_participants(users: list[UserBot]) -> str:
+            if not users:
                 return "На матч не приїхали гравці"
 
             participants = "".join(
                 TemplatesMatch.TEMPLATE_PARTICIPANT.value.format(
-                    character_name=character.character_name,
-                    power_user=character.full_power,
-                    lvl=character.level
+                    character_name=user.main_character.name,
+                    power_user=user.main_character.power,
                 )
-                for character in characters
+                for user in users
             )
             return participants
 
@@ -151,16 +149,16 @@ class BlitzMatchSender:
             template=TemplatesMatch.TEMPLATE_PARTICIPANTS_MATCH_FINAL if self.match_data.stage == 1 else TemplatesMatch.TEMPLATE_PARTICIPANTS_MATCH,
             extra_context={
                 "players_first_team": text_participants(
-                    characters=self.match_data.first_team.characters_in_match
+                    users=self.match_data.first_team.users_in_match
                 ),
                 "players_second_team": text_participants(
-                    characters=self.match_data.second_team.characters_in_match
+                    users=self.match_data.second_team.users_in_match
                 ),
             }
         )
         message_photo = await self.sender.send_messages(
             text=text,
-            characters=self.match_data.all_characters,
+            users=self.match_data.all_users,
             photo=photo
         )
         if message_photo and not is_save:
@@ -172,19 +170,17 @@ class BlitzMatchSender:
     async def send_event_scene(
             self,
             goal_event: TypeGoalEvent,
-            characters_scene: list[Character] = [],
-            character_goal: Optional[Character] = None,
-            character_assist: Optional[Character] = None,
-            character_enemy: Optional[Character] = None,
+            users_scene: list[UserBot] = [],
+            user_goal: Optional[UserBot] = None,
+            user_enemy: Optional[UserBot] = None,
             goal_team: Optional[MatchTeamBlitz] = None,
     ) -> None:
         render_scene = SceneRenderer(
             match_data=self.match_data,
             goal_event=goal_event,
-            characters_scene=characters_scene,
-            scorer=character_goal,
-            assistant=character_assist,
-            character_enemy=character_enemy
+            users_scene=users_scene,
+            scorer=user_goal,
+            user_enemy=user_enemy
         )
 
         patch_to_photo = get_random_patch_photo_by_event(
@@ -192,7 +188,7 @@ class BlitzMatchSender:
         )
         is_save, photo = await get_photo(patch_to_photo)
         text_scene = render_scene.render()
-        if character_goal:
+        if user_goal:
             template_score = TemplatesMatch.TEMPLATE_SCORE
             text_score = self.getter_templates.format_message(
                 template=template_score,
@@ -204,7 +200,7 @@ class BlitzMatchSender:
 
         message_photo = await self.sender.send_messages(
             text=text_scene,
-            characters=self.match_data.all_characters,
+            users=self.match_data.all_users,
             photo=photo
         )
         if message_photo and not is_save:
@@ -233,7 +229,7 @@ class BlitzMatchSender:
             }
         )
         message_photo = await self.sender.send_messages(
-            characters=self.match_data.all_characters,
+            users=self.match_data.all_users,
             text=text,
             keyboard=keyboard,
             photo=photo
@@ -281,7 +277,7 @@ class BlitzMatchSender:
             text = self.getter_templates.format_message(template=template)
 
         message_photo = await self.sender.send_messages(
-            characters=self.match_data.all_characters,
+            users=self.match_data.all_users,
             text=text,
             photo=photo
         )

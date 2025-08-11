@@ -43,6 +43,17 @@ class UserService:
                 return list(result.unique().scalars().all())
 
     @classmethod
+    async def get_all_users_where_end_register(cls) -> list[UserBot] | None:
+        async for session in get_session():
+            async with session.begin():
+                stmt = select(UserBot).where(UserBot.status_register == STATUS_USER_REGISTER.END_REGISTER).options(
+                    selectinload(UserBot.characters),
+                    selectinload(UserBot.main_character)
+                )
+                result = await session.execute(stmt)
+                return list(result.unique().scalars().all())
+
+    @classmethod
     async def edit_status_register(cls, user_id: int, status: STATUS_USER_REGISTER):
         async for session in get_session():
             async with session.begin():
@@ -102,7 +113,7 @@ class UserService:
     async def add_energy_user(cls, user_id: int, amount_energy_add: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.id == user_id)
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
                 result = await session.execute(stmt_select)
                 user: UserBot = result.scalar_one()
 
@@ -115,7 +126,7 @@ class UserService:
     async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> UserBot | None:
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.id == user_id)
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
                 result = await session.execute(stmt_select)
                 user: UserBot = result.scalar_one()
 
@@ -128,7 +139,7 @@ class UserService:
     async def add_money_user(cls, user_id: int, amount_money_add: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.id == user_id)
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
                 result = await session.execute(stmt_select)
                 user: UserBot = result.scalar_one()
 
@@ -154,7 +165,7 @@ class UserService:
                 # Обновляем главного персонажа
                 stmt_update = (
                     update(UserBot)
-                    .where(UserBot.id == user_id)
+                    .where(UserBot.user_id == user_id)
                     .values(main_character_id=new_main_character_id)
                     .execution_options(synchronize_session="fetch")
                 )
@@ -165,7 +176,7 @@ class UserService:
     async def consume_money(cls, user_id: int, amount_money_consume: int) -> UserBot | None:
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.id == user_id)
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
                 result = await session.execute(stmt_select)
                 user: UserBot = result.scalar_one()
 

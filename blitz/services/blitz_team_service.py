@@ -1,12 +1,12 @@
 import random
-from typing import Callable, Any, Coroutine
+from typing import Callable
 
 from sqlalchemy import select, func, delete
 from sqlalchemy.orm import selectinload
 
-from database.models.blitz_character import BlitzCharacter
+from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from database.session import get_session
 
 
@@ -23,9 +23,9 @@ class BlitzTeamService:
         async for session in get_session():
             async with session.begin():
                 stmt = (
-                    select(BlitzCharacter, Character)
-                    .join(Character, Character.id == BlitzCharacter.character_id)
-                    .where(BlitzCharacter.blitz_id == blitz_id)
+                    select(BlitzUser, UserBot)
+                    .join(UserBot, UserBot.user_id == BlitzUser.user_id)
+                    .where(BlitzUser.blitz_id == blitz_id)
                 )
                 result = await session.execute(stmt)
                 rows = list(result.all())
@@ -42,39 +42,33 @@ class BlitzTeamService:
                 created_teams: list[BlitzTeam] = []
                 for idx in range(team_count):
                     # беремо по два рядки
-                    bc1, char1 = rows[2 * idx]
-                    bc2, char2 = rows[2 * idx + 1]
+                    bu1, user = rows[idx]
 
-                    # формуємо ім'я команди з імен персонажів
-                    team_name = f'Команда {idx + 1} ("{char1.name}", "{char2.name})"'
-                    team = BlitzTeam(name=team_name)
+                    team = BlitzTeam(name=user.team_name)
                     session.add(team)
                     await session.flush()  # щоб зʼявився team.id
 
                     # призначаємо цих двох в нову команду
-                    bc1.team_id = team.id
-                    bc2.team_id = team.id
+                    bu1.team_id = team.id
                     created_teams.append(team)
 
                 # 3) Підтягуємо в teams поле characters
                 for team in created_teams:
-                    await session.refresh(team, attribute_names=["characters"])
+                    await session.refresh(team, attribute_names=["users"])
 
                 return created_teams
 
     @classmethod
-    async def get_characters_from_blitz_team(cls, team: BlitzTeam) -> tuple[Character, Character]:
+    async def get_user_from_blitz_team(cls, team: BlitzTeam) -> list[UserBot] | None:
         async for session in get_session():
             result = await session.execute(
-                select(Character)
-                .join(BlitzCharacter, BlitzCharacter.character_id == Character.id)
-                .where(BlitzCharacter.team_id == team.id)
-                .options(selectinload(Character.owner))  # загружаем пользователя, если нужно
+                select(UserBot)
+                .join(BlitzUser, BlitzUser.user_id == UserBot.user_id)
+                .where(BlitzUser.team_id == team.id)
+                .options(selectinload(UserBot.main_character), selectinload(UserBot.characters))  # загружаем пользователя, если нужно
             )
-            characters = result.scalars().all()
-            if len(characters) != 2:
-                raise ValueError(f"Команда должна содержать 2 персонажа, но найдено: {len(characters)}")
-            return characters[0], characters[1]
+            users = result.scalars().all()
+            return list(users)
 
     @classmethod
     async def get_by_id(cls, team_id: int) -> BlitzTeam | None:
@@ -82,7 +76,7 @@ class BlitzTeamService:
             async with session.begin():
                 result = await session.execute(select(BlitzTeam)
                                                .where(BlitzTeam.id == team_id)
-                                               .options(selectinload(BlitzTeam.characters)))
+                                               .options(selectinload(BlitzTeam.users)))
                 return result.scalar_one_or_none()
     @classmethod
     def pair_teams(cls, teams: list[BlitzTeam]) -> list[tuple[BlitzTeam, BlitzTeam]]:
@@ -92,8 +86,8 @@ class BlitzTeamService:
     @classmethod
     async def get_score_team(cls, team_id: int) -> float:
         async for session in get_session():
-            stmt = select(func.sum(BlitzCharacter.count_score)).where(
-                BlitzCharacter.team_id == team_id
+            stmt = select(func.sum(BlitzUser.count_score)).where(
+                BlitzUser.team_id == team_id
             )
             result = await session.execute(stmt)
             total_score = result.scalar()

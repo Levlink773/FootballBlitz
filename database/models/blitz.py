@@ -18,7 +18,7 @@ class Blitz(Base):
     start_at = Column(DateTime, default=datetime.now)
     blitz_type = Column(Enum(BlitzType), nullable=False, default=BlitzType.BLITZ_V16)
 
-    characters = relationship("BlitzCharacter", back_populates="blitz", cascade="all, delete-orphan")
+    users = relationship("BlitzUser", back_populates="blitz", cascade="all, delete-orphan")
 
     @property
     def can_register(self) -> bool:
