@@ -1,0 +1,7 @@
+from enum import Enum
+
+
+class StatisticsType(Enum):
+    CONDUCT_3_TRAINING = "CONDUCT_3_TRAINING"
+    PLAY_BLITZ = "PLAY_BLITZ"
+    RICH_SEMI_FINAL_BLITZ = "RICH_SEMI_FINAL_BLITZ"

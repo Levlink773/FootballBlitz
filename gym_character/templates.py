@@ -1,8 +1,8 @@
 from .types import ResultTraining
 
 class TrainingTextTemplate:
-    SUCCESS_MESSAGE = "<b>Вітаю</b>! Силу покращено на {points} поінта!"
-    FAILURE_MESSAGE = "<b>На жаль</b>, ваш персонаж не зміг покращити силу. Спробуйте ще раз!"
+    SUCCESS_MESSAGE = "🎉 <b>Вітаємо!</b> Сила гравця зросла на <b>{points}</b> поінт(и)! 💪"
+    FAILURE_MESSAGE = "😔 <b>Не вдалося...</b> Гравцю не вистачило удачі для підвищення сили. Спробуйте ще раз! 🔄"
 
     @staticmethod
     def get_training_text(result: ResultTraining, points: int = 0) -> str:

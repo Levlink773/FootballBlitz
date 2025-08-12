@@ -1,6 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, FSInputFile
 
+from constants import RATING
 from database.models.character import Character
 from services.character_service import CharacterService
 
@@ -35,7 +36,7 @@ def build_pagination_keyboard(page: int, total_pages: int) -> InlineKeyboardMark
         buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"rating_page:{page+1}"))
     return InlineKeyboardMarkup(inline_keyboard=[buttons]) if buttons else None
 
-@rating_router.message(F.text == "📊 Рейтинги")
+@rating_router.message(F.text.regexp(r"(✅\s*)?📊 Рейтинги(\s*✅)?"))
 async def show_ratings(message: Message):
     characters = await CharacterService.get_all_characters()
     if not characters:
@@ -48,7 +49,7 @@ async def show_ratings(message: Message):
     text = build_rating_text(sorted_characters, page=1)
     keyboard = build_pagination_keyboard(page=1, total_pages=total_pages)
 
-    await message.answer(text, reply_markup=keyboard)
+    await message.answer_photo(photo=FSInputFile(RATING), caption=text, reply_markup=keyboard)
 
 @rating_router.callback_query(F.text.startswith("rating_page:"))
 async def rating_pagination_handler(callback: CallbackQuery):
@@ -68,5 +69,5 @@ async def rating_pagination_handler(callback: CallbackQuery):
     text = build_rating_text(sorted_characters, page)
     keyboard = build_pagination_keyboard(page, total_pages)
 
-    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.message.edit_caption(caption=text, reply_markup=keyboard)
     await callback.answer()

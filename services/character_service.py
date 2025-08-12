@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
+from typing import Any, Coroutine
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, Row, RowMapping
 from sqlalchemy.orm import selectinload
 
 from database.models.character import Character

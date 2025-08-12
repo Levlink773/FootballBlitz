@@ -63,6 +63,17 @@ class UserBot(Base):
         server_default=text("'END_REGISTER'")
     )
     vip_pass_expiration_date = Column(DateTime, nullable=True)
+    statistics = relationship(
+        "Statistics",
+        back_populates="user",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+    count_play_blitz = Column(BigInteger, default=0)
+    count_rich_semi_final_blitz = Column(BigInteger, default=0)
+    count_rich_final_looser_blitz = Column(BigInteger, default=0)
+    count_rich_final_winner_blitz = Column(BigInteger, default=0)
+    count_go_to_gym = Column(BigInteger, default=0)
 
     @property
     def vip_pass_is_active(self) -> bool:

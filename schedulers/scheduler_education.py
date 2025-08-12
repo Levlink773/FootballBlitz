@@ -1,5 +1,4 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.date import DateTrigger
 
 from datetime import datetime, timedelta
 
@@ -10,7 +9,7 @@ from loader import bot
 from config import EPOCH_ZERO
 
 
-class EducationRewardReminderScheduler():
+class EducationRewardReminderScheduler:
     scheduler = AsyncIOScheduler()    
     bot = bot
 
@@ -40,7 +39,7 @@ class EducationRewardReminderScheduler():
     async def start_reminder(self):
         current_time = datetime.now()
         one_month_ago = current_time - timedelta(days=30)
-        all_not_bot_users = await CharacterService.get_all_users_not_bot()
+        all_not_bot_users: list[Character] = await CharacterService.get_all_users_not_bot()
         for character in all_not_bot_users:
             if character.reminder.education_reward_date == EPOCH_ZERO:
                 continue

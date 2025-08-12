@@ -1,8 +1,10 @@
 import asyncio
 
+from aiogram.types import FSInputFile
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from constants import RECORNATION
 from loader import bot
 from logging_config import logger
 from services.character_service import CharacterService
@@ -15,9 +17,13 @@ class AgeUpdateScheduler:
     async def _update_age_for_all_characters(self):
         reco_characters = await CharacterService.update_age_characters()
         for character in reco_characters:
-            await bot.send_message(
-                character.characters_user_id,
-                f"Ваш персонаж {character.name} реко"
+            await bot.send_photo(
+                chat_id=character.characters_user_id,
+                photo=FSInputFile(RECORNATION),
+                caption=f"🔄 Ваш футболіст <b>{character.name}</b> пройшов рекорнацію! 🎉\n"
+                f"Тепер йому знову <b>18 років</b> 🧑‍🎓\n"
+                f"💪 Нова сила: <b>{character.power}</b>\n"
+                f"🎯 Новий талант: <b>{character.talent}</b>"
             )
         logger.info("Возраст всех персонажей увеличен на 1 год.")
 

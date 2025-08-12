@@ -5,7 +5,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
 from bot.callbacks.gym_calbacks import SelectTimeGym
-from bot.keyboards.gym_keyboard import select_time_to_gym, no_energy_keyboard
+from bot.keyboards.gym_keyboard import select_time_to_gym
 from constants import const_energy_by_time
 from database.models.character import Character
 from database.models.user_bot import (

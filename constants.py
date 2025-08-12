@@ -216,7 +216,12 @@ photos = {
         'src/photo_character/woman_attacker.jpg',
     ],
 }
-
+MENU_TEAM = 'src/menu_team.png'
+RATING = 'src/rating.png'
+BALANCE = 'src/balance.png'
+RECORNATION = 'src/recornation.png'
+EDUCATION_TASK = FSInputFile('src/education_task.png')
+EDUCATION_TASK_REWARD = FSInputFile('src/education_task_reward.png')
 
 def get_photo_character(character) -> FSInputFile:
     return FSInputFile(random.choice(photos.get(character.gender, ['path/to/default_photo.jpg'])))

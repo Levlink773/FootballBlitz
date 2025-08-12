@@ -33,8 +33,8 @@ async def start_utils():
     await gym_reminder.start_iniatialization_gym()
     await reminder_buy_energy.start()
     await reminder_go_to_training.start()
-    await reminder_vip_pass.start_timers()
-    await scheduler_reset_training_key.start()
+    # await reminder_vip_pass.start_timers()
+    # await scheduler_reset_training_key.start()
     await scheduler_training.start()
 
 
@@ -46,7 +46,7 @@ gym_reminder              = GymStartReseter()
 age_update_scheduler = AgeUpdateScheduler()
 reminder_buy_energy       = ReminderBuyEnergy()
 reminder_go_to_training   = ReminderTraning()
-reminder_vip_pass         = VipPassSchedulerService()
-scheduler_reset_training_key = ResetTrainingKeyScheduler()
+# reminder_vip_pass         = VipPassSchedulerService()
+# scheduler_reset_training_key = ResetTrainingKeyScheduler()
 
 scheduler_training = SchedulerRegisterTraining()

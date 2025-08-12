@@ -1,17 +1,20 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InputMediaPhoto, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.keyboards.utils_keyboard import menu_plosha
+from constants import MENU_TEAM, get_photo_character
 from database.models.character import Character
 from database.models.user_bot import UserBot
 from services.user_service import UserService
 
 menu_character_router = Router()
 
+
 # Ключ для callback_data — чтобы передавать id персонажа и действие
 def make_character_cb(character_id: int, action: str = "view"):
     return f"character:{character_id}:{action}"
+
 
 @menu_character_router.message(
     F.text.regexp(r"(✅\s*)?🧍‍♂️ Моя команда(\s*✅)?")
@@ -29,7 +32,11 @@ async def show_team(
         f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
     )
     text1 = "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
-    await message.answer(text, reply_markup=menu_plosha().as_markup(resize_keyboard=True))
+    await message.answer_photo(
+        photo=FSInputFile(MENU_TEAM),
+        caption=text,
+        reply_markup=menu_plosha().as_markup(resize_keyboard=True)
+    )
 
     kb = InlineKeyboardBuilder()
     characters: list[Character] = user.characters
@@ -39,6 +46,7 @@ async def show_team(
             name_button += " ✅ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     await message.answer(text1, reply_markup=kb.as_markup(), parse_mode="HTML")
+
 
 @menu_character_router.callback_query(F.data.startswith("character:"))
 async def handle_character_callback(callback: CallbackQuery, user: UserBot):
@@ -76,7 +84,10 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
                 )
             )
         kb.row(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
-        await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
+        await callback.message.edit_media(
+            media=InputMediaPhoto(media=get_photo_character(character), caption=text),
+            reply_markup=kb.as_markup()
+        )
         await callback.answer()
 
     elif action == "set_main":
@@ -101,7 +112,10 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         kb = InlineKeyboardBuilder()
         kb.add(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
 
-        await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
+        await callback.message.edit_media(
+            media=InputMediaPhoto(media=get_photo_character(character), caption=text),
+            reply_markup=kb.as_markup()
+        )
 
 
 @menu_character_router.callback_query(F.data == "back_to_team")
@@ -119,5 +133,5 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
             name_button += " ⭐ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     kb.adjust(1)
-    await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")
+    await callback.message.edit_caption(caption=text, reply_markup=kb.as_markup(), parse_mode="HTML")
     await callback.answer()
