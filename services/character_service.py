@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-from typing import Any, Coroutine
 
-from sqlalchemy import select, update, or_
+from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 
 from database.models.character import Character
@@ -110,6 +109,14 @@ class CharacterService:
             async with session.begin():
                 merged_obj = await session.merge(character_obj)
                 merged_obj.power += power_to_add
+            return merged_obj
+
+    @classmethod
+    async def add_rating(cls, character_obj: Character, rating_to_add) -> Character | None:
+        async for session in get_session():
+            async with session.begin():
+                merged_obj = await session.merge(character_obj)
+                merged_obj.points += rating_to_add
             return merged_obj
 
     @classmethod

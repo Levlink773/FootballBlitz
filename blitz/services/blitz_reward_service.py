@@ -9,6 +9,7 @@ from bot.callbacks.blitz_callback import BoxRewardCallback
 from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from loader import bot
+from services.character_service import CharacterService
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 
@@ -109,7 +110,23 @@ class RewardMoneyBlitzTeam(RewardBlitzTeam):
             text=f"⚡ <b>+{self.reward_modey} енергії</b> за участь у блиц-турнірі! Дякуємо, що були з нами — "
                  "поповнюйте запаси та повертайтесь до наступних батлів! 💪",
         )
+class RewardRatingBlitzTeam(RewardBlitzTeam):
 
+    def __init__(self, reward_rating: int):
+        self.reward_rating = reward_rating
+
+    async def reward_blitz_user(self, user: UserBot):
+        # Збільшуємо рейтинг
+        await CharacterService.add_rating(
+            user.main_character,
+            self.reward_rating,
+        )
+        # Епічний фініш повідомлення про енергію
+        await send_message(
+            character=user,
+            text=f"⚡ <b>+{self.reward_rating} rating</b> за участь у блиц-турнірі! Дякуємо, що були з нами — "
+                 "поповнюйте запаси та повертайтесь до наступних батлів! 💪",
+        )
 
 class BlitzRewardService:
     @staticmethod

@@ -46,24 +46,24 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
     character_id = int(data[1])
     action = data[2] if len(data) > 2 else "view"
 
-    character = next((c for c in user.characters if c.id == character_id), None)
+    character: Character = next((c for c in user.characters if c.id == character_id), None)
     if not character:
-        await callback.answer("Персонаж не найден", show_alert=True)
+        await callback.answer("Гравець не знайден ❌", show_alert=True)
         return
 
     if action == "view":
         # Показываем детали персонажа
         price = max(character.character_price, 0)
         is_main = (user.main_character_id == character.id)
-        main_text = "✅ Головний персонаж" if is_main else "❌ Не головний персонаж"
+        main_text = "⭐ <b>Головний герой</b>" if is_main else "⚪ <b>Не головний</b>"
 
         text = (
-            f"Ім'я: <b>{character.name}</b>\n"
-            f"Вік: <b>{character.age}</b>\n"
-            f"Сила: <b>{character.power}</b>\n"
-            f"Талант: <b>{character.talent}</b>\n"
-            f"Ціна: <b>{price}</b> монет\n"
-            f"Статус: {main_text}"
+            f"🧍 <b>{character.name}</b>\n"
+            f"🎂 Вік: {character.age}\n"
+            f"💪 Сила: {character.power}\n"
+            f"🎯 Талант: {character.talent}\n"
+            f"💰 Ціна: {price} монет\n"
+            f"📌 Статус: {main_text}"
         )
 
         kb = InlineKeyboardBuilder()
@@ -86,17 +86,17 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
             return
         await UserService.update_main_character(user.user_id, character_id)
 
-        await callback.answer(f"Головним персонажем тепер: {character.name}", show_alert=True)
+        await callback.answer(f"🌟 {character.name} тепер головний гравець вашої команди!", show_alert=True)
 
         # Показываем обновленные детали
         price = max(character.character_price, 0)
         text = (
-            f"Ім'я: <b>{character.name}</b>\n"
-            f"Вік: <b>{character.age}</b>\n"
-            f"Сила: <b>{character.power}</b>\n"
-            f"Талант: <b>{character.talent}</b>\n"
-            f"Ціна: <b>{price}</b> монет\n"
-            f"Статус: ✅ Головний персонаж"
+            f"🧍 <b>{character.name}</b>\n"
+            f"🎂 Вік: {character.age}\n"
+            f"💪 Сила: {character.power}\n"
+            f"🎯 Талант: {character.talent}\n"
+            f"💰 Ціна: {price} монет\n"
+            f"📌 Статус: 🌟 Головний персонаж "
         )
         kb = InlineKeyboardBuilder()
         kb.add(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
@@ -116,7 +116,7 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
     for c in user.characters:
         name_button = f"{c.name}"
         if user.main_character_id == c.id:
-            name_button += " ✅ (головний)"
+            name_button += " ⭐ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     kb.adjust(1)
     await callback.message.edit_text(text, reply_markup=kb.as_markup(), parse_mode="HTML")

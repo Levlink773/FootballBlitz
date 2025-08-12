@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, time
 
 from blitz.start_blitz import StartBlitzs, BlitzData
+from blitz.utils import blitz_scheduler
 from gym_character.core.scheduler import GymStartReseter
 from schedulers.scheduler_change_age import AgeUpdateScheduler
 from schedulers.scheduler_energy import EnergyResetScheduler
@@ -22,10 +23,7 @@ from database.events.event_listener import (
 
 async def start_utils():
 
-    # asyncio.create_task(StartBlitzs.start([
-    #     BlitzData(start_time=time(15, 0), stages_of_final=4, reward_exp=30),
-    #     BlitzData(start_time=time(19, 0), stages_of_final=5,)
-    #  ])) # bltiz init
+    asyncio.create_task(StartBlitzs.start(blitz_scheduler)) # bltiz init
     await energy_listener.start_listener()
     await exp_listener.start_listener()
     await new_member_exp_listener.start_listener()

@@ -19,6 +19,9 @@ async def blitz_register_filter(query: CallbackQuery,
                                 user: UserBot,
                                 ):
     try:
+        if (not user.main_character) or (not user.characters):
+            await query.answer("У вас нету основного персонажа!")
+            return
         if user.energy < callback_data.registration_cost:
             raise UserNotEnoughEnergyError(f"Not enough energy {user.energy} < {callback_data.registration_cost}")
         await BlitzService.add_users_to_blitz(callback_data.blitz_id, user, callback_data.max_characters)
