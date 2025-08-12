@@ -43,7 +43,7 @@ class BlitzAnnounceService:
         await send_message_all_users(list(unique_user), text, photo_path=stage[1])
 
     @classmethod
-    async def announce_end(cls, users: list[UserBot], final_winner: BlitzTeam, final_looser: BlitzTeam) -> None:
+    async def announce_end(cls, users: list[UserBot], final_winner: BlitzTeam, final_looser: BlitzTeam, reward_energy: int) -> None:
         res_winner, res_looser = await asyncio.gather(
             BlitzTeamService.get_user_from_blitz_team(final_winner),
             BlitzTeamService.get_user_from_blitz_team(final_looser)
@@ -57,12 +57,12 @@ class BlitzAnnounceService:
 
 🥈 Команда <b>«{final_looser.name}»</b> посідає 2 місце та отримує маленький лутбокс — чудова гра від {ch_loose_first}! 👏
 
-⚡ Усі учасники отримують +50 енергії! Дякуємо за гру — до наступного блиц-турніру! 💪
+⚡ Усі учасники отримують +{reward_energy} енергії! Дякуємо за гру — до наступного блиц-турніру! 💪
 """
         await send_message_all_users(users, end_text, photo_path=END_BLITZ_PHOTO)
 
     @classmethod
-    async def announce_round_results(cls, winners: list[BlitzTeam], losers: list[BlitzTeam]):
+    async def announce_round_results(cls, winners: list[BlitzTeam], losers: list[BlitzTeam], reward_energy: int) -> None:
         if not winners and not losers:
             raise ValueError("Немає даних про результати раунду.")
 
@@ -99,7 +99,7 @@ class BlitzAnnounceService:
         for w in winners:
             await cls.notify_team_advancement(w, next_stage)
         for l in losers:
-            await cls.notify_team_elimination(l)
+            await cls.notify_team_elimination(l, reward_energy)
 
     @classmethod
     async def notify_team_advancement(cls,
@@ -115,10 +115,10 @@ class BlitzAnnounceService:
 
     @classmethod
     async def notify_team_elimination(cls,
-                                      team: BlitzTeam):
+                                      team: BlitzTeam, reward_energy: int):
         users = await BlitzTeamService.get_user_from_blitz_team(team)
         text = (
             f"⚠️ Ваша команда <b>{team.name}</b> не пройшла далі цього раунду. ⚠️\n"
-            f"Дякуємо за участь! Наприкінці турніру вам буде нараховано +50 енергії."
+            f"Дякуємо за участь! Наприкінці турніру вам буде нараховано +{reward_energy} енергії."
         )
         await send_message_all_users(users, text)

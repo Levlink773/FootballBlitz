@@ -1,25 +1,20 @@
 import asyncio
-from datetime import datetime, time
 
-from blitz.start_blitz import StartBlitzs, BlitzData
+from blitz.start_blitz import StartBlitzs
 from blitz.utils import blitz_scheduler
-from gym_character.core.scheduler import GymStartReseter
-from schedulers.scheduler_change_age import AgeUpdateScheduler
-from schedulers.scheduler_energy import EnergyResetScheduler
-from schedulers.scheduler_education import EducationRewardReminderScheduler
-from schedulers.scheduler_buy_energy import ReminderBuyEnergy
-from schedulers.scheduler_training import ReminderTraning
-from schedulers.scheduler_vip_pass import VipPassSchedulerService
-from schedulers.scheduler_reset_training_key import ResetTrainingKeyScheduler
-
-from training.timers.starter_taimers import SchedulerRegisterTraining
-
-
 from database.events.event_listener import (
     energy_listener,
     exp_listener,
     new_member_exp_listener
 )
+from gym_character.core.scheduler import GymStartReseter
+from schedulers.scheduler_buy_energy import ReminderBuyEnergy
+from schedulers.scheduler_change_age import AgeUpdateScheduler
+from schedulers.scheduler_education import EducationRewardReminderScheduler
+from schedulers.scheduler_energy import EnergyResetScheduler
+from schedulers.scheduler_training import ReminderTraning
+from training.timers.starter_taimers import SchedulerRegisterTraining
+
 
 async def start_utils():
 

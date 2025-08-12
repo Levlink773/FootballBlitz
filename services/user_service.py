@@ -123,6 +123,71 @@ class UserService:
                 await session.commit()
 
     @classmethod
+    async def add_count_play_blitz_user(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+
+                user.count_play_blitz += amount
+
+                session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def add_count_rich_semi_final_blitz_user(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+
+                user.count_rich_semi_final_blitz += amount
+
+                session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def add_count_rich_final_looser_blitz_user(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+
+                user.count_rich_final_looser_blitz += amount
+
+                session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def add_count_rich_final_winner_blitz_user(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+
+                user.count_rich_final_winner_blitz += amount
+
+                session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def add_count_go_to_gym_user(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+
+                user.count_go_to_gym += amount
+
+                session.add(user)
+                await session.commit()
+
+    @classmethod
     async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> UserBot | None:
         async for session in get_session():
             async with session.begin():

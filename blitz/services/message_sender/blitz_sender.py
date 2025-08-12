@@ -52,7 +52,7 @@ async def send_message_all_users(users: list[UserBot], text: str, reply_markup: 
 class BlitzTeamSender:
     @classmethod
     async def send_team_message(cls, team: BlitzTeam):
-        character1, character2 = await BlitzTeamService.get_characters_from_blitz_team(team)
+        character1, character2 = await BlitzTeamService.get_user_from_blitz_team(team)
         text1 = (
             f"🤝 Ваша команда сформована, ви в команді «{team.name}»! Ваш напарник: <b>{f'@{character2.owner.user_name}' if character2.owner.user_name else character2.name}</b>."
             "⏱️ У вас є 1 хвилина, щоб розробити ідеальну тактику для бліц-турніру. Нехай кожен пас і удар будуть точними! 💥"

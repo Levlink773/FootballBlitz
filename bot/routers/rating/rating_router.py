@@ -49,7 +49,7 @@ async def show_ratings(message: Message):
     text = build_rating_text(sorted_characters, page=1)
     keyboard = build_pagination_keyboard(page=1, total_pages=total_pages)
 
-    await message.answer_photo(photo=FSInputFile(RATING), caption=text, reply_markup=keyboard)
+    await message.answer_photo(photo=RATING, caption=text, reply_markup=keyboard)
 
 @rating_router.callback_query(F.text.startswith("rating_page:"))
 async def rating_pagination_handler(callback: CallbackQuery):

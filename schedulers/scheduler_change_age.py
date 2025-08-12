@@ -1,6 +1,3 @@
-import asyncio
-
-from aiogram.types import FSInputFile
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -19,7 +16,7 @@ class AgeUpdateScheduler:
         for character in reco_characters:
             await bot.send_photo(
                 chat_id=character.characters_user_id,
-                photo=FSInputFile(RECORNATION),
+                photo=RECORNATION,
                 caption=f"🔄 Ваш футболіст <b>{character.name}</b> пройшов рекорнацію! 🎉\n"
                 f"Тепер йому знову <b>18 років</b> 🧑‍🎓\n"
                 f"💪 Нова сила: <b>{character.power}</b>\n"

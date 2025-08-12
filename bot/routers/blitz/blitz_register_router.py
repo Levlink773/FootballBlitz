@@ -20,7 +20,7 @@ async def blitz_register_filter(query: CallbackQuery,
                                 ):
     try:
         if (not user.main_character) or (not user.characters):
-            await query.answer("У вас нету основного персонажа!")
+            await query.answer("У вас немає головного персонажа!")
             return
         if user.energy < callback_data.registration_cost:
             raise UserNotEnoughEnergyError(f"Not enough energy {user.energy} < {callback_data.registration_cost}")

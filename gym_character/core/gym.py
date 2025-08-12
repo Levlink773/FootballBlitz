@@ -17,6 +17,7 @@ from loader import bot
 from logging_config import logger
 from services.character_service import CharacterService
 from services.reminder_character_service import RemniderCharacterService
+from services.user_service import UserService
 from utils.randomaizer import check_chance
 from .manager import GymCharacterManager
 
@@ -77,7 +78,10 @@ class Gym:
 
             if self.result_training == ResultTraining.SUCCESS:
                 await CharacterService.update_power(self.character, self.training_points)
-                
+            await UserService.add_count_go_to_gym_user(
+                user_id=self.character.owner.user_id,
+                amount=1,
+            )
             await self.send_end_training_message()
             await GymCharacterManager.remove_gym_task(self.character.id)
         except Exception as e:

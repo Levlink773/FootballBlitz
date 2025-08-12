@@ -2,7 +2,7 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from constants import TIME_RESET_ENERGY_CHARACTER
+from constants import TIME_RESET_ENERGY_CHARACTER, UPDATE_ENERGY
 from database.models.user_bot import UserBot
 from loader import bot
 from logging_config import logger
@@ -33,9 +33,10 @@ class EnergyResetScheduler:
         for user in users:
             try:
                 await asyncio.sleep(0.15)
-                await bot.send_message(
+                await bot.send_photo(
                     chat_id=user.user_id,
-                    text=text
+                    photo=UPDATE_ENERGY,
+                    caption=text
                 )
             except Exception as E:
                 logger.error(f"Не смог отправить сообщение {user.user_name} {E}")

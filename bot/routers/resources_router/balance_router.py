@@ -24,4 +24,4 @@ async def start_command_handler(
         "📌 Додатково енергію можна заробити у турнірах або "
         "виконуючи завдання в Учбовому центрі."
     )
-    await message.answer_photo(photo=FSInputFile(BALANCE), caption=text, parse_mode="HTML")
+    await message.answer_photo(photo=BALANCE, caption=text, parse_mode="HTML")

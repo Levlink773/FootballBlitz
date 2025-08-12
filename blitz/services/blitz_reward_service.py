@@ -96,19 +96,19 @@ class RewardEnergyBlitzTeam(RewardBlitzTeam):
 class RewardMoneyBlitzTeam(RewardBlitzTeam):
 
     def __init__(self, reward_money: int):
-        self.reward_modey = reward_money
+        self.reward_money = reward_money
 
     async def reward_blitz_user(self, user: UserBot):
-        # Збільшуємо енергію
+        # Збільшуємо баланс монет
         await UserService.add_money_user(
             user_id=user.user_id,
-            amount_money_add=self.reward_modey,
+            amount_money_add=self.reward_money,
         )
-        # Епічний фініш повідомлення про енергію
+        # Повідомлення про нагороду
         await send_message(
             character=user,
-            text=f"⚡ <b>+{self.reward_modey} енергії</b> за участь у блиц-турнірі! Дякуємо, що були з нами — "
-                 "поповнюйте запаси та повертайтесь до наступних батлів! 💪",
+            text=f"💰 <b>+{self.reward_money} монет</b> за результат у турнірі Football Bliz! "
+                 "Використайте їх для придбання нових футболістів та посилення своєї команди! ⚽"
         )
 class RewardRatingBlitzTeam(RewardBlitzTeam):
 
@@ -124,10 +124,42 @@ class RewardRatingBlitzTeam(RewardBlitzTeam):
         # Епічний фініш повідомлення про енергію
         await send_message(
             character=user,
-            text=f"⚡ <b>+{self.reward_rating} rating</b> за участь у блиц-турнірі! Дякуємо, що були з нами — "
-                 "поповнюйте запаси та повертайтесь до наступних батлів! 💪",
+            text=f"📊 <b>+{self.reward_rating} очок рейтингу</b> за результат у турнірі Football Bliz! "
+                 "Ваші досягнення вже враховано у загальному рейтингу гравців. "
+                 "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
         )
+class RewardStatisticsBlitzTeam(RewardBlitzTeam):
 
+    async def reward_blitz_user(self, user: UserBot):
+        # Збільшуємо рейтинг
+        await UserService.add_count_play_blitz_user(
+            user.main_character,
+            1,
+        )
+class RewardStatisticsSemiFinalBlitzTeam(RewardBlitzTeam):
+
+    async def reward_blitz_user(self, user: UserBot):
+        # Збільшуємо рейтинг
+        await UserService.add_count_rich_semi_final_blitz_user(
+            user.main_character,
+            1,
+        )
+class RewardStatisticFinalLooserFinalBlitzTeam(RewardBlitzTeam):
+
+    async def reward_blitz_user(self, user: UserBot):
+        # Збільшуємо рейтинг
+        await UserService.add_count_rich_final_looser_blitz_user(
+            user.main_character,
+            1,
+        )
+class RewardStatisticFinalWinnerFinalBlitzTeam(RewardBlitzTeam):
+
+    async def reward_blitz_user(self, user: UserBot):
+        # Збільшуємо рейтинг
+        await UserService.add_count_rich_final_winner_blitz_user(
+            user.main_character,
+            1,
+        )
 class BlitzRewardService:
     @staticmethod
     async def reward_blitz_team(reward_blitz_team_executors: list[RewardBlitzTeam], reward_blitz_team: BlitzTeam):

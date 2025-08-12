@@ -33,7 +33,7 @@ async def show_team(
     )
     text1 = "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     await message.answer_photo(
-        photo=FSInputFile(MENU_TEAM),
+        photo=MENU_TEAM,
         caption=text,
         reply_markup=menu_plosha().as_markup(resize_keyboard=True)
     )

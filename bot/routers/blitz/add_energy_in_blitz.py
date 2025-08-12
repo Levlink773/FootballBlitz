@@ -15,7 +15,6 @@ from blitz.blitz_match.core.manager import TeamBlitzMatchManager
 from blitz.blitz_match.entities import BlitzMatchData
 from bot.callbacks.blitz_callback import EpizodeDonateEnergyToBlitzMatch
 from bot.filters.donate_energy_filter import CheckTimeDonateEnergyMatch
-from bot.keyboards.gym_keyboard import no_energy_keyboard
 from database.models.user_bot import UserBot
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
@@ -25,7 +24,7 @@ add_energy_in_match_router = Router()
 
 TEXT_EPIZODE_DONATE_ENERGY = """
 ⚡️ <b>Команда</b>: <u>{name_team}</u> зібрала <b>{min_donate_bonus_energy} енергії</b> в цьому епізоді!  
-💪 Завдяки зусиллям гравців, команда отримує <b>BOOST</b> +{koef_add_power_from_donat}% до <b>суми донату</b>!
+💪 Завдяки зусиллю гравця, команда отримує <b>BOOST</b> +{koef_add_power_from_donat}% до <b>суми донату</b>!
 
 🔋 <b>Енергія — це сила!</b> Чим більше її Ви вкладаєте в епізод тим більший шанс збити гол!
 
@@ -87,8 +86,7 @@ async def donate_epizode_energy(
     if user.energy < energy:
         await state.clear()
         return await message.answer(
-            text="У вас не вистачає енергії, ви можете купити енергію в Крамниці енергії",
-            reply_markup=no_energy_keyboard()
+            text="У вас не вистачає енергії, ви можете отримати енергію у турнірах та учбовому центрі!",
         )
 
     data = await state.get_data()
