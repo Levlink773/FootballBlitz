@@ -1,8 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InputMediaPhoto, FSInputFile
+from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from bot.keyboards.utils_keyboard import menu_plosha
 from constants import MENU_TEAM, get_photo_character
 from database.models.character import Character
 from database.models.user_bot import UserBot
@@ -65,7 +64,7 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         main_text = "⭐ <b>Головний герой</b>" if is_main else "⚪ <b>Не головний</b>"
 
         text = (
-            f"🧍 <b>{character.name}</b>\n"
+            f"🧍 Iм'я<b>{character.name}</b>\n"
             f"🎂 Вік: {character.age}\n"
             f"💪 Сила: {character.power}\n"
             f"🎯 Талант: {character.talent}\n"
@@ -101,7 +100,7 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         # Показываем обновленные детали
         price = max(character.character_price, 0)
         text = (
-            f"🧍 <b>{character.name}</b>\n"
+            f"🧍 Ім'я <b>{character.name}</b>\n"
             f"🎂 Вік: {character.age}\n"
             f"💪 Сила: {character.power}\n"
             f"🎯 Талант: {character.talent}\n"

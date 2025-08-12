@@ -4,21 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 11">
-      <change afterPath="$PROJECT_DIR$/src/blitz_scheduler.png" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 12">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/middlewares/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/middlewares/handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/blitz/blitz_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/blitz/blitz_menu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/character/menu_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/character/menu_character.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/gym/education_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/education_center.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/gym/education_task.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/education_task.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/routers/create_team.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/create_team.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/routers/get_first_character_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/routers/get_first_character_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/resources_router/balance_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/resources_router/balance_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +141,7 @@
       <workItem from="1754664360773" duration="18480000" />
       <workItem from="1754750003140" duration="102788000" />
       <workItem from="1754990998069" duration="5688000" />
-      <workItem from="1754997899975" duration="32982000" />
+      <workItem from="1754997899975" duration="34019000" />
     </task>
     <task id="LOCAL-00001" summary="comi 1">
       <option name="closed" value="true" />
@@ -242,7 +231,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755032894373</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="comi 12">
+      <option name="closed" value="true" />
+      <created>1755040603582</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1755040603582</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -260,9 +257,10 @@
     <MESSAGE value="comi 9" />
     <MESSAGE value="comi 10" />
     <MESSAGE value="comi 11" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 11" />
+    <MESSAGE value="comi 12" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 12" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755039205425" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755040744375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -28,39 +28,45 @@ def _build_tasks_message_and_kb(user: UserBot) -> Tuple[str, InlineKeyboardMarku
 
         if not done:
             not_done_lines.append(
-                f"🔸 <b>{stat_instance.description()}</b>\n{stat_instance.describe()}\n"
+                f"🔸 <b>{stat_instance.description()}</b>\n{stat_instance.describe()}"
             )
         else:
             if already_recorded:
                 text = stat_done_already.get(st_type, f"Ви отримали нагороду за {stat_instance.description()}.")
                 done_with_reward_lines.append(
-                    f"✅ <b>{stat_instance.description()}</b>\n{text}\n"
+                    f"✅ <b>{stat_instance.description()}</b>\n{text}"
                 )
             else:
                 success_text = stat_instance.describe_statistics_success()
                 done_without_reward_lines.append(
-                    f"🎉 <b>{stat_instance.description()}</b>\n{success_text}\n"
+                    f"🎉 <b>{stat_instance.description()}</b>\n{success_text}"
                 )
                 btns.append(InlineKeyboardButton(
                     text=stat_instance.text_get_button(),
                     callback_data=f"claim_stat:{st_type.value}"
                 ))
-    lines = []
+
+    # Формируем блоки текста
+    blocks = []
     if not_done_lines:
-        lines.append("⏳ <b>Завдання в процесі</b>\n" + "\n".join(not_done_lines))
+        blocks.append("⏳ <b>Завдання в процесі</b>\n" + "\n\n".join(not_done_lines))
     if done_with_reward_lines:
-        lines.append("✅ <b>Виконані завдання</b>\n" + "\n".join(done_with_reward_lines))
+        blocks.append("✅ <b>Виконані завдання</b>\n" + "\n\n".join(done_with_reward_lines))
     if done_without_reward_lines:
-        lines.append("🎁 <b>Готові до отримання нагороди</b>\n" + "\n".join(done_without_reward_lines))
+        blocks.append("🎁 <b>Готові до отримання нагороди</b>\n" + "\n\n".join(done_without_reward_lines))
+
+    # Кнопки
     if btns:
         kb.row(*btns, width=1)
     kb.button(text="⬅ Назад", callback_data="get_education_center")
 
-    header = "<b>Завдання в освітньому центрі</b>\n\n"
-    footer = "\n\n<b>Порада:</b> натисніть кнопку «Отримати», якщо виконали завдання."
-    body = "\n\n".join(lines) if lines else "Немає доступних завдань."
+    # Итоговое сообщение
+    header = "<b>🎯 Завдання в освітньому центрі</b>"
+    footer = "<i>💡 Порада:</i> натисніть кнопку «Отримати», якщо виконали завдання."
+    body = "\n\n".join(blocks) if blocks else "Немає доступних завдань."
 
-    return header + body + footer, kb.as_markup()
+    return f"{header}\n\n{body}\n\n{footer}", kb.as_markup()
+
 
 
 
