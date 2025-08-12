@@ -22,10 +22,16 @@ class UserService:
     @classmethod
     async def get_user(cls, user_id) -> UserBot | None:
         async for session in get_session():
-            async with session.begin():
+            async with ((((session.begin())))):
                 stmt = select(UserBot).filter_by(user_id=user_id).options(
-                    selectinload(UserBot.characters),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.owner),
                     selectinload(UserBot.main_character)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.main_character)
+                    .selectinload(Character.owner),
                 )
                 result = await session.execute(stmt)
                 user = result.scalar_one_or_none()
@@ -36,8 +42,14 @@ class UserService:
         async for session in get_session():
             async with session.begin():
                 stmt = select(UserBot).options(
-                    selectinload(UserBot.characters),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.owner),
                     selectinload(UserBot.main_character)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.main_character)
+                    .selectinload(Character.owner),
                 )
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
@@ -47,8 +59,14 @@ class UserService:
         async for session in get_session():
             async with session.begin():
                 stmt = select(UserBot).where(UserBot.status_register == STATUS_USER_REGISTER.END_REGISTER).options(
-                    selectinload(UserBot.characters),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.owner),
                     selectinload(UserBot.main_character)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.main_character)
+                    .selectinload(Character.owner),
                 )
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
@@ -273,13 +291,13 @@ class UserService:
                     stmt = (
                         update(UserBot)
                         .where(UserBot.energy <= CONST_ENERGY)
-                        .values(current_energy=CONST_ENERGY)
+                        .values(energy=CONST_ENERGY)
                     )
                     stmt_vip = (
                         update(UserBot)
                         .where(UserBot.vip_pass_expiration_date > datetime.now())
                         .where(UserBot.energy <= CONST_VIP_ENERGY)
-                        .values(current_energy=CONST_VIP_ENERGY)
+                        .values(energy=CONST_VIP_ENERGY)
                     )
                     await session.execute(stmt)
                     await session.execute(stmt_vip)

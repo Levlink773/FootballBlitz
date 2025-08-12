@@ -270,12 +270,12 @@ async def get_character():
 def character_created_message(character: CharacterData) -> str:
     country_flag = COUNTRY_FLAGS.get(character.country)
     return (
-        f"🎉 Поздравляем! Вам выпал новый персонаж — **{character.name} {country_flag}**.\n\n"
-        f"🔹 Возраст: {character.age} лет\n"
+        f"🎉 Вітаємо! Вам випав новий персонаж — **{character.name} {country_flag}**.\n\n"
+        f"🔹 Вік: {character.age} років\n"
         f"🔹 Талант: {character.talent}\n"
         f"🔹 Сила: {character.power}\n"
-        f"🔹 Страна: {character.country.name.capitalize()} {country_flag}\n\n"
-        f"Пусть этот персонаж принесёт вам много побед и радости!"
+        f"🔹 Країна: {character.country.name.capitalize()} {country_flag}\n\n"
+        f"Нехай цей персонаж принесе вам багато перемог і радості!"
     )
 COUNTRY_FLAGS = {
     Country.UKRAINE: "🇺🇦",

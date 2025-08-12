@@ -59,6 +59,7 @@ def menu_education_cernter():
         InlineKeyboardBuilder()
         .button(text="🏆 Забрати нагороду з навчального центру", callback_data="get_rewards_education_center")
         .button(text="🏅 Завдання навчального центру", callback_data="get_tasks_education_center")
+        .adjust(1)
         .as_markup()
     )
 

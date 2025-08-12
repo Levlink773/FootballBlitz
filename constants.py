@@ -223,6 +223,7 @@ RECORNATION = FSInputFile('src/recornation.png')
 EDUCATION_TASK = FSInputFile('src/education_task.png')
 EDUCATION_TASK_REWARD = FSInputFile('src/education_task_reward.png')
 UPDATE_ENERGY = FSInputFile('src/update_energy.png')
+BLITZ_SCHEDULER = FSInputFile('src/blitz_scheduler.png')
 
 def get_photo_character(character) -> FSInputFile:
     return FSInputFile(random.choice(photos.get(character.gender, ['path/to/default_photo.jpg'])))

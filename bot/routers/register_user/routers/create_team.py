@@ -11,7 +11,6 @@ from bot.routers.register_user.config import (
 )
 from bot.routers.register_user.state.register_user_state import RegisterUserState
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
-from services.character_service import CharacterService
 from services.user_service import UserService
 from .get_first_character_router import get_first_character_handler
 
@@ -51,12 +50,10 @@ async def save_name_handler(
 ):
     if user.team_name:
         return await message.answer(
-            text=f"Ви вже маєте Команду {user.team_name}!"
+            text=f"Ви вже маєте команду {user.team_name}!"
         )
 
-    await state.update_data(
-        name_character=message.text
-    )
+    await state.clear()
     await message.answer(
         text=f"🔹 <b>Тренер:</b> Запам’ятай, <b>{message.text}</b> — цю назву можуть скандувати тисячі фанатів, якщо ваша команда покаже, на що здатна! 🏆⚽"
     )

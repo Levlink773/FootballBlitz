@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery
 
 from bot.callbacks.gym_calbacks import SelectTimeGym
 from bot.keyboards.gym_keyboard import select_time_to_gym
-from constants import const_energy_by_time
+from constants import const_energy_by_time, GYM_PHOTO
 from database.models.character import Character
 from database.models.user_bot import (
     UserBot
@@ -20,24 +20,26 @@ gym_router = Router()
 
 
 @gym_router.message(
-    F.text.regexp(r"(✅\s*)?🖲 Тренування(\s*✅)?")
+    F.text.regexp(r"(✅\s*)?🏋️‍♂️ Тренування(\s*✅)?")
 )
 async def go_to_gym(
         message: Message,
 ):
-    await message.answer(
-        text="""
-    "⏱ <b>30 хвилин</b> — шанс підвищення навички <b>35%</b>\n"
-    "💰 Вартість: <b>10⚡ енергії</b>\n\n"
+    await message.answer_photo(
+        photo=GYM_PHOTO,
+        caption="""
+<b>30 хвилин</b>, шанс підвищення навички <b>35%</b>
+💰 Вартість: <b>10⚡ енергії</b>
     
-    "⏱ <b>60 хвилин</b> — шанс підвищення навички <b>45%</b>\n"
-    "💰 Вартість: <b>20⚡ енергії</b>\n\n"
+<b>60 хвилин</b>, шанс підвищення навички <b>45%</b>
+💰 Вартість: <b>20⚡ енергії</b>
     
-    "⏱ <b>90 хвилин</b> — шанс підвищення навички <b>55%</b>\n"
-    "💰 Вартість: <b>40⚡ енергії</b>\n\n"
+<b>90 хвилин</b>, шанс підвищення навички <b>55%</b>
+💰 Вартість: <b>40⚡ енергії</b>
     
-    "⏱ <b>120 хвилин</b> — шанс підвищення навички <b>75%</b>\n"
-    "💰 Вартість: <b>60⚡ енергії</b>""",
+<b>120 хвилин</b>, шанс підвищення навички <b>75%</b>
+💰 Вартість: <b>60⚡ енергії</b>
+""",
         reply_markup=select_time_to_gym()
     )
 

@@ -3,9 +3,14 @@ import logging
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery, ErrorEvent, User
 
+from database.models.character import Character
 from database.models.user_bot import UserBot
 
 from typing import Any, Awaitable, Callable, Dict, Coroutine
+
+from logging_config import logger
+from services.character_service import CharacterService
+from services.reminder_character_service import RemniderCharacterService
 from services.user_service import UserService
 
 from loader import dp
@@ -43,8 +48,14 @@ async def message_middleware(
     if user.characters:
         if not user.main_character:
             user = await UserService.assign_main_character_if_none(user.user_id)
-        character = user.main_character if user.main_character else None
-    data.update({"user":user, "character":character})
+        character: Character = user.main_character if user.main_character else None
+    if character:
+        if not character.reminder:
+            logger.warning("Not reminder for character %s", character.id)
+            await RemniderCharacterService.create_character_reminder(character_id=character.id)
+            character = await CharacterService.get_character(character.id)
+    logger.info(f"Main character {character}")
+    data.update({"user":user, "character": character})
     result = await handler(event, data)
     if isinstance(event, CallbackQuery):
         try:

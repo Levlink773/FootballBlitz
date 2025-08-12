@@ -5,6 +5,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from blitz.services.blitz_service import BlitzService
 from bot.callbacks.blitz_callback import BlitzRegisterCallback
+from constants import BLITZ_SCHEDULER
 from database.models.blitz import BlitzType
 from database.models.user_bot import UserBot
 
@@ -34,7 +35,6 @@ VIP Бліц (8) — тільки для VIP, 8 учасників
 Бліц (32) — відкритий, 32 учасники  
 Бліц (64) — відкритий, 64 учасники
 
-Реєстрація відкривається за 30 хв (VIP) або за 20 хв (всі) до старту.
 """
 
 
@@ -74,7 +74,8 @@ async def blitz_menu_handler(message: Message, user: UserBot):
         f"🏆 {BLITZ_TYPE_NAMES.get(next_blitz.blitz_type, str(next_blitz.blitz_type))}\n"
         f"🕒 Старт: {next_blitz.start_at.strftime('%d.%m.%Y %H:%M')} ({human_delta(time_left)})\n"
         f"💰 Вартість: {next_blitz.cost} енергії\n"
-        f"👥 Учасники: {len(next_blitz.users)}/{BLITZ_LIMITS[next_blitz.blitz_type]}\n"
+        f"👥 Учасники: {len(next_blitz.users)}/{BLITZ_LIMITS[next_blitz.blitz_type]}\n\n"
+        "Реєстрація відкривається за 30 хв (VIP) або за 20 хв (всі) до старту."
     )
 
     reply_markup = None
@@ -90,8 +91,9 @@ async def blitz_menu_handler(message: Message, user: UserBot):
             [InlineKeyboardButton(text=button_text, callback_data=cb)]
         ])
 
-    await message.answer(
-        FIXED_SCHEDULE_TEXT + blitz_text,
+    await message.answer_photo(
+        photo=BLITZ_SCHEDULER,
+        caption=FIXED_SCHEDULE_TEXT + blitz_text,
         reply_markup=reply_markup,
         parse_mode="HTML"
     )

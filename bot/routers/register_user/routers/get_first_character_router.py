@@ -13,6 +13,7 @@ from bot.routers.register_user.keyboard.get_character import get_first_character
 from constants import get_photo_character
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from services.character_service import CharacterService
+from services.reminder_character_service import RemniderCharacterService
 from services.user_service import UserService
 from utils.generate_character import get_character, CharacterData, character_created_message
 
@@ -58,16 +59,21 @@ async def approved_position_handler(
         status=new_status
     )
     if user.main_character:
-        await query.answer("У вас уже есть стартовий персонаж!", show_alert=True)
+        await query.answer("🌟 У вас уже є стартовий персонаж! 🎯", show_alert=True)
         await query.message.edit_media(
             media=InputMediaPhoto(
                 media=PHOTO_STAGE_REGISTER_USER[new_status],
                 caption=TEXT_STAGE_REGISTER_USER[new_status]
             ),
         )
-        await query.message.answer("У вас уже есть стартовий персонаж!", reply_markup=main_menu(user))
+        await query.message.answer(
+            "🌟 У вас уже є стартовий персонаж! 🎯\n"
+            "Дбайте про нього та ведіть його до перемог! 🏆🔥",
+            reply_markup=main_menu(user)
+        )
     character_data: CharacterData = await get_character()
     character = await CharacterService.create_character(character_data, user.user_id)
+    await RemniderCharacterService.create_character_reminder(character_id=character.id)
     text = character_created_message(character_data)
     await query.message.edit_media(
         media=InputMediaPhoto(

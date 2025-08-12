@@ -30,12 +30,7 @@ async def show_team(
         f"⚡ Енергія: <b>{user.energy}</b>\n"
         f"🎟 VIP статус: <b>{vip_status}</b>\n"
         f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
-    )
-    text1 = "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
-    await message.answer_photo(
-        photo=MENU_TEAM,
-        caption=text,
-        reply_markup=menu_plosha().as_markup(resize_keyboard=True)
+        "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     )
 
     kb = InlineKeyboardBuilder()
@@ -43,9 +38,13 @@ async def show_team(
     for c in characters:
         name_button = f"{c.name}"
         if user.main_character_id == c.id:
-            name_button += " ✅ (головний)"
+            name_button += " 🌟 (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
-    await message.answer(text1, reply_markup=kb.as_markup(), parse_mode="HTML")
+    await message.answer_photo(
+        photo=MENU_TEAM,
+        caption=text,
+        reply_markup=kb.as_markup()
+    )
 
 
 @menu_character_router.callback_query(F.data.startswith("character:"))
@@ -121,8 +120,12 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
 @menu_character_router.callback_query(F.data == "back_to_team")
 async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
     # Вернемся к списку персонажей (повторим функцию show_team)
-
+    vip_status = "🟢 Активний" if user.vip_pass_is_active else "🔴 Неактивний"
     text = (
+        f"💰 Гроші: <b>{user.money}</b>\n"
+        f"⚡ Енергія: <b>{user.energy}</b>\n"
+        f"🎟 VIP статус: <b>{vip_status}</b>\n"
+        f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
         "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     )
 
@@ -133,5 +136,8 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
             name_button += " ⭐ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     kb.adjust(1)
-    await callback.message.edit_caption(caption=text, reply_markup=kb.as_markup(), parse_mode="HTML")
+    await callback.message.edit_media(
+        media=InputMediaPhoto(media=MENU_TEAM, caption=text),
+        reply_markup=kb.as_markup()
+    )
     await callback.answer()

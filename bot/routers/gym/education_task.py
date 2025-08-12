@@ -54,7 +54,7 @@ def _build_tasks_message_and_kb(user: UserBot) -> Tuple[str, InlineKeyboardMarku
         lines.append("🎁 <b>Готові до отримання нагороди</b>\n" + "\n".join(done_without_reward_lines))
     if btns:
         kb.row(*btns, width=1)
-    kb.button(text="Оновити 🔄", callback_data="get_tasks_education_center")
+    kb.button(text="⬅ Назад", callback_data="get_education_center")
 
     header = "<b>Завдання в освітньому центрі</b>\n\n"
     footer = "\n\n<b>Порада:</b> натисніть кнопку «Отримати», якщо виконали завдання."

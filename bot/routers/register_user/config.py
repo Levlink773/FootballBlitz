@@ -4,12 +4,9 @@ from .constans import (
     START_REGISTER_PHOTO,
     CREATER_CHARACTER_PHOTO,
     SEND_NAME_CHARACTER_PHOTO,
-    SELECT_POSITION_PHOTO,
     TERRITORY_ACADEMY_PHOTO,
     JOIN_TO_CLUB_PHOTO,
-    FIRST_TRAINING_PHOTO,
     FORGOT_TRAINING_PHOTO,
-    SELECT_GENDER_PHOTO,
 )
 
 PHOTO_STAGE_REGISTER_USER = {
@@ -20,8 +17,6 @@ PHOTO_STAGE_REGISTER_USER = {
     STATUS_USER_REGISTER.END_REGISTER : JOIN_TO_CLUB_PHOTO,
     STATUS_USER_REGISTER.FORGOT_TRAINING : FORGOT_TRAINING_PHOTO
 }
-from config import LINK_TO_CHAT
-
 
 TEXT_STAGE_REGISTER_USER = {
     
@@ -75,26 +70,10 @@ STATUS_USER_REGISTER.SEND_NAME_TEAM : """
 
     STATUS_USER_REGISTER.FORGOT_TRAINING : """
 🔹 Тренер:
-— Залишився лише один крок! Пройди створення гравця до кінця — і отримай 300 сили в подарунок, а також гроші і досвід для перших покупок екіпірування: футболки, бутсів і шортів. ⚡️👕👟🩳🔥
+— Залишився лише один крок! Пройди створення команди до кінця.
 
 Твоя команда вже чекає на тебе в грі. Почни зараз і вийди на поле сильнішим!
 """
 }
-
-
-TEXT_CHARACTER = """
-<b>⚽ Персонаж:</b> {character_name}
-
-<i>Це ваш стартовий персонаж з початковими статами для обраної позиції.</i>
-
-<b>👤 Стать:</b> {gender}
-<b>🎯 Техніка:</b> {effective_technique:.1f}
-<b>🥋 Удари:</b> {effective_kicks:.1f}
-<b>🛡️ Відбір м’яча:</b> {effective_ball_selection:.1f}
-<b>⚡ Швидкість:</b> {effective_speed:.1f}
-<b>🏃 Витривалість:</b> {effective_endurance:.1f}
-
-<b>💪 Сумарна сила:</b> {full_power:.1f}
-"""
 
 
