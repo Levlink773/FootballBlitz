@@ -37,7 +37,7 @@ class Gym:
         self.result_training: Optional[ResultTraining] = None
         
     @property
-    def training_points(self) -> int:
+    def training_points(self) -> float:
         return self.character.how_much_power_can_add
 
     @property

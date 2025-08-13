@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 
+from aiogram.types import Message, InputMediaPhoto
+
+from bot.keyboards.gym_keyboard import back_to_education_task_service
 from constants import EDUCATION_TASK_REWARD
 from database.models.user_bot import UserBot
-from loader import bot
 from services.statistics_service import StatisticsService
 from services.user_service import UserService
 from stats.stat_enum import StatisticsType
@@ -42,17 +44,17 @@ class BaseStatistics(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def reward_stat(self):
+    def reward_stat(self, message: Message):
         raise NotImplementedError()
 
 
 class Conduct3TrainingStatistics(BaseStatistics):
 
     def description(self) -> str:
-        return "🏋️‍♂️ Проведи 3 тренування — отримай +50⚡ енергії!"
+        return "Проведи 3 тренування — отримай +50⚡ енергії!"
 
     def describe_statistics(self, result):
-        return f"🏋️‍♂️ Ви вже провели {result} тренувань! Залишилось ще {3 - result} до мети 🎯"
+        return f"Ви вже провели {result} тренувань! Залишилось ще {3 - result} до мети 🎯"
 
     def describe_statistics_success(self):
         text_btn = self.text_get_button()
@@ -67,17 +69,16 @@ class Conduct3TrainingStatistics(BaseStatistics):
     def statistics_result(self) -> tuple[bool]:
         return self.user.count_go_to_gym >= 3, self.user.count_go_to_gym
 
-    async def reward_stat(self):
+    async def reward_stat(self, message: Message):
         if not any(s.stat_type == self.stat_type() for s in self.user.statistics):
             await UserService.add_energy_user(self.user.user_id, 50)
             await StatisticsService.save_statistics(self.user.user_id, self.stat_type())
-            await bot.send_photo(
-                chat_id=self.user.user_id,
-                photo=EDUCATION_TASK_REWARD,
-                caption="🏅 Ви отримали +50⚡ енергії! Час витратити її з користю 😉"
+            await message.edit_media(
+                media=InputMediaPhoto(media=EDUCATION_TASK_REWARD, caption="🏅 Ви отримали +50⚡ енергії! Час витратити її з користю 😉"),
+                reply_markup=back_to_education_task_service(),
             )
             return
-        await bot.send_message(
+        await message.answer(
             chat_id=self.user.user_id,
             text="ℹ️ Ви вже забирали нагороду за це завдання."
         )
@@ -86,10 +87,10 @@ class Conduct3TrainingStatistics(BaseStatistics):
 class PlayBlitzStatistics(BaseStatistics):
 
     def description(self) -> str:
-        return "⚽ Зіграйте турнір — забери +20⚡ енергії!"
+        return "Зіграйте турнір — забери +20⚡ енергії!"
 
     def describe_statistics(self, result):
-        return f"⚽ Ви зіграли {result} турнірів. Ще трішки до першої перемоги 🏆"
+        return f"Ви зіграли {result} турнірів. Ще трішки до першої перемоги 🏆"
 
     def describe_statistics_success(self):
         text_btn = self.text_get_button()
@@ -104,17 +105,16 @@ class PlayBlitzStatistics(BaseStatistics):
     def statistics_result(self) -> tuple[bool, str]:
         return self.user.count_play_blitz >= 1, self.user.count_play_blitz
 
-    async def reward_stat(self):
+    async def reward_stat(self, message: Message):
         if not any(s.stat_type == self.stat_type() for s in self.user.statistics):
             await UserService.add_energy_user(self.user.user_id, 20)
             await StatisticsService.save_statistics(self.user.user_id, self.stat_type())
-            await bot.send_photo(
-                chat_id=self.user.user_id,
-                photo=EDUCATION_TASK_REWARD,
-                caption="🏅 Ви отримали +20⚡ енергії! Попереду ще більше турнірів 💥"
+            await message.edit_media(
+                media=InputMediaPhoto(media=EDUCATION_TASK_REWARD, caption="🏅 Ви отримали +20⚡ енергії! Попереду ще більше турнірів 💥"),
+                reply_markup=back_to_education_task_service(),
             )
             return
-        await bot.send_message(
+        await message.answer(
             chat_id=self.user.user_id,
             text="ℹ️ Ви вже забирали нагороду за цей турнір."
         )
@@ -123,10 +123,10 @@ class PlayBlitzStatistics(BaseStatistics):
 class RichSemiFinalBlitzStatistics(BaseStatistics):
 
     def description(self) -> str:
-        return "🏆 Дійди до півфіналу — отримай +50⚡ енергії!"
+        return "Дійди до півфіналу — отримай +50⚡ енергії!"
 
     def describe_statistics(self, result):
-        return f"🥇 Ви вже доходили до півфіналу {result} раз(ів)! Ще трішки до фіналу 🏆"
+        return f"Ви вже доходили до півфіналу {result} раз(ів)! Ще трішки до фіналу 🏆"
 
     def describe_statistics_success(self):
         text_btn = self.text_get_button()
@@ -141,17 +141,16 @@ class RichSemiFinalBlitzStatistics(BaseStatistics):
     def statistics_result(self) -> tuple[bool, str]:
         return self.user.count_rich_semi_final_blitz >= 1, self.user.count_rich_semi_final_blitz
 
-    async def reward_stat(self):
+    async def reward_stat(self, message: Message):
         if not any(s.stat_type == self.stat_type() for s in self.user.statistics):
             await UserService.add_energy_user(self.user.user_id, 50)
             await StatisticsService.save_statistics(self.user.user_id, self.stat_type())
-            await bot.send_photo(
-                chat_id=self.user.user_id,
-                photo=EDUCATION_TASK_REWARD,
-                caption="🏅 Ви отримали +50⚡ енергії! Наступна зупинка — фінал 🏟️"
+            await message.edit_media(
+                media=InputMediaPhoto(media=EDUCATION_TASK_REWARD, caption="🏅 Ви отримали +50⚡ енергії! Наступна зупинка — фінал 🏟️"),
+                reply_markup=back_to_education_task_service()
             )
             return
-        await bot.send_message(
+        await message.answer(
             chat_id=self.user.user_id,
             text="ℹ️ Ви вже забирали нагороду за півфінал."
         )

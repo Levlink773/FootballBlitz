@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
@@ -22,7 +22,7 @@ class UserService:
     @classmethod
     async def get_user(cls, user_id) -> UserBot | None:
         async for session in get_session():
-            async with ((((session.begin())))):
+            async with session.begin():
                 stmt = select(UserBot).filter_by(user_id=user_id).options(
                     selectinload(UserBot.characters)
                     .selectinload(Character.reminder),
@@ -32,6 +32,7 @@ class UserService:
                     .selectinload(Character.reminder),
                     selectinload(UserBot.main_character)
                     .selectinload(Character.owner),
+                    selectinload(UserBot.statistics)
                 )
                 result = await session.execute(stmt)
                 user = result.scalar_one_or_none()
@@ -50,6 +51,7 @@ class UserService:
                     .selectinload(Character.reminder),
                     selectinload(UserBot.main_character)
                     .selectinload(Character.owner),
+                    selectinload(UserBot.statistics)
                 )
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
@@ -67,6 +69,7 @@ class UserService:
                     .selectinload(Character.reminder),
                     selectinload(UserBot.main_character)
                     .selectinload(Character.owner),
+                    selectinload(UserBot.statistics)
                 )
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
@@ -208,15 +211,28 @@ class UserService:
     @classmethod
     async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> UserBot | None:
         async for session in get_session():
-            async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
+            stmt_select = select(UserBot).where(UserBot.user_id == user_id).options(
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.characters)
+                    .selectinload(Character.owner),
+                    selectinload(UserBot.main_character)
+                    .selectinload(Character.reminder),
+                    selectinload(UserBot.main_character)
+                    .selectinload(Character.owner),
+                    selectinload(UserBot.statistics)
+                )
+            result = await session.execute(stmt_select)
+            user: UserBot = result.scalar_one()
 
-                user.energy -= amount_energy_consume
+            user.energy -= amount_energy_consume
 
-                session.add(user)
-                await session.commit()
+            # Не нужно session.add(user), он уже в сессии
+            await session.commit()
+
+            # После коммита лучше вернуть свежий объект из БД
+            await session.refresh(user)
+            return user
 
     @classmethod
     async def add_money_user(cls, user_id: int, amount_money_add: int):
@@ -276,7 +292,12 @@ class UserService:
                     result = await session.execute(
                         select(UserBot)
                         .where(UserBot.energy <= CONST_ENERGY)
-                        .where(UserBot.vip_pass_expiration_date <= datetime.now())
+                        .where(
+                            or_(
+                                UserBot.vip_pass_expiration_date <= datetime.now(),
+                                UserBot.vip_pass_expiration_date.is_(None)
+                            )
+                        )
                     )
                     all_users_not_bot = result.unique().scalars().all()
                     return list(all_users_not_bot)

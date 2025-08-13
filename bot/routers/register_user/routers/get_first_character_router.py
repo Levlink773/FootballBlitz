@@ -87,3 +87,9 @@ async def approved_position_handler(
         text=TEXT_STAGE_REGISTER_USER[new_status],
         reply_markup=main_menu(user)
     )
+    await UserService.add_energy_user(user.user_id, 200)
+    end_register_text = '''
+🎉 Вітаємо! Ви успішно пройшли реєстрацію та отримуєте +200⚡ енергії!
+Тепер вперед — досліджуйте світ Football Blitz ⚽, тренуйтеся, змагайтеся та відкривайте для себе нові можливості! 🚀
+    '''
+    await query.message.answer(end_register_text)

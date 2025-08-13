@@ -29,16 +29,19 @@ class EnergyResetScheduler:
 """
         else:
             text = "Ваша енергія ⚡️ повністю відновлена 🔋"
-
+        logger.info(f"TEXT: {text}")
         for user in users:
             try:
                 await asyncio.sleep(0.15)
+                logger.info("en 1")
                 await bot.send_photo(
                     chat_id=user.user_id,
                     photo=UPDATE_ENERGY,
                     caption=text
                 )
+                logger.info("en 1")
             except Exception as E:
+                logger.error("en error")
                 logger.error(f"Не смог отправить сообщение {user.user_name} {E}")
 
     async def reset_energy_character(self):

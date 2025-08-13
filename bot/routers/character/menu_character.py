@@ -64,7 +64,7 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         main_text = "⭐ <b>Головний герой</b>" if is_main else "⚪ <b>Не головний</b>"
 
         text = (
-            f"🧍 Iм'я<b>{character.name}</b>\n"
+            f"🧍 Iм'я <b>{character.name}</b>\n"
             f"🎂 Вік: {character.age}\n"
             f"💪 Сила: {character.power}\n"
             f"🎯 Талант: {character.talent}\n"
@@ -102,9 +102,9 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         text = (
             f"🧍 Ім'я <b>{character.name}</b>\n"
             f"🎂 Вік: {character.age}\n"
-            f"💪 Сила: {character.power}\n"
+            f"💪 Сила: {round(character.power, 3)}\n"
             f"🎯 Талант: {character.talent}\n"
-            f"💰 Ціна: {price} монет\n"
+            f"💰 Ціна: {round(price, 3)} монет\n"
             f"📌 Статус: 🌟 Головний персонаж "
         )
         kb = InlineKeyboardBuilder()

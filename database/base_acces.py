@@ -12,5 +12,6 @@ def get_base():
     from database.models.blitz import Blitz
     from database.models.blitz_character import BlitzUser
     from database.models.blitz_team import BlitzTeam
+    from database.models.statistics import Statistics
 
     return Base

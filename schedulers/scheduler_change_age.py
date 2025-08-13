@@ -31,10 +31,10 @@ class AgeUpdateScheduler:
             logger.error(f"Ошибка при обновлении возраста персонажей: {e}")
 
     async def start(self):
-        # Запускаем задачу 1-го числа каждого месяца в 00:00
+        # Запускаем задачу 1-го числа каждого месяца в 08:00
         self.scheduler.add_job(
             self._job_wrapper,
-            CronTrigger(day=1, hour=0, minute=0)
+            CronTrigger(day=1, hour=8, minute=0)
         )
         self.scheduler.start()
         logger.info("Scheduler для обновления возраста запущен.")

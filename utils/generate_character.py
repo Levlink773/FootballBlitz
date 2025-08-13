@@ -11,7 +11,7 @@ class CharacterData:
     name: str
     talent: int
     age: int
-    power: int
+    power: float
     gender: Gender
     country: Country
 
@@ -190,7 +190,7 @@ def generate_talent():
 
     # Потом случайное значение из диапазона
     return random.choice(chosen_range)
-def generate_power():
+def generate_power() -> float:
     return random.randint(20, 100)
 
 def generate_character(male_names: set[str]) -> CharacterData:

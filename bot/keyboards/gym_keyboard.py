@@ -11,18 +11,9 @@ from constants import CONST_PRICE_ENERGY
 count_energys = [5, 10, 20, 50, 70]
 
 
-def menu_gym():
-    return (ReplyKeyboardBuilder()
-            .button(text="🖲 Тренування")
-
-            .attach(menu_plosha())
-            .adjust(2, 1)
-            .as_markup(resize_keyboard=True)
-            )
-
-
 def select_time_to_gym():
     return (InlineKeyboardBuilder()
+            .button(text="🕑 2 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=2)))
             .button(text="🕑 30 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=30)))
             .button(text="🕒 60 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=60)))
             .button(text="🕓 90 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=90)))
@@ -63,6 +54,13 @@ def menu_education_cernter():
         .as_markup()
     )
 
+def back_to_education_task_service():
+    return (
+        InlineKeyboardBuilder()
+        .button(text="⬅ Назад", callback_data="get_tasks_education_center")
+        .adjust(1)
+        .as_markup()
+    )
 
 def menu_massage_room():
     keyboard = InlineKeyboardBuilder()

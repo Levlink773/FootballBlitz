@@ -1,16 +1,15 @@
-from aiogram import Router, F
-from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, FSInputFile
 from typing import Tuple
 
+from aiogram import Router, F
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from constants import EDUCATION_TASK
-from database.models.character import Character
 from database.models.user_bot import UserBot
-from services.user_service import UserService
 from stats.stat import stat, stat_done_already, BaseStatistics
 
 education_task_router = Router()
+
 
 def _build_tasks_message_and_kb(user: UserBot) -> Tuple[str, InlineKeyboardMarkup]:
     kb = InlineKeyboardBuilder()
@@ -27,45 +26,61 @@ def _build_tasks_message_and_kb(user: UserBot) -> Tuple[str, InlineKeyboardMarku
         already_recorded = st_type in user_completed_types
 
         if not done:
+            # --- БЛОК 1: ЗАДАНИЯ В ПРОЦЕССЕ ---
+            details = (
+                f"🔸 Завдання: {stat_instance.description()}\n\n"
+                f"📊 Ваш прогрес:\n{stat_instance.describe()}"
+            )
             not_done_lines.append(
-                f"🔸 <b>{stat_instance.description()}</b>\n{stat_instance.describe()}"
+                f"<blockquote>{details}</blockquote>"
             )
         else:
             if already_recorded:
-                text = stat_done_already.get(st_type, f"Ви отримали нагороду за {stat_instance.description()}.")
+                # --- БЛОК 2: ЗАДАНИЯ ВЫПОЛНЕНЫ (НАГРАДА ПОЛУЧЕНА) ---
+                details = (
+                    f"✔️ <b>{stat_instance.description()}</b>\n\n"
+                    f"{stat_done_already.get(st_type, 'Ви вже отримали нагороду за це завдання.')}"
+                )
                 done_with_reward_lines.append(
-                    f"✅ <b>{stat_instance.description()}</b>\n{text}"
+                    f"<blockquote>{details}</blockquote>"
                 )
             else:
-                success_text = stat_instance.describe_statistics_success()
+                # --- БЛОК 3: ЗАДАНИЯ ВЫПОЛНЕНЫ (ГОТОВЫ К НАГРАДЕ) ---
+                details = (
+                    f"🎉 <b>{stat_instance.description()}</b>\n\n"
+                    f"{stat_instance.describe_statistics_success()}"
+                )
                 done_without_reward_lines.append(
-                    f"🎉 <b>{stat_instance.description()}</b>\n{success_text}"
+                    f"<blockquote>{details}</blockquote>"
                 )
                 btns.append(InlineKeyboardButton(
                     text=stat_instance.text_get_button(),
                     callback_data=f"claim_stat:{st_type.value}"
                 ))
 
-    # Формируем блоки текста
+    # Формируем блоки текста с разделами
     blocks = []
     if not_done_lines:
-        blocks.append("⏳ <b>Завдання в процесі</b>\n" + "\n\n".join(not_done_lines))
+        blocks.append("⚡ <b>Активні завдання</b>\n\n" + "\n\n".join(not_done_lines))
     if done_with_reward_lines:
-        blocks.append("✅ <b>Виконані завдання</b>\n" + "\n\n".join(done_with_reward_lines))
+        blocks.append("✅ <b>Виконані завдання</b>\n\n" + "\n\n".join(done_with_reward_lines))
     if done_without_reward_lines:
-        blocks.append("🎁 <b>Готові до отримання нагороди</b>\n" + "\n\n".join(done_without_reward_lines))
+        blocks.append("🎁 <b>Готові до отримання нагороди</b>\n\n" + "\n\n".join(done_without_reward_lines))
 
     # Кнопки
     if btns:
         kb.row(*btns, width=1)
-    kb.button(text="⬅ Назад", callback_data="get_education_center")
+    kb.row(InlineKeyboardButton(text="⬅ Назад", callback_data="get_education_center"))
 
     # Итоговое сообщение
     header = "<b>🎯 Завдання в освітньому центрі</b>"
-    footer = "<i>💡 Порада:</i> натисніть кнопку «Отримати», якщо виконали завдання."
     body = "\n\n".join(blocks) if blocks else "Немає доступних завдань."
 
-    return f"{header}\n\n{body}\n\n{footer}", kb.as_markup()
+    return f"{header}\n\n{body}", kb.as_markup()
+
+
+
+
 
 
 
@@ -87,7 +102,7 @@ async def get_tasks_education_cernter(query: CallbackQuery, user: UserBot):
 
 
 @education_task_router.callback_query(F.data.startswith("claim_stat:"))
-async def claim_stat_callback(query: CallbackQuery, user: UserBot, character: Character):
+async def claim_stat_callback(query: CallbackQuery, user: UserBot):
     """
     Обработка нажатия на кнопку "Отримати" — выдаём награду и помечаем статистику.
     callback_data expected: "claim_stat:<STAT_VALUE>"
@@ -125,16 +140,8 @@ async def claim_stat_callback(query: CallbackQuery, user: UserBot, character: Ch
         await query.message.answer("Нагорода вже була отримана раніше.")
         return
     try:
-        await stats_instance.reward_stat()
+        await stats_instance.reward_stat(query.message)
     except Exception as e:
         await query.message.answer(f"Помилка при видачі нагороди: {e}")
         return
-
-    user = await UserService.get_user(user_id=user.user_id)
-
-    text, kb = _build_tasks_message_and_kb(user)
-    try:
-        await query.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
-    except Exception:
-        await query.message.answer("Нагороду видано!")
     await query.message.answer("Нагорода успішно отримана 🎉")

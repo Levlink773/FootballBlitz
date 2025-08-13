@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, Integer, Boolean, Enum
+from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, Integer, Boolean, Enum, Float
 from sqlalchemy.orm import relationship, Mapped
 
 from config import Country, Gender
@@ -20,7 +20,7 @@ class Character(Base):
     name = Column(String(255), index=True)
     age = Column(Integer, default=0)
     talent = Column(Integer, default=0)
-    power = Column(Integer, default=0)
+    power = Column(Float, default=0)
     gender = Column(Enum(Gender), nullable=False, default=Gender.MAN)
     country = Column(Enum(Country), default=Country.UKRAINE)
 
@@ -50,4 +50,4 @@ class Character(Base):
         return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
     @property
     def how_much_power_can_add(self):
-        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0)
+        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0) * 3

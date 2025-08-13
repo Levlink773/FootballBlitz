@@ -13,6 +13,7 @@ from database.models.user_bot import (
 )
 from gym_character.core.gym import Gym
 from gym_character.core.manager import GymCharacterManager
+from logging_config import logger
 from services.reminder_character_service import RemniderCharacterService
 from services.user_service import UserService
 
@@ -54,7 +55,7 @@ async def start_gym(
         character: Character,
 ):
     _time_training = callback_data.gym_time
-    if not character:
+    if not character or not user.main_character:
         return await query.message.reply(
             "<b>⚠️ У вас поки що немає основного футболіста!</b>\n"
             "🏟 Створіть або придбайте гравця, щоб почати тренування."
@@ -77,11 +78,12 @@ async def start_gym(
                     "💡 Ви можете отримати енергію:\n"
                     "• Виконуючи завдання в 🧠 Учбовому центрі\n"
                     "• Беручи участь у 🏆 турнірах\n"
-                    "• Після 23:00 участь у 🏆 турнірах\n"
                 )
             )
         except:
             return
+    user = await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=cost_gym)
+    logger.info(f"user energy: {user.energy}")
 
     reduction_time = _time_training.total_seconds()
     end_time_training = datetime.now() + timedelta(seconds=reduction_time)
@@ -98,21 +100,20 @@ async def start_gym(
     )
     await query.message.edit_caption(caption=caption, reply_markup=None)
     gym_scheduler = Gym(
-        character=character,
+        character=user.main_character,
         time_training=callback_data.gym_time,
     )
     task_training = gym_scheduler.start_training()
     GymCharacterManager.add_gym_task(
-        character_id=character.id,
+        character_id=user.main_character.id,
         task=task_training
     )
     await RemniderCharacterService.update_training_info(
-        character_id=character.id,
+        character_id=user.main_character.id,
         time_start_training=datetime.now(),
         time_training_seconds=int(callback_data.gym_time.total_seconds())
     )
     await RemniderCharacterService.toggle_character_training_status(character_id=character.id)
-    await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=cost_gym)
 
 
 @gym_router.callback_query(F.data == "get_out_of_gym")
