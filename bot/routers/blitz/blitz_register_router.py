@@ -37,6 +37,10 @@ async def blitz_register_filter(query: CallbackQuery,
         else:
             await query.message.delete_reply_markup()
         await query.message.answer(text)
+        await query.message.answer('''
+f"⚡ З вашого балансу знято <b>{callback_data.registration_cost} енергії</b> "
+f"за участь! 🚀 Успіхів у грі — нехай ваша команда покаже максимум на полі! 🏆"
+        ''')
     except BlitzCloseError as e:
         text = "⌛️ Реєстрацію на бліц-турнір закрито. Чекайте завтра для наступної битви!"
         logger.warning(f"msg: {e}")

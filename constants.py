@@ -152,30 +152,30 @@ MAX_MONEY_CHRISTMAS_REWARD = 10
 lootboxes = {
     "small_box": {
         "name_lootbox": "Маленький бокс футболіста",
-        "min_energy": 50,
-        "max_energy": 100,
-        "min_money": 5,
-        "max_money": 15,
+        "min_energy": 60,
+        "max_energy": 120,
+        "min_money": 8,
+        "max_money": 18,
         "min_exp": 1,
         "max_exp": 5,
         "price": 75
     },
     "medium_box": {
         "name_lootbox": "Середній бокс футболіста",
-        "min_energy": 100,
-        "max_energy": 200,
-        "min_money": 15,
-        "max_money": 30,
+        "min_energy": 125,
+        "max_energy": 250,
+        "min_money": 20,
+        "max_money": 40,
         "min_exp": 5,
         "max_exp": 10,
         "price": 145
     },
     "large_box": {
         "name_lootbox": "Преміум бокс",
-        "min_energy": 250,
-        "max_energy": 400,
-        "min_money": 30,
-        "max_money": 50,
+        "min_energy": 300,
+        "max_energy": 500,
+        "min_money": 40,
+        "max_money": 70,
         "min_exp": 10,
         "max_exp": 15,
         "price": 245

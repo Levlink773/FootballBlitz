@@ -114,6 +114,10 @@ async def start_gym(
         time_training_seconds=int(callback_data.gym_time.total_seconds())
     )
     await RemniderCharacterService.toggle_character_training_status(character_id=character.id)
+    await query.message.answer(f'''
+💪 Ви витратили <b>{cost_gym} енергії</b> на тренування!
+Час прокачати свого футболіста та підняти команду на новий рівень! ⚽🔥
+    ''')
 
 
 @gym_router.callback_query(F.data == "get_out_of_gym")

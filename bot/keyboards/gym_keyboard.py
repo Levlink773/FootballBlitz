@@ -1,19 +1,14 @@
 from datetime import timedelta
 
-from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from ..callbacks.gym_calbacks import SelectTimeGym, SelectCountDonateEnergy
-from ..callbacks.massage_room_callbacks import SelectCountGetEnergy
-
-from .utils_keyboard import menu_plosha
-
-from constants import CONST_PRICE_ENERGY
 
 count_energys = [5, 10, 20, 50, 70]
 
 
 def select_time_to_gym():
     return (InlineKeyboardBuilder()
-            .button(text="🕑 2 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=2)))
             .button(text="🕑 30 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=30)))
             .button(text="🕒 60 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=60)))
             .button(text="🕓 90 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=90)))
@@ -62,32 +57,3 @@ def back_to_education_task_service():
         .as_markup()
     )
 
-def menu_massage_room():
-    keyboard = InlineKeyboardBuilder()
-    for count_energy, _ in CONST_PRICE_ENERGY.items():
-        keyboard.button(text=f"Купить [{count_energy}] 🔋",
-                        callback_data=SelectCountGetEnergy(count_energy=count_energy))
-    return keyboard.adjust(1).as_markup()
-
-
-def send_payment_keyboard(payment_url: str):
-    return (InlineKeyboardBuilder()
-            .button(text="Сплатити 💵", url=payment_url)
-            .as_markup()
-            )
-
-
-def alert_leave_from_gym():
-    return (
-        InlineKeyboardBuilder()
-        .button(text="Вийти з тренування?", callback_data="get_out_of_gym")
-        .as_markup()
-    )
-
-
-def leave_from_gym_keyboard():
-    return (
-        InlineKeyboardBuilder()
-        .button(text="Точно вийти", callback_data="leave_gym")
-        .as_markup()
-    )

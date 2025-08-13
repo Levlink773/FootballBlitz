@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from blitz.blitz_match.constans import SMALL_BOX_BLITZ_PHOTO, MEDIUM_BOX_BLITZ_PHOTO
+from blitz.blitz_match.constans import SMALL_BOX_BLITZ_PHOTO, MEDIUM_BOX_BLITZ_PHOTO, LARGE_BOX_BLITZ_PHOTO
 from blitz.services.blitz_character_service import BlitzUserService
 from blitz.services.message_sender.blitz_sender import send_message
 from bot.callbacks.blitz_callback import BoxRewardCallback
@@ -71,7 +71,7 @@ class RewardSmallBoxBlitzTeam(RewardMediumBoxBlitzTeam):
 class RewardLargeBoxBlitzTeam(RewardMediumBoxBlitzTeam):
 
     def box_type(self):
-        return "великий", "large", MEDIUM_BOX_BLITZ_PHOTO
+        return "великий", "large", LARGE_BOX_BLITZ_PHOTO
 
 
 class RewardEnergyBlitzTeam(RewardBlitzTeam):
