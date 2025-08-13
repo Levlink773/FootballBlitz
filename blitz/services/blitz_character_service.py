@@ -24,11 +24,12 @@ class BlitzUserService:
     async def add_goal_to_user(cls, user_id: int):
         async for session in get_session():
             async with session.begin():
-                blitz_user = await session.execute(
-                    select(BlitzUser).where(BlitzUser.user_id == user_id)
+                stmt = (
+                    update(BlitzUser)
+                    .where(BlitzUser.user_id == user_id)
+                    .values(goals_count=BlitzUser.goals_count + 1)
                 )
-                blitz_user = blitz_user.scalar_one_or_none()
-                blitz_user.goals_count += 1
+                await session.execute(stmt)
                 await session.commit()
 
     @classmethod

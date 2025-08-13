@@ -50,7 +50,7 @@ class MatchTeamBlitz:
     @property
     def users_match_ids(self) -> list[int]:
         return [
-            user.id
+            user.user_id
             for user in self.users_in_match
         ]
 

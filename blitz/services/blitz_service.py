@@ -4,7 +4,7 @@ from sqlalchemy import select, delete, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-from blitz.exception import BlitzCloseError, UserExistsInBlitzError, MaxUsersInBlitzError
+from blitz.exception import BlitzCloseError, UserExistsInBlitzError, MaxUsersInBlitzError, UserForbiddenError
 from database.models.blitz import Blitz, BlitzType
 from database.models.blitz_character import BlitzUser
 from database.models.character import Character
@@ -52,6 +52,8 @@ class BlitzService:
                     raise ValueError(f"Blitz with id {blitz_id} does not exist")
                 if not blitz.can_register:
                     raise BlitzCloseError(f"Blitz with id {blitz_id} is not registered")
+                if blitz.blitz_type == BlitzType.VIP_BLITZ_V8 and not user.vip_pass_is_active:
+                    raise UserForbiddenError("Blitz only VIP users")
 
                 # Проверка — уже есть такой персонаж в блице?
                 result = await session.execute(

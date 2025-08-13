@@ -118,6 +118,7 @@ class StartBlitz:
             team_count=self.necessary_users,
             blitz_id=blitz_id
         )
+        all_teams = teams.copy()
         logger.info("Teams created")
         random.shuffle(teams)
         # await BlitzTeamSender.send_teams_message(teams)
@@ -158,7 +159,7 @@ class StartBlitz:
         logger.info(f"final_winner: {final_winner}")
         pure_semifinal_losers = [
             team for team in semifinal_teams
-            if team not in (final_winner, final_looser)
+            if team.id not in {final_winner.id, final_looser.id}
         ]
         bz_reward = BlitzRewardService.reward_blitz_team
         await BlitzAnnounceService.announce_end(users, final_winner, final_looser, reward_energy_garanted)
@@ -173,7 +174,7 @@ class StartBlitz:
         await asyncio.gather(
             *[
                 bz_reward(self.blitz_reward_pack.reward_guaranteed, team)
-                for team in teams
+                for team in all_teams
             ]
         )
         logger.info("Reward blitz match")

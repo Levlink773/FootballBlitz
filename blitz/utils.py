@@ -40,8 +40,8 @@ blitz_pack_getter = {
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(40), RewardStatisticsBlitzTeam()],
             reward_semi_final=[RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(1), RewardStatisticsSemiFinalBlitzTeam()],
-            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam()],
-            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam()],
+            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
+            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         )
     ),
     BlitzType.BLITZ_V8: BlitzPack(
@@ -50,8 +50,8 @@ blitz_pack_getter = {
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50), RewardStatisticsBlitzTeam()],
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardRatingBlitzTeam(1), RewardStatisticsSemiFinalBlitzTeam()],
-            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam()],
-            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam()],
+            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
+            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         )
     ),
     BlitzType.VIP_BLITZ_V8: BlitzPack(
@@ -60,8 +60,8 @@ blitz_pack_getter = {
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50), RewardStatisticsBlitzTeam()],
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardRatingBlitzTeam(1), RewardStatisticsSemiFinalBlitzTeam()],
-            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam()],
-            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam()],
+            reward_final_looser=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
+            reward_winner=[RewardMediumBoxBlitzTeam(), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         ),
         vip_blitz=True,
     ),
@@ -71,8 +71,8 @@ blitz_pack_getter = {
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(30), RewardStatisticsBlitzTeam()],
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(30), RewardRatingBlitzTeam(1), RewardStatisticsSemiFinalBlitzTeam()],
-            reward_final_looser=[RewardMediumBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam()],
-            reward_winner=[RewardLargeBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam()],
+            reward_final_looser=[RewardMediumBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
+            reward_winner=[RewardLargeBoxBlitzTeam(), RewardMoneyBlitzTeam(50), RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         ),
     ),
     BlitzType.BLITZ_V64: BlitzPack(
@@ -83,9 +83,9 @@ blitz_pack_getter = {
             reward_semi_final=[RewardSmallBoxBlitzTeam(), RewardMoneyBlitzTeam(60), RewardEnergyBlitzTeam(50),
                                RewardRatingBlitzTeam(1), RewardStatisticsSemiFinalBlitzTeam()],
             reward_final_looser=[RewardMediumBoxBlitzTeam(), RewardMoneyBlitzTeam(70), RewardEnergyBlitzTeam(100),
-                                 RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam()],
+                                 RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
             reward_winner=[RewardLargeBoxBlitzTeam(), RewardMoneyBlitzTeam(70), RewardEnergyBlitzTeam(100),
-                           RewardRatingBlitzTeam(2), RewardStatisticFinalWinnerFinalBlitzTeam()],
+                           RewardRatingBlitzTeam(2), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         ),
     ),
 }
@@ -112,9 +112,9 @@ blitz_scheduler = [
         blitz_pack=blitz_pack_getter.get(BlitzType.VIP_BLITZ_V8),
     ),
     BlitzData(
-        start_time=time(18, 24),
+        start_time=time(18, 0),
         registration_cost=40,
-        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V32),
     ),
     BlitzData(
         start_time=time(21, 0),

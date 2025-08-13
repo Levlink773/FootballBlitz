@@ -43,8 +43,8 @@ class BlitzTeamService:
                 for idx in range(team_count):
                     # беремо по два рядки
                     bu1, user = rows[idx]
-
-                    team = BlitzTeam(name=user.team_name)
+                    team_name = f"{user.team_name} ({', '.join(char.name for char in user.characters)})"
+                    team = BlitzTeam(name=team_name)
                     session.add(team)
                     await session.flush()  # щоб зʼявився team.id
 

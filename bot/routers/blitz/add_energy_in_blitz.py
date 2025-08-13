@@ -110,7 +110,7 @@ async def donate_epizode_energy(
     old_first_club_chance = old_chance_team[0] * 100
     old_second_club_chance = old_chance_team[1] * 100
 
-    if user.user_id in match_data.first_team.users_in_match:
+    if user.user_id in match_data.first_team.users_match_ids:
         match_data.first_team.episode_donate_energy += energy
         my_team = match_data.first_team
 
@@ -118,6 +118,7 @@ async def donate_epizode_energy(
         match_data.second_team.episode_donate_energy += energy
         my_team = match_data.second_team
     else:
+        logger.warning("Without team")
         return
 
     if my_team.episode_donate_energy >= MIN_DONATE_ENERGY_TO_BONUS_KOEF:

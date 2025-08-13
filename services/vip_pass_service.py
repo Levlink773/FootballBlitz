@@ -27,7 +27,7 @@ class VipPassService:
                     
                 stmt = (
                     update(UserBot)
-                    .where(UserBot.id == user.id)
+                    .where(UserBot.user_id == user.user_id)
                     .values(vip_pass_expiration_date=new_vip_pass_time)
                 )
                 await session.execute(stmt)

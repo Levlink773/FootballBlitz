@@ -21,11 +21,7 @@ def create_boxes(lootbox_data: TypeBox) -> list[Box]:
     money = Box(
         items=[Money(min=info_lootbox["min_money"], max=info_lootbox["max_money"])]
     )
-
-    exp = Box(
-        items=[Exp(min=info_lootbox["min_exp"], max=info_lootbox["max_exp"])]
-    )
-    return energy, money, exp
+    return energy, money
 
 
 class OpenBoxService:
@@ -36,25 +32,22 @@ class OpenBoxService:
             bot: Bot
     ) -> None:
         self.type_box = type_box
-        self.box_energy, self.box_money, self.box_exp = create_boxes(type_box)
+        self.box_energy, self.box_money = create_boxes(type_box)
         self.user = user
         self.bot = bot
 
     def get_frame_text(self):
         self.open_box_energy = OpenBox(items=self.box_energy.winner_items)
         self.open_box_money = OpenBox(items=self.box_money.winner_items)
-        self.open_box_exp = OpenBox(items=self.box_exp.winner_items)
 
         frame_gen_energy = self.open_box_energy.get_next_frame()
         frame_gen_money = self.open_box_money.get_next_frame()
-        frame_gen_exp = self.open_box_exp.get_next_frame()
 
         while True:
             try:
                 frame_energy = next(frame_gen_energy).split("\n")[0]
-                frame_money = next(frame_gen_money).split("\n")[0]
-                frame_exp = next(frame_gen_exp)
-                combined_frame = f"{frame_energy}\n{frame_money}\n{frame_exp}"
+                frame_money = next(frame_gen_money)
+                combined_frame = f"{frame_energy}\n{frame_money}"
                 yield combined_frame
             except StopIteration:
                 break
@@ -100,7 +93,6 @@ class OpenBoxService:
             text=text.format(
                 name_box=lootboxes[self.type_box]['name_lootbox'],
                 count_energy=self.open_box_energy.winner_item.count_item,
-                count_exp=self.open_box_exp.winner_item.count_item,
                 count_money=self.open_box_money.winner_item.count_item
             )
         )

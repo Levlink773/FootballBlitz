@@ -8,3 +8,5 @@ class MaxUsersInBlitzError(Exception):
     pass
 class UserNotEnoughEnergyError(Exception):
     pass
+class UserForbiddenError(Exception):
+    pass

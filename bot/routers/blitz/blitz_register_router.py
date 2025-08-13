@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 
 from blitz.exception import BlitzCloseError, BlitzDoesNotExistError, MaxUsersInBlitzError, \
-    UserNotEnoughEnergyError, UserExistsInBlitzError
+    UserNotEnoughEnergyError, UserExistsInBlitzError, UserForbiddenError
 from blitz.services.blitz_service import BlitzService
 from bot.callbacks.blitz_callback import BlitzRegisterCallback
 from database.models.user_bot import UserBot
@@ -12,6 +12,7 @@ from logging_config import logger
 from services.user_service import UserService
 
 blitz_register_router = Router()
+
 
 @blitz_register_router.callback_query(BlitzRegisterCallback.filter())
 async def blitz_register_filter(query: CallbackQuery,
@@ -31,7 +32,10 @@ async def blitz_register_filter(query: CallbackQuery,
             text,
             show_alert=True,
         )
-        await query.message.delete()
+        if not callback_data.is_scheduler:
+            await query.message.delete()
+        else:
+            await query.message.delete_reply_markup()
         await query.message.answer(text)
     except BlitzCloseError as e:
         text = "⌛️ Реєстрацію на бліц-турнір закрито. Чекайте завтра для наступної битви!"
@@ -57,6 +61,12 @@ async def blitz_register_filter(query: CallbackQuery,
         logger.warning(f"msg: {e}")
         await query.answer(
             "⚡ У вас недостатньо енергії!\nПоповніть запас, щоб продовжити гру 💪",
+            show_alert=True,
+        )
+    except UserForbiddenError as e:
+        logger.warning(f"msg: {e}")
+        await query.answer(
+            "🔒 Цей бліц відкритий тільки для 💎 VIP-гравців!",
             show_alert=True,
         )
     except BlitzDoesNotExistError as e:

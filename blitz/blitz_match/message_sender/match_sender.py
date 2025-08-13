@@ -137,7 +137,7 @@ class BlitzMatchSender:
             participants = "".join(
                 TemplatesMatch.TEMPLATE_PARTICIPANT.value.format(
                     character_name=user.main_character.name,
-                    power_user=user.main_character.power,
+                    power_user=sum(c.power for c in user.characters),
                 )
                 for user in users
             )

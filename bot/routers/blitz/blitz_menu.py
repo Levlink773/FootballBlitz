@@ -67,29 +67,46 @@ async def blitz_menu_handler(message: Message, user: UserBot):
     next_blitz = future_blitz[0]
     time_left = next_blitz.start_at - now
     minutes_left = int(time_left.total_seconds() // 60)
+    is_vip_blitz = next_blitz.blitz_type == BlitzType.VIP_BLITZ_V8
+    blitz_type_line = (
+        f"💎 <b>VIP-бліц</b> — доступно лише з VIP-пасом\n"
+        if is_vip_blitz else
+        f"⚡ <b>Звичайний бліц</b>\n"
+    )
 
+    registration_rules = (
+        "Реєстрація відкривається за 30 хв до старту." if is_vip_blitz
+        else "Реєстрація відкривається за 20 хв до старту."
+    )
     # Текст про ближайший
+
     blitz_text = (
         f"\n🔥 <b>Найближчий бліц:</b>\n"
         f"🏆 {BLITZ_TYPE_NAMES.get(next_blitz.blitz_type, str(next_blitz.blitz_type))}\n"
         f"🕒 Старт: {next_blitz.start_at.strftime('%d.%m.%Y %H:%M')} ({human_delta(time_left)})\n"
         f"💰 Вартість: {next_blitz.cost} енергії\n"
         f"👥 Учасники: {len(next_blitz.users)}/{BLITZ_LIMITS[next_blitz.blitz_type]}\n\n"
-        "Реєстрація відкривається за 30 хв (VIP) або за 20 хв (всі) до старту."
+        f"{blitz_type_line}"
+        f"📜 {registration_rules}"
     )
 
     reply_markup = None
-    if minutes_left < 2 or (minutes_left < 3 and user.vip_pass_is_active):
-        max_chars = BLITZ_LIMITS[next_blitz.blitz_type]
-        cb = BlitzRegisterCallback(
-            blitz_id=next_blitz.id,
-            max_characters=max_chars,
-            registration_cost=next_blitz.cost
-        ).pack()
-        button_text = f"🚀 Зареєструватись"
-        reply_markup = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text=button_text, callback_data=cb)]
-        ])
+    already_registered = any(bu.user_id == user.user_id for bu in next_blitz.users)
+    if not already_registered and (
+            minutes_left < 2 or (minutes_left < 3 and user.vip_pass_is_active)
+    ):
+        if (not is_vip_blitz) or (is_vip_blitz and user.vip_pass_is_active):
+            max_chars = BLITZ_LIMITS[next_blitz.blitz_type]
+            cb = BlitzRegisterCallback(
+                blitz_id=next_blitz.id,
+                max_characters=max_chars,
+                registration_cost=next_blitz.cost,
+                is_scheduler=True,
+            ).pack()
+            button_text = f"🚀 Зареєструватись"
+            reply_markup = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text=button_text, callback_data=cb)]
+            ])
 
     await message.answer_photo(
         photo=BLITZ_SCHEDULER,
