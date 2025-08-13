@@ -16,6 +16,7 @@ from blitz.blitz_match.entities import BlitzMatchData
 from bot.callbacks.blitz_callback import EpizodeDonateEnergyToBlitzMatch
 from bot.filters.donate_energy_filter import CheckTimeDonateEnergyMatch
 from database.models.user_bot import UserBot
+from logging_config import logger
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 from utils.club_utils import send_message_user_team
@@ -79,6 +80,7 @@ async def donate_epizode_energy(
 ):
     MIN_ENERGY_DONATE_MATCH = 10
     energy = int(message.text)
+    logger.info("Eeee: {}".format(energy))
     if energy < MIN_ENERGY_DONATE_MATCH:
         await state.clear()
         return await message.answer(f"Мінімум {MIN_ENERGY_DONATE_MATCH} енергії")
@@ -93,6 +95,8 @@ async def donate_epizode_energy(
     end_time = data.get("end_time", None)
     match_data_id = data.get("match_data_id")
     if not match_data_id or not end_time:
+        logger.info("match_data_id: {}".format(match_data_id))
+        logger.info("end data time: {}".format(match_data_id))
         await state.clear()
         return
     if int(time.time()) > end_time:

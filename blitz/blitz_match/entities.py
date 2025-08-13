@@ -55,8 +55,8 @@ class MatchTeamBlitz:
         ]
 
     def get_user_by_power(
-        self,
-        no_user: Optional[UserBot] = None
+            self,
+            no_user: Optional[UserBot] = None
     ) -> Optional[UserBot]:
         if not self.users_in_match:
             return None
@@ -69,11 +69,8 @@ class MatchTeamBlitz:
         if not filtered_users:
             return None
 
-        weights = [
-            character.power
-            for user in filtered_users
-            for character in user.characters
-        ]
+        # Теперь длины совпадают
+        weights = [sum(c.power for c in user.characters) for user in filtered_users]
 
         selected_user = random.choices(filtered_users, weights=weights, k=1)[0]
         return selected_user

@@ -115,7 +115,7 @@ class StartBlitz:
 
     async def _start_blitz(self, blitz_id: int):
         teams: list[BlitzTeam] = await BlitzTeamService.create_teams(
-            team_count=int(self.necessary_users / 2),
+            team_count=self.necessary_users,
             blitz_id=blitz_id
         )
         logger.info("Teams created")
@@ -190,8 +190,8 @@ class StartBlitz:
             status = await BlitzReminder(
                 blitz=blitz,
                 registration_cost=self.registration_cost,
-                remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 20,
-                remind_for_vip_users=30,
+                remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 2,
+                remind_for_vip_users=3,
                 necessary_count_users=self.necessary_users,
                 register_photo_path=self.register_photo_path
             ).remind()

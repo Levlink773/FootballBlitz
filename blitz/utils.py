@@ -112,9 +112,9 @@ blitz_scheduler = [
         blitz_pack=blitz_pack_getter.get(BlitzType.VIP_BLITZ_V8),
     ),
     BlitzData(
-        start_time=time(18, 0),
+        start_time=time(18, 24),
         registration_cost=40,
-        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V32),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
         start_time=time(21, 0),

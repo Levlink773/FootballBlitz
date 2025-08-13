@@ -56,7 +56,7 @@ async def blitz_register_filter(query: CallbackQuery,
     except UserNotEnoughEnergyError as e:
         logger.warning(f"msg: {e}")
         await query.answer(
-            f"У вас не достаточно енергии!!!!",
+            "⚡ У вас недостатньо енергії!\nПоповніть запас, щоб продовжити гру 💪",
             show_alert=True,
         )
     except BlitzDoesNotExistError as e:

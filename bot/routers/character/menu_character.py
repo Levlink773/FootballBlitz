@@ -6,6 +6,7 @@ from constants import MENU_TEAM, get_photo_character
 from database.models.character import Character
 from database.models.user_bot import UserBot
 from services.user_service import UserService
+from utils.generate_character import COUNTRY_FLAGS
 
 menu_character_router = Router()
 
@@ -35,10 +36,11 @@ async def show_team(
     kb = InlineKeyboardBuilder()
     characters: list[Character] = user.characters
     for c in characters:
-        name_button = f"{c.name}"
+        name_button = f"⚪ {c.name}"
         if user.main_character_id == c.id:
-            name_button += " 🌟 (головний)"
+            name_button = f"{c.name} 🌟 (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
+    kb.adjust(1)
     await message.answer_photo(
         photo=MENU_TEAM,
         caption=text,
@@ -62,13 +64,14 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         price = max(character.character_price, 0)
         is_main = (user.main_character_id == character.id)
         main_text = "⭐ <b>Головний герой</b>" if is_main else "⚪ <b>Не головний</b>"
-
+        country_flag = COUNTRY_FLAGS.get(character.country)
         text = (
-            f"🧍 Iм'я <b>{character.name}</b>\n"
+            f"🧍 Iм'я: <b>{character.name} {country_flag}</b>\n"
             f"🎂 Вік: {character.age}\n"
-            f"💪 Сила: {character.power}\n"
+            f"💪 Сила: {round(character.power)}\n"
             f"🎯 Талант: {character.talent}\n"
-            f"💰 Ціна: {price} монет\n"
+            f"🌍 Національність: {character.country.name.capitalize()} {country_flag}\n"
+            f"💰 Ціна: {round(price)} монет\n"
             f"📌 Статус: {main_text}"
         )
 
@@ -96,15 +99,16 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         await UserService.update_main_character(user.user_id, character_id)
 
         await callback.answer(f"🌟 {character.name} тепер головний гравець вашої команди!", show_alert=True)
-
+        country_flag = COUNTRY_FLAGS.get(character.country)
         # Показываем обновленные детали
         price = max(character.character_price, 0)
         text = (
-            f"🧍 Ім'я <b>{character.name}</b>\n"
+            f"🧍 Ім'я: <b>{character.name} {country_flag}</b>\n"
             f"🎂 Вік: {character.age}\n"
             f"💪 Сила: {round(character.power, 3)}\n"
             f"🎯 Талант: {character.talent}\n"
-            f"💰 Ціна: {round(price, 3)} монет\n"
+            f"🌍 Національність: {character.country.name.capitalize()} {country_flag}\n"
+            f"💰 Ціна: {round(price)} монет\n"
             f"📌 Статус: 🌟 Головний персонаж "
         )
         kb = InlineKeyboardBuilder()

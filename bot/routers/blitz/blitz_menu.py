@@ -79,7 +79,7 @@ async def blitz_menu_handler(message: Message, user: UserBot):
     )
 
     reply_markup = None
-    if minutes_left <= 20 or (minutes_left <= 30 and user.vip_pass_is_active):
+    if minutes_left < 2 or (minutes_left < 3 and user.vip_pass_is_active):
         max_chars = BLITZ_LIMITS[next_blitz.blitz_type]
         cb = BlitzRegisterCallback(
             blitz_id=next_blitz.id,

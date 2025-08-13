@@ -1,7 +1,7 @@
 from aiogram.types import FSInputFile
 
 
-START_REGISTER_PHOTO = FSInputFile("src/register_user/pre_register.jpg") 
+START_REGISTER_PHOTO = FSInputFile("src/register_user/pre_register.png")
 CREATER_CHARACTER_PHOTO = FSInputFile("src/register_user/create_character.jpg") 
 SEND_NAME_CHARACTER_PHOTO = FSInputFile("src/register_user/send_name.jpg")
 SELECT_POSITION_PHOTO = FSInputFile("src/register_user/select_position.jpg") 

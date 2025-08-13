@@ -51,10 +51,11 @@ async def show_ratings(message: Message):
 
     await message.answer_photo(photo=RATING, caption=text, reply_markup=keyboard)
 
-@rating_router.callback_query(F.text.startswith("rating_page:"))
+@rating_router.callback_query(F.data.startswith("rating_page:"))
 async def rating_pagination_handler(callback: CallbackQuery):
     page = int(callback.data.split(":")[1])
     characters = await CharacterService.get_all_characters()
+
     if not characters:
         await callback.answer("Рейтинги поки недоступні.", show_alert=True)
         return

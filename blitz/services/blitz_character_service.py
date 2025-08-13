@@ -1,4 +1,5 @@
 from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 
 from database.models.blitz_character import BlitzUser
 from database.models.user_bot import UserBot
@@ -11,7 +12,11 @@ class BlitzUserService:
         async for session in get_session():
             result = await session.execute(
                 select(UserBot)
-                .where(UserBot.user_id == blitz_users.user_id)
+                .where(UserBot.user_id == blitz_users.user_id).options(
+                    selectinload(UserBot.characters),
+                    selectinload(UserBot.main_character),
+                    selectinload(UserBot.statistics)
+                )
             )
             return result.scalar_one_or_none()
 

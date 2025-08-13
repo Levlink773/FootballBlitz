@@ -266,7 +266,7 @@ class TemplatesMatch(Enum):
     """
 
     TEMPLATE_PARTICIPANT = """
-👤 {character_name} | ⚔️ Сила: <b>{power_user:.2f}</b> | 📈 Рівень: <b>{lvl}</b>"""
+👤 {character_name} | ⚔️ Сила: <b>{power_user:.2f}</b>"""
 
     TEMPLATE_COMING_GOAL = """  
 ⚽️ <b>Вирішальний момент епізоду вже близько!</b> ⚽️  

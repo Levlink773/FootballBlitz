@@ -30,7 +30,7 @@ class BlitzTeamService:
                 result = await session.execute(stmt)
                 rows = list(result.all())
 
-                expected = team_count * 2
+                expected = team_count
                 if len(rows) != expected:
                     raise ValueError(
                         f"Очікується {expected} учасників, але знайдено {len(rows)}."
