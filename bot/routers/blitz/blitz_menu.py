@@ -93,8 +93,14 @@ async def blitz_menu_handler(message: Message, user: UserBot):
 
     reply_markup = None
     already_registered = any(bu.user_id == user.user_id for bu in next_blitz.users)
-    if not already_registered and (
+    participants_count = len(next_blitz.users)
+    max_participants = BLITZ_LIMITS[next_blitz.blitz_type]
+    if (
+            not already_registered
+            and participants_count < max_participants  # ✅ Проверка на лимит участников
+            and (
             minutes_left < 20 or (minutes_left < 30 and user.vip_pass_is_active)
+    )
     ):
         if (not is_vip_blitz) or (is_vip_blitz and user.vip_pass_is_active):
             max_chars = BLITZ_LIMITS[next_blitz.blitz_type]

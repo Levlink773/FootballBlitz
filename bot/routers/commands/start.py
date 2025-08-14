@@ -30,7 +30,7 @@ async def start_command_handler(
             )
             return await start_register.start_register_user()
         if user.status_register == STATUS_USER_REGISTER.CREATE_TEAM:
-            await message.answer_photo(
+            return await message.answer_photo(
                 caption=TEXT_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
                 photo=PHOTO_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
                 keyboard=create_team()
@@ -40,9 +40,9 @@ async def start_command_handler(
                 caption=TEXT_STAGE_REGISTER_USER[STATUS_USER_REGISTER.SEND_NAME_TEAM],
                 photo=PHOTO_STAGE_REGISTER_USER[STATUS_USER_REGISTER.SEND_NAME_TEAM],
             )
-            await state.set_state(RegisterUserState.send_team_name)
+            return await state.set_state(RegisterUserState.send_team_name)
         if user.status_register == STATUS_USER_REGISTER.GET_FIRST_CHARACTER:
-            await message.answer_photo(
+            return await message.answer_photo(
                 caption=TEXT_STAGE_REGISTER_USER[STATUS_USER_REGISTER.GET_FIRST_CHARACTER],
                 photo=PHOTO_STAGE_REGISTER_USER[STATUS_USER_REGISTER.GET_FIRST_CHARACTER],
                 reply_markup=get_first_character_keyboard()
