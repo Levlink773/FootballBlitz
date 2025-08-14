@@ -34,9 +34,8 @@ async def start_command_handler(
     await message.answer_photo(
         caption=TEXT_STAGE_REGISTER_USER[new_status],
         photo=PHOTO_STAGE_REGISTER_USER[new_status],
+        reply_markup=remove_keyboard()
     )
-    msg = await message.answer(".", reply_markup=remove_keyboard())
-    await msg.delete()
     await state.set_state(RegisterUserState.send_team_name)
 
 

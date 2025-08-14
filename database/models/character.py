@@ -50,4 +50,4 @@ class Character(Base):
         return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
     @property
     def how_much_power_can_add(self):
-        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0) * 3
+        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0) * 1.5

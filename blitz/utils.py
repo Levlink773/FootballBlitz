@@ -99,7 +99,7 @@ blitz_scheduler = [
     BlitzData(
         start_time=time(9, 0),
         registration_cost=50,
-        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
         start_time=time(12, 0),
@@ -109,16 +109,16 @@ blitz_scheduler = [
     BlitzData(
         start_time=time(15, 0),
         registration_cost=80,
-        blitz_pack=blitz_pack_getter.get(BlitzType.VIP_BLITZ_V8),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
     BlitzData(
         start_time=time(18, 0),
         registration_cost=40,
-        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V32),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
     BlitzData(
         start_time=time(21, 0),
         registration_cost=30,
-        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V64),
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
 ]
