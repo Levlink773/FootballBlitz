@@ -191,8 +191,8 @@ class StartBlitz:
             status = await BlitzReminder(
                 blitz=blitz,
                 registration_cost=self.registration_cost,
-                remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 2,
-                remind_for_vip_users=3,
+                remind_for_simple_users=0 if self.blitz_pack.vip_blitz else 20,
+                remind_for_vip_users=30,
                 necessary_count_users=self.necessary_users,
                 register_photo_path=self.register_photo_path
             ).remind()

@@ -29,12 +29,13 @@ BLITZ_LIMITS = {
 
 FIXED_SCHEDULE_TEXT = """📋 <b>Розклад бліц-турнірів</b>
 
-VIP Бліц (8) — тільки для VIP, 8 учасників  
-Бліц (8) — відкритий, 8 учасників  
-Бліц (16) — відкритий, 16 учасників  
-Бліц (32) — відкритий, 32 учасники  
-Бліц (64) — відкритий, 64 учасники
+👑 VIP Бліц (8) — тільки для VIP, 8 учасників  
+⚡️ Бліц (8) — відкритий, 8 учасників  
+🔥 Бліц (16) — відкритий, 16 учасників  
+🏆 Бліц (32) — відкритий, 32 учасники  
+🌍 Бліц (64) — відкритий, 64 учасники  
 
+⚽ Обирай свій турнір та виходь на поле!
 """
 
 
@@ -93,7 +94,7 @@ async def blitz_menu_handler(message: Message, user: UserBot):
     reply_markup = None
     already_registered = any(bu.user_id == user.user_id for bu in next_blitz.users)
     if not already_registered and (
-            minutes_left < 2 or (minutes_left < 3 and user.vip_pass_is_active)
+            minutes_left < 20 or (minutes_left < 30 and user.vip_pass_is_active)
     ):
         if (not is_vip_blitz) or (is_vip_blitz and user.vip_pass_is_active):
             max_chars = BLITZ_LIMITS[next_blitz.blitz_type]
