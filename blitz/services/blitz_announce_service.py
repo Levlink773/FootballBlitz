@@ -16,7 +16,8 @@ class BlitzAnnounceService:
             raise ValueError("На жаль, пар для матчів не знайдено.")
 
         stage_map = {
-            16: ("1/16 фіналу", BLITZ_STAGES_PATCH[0]),
+            32: ("1/32 фіналу", BLITZ_STAGES_PATCH[4]),
+            16: ("1/16 фіналу", BLITZ_STAGES_PATCH[4]),
             8: ("1/8 фіналу", BLITZ_STAGES_PATCH[0]),
             4: ("1/4 фіналу", BLITZ_STAGES_PATCH[1]),
             2: ("1/2 фіналу", BLITZ_STAGES_PATCH[2]),
@@ -67,6 +68,8 @@ class BlitzAnnounceService:
             raise ValueError("Немає даних про результати раунду.")
 
         next_stage_map = {
+            64: "1/32 фіналу",
+            32: "1/16 фіналу",
             16: "1/8 фіналу",
             8: "1/4 фіналу",
             4: "1/2 фіналу",

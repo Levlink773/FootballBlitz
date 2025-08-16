@@ -85,7 +85,7 @@ blitz_pack_getter = {
             reward_final_looser=[RewardMediumBoxBlitzTeam(), RewardMoneyBlitzTeam(70), RewardEnergyBlitzTeam(100),
                                  RewardRatingBlitzTeam(2), RewardStatisticFinalLooserFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
             reward_winner=[RewardLargeBoxBlitzTeam(), RewardMoneyBlitzTeam(70), RewardEnergyBlitzTeam(100),
-                           RewardRatingBlitzTeam(2), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
+                           RewardRatingBlitzTeam(3), RewardStatisticFinalWinnerFinalBlitzTeam(), RewardStatisticsSemiFinalBlitzTeam()],
         ),
     ),
 }
@@ -93,27 +93,27 @@ blitz_pack_getter = {
 blitz_scheduler = [
     BlitzData(
         start_time=time(0, 0),
-        registration_cost=80,
+        registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
         start_time=time(9, 0),
-        registration_cost=50,
+        registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
         start_time=time(12, 0),
-        registration_cost=50,
+        registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
     BlitzData(
         start_time=time(15, 0),
-        registration_cost=80,
+        registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
     BlitzData(
         start_time=time(18, 0),
-        registration_cost=40,
+        registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V16),
     ),
     BlitzData(

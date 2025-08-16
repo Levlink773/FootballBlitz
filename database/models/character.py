@@ -8,6 +8,7 @@ from constants import POWER_MUL, TALENT_MUL, AGE_MUL
 from database.models.reminder_character import ReminderCharacter
 
 from database.model_base import Base
+from database.models.transfer_character import TransferCharacter
 
 
 class Character(Base):
@@ -15,7 +16,7 @@ class Character(Base):
 
     id = Column(BigInteger, primary_key=True, index=True)
 
-    characters_user_id = Column(BigInteger, ForeignKey('users.user_id'))
+    characters_user_id = Column(BigInteger, ForeignKey('users.user_id'), nullable=True)
 
     name = Column(String(255), index=True)
     age = Column(Integer, default=0)
@@ -40,14 +41,24 @@ class Character(Base):
         lazy="selectin"
     )
 
+    transfer: Mapped["TransferCharacter"] = relationship(
+        "TransferCharacter",
+        back_populates="character",
+        uselist=False,  # <<< важный момент для one-to-one
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+
     training_key = Column(Integer, default=1, server_default="1", nullable=False)
     time_get_member_bonus = Column(DateTime, nullable=True)
 
     points = Column(BigInteger, nullable=False, default=0)
 
     @property
-    def character_price(self):
-        return (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
+    def character_price(self) -> float:
+        price = (self.power * POWER_MUL) + (self.talent * TALENT_MUL) - (self.age * AGE_MUL)
+        return price
+
     @property
     def how_much_power_can_add(self):
-        return max(1.0 * (0.4 * self.talent) * (1 - self.age * 0.02), 0) * 1.5
+        return max(1.0 * (0.2 * self.talent) * (1 - self.age * 0.02), 0) * 2

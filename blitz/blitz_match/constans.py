@@ -59,8 +59,9 @@ BLITZ_STAGES_PATCH = [
     "blitz/blitz_match/photos/1v4.png",
     "blitz/blitz_match/photos/1v2.jpg",
     "blitz/blitz_match/photos/final.jpg",
+    "blitz/blitz_match/photos/1v16.jpg",
 ]
-REGISTER_BLITZ_PHOTO = "blitz/blitz_match/photos/reg_blitz.jpg"
+REGISTER_BLITZ_PHOTO = "blitz/blitz_match/photos/reg_blitz.png"
 STAGE_MAP = {
     16: "1/16 фіналу",
     8: "1/8 фіналу",

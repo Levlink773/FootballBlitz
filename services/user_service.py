@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import select, update, or_
+from sqlalchemy import select, update, or_, delete
 from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
 from database.models.character import Character
+from database.models.statistics import Statistics
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
 
@@ -127,6 +128,26 @@ class UserService:
                     )
                     await session.execute(stmt)
                     await session.commit()
+                except Exception as e:
+                    raise e
+
+    @classmethod
+    async def anulate_statistics(cls, user_id: int):
+        async for session in get_session():
+            async with session.begin():
+                try:
+                    stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                    result = await session.execute(stmt_select)
+                    user: UserBot = result.scalar_one_or_none()
+
+                    user.count_go_to_gym = 0
+                    user.count_play_blitz = 0
+                    user.count_rich_final_looser_blitz = 0
+                    user.count_rich_semi_final_blitz = 0
+                    user.count_rich_final_winner_blitz = 0
+
+                    stmt = delete(Statistics).where(Statistics.user_id == user_id)
+                    await session.execute(stmt)
                 except Exception as e:
                     raise e
 
