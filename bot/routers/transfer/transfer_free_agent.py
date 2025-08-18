@@ -1,7 +1,9 @@
 from aiogram import Router, F, types
+from aiogram.types import InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 
+from constants import FREE_AGENTS, SUCCESS_BUY_PLAYER
 from database.models.transfer_character import TransferCharacter, TransferType
 from database.models.user_bot import UserBot
 from database.session import get_session
@@ -43,7 +45,10 @@ async def show_free_agents(message: types.Message):
             )
 
         kb.adjust(1)
-        await message.answer(text, reply_markup=kb.as_markup())
+        await message.edit_media(
+            media=InputMediaPhoto(media=FREE_AGENTS, caption=text),
+            reply_markup=kb.as_markup()
+        )
 
 
 # === Покупка вільного агента ===
@@ -80,8 +85,8 @@ async def buy_free_agent(callback: types.CallbackQuery):
         # удаляем из free_agents_market
         await session.delete(transfer)
         await session.commit()
-
-        await callback.message.edit_text(
-            f"✅ Ви успішно купили гравця {char.name} "
-            f"за {transfer.price} монет!"
+        text = (f"✅ Ви успішно купили гравця {char.name} "
+            f"за {transfer.price} монет!")
+        await callback.message.edit_media(
+            media=InputMediaPhoto(media=SUCCESS_BUY_PLAYER, caption=text)
         )

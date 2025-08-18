@@ -1,16 +1,13 @@
 # services/free_agents_service.py
-import asyncio
 from typing import List
 
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-
-from database.session import get_session
-from database.models.character import Character
-from database.models.transfer_character import TransferCharacter, TransferType
-from database.models.transfer_character import TransferType as TC_Enum  # if needed
 from sqlalchemy.orm import selectinload
 
+from database.models.character import Character
+from database.models.transfer_character import TransferCharacter, TransferType
+from database.session import get_session
 from utils.generate_character import get_character
 
 DEFAULT_FREE_AGENTS_COUNT = 10

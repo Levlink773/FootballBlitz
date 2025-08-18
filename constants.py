@@ -224,6 +224,10 @@ EDUCATION_TASK = FSInputFile('src/education_task.png')
 EDUCATION_TASK_REWARD = FSInputFile('src/education_task_reward.png')
 UPDATE_ENERGY = FSInputFile('src/update_energy.png')
 BLITZ_SCHEDULER = FSInputFile('src/blitz_scheduler.png')
+TRANSFER = FSInputFile('src/transfer.png')
+FREE_AGENTS = FSInputFile('src/free_agents.png')
+SUCCESS_BUY_PLAYER = FSInputFile('src/success_buy_player.png')
+SUCCESS_EXHIBITED_TRANSFER = FSInputFile('src/success_exhibited_transfer.png')
 
 def get_photo_character(character) -> FSInputFile:
     return FSInputFile(random.choice(photos.get(character.gender, ['path/to/default_photo.jpg'])))

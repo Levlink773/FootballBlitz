@@ -14,11 +14,13 @@ from schedulers.scheduler_change_age import AgeUpdateScheduler
 from schedulers.scheduler_education import EducationRewardReminderScheduler
 from schedulers.scheduler_energy import EnergyResetScheduler
 from schedulers.scheduler_training import ReminderTraning
+from schedulers.transfer_scheduler import FreeAgentsScheduler
 
 
 async def start_utils():
 
     asyncio.create_task(StartBlitzs.start(blitz_scheduler)) # bltiz init
+    await free_agent_scheduler.start()
     await energy_listener.start_listener()
     await exp_listener.start_listener()
     await new_member_exp_listener.start_listener()
@@ -42,6 +44,7 @@ age_update_scheduler = AgeUpdateScheduler()
 reminder_buy_energy       = ReminderBuyEnergy()
 reminder_go_to_training   = ReminderTraning()
 anulate_statics = AnulateStatisticsScheduler()
+free_agent_scheduler = FreeAgentsScheduler()
 # reminder_vip_pass         = VipPassSchedulerService()
 # scheduler_reset_training_key = ResetTrainingKeyScheduler()
 

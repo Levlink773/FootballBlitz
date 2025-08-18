@@ -1,6 +1,8 @@
 from aiogram import Router, types, F
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from constants import TRANSFER
+
 transfer_menu_router = Router()
 
 # === Главное меню рынка ===
@@ -12,7 +14,8 @@ async def show_market_menu(message: types.Message):
     kb.button(text="⬅️ Головна площа")
     kb.adjust(1)
 
-    await message.answer(
-        "Оберіть потрібний ринок:",
+    await message.answer_photo(
+        photo=TRANSFER,
+        caption="Оберіть потрібний ринок:",
         reply_markup=kb.as_markup()
     )
