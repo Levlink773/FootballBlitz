@@ -6,11 +6,12 @@ from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select, desc, update
 
 from blitz.services.blitz_reward_service import RewardLargeBoxBlitzTeam, RewardMediumBoxBlitzTeam, \
-    RewardSmallBoxBlitzTeam
+    RewardSmallBoxBlitzTeam, RewardEnergyBlitzTeam, RewardMoneyBlitzTeam
 from blitz.services.message_sender.blitz_sender import send_message
 from database.models.character import Character
 from database.models.user_bot import UserBot
 from database.session import get_session
+from loader import bot
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class SchedulerRewardRating:
         self.scheduler = AsyncIOScheduler()
         self._job_id = "reward_rating_weekly"
 
-    def start(self):
+    async def start(self):
         """Запускаем еженедельный планировщик (например, в воскресенье в 23:30)."""
         self.scheduler.add_job(
             func=self._run_safe,
@@ -61,21 +62,55 @@ class SchedulerRewardRating:
                 user: UserBot = char.owner
                 if not user:
                     continue
-
+                rewards = []
                 if idx == 1:
-                    reward = RewardLargeBoxBlitzTeam()
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(600), RewardMoneyBlitzTeam(500)]
+                    )
                 elif idx == 2:
-                    reward = RewardMediumBoxBlitzTeam()
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(500), RewardMoneyBlitzTeam(400)]
+                    )
                 elif idx == 3:
-                    reward = RewardSmallBoxBlitzTeam()
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(400), RewardMoneyBlitzTeam(300)]
+                    )
+                elif idx == 4:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(300), RewardMoneyBlitzTeam(200)]
+                    )
+                elif idx == 5:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(200), RewardMoneyBlitzTeam(100)]
+                    )
+                elif idx == 6:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(160), RewardMoneyBlitzTeam(80)]
+                    )
+                elif idx == 7:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(140), RewardMoneyBlitzTeam(70)]
+                    )
+                elif idx == 8:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(120), RewardMoneyBlitzTeam(60)]
+                    )
+                elif idx == 9:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(100), RewardMoneyBlitzTeam(50)]
+                    )
+                elif idx == 10:
+                    rewards.extend(
+                        [RewardEnergyBlitzTeam(80), RewardMoneyBlitzTeam(40)]
+                    )
                 else:
                     continue
-
-                await reward.reward_blitz_user(user)
                 await send_message(
                     user=user,
-                    text=f"🏆 Вітаємо! Ви посіли <b>{idx}-е місце</b> у тижневому рейтингу!"
+                    text=f"🏆 Вітаємо! Ви посіли <b>{idx}-е місце</b> у тижневому рейтингу і отрумуєте!"
                 )
+                for reward in rewards:
+                    await reward.reward_blitz_user(user)
 
             # обнуляем рейтинг всем
             await session.execute(

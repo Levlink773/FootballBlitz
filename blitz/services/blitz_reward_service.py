@@ -49,7 +49,7 @@ class RewardMediumBoxBlitzTeam(RewardBlitzTeam):
         msg = await bot.send_photo(
             user.user_id,
             photo=photo,
-            caption=f"🎁 <b>Увага!</b> Ви отримали <b>{name_box} лутбокс</b> за блиц-турнір! "
+            caption=f"🎁 <b>Увага!</b> Ви отримали <b>{name_box} лутбокс</b>! "
                     "Відкрийте його, щоб дізнатися свою нагороду та зарядитися мотивацією! 💥",
             reply_markup=markup,
             parse_mode="HTML"

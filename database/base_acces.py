@@ -1,3 +1,6 @@
+from database.models.transfer_character import TransferCharacter
+
+
 def get_base():
     from database.model_base import Base
     from database.models.user_bot import UserBot
@@ -13,5 +16,6 @@ def get_base():
     from database.models.blitz_character import BlitzUser
     from database.models.blitz_team import BlitzTeam
     from database.models.statistics import Statistics
+    from database.models.transfer_character import TransferCharacter
 
     return Base

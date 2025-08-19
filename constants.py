@@ -228,6 +228,7 @@ TRANSFER = FSInputFile('src/transfer.png')
 FREE_AGENTS = FSInputFile('src/free_agents.png')
 SUCCESS_BUY_PLAYER = FSInputFile('src/success_buy_player.png')
 SUCCESS_EXHIBITED_TRANSFER = FSInputFile('src/success_exhibited_transfer.png')
+MY_TRANSFERS = FSInputFile('src/my_transfers.png')
 
 def get_photo_character(character) -> FSInputFile:
     return FSInputFile(random.choice(photos.get(character.gender, ['path/to/default_photo.jpg'])))

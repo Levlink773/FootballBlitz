@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from database.models.transfer_character import TransferCharacter
+from database.models.transfer_character import TransferCharacter, TransferType
 from database.session import get_session
 
 
