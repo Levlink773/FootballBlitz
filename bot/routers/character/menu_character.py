@@ -26,13 +26,14 @@ async def show_team(
         character: Character,
 ):
     vip_status = "🟢 Активний" if user.vip_pass_is_active else "🔴 Неактивний"
-    logger.info(f"Main: {character.name}")
+    logger.info(f"Main: {character}")
+    t = "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):" if user.characters else "Наразі у вас немає гравців"
     text = (
         f"💰 Гроші: <b>{user.money}</b>\n"
         f"⚡ Енергія: <b>{user.energy}</b>\n"
         f"🎟 VIP статус: <b>{vip_status}</b>\n"
         f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
-        "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
+        f"{t}"
     )
 
     kb = InlineKeyboardBuilder()

@@ -39,12 +39,13 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
     transfers = await TransferCharacterService.get_all()
 
     kb = InlineKeyboardBuilder()
+    manage_text = '⚽ Управління та виставлення гравців' if transfers else 'Виставити гравця на трансфер ⚽'
     kb.row(
-        InlineKeyboardButton(text='⚽ Управління та виставлення гравців', callback_data='exhibited_character')
+        InlineKeyboardButton(text=manage_text, callback_data='exhibited_character')
     )
 
     if not transfers:
-        msg = "❌ На ринку поки що немає гравців."
+        msg = "❌ Зараз на ринку немає жодного гравця. Але не хвилюйся — нові футболісти можуть з’явитися будь-якої миті! ⚡ Ти також можеш виставити свого гравця на трансфер і стати першим, хто оживить ринок."
         if isinstance(message_or_callback, types.Message):
             await message_or_callback.answer_photo(
                 photo=TRANSFER,
