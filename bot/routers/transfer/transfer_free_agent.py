@@ -2,12 +2,15 @@ from aiogram import Router, F, types
 from aiogram.types import InputMediaPhoto, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from constants import FREE_AGENTS, SUCCESS_BUY_PLAYER, get_photo_character
+from database.models.character import Character
 from database.models.transfer_character import TransferCharacter, TransferType
 from database.models.user_bot import UserBot
 from database.session import get_session
 from services.transfer_service import TransferCharacterService
+from services.user_service import UserService
 
 free_agents_router = Router()
 
@@ -80,7 +83,6 @@ async def back_to_free_list(callback: types.CallbackQuery):
     await callback.answer()
 
 
-# === Покупка вільного агента ===
 @free_agents_router.callback_query(F.data.startswith("buy_free:"))
 async def buy_free_agent(callback: types.CallbackQuery):
     transfer_id = int(callback.data.split(":")[1])
@@ -91,12 +93,20 @@ async def buy_free_agent(callback: types.CallbackQuery):
         return
 
     buyer_id = callback.from_user.id
-
+    char = transfer.character
     async for session in get_session():
-        # загружаем игрока и покупателя
-        char = transfer.character
-        buyer = await session.execute(select(UserBot).where(UserBot.user_id == buyer_id))
-        buyer = buyer.scalar_one_or_none()
+        char: Character = await session.scalar(
+            select(Character).where(Character.id == char.id).options(selectinload(Character.transfer))
+        )
+        transfer: TransferCharacter = await session.scalar(
+            select(TransferCharacter).where(TransferCharacter.id == transfer.id)
+        )
+        buyer: UserBot = await session.scalar(
+            select(UserBot).where(UserBot.user_id == buyer_id).options(
+                selectinload(UserBot.characters),
+                selectinload(UserBot.main_character),
+            )
+        )
         if not buyer:
             await callback.answer("❌ Ви ще не зареєстровані у грі.", show_alert=True)
             return
@@ -106,17 +116,34 @@ async def buy_free_agent(callback: types.CallbackQuery):
             await callback.answer("❌ У вас недостатньо монет.", show_alert=True)
             return
 
+        # проверка на максимальное количество игроков
+        if (not buyer.vip_pass_is_active and len(buyer.characters) >= 1) or (
+            buyer.vip_pass_is_active and len(buyer.characters) >= 2
+        ):
+            t = (
+                "⚠️ Ви вже досягли максимальної кількості гравців. 🧍‍♂️️ "
+                "Продайте одного з існуючих, щоб придбати нового."
+            )
+            await callback.answer(t, show_alert=True)
+            return
+
         # списываем деньги
         buyer.money -= transfer.price
 
         # назначаем нового владельца
         char.characters_user_id = buyer.user_id
+        session.add(char)
 
         # удаляем из free_agents_market
         await session.delete(transfer)
         await session.commit()
-        text = (f"✅ Ви успішно купили гравця {char.name} "
-                f"за {transfer.price} монет!")
-        await callback.message.edit_media(
-            media=InputMediaPhoto(media=SUCCESS_BUY_PLAYER, caption=text)
-        )
+
+    # если нет главного игрока → назначаем
+    await UserService.assign_main_character_if_none(buyer_id)
+
+    text = (f"✅ Ви успішно купили гравця {char.name} "
+            f"за {transfer.price} монет!")
+    await callback.message.edit_media(
+        media=InputMediaPhoto(media=SUCCESS_BUY_PLAYER, caption=text)
+    )
+

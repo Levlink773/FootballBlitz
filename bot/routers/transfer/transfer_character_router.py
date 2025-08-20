@@ -9,9 +9,10 @@ from sqlalchemy.orm import selectinload
 
 from constants import SUCCESS_BUY_PLAYER, SUCCESS_EXHIBITED_TRANSFER, TRANSFER, get_photo_character, MY_TRANSFERS
 from database.models.character import Character
-from database.models.transfer_character import TransferType
+from database.models.transfer_character import TransferType, TransferCharacter
 from database.models.user_bot import UserBot
 from database.session import get_session
+from services.character_service import CharacterService
 from services.transfer_service import TransferCharacterService
 from services.user_service import UserService
 
@@ -36,12 +37,25 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
     page = data.get("page", 1)
 
     transfers = await TransferCharacterService.get_all()
+
+    kb = InlineKeyboardBuilder()
+    kb.row(
+        InlineKeyboardButton(text='⚽ Управління та виставлення гравців', callback_data='exhibited_character')
+    )
+
     if not transfers:
         msg = "❌ На ринку поки що немає гравців."
         if isinstance(message_or_callback, types.Message):
-            await message_or_callback.answer(msg)
+            await message_or_callback.answer_photo(
+                photo=TRANSFER,
+                caption=msg,
+                reply_markup=kb.as_markup()
+            )
         else:
-            await message_or_callback.message.edit_text(msg)
+            await message_or_callback.message.edit_media(
+                media=InputMediaPhoto(media=TRANSFER, caption=msg),
+                reply_markup=kb.as_markup()
+            )
         return
 
     # --- сортировка ---
@@ -65,7 +79,6 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
     text += "👤 Натисніть на ім’я, щоб переглянути деталі:\n\n"
 
     # --- клавиатура ---
-    kb = InlineKeyboardBuilder()
     for transfer in page_items:
         char = transfer.character
         kb.row(
@@ -74,14 +87,10 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
                 callback_data=f"info:{transfer.id}"
             )
         )
-    # кнопка выставить игрока
-    kb.row(
-        InlineKeyboardButton(text='⚽ Управління та виставлення гравців', callback_data='exhibited_character')
-    )
-    # сортировка (всего 2 кнопки)
+
+    # сортировка (2 кнопки)
     price_text = "💰 Ціна ⬆" if sort != "price_desc" else "💰 Ціна ⬇"
     power_text = "💪 Сила ⬆" if sort != "power_desc" else "💪 Сила ⬇"
-
     kb.row(
         InlineKeyboardButton(text=price_text, callback_data="sort:price"),
         InlineKeyboardButton(text=power_text, callback_data="sort:power"),
@@ -107,6 +116,7 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
             media=InputMediaPhoto(media=TRANSFER, caption=text),
             reply_markup=kb.as_markup()
         )
+
 
 
 # === Хендлер: показать подробную карточку игрока ===
@@ -200,6 +210,12 @@ async def buy_player(callback: types.CallbackQuery):
 
     # проверка денег у покупателя
     async for session in get_session():
+        char: Character = await session.scalar(
+            select(Character).where(Character.id == char.id).options(selectinload(Character.transfer))
+        )
+        transfer: TransferCharacter = await session.scalar(
+            select(TransferCharacter).where(TransferCharacter.id == transfer.id)
+        )
         buyer: UserBot = await session.scalar(
             select(UserBot).where(UserBot.user_id == buyer_id).options(
                 selectinload(UserBot.characters),
@@ -217,7 +233,6 @@ async def buy_player(callback: types.CallbackQuery):
             return
         # смена владельца игрока
         char.characters_user_id = buyer_id
-        session.add(char)
 
         # транзакция: списать и зачислить деньги
         buyer.money -= transfer.price
@@ -234,6 +249,11 @@ async def buy_player(callback: types.CallbackQuery):
         media=InputMediaPhoto(
             media=SUCCESS_BUY_PLAYER, caption=f"✅ Ви купили гравця {char.name} за {transfer.price} монет!"
         )
+    )
+    await callback.bot.send_message(
+        chat_id=seller_id,
+        text=f"Вітаємо! 🎉\n💰 Вашого гравця <b>{char.name}</b> купили за {transfer.price} монет!\n\n"
+             f"Баланс поповнено на <b>{transfer.price}</b> монет."
     )
 
 
@@ -282,7 +302,7 @@ async def show_character(callback: types.CallbackQuery):
             await callback.answer("❌ Гравця не знайдено.", show_alert=True)
             return
 
-        min_price = int(char.character_price * 0.5)
+        min_price = int(char.character_price * 0.8)
         fact_price = char.character_price
 
         text = (
@@ -334,7 +354,7 @@ async def sell_player(callback: types.CallbackQuery, state: FSMContext):
             await callback.answer("❌ Гравця не знайдено.", show_alert=True)
             return
 
-        min_price = int(char.character_price * 0.5)
+        min_price = int(char.character_price * 0.8)
 
         # сохраняем в state id игрока и минимальную цену
         await state.update_data(char_id=char_id, min_price=min_price)

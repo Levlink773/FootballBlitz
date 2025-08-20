@@ -5,13 +5,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select, desc, update
 
-from blitz.services.blitz_reward_service import RewardLargeBoxBlitzTeam, RewardMediumBoxBlitzTeam, \
-    RewardSmallBoxBlitzTeam, RewardEnergyBlitzTeam, RewardMoneyBlitzTeam
+from blitz.services.blitz_reward_service import RewardEnergyBlitzTeam, RewardMoneyBlitzTeam
 from blitz.services.message_sender.blitz_sender import send_message
 from database.models.character import Character
 from database.models.user_bot import UserBot
 from database.session import get_session
-from loader import bot
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +47,7 @@ class SchedulerRewardRating:
                 select(Character)
                 .where(Character.characters_user_id.isnot(None))
                 .order_by(desc(Character.points))
-                .limit(3)
+                .limit(10)
             )
             top_players = result.scalars().all()
 

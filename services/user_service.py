@@ -97,25 +97,42 @@ class UserService:
                 result = await session.execute(
                     select(UserBot)
                     .where(UserBot.user_id == user_id)
-                    .options(selectinload(UserBot.characters))
+                    .options(
+                        selectinload(UserBot.characters),
+                        selectinload(UserBot.main_character),
+                    )
                 )
-                user = result.scalar_one_or_none()
+                user: UserBot = result.scalar_one_or_none()
                 if not user:
                     return None  # Пользователь не найден
 
-                if user.main_character is None and user.characters:
-                    main_char_id = user.characters[0].id
-                    stmt = (
-                        update(UserBot)
-                        .where(UserBot.user_id == user_id)
-                        .values(main_character_id=main_char_id)
-                    )
-                    await session.execute(stmt)
-                    # Обновляем локальный объект, чтобы отражать изменения
-                    user.main_character_id = main_char_id
+                # Проверка: если нет main_character или он не принадлежит пользователю
+                if (user.main_character is None) or (user.main_character not in user.characters):
+                    if user.characters:  # есть хотя бы один игрок
+                        main_char_id = user.characters[0].id
+                        stmt = (
+                            update(UserBot)
+                            .where(UserBot.user_id == user_id)
+                            .values(main_character_id=main_char_id)
+                        )
+                        await session.execute(stmt)
+                        # обновляем локальный объект
+                        user.main_character_id = main_char_id
+                        user.main_character = user.characters[0]
+                        return user
+                    else:
+                        # если у юзера нет игроков → сбрасываем main_character
+                        stmt = (
+                            update(UserBot)
+                            .where(UserBot.user_id == user_id)
+                            .values(main_character_id=None)
+                        )
+                        await session.execute(stmt)
+                        user.main_character_id = None
+                        user.main_character = None
+                        return user
 
                 return user
-
     @classmethod
     async def edit_team_name(cls, user_id: int, team_name: str):
         async for session in get_session():

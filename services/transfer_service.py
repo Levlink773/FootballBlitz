@@ -9,7 +9,7 @@ class TransferCharacterService:
     async def get_all(cls) -> list[TransferCharacter] | None:
         async for session in get_session():
             async with session.begin():
-                result = await session.execute(select(TransferCharacter))
+                result = await session.execute(select(TransferCharacter).where(TransferCharacter.transfer_type == TransferType.TRANSFER))
                 return list(result.scalars().all())
 
     @classmethod

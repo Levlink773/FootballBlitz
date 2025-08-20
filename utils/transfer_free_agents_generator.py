@@ -76,7 +76,7 @@ class FreeAgentsService:
                         continue
 
                     # вычисляем цену для free agents: фактична вартість * 1.3
-                    price = int(char_data.price * 1.3)
+                    price = int(char_data.price)
 
                     transfer = TransferCharacter(
                         characters_id=new_char.id,

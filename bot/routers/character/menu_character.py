@@ -5,6 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from constants import MENU_TEAM, get_photo_character
 from database.models.character import Character
 from database.models.user_bot import UserBot
+from logging_config import logger
 from services.user_service import UserService
 from utils.generate_character import COUNTRY_FLAGS
 
@@ -22,9 +23,10 @@ def make_character_cb(character_id: int, action: str = "view"):
 async def show_team(
         message: Message,
         user: UserBot,
+        character: Character,
 ):
     vip_status = "🟢 Активний" if user.vip_pass_is_active else "🔴 Неактивний"
-
+    logger.info(f"Main: {character.name}")
     text = (
         f"💰 Гроші: <b>{user.money}</b>\n"
         f"⚡ Енергія: <b>{user.energy}</b>\n"

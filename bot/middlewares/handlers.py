@@ -46,7 +46,7 @@ async def message_middleware(
     user  = await get_user(event.from_user)
     character = None
     if user.characters:
-        if not user.main_character:
+        if (not user.main_character) or (user.main_character not in user.characters):
             user = await UserService.assign_main_character_if_none(user.user_id)
         character: Character = user.main_character if user.main_character else None
     if character:
