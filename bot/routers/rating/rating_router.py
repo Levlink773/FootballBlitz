@@ -1,10 +1,10 @@
 from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, FSInputFile
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from constants import RATING
-from database.models.character import Character
-from services.character_service import CharacterService
+from database.models.user_bot import UserBot
+from services.user_service import UserService
 
 rating_router = Router()
 
@@ -34,16 +34,17 @@ INFO_TEXT = (
 def get_medal_emoji(rank: int) -> str:
     return {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, "🔸")
 
-def build_rating_text(characters: list[Character], page: int) -> str:
+def build_rating_text(users: list[UserBot], page: int) -> str:
     start = (page - 1) * ITEMS_PER_PAGE
     end = start + ITEMS_PER_PAGE
-    page_chars = characters[start:end]
+    page_chars = users[start:end]
 
     lines = []
-    for i, character in enumerate(page_chars, start=start + 1):
+    for i, user in enumerate(page_chars, start=start + 1):
         medal = get_medal_emoji(i)
-        team_name = character.owner.team_name or "Без команди"
-        lines.append(f"{medal} {i}. {character.name} ({team_name}) — {character.points} очок")
+        team_name = user.team_name or "Без команди"
+        username = f"@{user.user_name}" if user.user_name else user.user_full_name
+        lines.append(f"{medal} {i}. {username} ({team_name}) — {user.points} очок")
 
     return "\n".join(lines)
 
@@ -60,16 +61,15 @@ def build_pagination_keyboard(page: int, total_pages: int) -> InlineKeyboardMark
 
 @rating_router.message(F.text.regexp(r"(✅\s*)?📊 Рейтинги(\s*✅)?"))
 async def show_ratings(message: Message):
-    characters = await CharacterService.get_all_characters()
-    characters = [ch for ch in characters if ch.owner]
-    if not characters:
+    users = await UserService.get_all_users()
+    if not users:
         await message.answer("Рейтинги поки недоступні.")
         return
 
-    sorted_characters = sorted(characters, key=lambda c: c.points, reverse=True)
-    total_pages = (len(sorted_characters) + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
+    sorted_users = sorted(users, key=lambda c: c.points, reverse=True)
+    total_pages = (len(sorted_users) + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
 
-    text = build_rating_text(sorted_characters, page=1)
+    text = build_rating_text(sorted_users, page=1)
     keyboard = build_pagination_keyboard(page=1, total_pages=total_pages)
 
     await message.answer_photo(photo=RATING, caption=text, reply_markup=keyboard)
@@ -77,20 +77,19 @@ async def show_ratings(message: Message):
 @rating_router.callback_query(F.data.startswith("rating_page:"))
 async def rating_pagination_handler(callback: CallbackQuery):
     page = int(callback.data.split(":")[1])
-    characters = await CharacterService.get_all_characters()
-    characters = [ch for ch in characters if ch.owner]
-    if not characters:
+    users = await UserService.get_all_users()
+    if not users:
         await callback.answer("Рейтинги поки недоступні.", show_alert=True)
         return
 
-    sorted_characters = sorted(characters, key=lambda c: c.points, reverse=True)
-    total_pages = (len(sorted_characters) + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
+    sorted_users = sorted(users, key=lambda c: c.points, reverse=True)
+    total_pages = (len(sorted_users) + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
 
     if page < 1 or page > total_pages:
         await callback.answer("Невірна сторінка.", show_alert=True)
         return
 
-    text = build_rating_text(sorted_characters, page)
+    text = build_rating_text(sorted_users, page)
     keyboard = build_pagination_keyboard(page, total_pages)
 
     await callback.message.edit_caption(caption=text, reply_markup=keyboard)

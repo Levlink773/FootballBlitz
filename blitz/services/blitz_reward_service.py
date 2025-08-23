@@ -9,7 +9,6 @@ from bot.callbacks.blitz_callback import BoxRewardCallback
 from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from loader import bot
-from services.character_service import CharacterService
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 
@@ -117,9 +116,9 @@ class RewardRatingBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
         # Збільшуємо рейтинг
-        await CharacterService.add_rating(
-            user.main_character,
-            self.reward_rating,
+        await UserService.add_rating(
+            user_id=user.user_id,
+            rating_to_add=self.reward_rating
         )
         # Епічний фініш повідомлення про енергію
         await send_message(

@@ -36,6 +36,7 @@ class UserBot(Base):
     money = Column(BigInteger, default=0)
     energy = Column(BigInteger, default=0)
     team_name = Column(String(255), nullable=True)
+    points = Column(BigInteger, nullable=False, default=0)
     
     characters = relationship(
         "Character",

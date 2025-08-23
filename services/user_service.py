@@ -5,9 +5,11 @@ from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
 from database.models.character import Character
+from database.models.reminder_character import ReminderCharacter
 from database.models.statistics import Statistics
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
+from logging_config import logger
 
 
 class UserService:
@@ -171,15 +173,22 @@ class UserService:
     @classmethod
     async def add_energy_user(cls, user_id: int, amount_energy_add: int):
         async for session in get_session():
-            async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
+            stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+            result = await session.execute(stmt_select)
+            user: UserBot = result.scalar_one_or_none()
 
-                user.energy += amount_energy_add
+            if not user:
+                logger.warning(f"add_energy_user: user {user_id} не найден")
+                return None
 
-                session.add(user)
-                await session.commit()
+            old_energy = user.energy or 0
+            user.energy = old_energy + amount_energy_add
+
+            await session.commit()
+            await session.refresh(user)
+
+            logger.info(f"User {user.user_id}: energy {old_energy} -> {user.energy}")
+            return user
 
     @classmethod
     async def add_count_play_blitz_user(cls, user_id: int, amount: int):
@@ -249,27 +258,37 @@ class UserService:
     @classmethod
     async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> UserBot | None:
         async for session in get_session():
-            stmt_select = select(UserBot).where(UserBot.user_id == user_id).options(
-                    selectinload(UserBot.characters)
-                    .selectinload(Character.reminder),
-                    selectinload(UserBot.characters)
-                    .selectinload(Character.owner),
-                    selectinload(UserBot.main_character)
-                    .selectinload(Character.reminder),
-                    selectinload(UserBot.main_character)
-                    .selectinload(Character.owner),
+            stmt_select = (
+                select(UserBot)
+                .where(UserBot.user_id == user_id)
+                .options(
+                    selectinload(UserBot.characters).selectinload(Character.reminder),
+                    selectinload(UserBot.characters).selectinload(Character.owner),
+                    selectinload(UserBot.main_character).selectinload(Character.reminder),
+                    selectinload(UserBot.main_character).selectinload(Character.owner),
                     selectinload(UserBot.statistics)
                 )
+            )
             result = await session.execute(stmt_select)
-            user: UserBot = result.scalar_one()
+            user: UserBot = result.scalar_one_or_none()
+            if not user:
+                return None
 
-            user.energy -= amount_energy_consume
+            if user.energy < amount_energy_consume:
+                # Логируем попытку списания больше чем есть
+                logger.warning(
+                    f"⚡ Недостатньо енергії у користувача {user_id}: "
+                    f"{user.energy} < {amount_energy_consume}"
+                )
+                return user
 
-            # Не нужно session.add(user), он уже в сессии
+            old_energy = user.energy
+            user.energy = max(0, user.energy - amount_energy_consume)
+
             await session.commit()
-
-            # После коммита лучше вернуть свежий объект из БД
             await session.refresh(user)
+
+            logger.info(f"User {user.user_id}: energy {old_energy} -> {user.energy}")
             return user
 
     @classmethod
@@ -347,19 +366,64 @@ class UserService:
         async for session in get_session():
             async with session.begin():
                 try:
+                    result = await session.execute(
+                        select(Character.owner_id)
+                        .join(ReminderCharacter)
+                        .where(ReminderCharacter.character_in_training == True)
+                    )
+                    training_characters = [row[0] for row in result.all()]
+
+                    # апдейт звичайних користувачів
                     stmt = (
                         update(UserBot)
                         .where(UserBot.energy <= CONST_ENERGY)
+                        .where(~UserBot.id.in_(training_characters))  # 🔑 ігноруємо тих, хто у тренуванні
                         .values(energy=CONST_ENERGY)
                     )
+
+                    # апдейт vip
                     stmt_vip = (
                         update(UserBot)
                         .where(UserBot.vip_pass_expiration_date > datetime.now())
                         .where(UserBot.energy <= CONST_VIP_ENERGY)
+                        .where(~UserBot.id.in_(training_characters))
                         .values(energy=CONST_VIP_ENERGY)
                     )
+
                     await session.execute(stmt)
                     await session.execute(stmt_vip)
                     await session.commit()
                 except Exception as e:
                     raise e
+
+    @classmethod
+    async def add_rating(cls, user_id: UserBot, rating_to_add) -> UserBot | None:
+        async for session in get_session():
+            async with session.begin():
+                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt_select)
+                user: UserBot = result.scalar_one()
+                user.points += rating_to_add
+                session.add(user)
+                await session.commit()
+
+    @classmethod
+    async def add_energy_to_users(clc, user_ids: list[int], amount: int = 10):
+        """
+        Начисляет энергию пользователям.
+        :param user_ids: список user_id (telegram id) пользователей
+        :param amount: сколько энергии добавить каждому
+        """
+        if not user_ids:
+            return
+
+        async for session in get_session():
+            users = (await session.execute(
+                select(UserBot).where(UserBot.user_id.in_(user_ids))
+            )).scalars().all()
+
+            for user in users:
+                user.energy += amount
+                session.add(user)
+
+            await session.commit()

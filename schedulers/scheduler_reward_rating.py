@@ -44,8 +44,7 @@ class SchedulerRewardRating:
         async for session in get_session():
             # выбираем топ-3 игроков по очкам
             result = await session.execute(
-                select(Character)
-                .where(Character.characters_user_id.isnot(None))
+                select(UserBot)
                 .order_by(desc(Character.points))
                 .limit(10)
             )
@@ -56,10 +55,7 @@ class SchedulerRewardRating:
                 return
 
             # выдаем награды
-            for idx, char in enumerate(top_players, start=1):
-                user: UserBot = char.owner
-                if not user:
-                    continue
+            for idx, user in enumerate(top_players, start=1):
                 rewards = []
                 if idx == 1:
                     rewards.extend(
@@ -112,7 +108,7 @@ class SchedulerRewardRating:
 
             # обнуляем рейтинг всем
             await session.execute(
-                update(Character).values(points=0)
+                update(UserBot).values(points=0)
             )
             await session.commit()
             logger.info("Рейтинг обнулён и награды выданы")

@@ -3,12 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from constants import SUCCESS_BUY_PLAYER, SUCCESS_EXHIBITED_TRANSFER, TRANSFER, get_photo_character, MY_TRANSFERS
 from database.models.character import Character
+from database.models.training import CharacterJoinTraining
 from database.models.transfer_character import TransferType, TransferCharacter
 from database.models.user_bot import UserBot
 from database.session import get_session
@@ -39,7 +40,7 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
     transfers = await TransferCharacterService.get_all()
 
     kb = InlineKeyboardBuilder()
-    manage_text = '⚽ Управління та виставлення гравців' if transfers else 'Виставити гравця на трансфер ⚽'
+    manage_text = '⚽ Виставити/продати та управління гравцями' if transfers else 'Виставити/продати гравця на трансфері ⚽'
     kb.row(
         InlineKeyboardButton(text=manage_text, callback_data='exhibited_character')
     )
@@ -329,13 +330,57 @@ async def show_character(callback: types.CallbackQuery):
                 callback_data=f"sell:{char.id}"
             )
 
+        # 🔥 новая кнопка моментальної продажи
+        kb.button(
+            text=f"⚡ Продати моментально ({fact_price} 💰)",
+            callback_data=f"instant_sell:{char.id}"
+        )
+
         kb.button(text="🔙 Назад", callback_data="exhibited_character")
-        kb.adjust(1, 1)
+        kb.adjust(1, 1, 1)
 
         await callback.message.edit_media(
             media=InputMediaPhoto(media=MY_TRANSFERS, caption=text),
             reply_markup=kb.as_markup()
         )
+
+# === Хэндлер: моментальна продажа ===
+@transfer_transfer_router.callback_query(F.data.startswith("instant_sell:"))
+async def instant_sell(callback: types.CallbackQuery):
+    char_id = int(callback.data.split(":")[1])
+    user_id = callback.from_user.id
+
+    async for session in get_session():
+        char = await session.get(Character, char_id)
+        if not char or char.characters_user_id != user_id:
+            await callback.answer("❌ Неможливо продати цього гравця.", show_alert=True)
+            return
+
+        user: UserBot = await session.scalar(select(UserBot).where(UserBot.user_id == user_id))
+        if not user:
+            await callback.answer("❌ Користувача не знайдено.", show_alert=True)
+            return
+
+        fact_price = char.character_price
+        await session.execute(
+            delete(CharacterJoinTraining).where(CharacterJoinTraining.character_id == char.id)
+        )
+        # удаляем персонажа у игрока
+        await session.delete(char)
+
+        # начисляем деньги
+        user.money += fact_price
+        session.add(user)
+
+        await session.commit()
+
+    await callback.message.edit_media(
+        media=InputMediaPhoto(
+            media=SUCCESS_EXHIBITED_TRANSFER,
+            caption=f"✅ Ви моментально продали гравця за {fact_price} монет!"
+        )
+    )
+    await callback.answer("✅ Гравця продано.", show_alert=True)
 
 
 # === FSM для выставления игрока ===

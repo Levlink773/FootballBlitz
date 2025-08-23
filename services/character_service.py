@@ -113,14 +113,6 @@ class CharacterService:
             return merged_obj
 
     @classmethod
-    async def add_rating(cls, character_obj: Character, rating_to_add) -> Character | None:
-        async for session in get_session():
-            async with session.begin():
-                merged_obj = await session.merge(character_obj)
-                merged_obj.points += rating_to_add
-            return merged_obj
-
-    @classmethod
     async def update_age(cls, character_obj: Character, age_to_add: int) -> Character | None:
         async for session in get_session():
             async with session.begin():

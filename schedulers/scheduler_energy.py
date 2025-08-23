@@ -50,7 +50,7 @@ class EnergyResetScheduler:
         await UserService.update_energy_for_non_bots()
         asyncio.create_task(self.__send_message_bot(all_users, False))
         asyncio.create_task(self.__send_message_bot(all_vip_users, True))
-        logger.info("Обновил енергию для пользователей")
+        logger.info("Обнчовил енергию для пользователей")
 
     async def start_reset_energy(self):
         self.scheduler.add_job(self.reset_energy_character,

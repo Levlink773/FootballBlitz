@@ -121,6 +121,10 @@ class BlitzReminder:
             logger.info(f"Users len 1: {len(users)}")
             await send_message_all_users(users, self.blitz_text_getter.start_tournament(), photo_path=START_BLITZ_PHOTO)
         else:
+            await UserService.add_energy_to_users(
+                [user.user_id for user in users],
+                self.registration_cost,
+            )
             cancel_blitz_text = f'''
 <b>На жаль, на цей бліц-турнір не з'явилось достатньої кількості гравці!</b>
 

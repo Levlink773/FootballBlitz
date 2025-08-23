@@ -98,7 +98,11 @@ async def start_gym(
         end_time=int(_time_training.total_seconds() / 60),
         end_time_full=end_time_training.strftime("%Y-%m-%d %H:%M")
     )
-    await query.message.edit_caption(caption=caption, reply_markup=None)
+    try:
+        await query.message.edit_caption(caption=caption, reply_markup=None)
+    except Exception as e:
+        logger.error(e)
+        await query.message.answer(text=caption, reply_markup=None)
     gym_scheduler = Gym(
         character=user.main_character,
         time_training=callback_data.gym_time,
