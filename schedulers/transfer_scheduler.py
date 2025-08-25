@@ -20,10 +20,10 @@ class FreeAgentsScheduler:
     Запуск: await FreeAgentsScheduler().start()
     """
     # триггер, который запустит _start (можно запускать раз в сутки/при старте сервиса и т.п.)
-    default_trigger_start = CronTrigger(hour=16, minute=27)  # запускаем проверку/инициализацию ежедневно в 00:00
+    default_trigger_start = CronTrigger(hour=0, minute=0)  # запускаем проверку/инициализацию ежедневно в 00:00
 
     # триггер, который выполняет refresh_free_agents раз в неделю:
-    weekly_refresh_trigger = CronTrigger(day_of_week='wed', hour=16, minute=28)
+    weekly_refresh_trigger = CronTrigger(day_of_week='sat', hour=23, minute=45)
 
     def __init__(self) -> None:
         self.scheduler = AsyncIOScheduler()

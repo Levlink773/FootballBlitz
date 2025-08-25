@@ -45,7 +45,7 @@ class SchedulerRewardRating:
             # выбираем топ-3 игроков по очкам
             result = await session.execute(
                 select(UserBot)
-                .order_by(desc(Character.points))
+                .order_by(desc(UserBot.points))
                 .limit(10)
             )
             top_players = result.scalars().all()

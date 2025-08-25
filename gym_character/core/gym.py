@@ -8,7 +8,7 @@ from aiogram.types import FSInputFile
 
 from constants import (
     chance_add_point,
-    CHANCE_VIP_PASS
+    CHANCE_VIP_PASS, const_energy_by_time
 )
 from database.models.character import Character
 from gym_character.templates import TrainingTextTemplate
@@ -61,9 +61,9 @@ class Gym:
             await RemniderCharacterService.anulate_training_character(self.character.id)
             
     async def _run_training(self) -> None:
+        cost_gym = const_energy_by_time[self.time_training]
         try:
             chance = chance_add_point[self.time_training]
-            
             if not await RemniderCharacterService.character_in_training(
                 character_id=self.character.id
             ):
@@ -85,6 +85,7 @@ class Gym:
             await self.send_end_training_message()
             await GymCharacterManager.remove_gym_task(self.character.id)
         except Exception as e:
+            await UserService.add_energy_user(self.character.owner.user_id, cost_gym)
             logger.error(f"Ошибка при выполнении тренировки: {e}")
         finally:
             await RemniderCharacterService.anulate_character_training_status(self.character.id)

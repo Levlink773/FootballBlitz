@@ -82,8 +82,6 @@ async def start_gym(
             )
         except:
             return
-    user = await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=cost_gym)
-    logger.info(f"user energy: {user.energy}")
 
     reduction_time = _time_training.total_seconds()
     end_time_training = datetime.now() + timedelta(seconds=reduction_time)
@@ -98,6 +96,7 @@ async def start_gym(
         end_time=int(_time_training.total_seconds() / 60),
         end_time_full=end_time_training.strftime("%Y-%m-%d %H:%M")
     )
+    await UserService.consume_energy(user.user_id, cost_gym)
     try:
         await query.message.edit_caption(caption=caption, reply_markup=None)
     except Exception as e:

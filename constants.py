@@ -77,7 +77,7 @@ MAX_LEN_MEMBERS_CLUB = 11
 TIME_FIGHT = timedelta(minutes=20)
 BUFFER_TIME = timedelta(minutes=3)
 
-TIME_RESET_ENERGY_CHARACTER = CronTrigger(hour=1, minute=0)
+TIME_RESET_ENERGY_CHARACTER = CronTrigger(hour=3, minute=0)
 
 DELTA_TIME_EDUCATION_REWARD = timedelta(hours=12)
 
