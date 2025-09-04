@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot
 
 from bot.boxes.base_box import Box
-from bot.boxes.base_item import Energy, Exp, Money
+from bot.boxes.base_item import Energy, Money
 from bot.boxes.base_open import OpenBox
 from constants import lootboxes
 from database.models.types import TypeBox

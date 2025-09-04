@@ -163,14 +163,10 @@ class StartBlitz:
         ]
         bz_reward = BlitzRewardService.reward_blitz_team
         await BlitzAnnounceService.announce_end(users, final_winner, final_looser, reward_energy_garanted)
-        await asyncio.gather(
-            bz_reward(self.blitz_reward_pack.reward_winner, final_winner),
-            bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser),
-            *[
-                bz_reward(self.blitz_reward_pack.reward_semi_final, semi_team)
-                for semi_team in pure_semifinal_losers
-            ],
-        )
+        await bz_reward(self.blitz_reward_pack.reward_winner, final_winner)
+        await bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser)
+        for semi_team in pure_semifinal_losers:
+            await bz_reward(self.blitz_reward_pack.reward_semi_final, semi_team)
         await asyncio.gather(
             *[
                 bz_reward(self.blitz_reward_pack.reward_guaranteed, team)

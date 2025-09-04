@@ -48,7 +48,6 @@ class Character(Base):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
-    points = None
 
     training_key = Column(Integer, default=1, server_default="1", nullable=False)
     time_get_member_bonus = Column(DateTime, nullable=True)

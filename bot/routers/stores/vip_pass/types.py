@@ -12,6 +12,6 @@ class VipPassTypes(Enum):
     month_pass = "month_pass" 
 
 vip_passes = {
-    VipPassTypes.seven_days_pass: VipPassPack(7, 149),
-    VipPassTypes.month_pass: VipPassPack(30, 490)
+    VipPassTypes.seven_days_pass: VipPassPack(7, 139),
+    VipPassTypes.month_pass: VipPassPack(30, 390)
 }

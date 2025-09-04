@@ -15,8 +15,6 @@ from database.models.user_bot import UserBot
 
 from services.character_service import CharacterService
 from services.user_service import UserService
-
-from schedulers.scheduler_education import EducationRewardReminderScheduler
 from utils.club_utils import get_text_education_center_reward
 
 education_center_router = Router()
@@ -82,11 +80,11 @@ async def get_rewards_education_cernter(query: CallbackQuery, user: UserBot, cha
             amount_money_add=coins
         )
 
-        scheduler_reward_education = EducationRewardReminderScheduler()
-        await scheduler_reward_education.add_job_remind(
-            character=character,
-            time_get_reward=datetime.now() + DELTA_TIME_EDUCATION_REWARD
-        )
+        # scheduler_reward_education = EducationRewardReminderScheduler()
+        # await scheduler_reward_education.add_job_remind(
+        #     character=character,
+        #     time_get_reward=datetime.now() + DELTA_TIME_EDUCATION_REWARD
+        # )
 
         await query.message.answer(
             get_text_education_center_reward(

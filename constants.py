@@ -95,11 +95,9 @@ TIME_TO_JOIN_TO_CLUB = timedelta(minutes=2)
 # KEY - COUNT ENERGY | VALUE - PRICE UAH
 count_energys = [5, 10, 20, 50, 70]
 CONST_PRICE_ENERGY = {
-    100: 100,
-    150: 150,
-    300: 270,
-    600: 490,
-    900: 670
+    100: 149,
+    200: 249,
+    500: 470,
 }
 
 START_DAY_DEFAULT_LEAGUE = 1

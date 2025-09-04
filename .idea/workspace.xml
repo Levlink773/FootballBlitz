@@ -4,7 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 18.4" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 18.4">
+      <change afterPath="$PROJECT_DIR$/api/client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/monobank/create_payment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/callbacks/bank_callbacks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/callbacks/magazine_callbacks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/keyboards/bank_keyboard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/keyboards/magazine_keyboard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/bank/buy_money.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/bank/types.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/box/box_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/energy/buy_energy.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/energy/send_message_energy.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/menu_stores.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/router.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/routers/stores/vip_pass/buy_vip_pass.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/base_endpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/box_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/change_position_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/energy_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/key_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/money_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/handlers/vip_pass_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webhook_api/schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blitz/start_blitz.py" beforeDir="false" afterPath="$PROJECT_DIR$/blitz/start_blitz.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blitz/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/blitz/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/education_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/education_center.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/stores/box/open_box.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/box/open_box.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/stores/vip_pass/types.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/vip_pass/types.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/models/character.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models/character.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/user_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,30 +76,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/devlink007/PycharmProjects/FootballBlitz/src&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/devlink007/PycharmProjects/FootballBlitz",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/bot/routers/stores" />
-      <recent name="$PROJECT_DIR$/bot/routers" />
-      <recent name="$PROJECT_DIR$/utils" />
+      <recent name="$PROJECT_DIR$/bot/callbacks" />
+      <recent name="$PROJECT_DIR$/bot/keyboards" />
+      <recent name="$PROJECT_DIR$/bot/routers/stores/money" />
+      <recent name="$PROJECT_DIR$/bot/routers/stores/vip_pass" />
     </key>
   </component>
   <component name="RunManager">
@@ -384,7 +417,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756128762983</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="comi 18.4">
+      <option name="closed" value="true" />
+      <created>1756128862926</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1756128862926</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
