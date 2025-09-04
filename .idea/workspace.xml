@@ -4,22 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 19">
-      <change afterPath="$PROJECT_DIR$/database/models/payment/vip_pass_payment.py" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 20">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/menu_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/menu_keyboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/vip_pass.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/vip_pass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/stores/bank/buy_money.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/bank/buy_money.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/stores/box/box_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/box/box_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/stores/energy/buy_energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/energy/buy_energy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/stores/menu_stores.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/menu_stores.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/stores/vip_pass/buy_vip_pass.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/stores/vip_pass/buy_vip_pass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/base_acces.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/base_acces.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/payment_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/payment_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webhook_api/handlers/box_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/webhook_api/handlers/box_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webhook_api/handlers/energy_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/webhook_api/handlers/energy_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webhook_api/handlers/money_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/webhook_api/handlers/money_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webhook_api/handlers/vip_pass_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/webhook_api/handlers/vip_pass_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/training/routers/buy_training_key.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -416,14 +411,21 @@
       <option name="project" value="LOCAL" />
       <updated>1756988632088</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="comi 20">
+      <option name="closed" value="true" />
+      <created>1757006681088</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1757006681088</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="comi 7" />
     <MESSAGE value="comi 8" />
     <MESSAGE value="comi 9" />
     <MESSAGE value="comi 10" />
@@ -448,7 +450,8 @@
     <MESSAGE value="comi 18.3" />
     <MESSAGE value="comi 18.4" />
     <MESSAGE value="comi 19" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 19" />
+    <MESSAGE value="comi 20" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 20" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755631114696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

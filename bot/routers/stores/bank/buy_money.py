@@ -2,8 +2,6 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
 from api.monobank.create_payment import CreatePayment
-
-
 from bot.callbacks.bank_callbacks import (
     SelectTypeMoneyPack
 )
@@ -11,13 +9,10 @@ from bot.keyboards.bank_keyboard import (
     select_type_money_pack,
     buy_current_pack
 )
-from database.models.character import Character
-
-from services.payment_service import PaymentServise
-
-from constants import BANK_PHOTO
 from config import CALLBACK_URL_WEBHOOK_MONEY_BLITZ
-
+from constants import BANK_PHOTO
+from database.models.user_bot import UserBot
+from services.payment_service import PaymentServise
 from .types import MoneyPack, money_packs
 
 bank_router = Router()
@@ -58,7 +53,7 @@ async def views_type_money_pack(
 async def select_money_pack(
     query: CallbackQuery,
     callback_data: SelectTypeMoneyPack,
-    character: Character
+    user: UserBot
 ):    
     money_pack: MoneyPack = money_packs.get(callback_data.type_money_pack) 
     
@@ -90,7 +85,7 @@ async def select_money_pack(
     
     payment = await PaymentServise.create_payment(
         price    = money_pack.price,
-        user_id  = character.characters_user_id,
+        user_id  = user.user_id,
         order_id = order_id,
     )
     

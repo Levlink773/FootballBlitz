@@ -11,12 +11,12 @@ from bot.training.routers.answer_stage import answer_etap_router
 from bot.training.routers.joined_in_training import join_trainig_router
 from bot.training.routers.qte_stage import qte_router
 from bot.training.routers.end_training import end_training_router
-from bot.training.routers.buy_training_key import buy_training_key_router
 from bot.training.routers.duel_stage import training_duel_router
 from bot.routers.register_user.router import register_user_router
 from .commands.block_users import block_uses_router
 from .rating.router import rating_characters_router
 from .resources_router.routers import user_balance_router
+from .stores.router import magazine_main_router
 from .transfer.router import transfer_router
 
 main_router = Router()
@@ -34,9 +34,9 @@ main_router.include_routers(
     answer_etap_router,
     qte_router,
     end_training_router,
-    buy_training_key_router,
     training_duel_router,
     user_balance_router,
     rating_characters_router,
-    transfer_router
+    transfer_router,
+    magazine_main_router
 )

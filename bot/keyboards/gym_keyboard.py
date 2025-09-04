@@ -61,8 +61,8 @@ def back_to_education_task_service():
 
 def menu_massage_room():
     keyboard = InlineKeyboardBuilder()
-    for count_energy,_ in CONST_PRICE_ENERGY.items():
-        keyboard.button(text = f"Купить [{count_energy}] 🔋",
+    for count_energy, price in CONST_PRICE_ENERGY.items():
+        keyboard.button(text = f"Купити {count_energy} за {price} грн 🔋",
                         callback_data=SelectCountGetEnergy(count_energy=count_energy))
     return keyboard.adjust(1).as_markup()
 

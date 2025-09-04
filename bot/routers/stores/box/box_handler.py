@@ -1,12 +1,12 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery
-from bot.callbacks.magazine_callbacks import SelectBox
-from bot.keyboards.magazine_keyboard import buy_box
 
 from api.monobank.create_payment import CreatePayment
+from bot.callbacks.magazine_callbacks import SelectBox
+from bot.keyboards.magazine_keyboard import buy_box
 from config import CALLBACK_URL_WEBHOOK_BOX_BLITZ
 from constants import lootboxes
-from database.models.character import Character
+from database.models.user_bot import UserBot
 from services.payment_service import PaymentServise
 
 open_box_roter = Router()
@@ -26,7 +26,7 @@ TEXT_TEMPLATE = """
 async def select_box_handler(
     query: CallbackQuery,
     callback_data: SelectBox,
-    character: Character
+    user: UserBot
 ):
     type_box = callback_data.type_box
     price_box = lootboxes[type_box]['price']
@@ -55,7 +55,7 @@ async def select_box_handler(
     )
     payment = await PaymentServise.create_payment(
         price    = price_box,
-        user_id  = character.characters_user_id,
+        user_id  = user.user_id,
         order_id = order_id,
     )
     

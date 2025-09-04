@@ -2,15 +2,12 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
 from api.monobank.create_payment import CreatePayment
-from bot.keyboards.gym_keyboard import menu_massage_room, send_payment_keyboard
 from bot.callbacks.massage_room_callbacks import SelectCountGetEnergy
-
-from constants import CONST_PRICE_ENERGY, ENERGY_STORE_PHOTO
+from bot.keyboards.gym_keyboard import menu_massage_room, send_payment_keyboard
 from config import CALLBACK_URL_WEBHOOK_ENERGY_BLITZ
-from database.models.character import Character
-
+from constants import CONST_PRICE_ENERGY, ENERGY_STORE_PHOTO
+from database.models.user_bot import UserBot
 from services.payment_service import PaymentServise
-
 
 buy_energy_router = Router()
 
@@ -40,7 +37,7 @@ async def message_room_handler(query: CallbackQuery):
 
     
 @buy_energy_router.callback_query(SelectCountGetEnergy.filter())
-async def select_count_add_energy_handler(query: CallbackQuery, character: Character, callback_data: SelectCountGetEnergy):
+async def select_count_add_energy_handler(query: CallbackQuery, user: UserBot, callback_data: SelectCountGetEnergy):
     price_energy = CONST_PRICE_ENERGY[callback_data.count_energy]
     payment = CreatePayment(
         price=price_energy,
@@ -55,7 +52,7 @@ async def select_count_add_energy_handler(query: CallbackQuery, character: Chara
     url_payment = url_payment_response['pageUrl']
     payment = await PaymentServise.create_payment(
         price=price_energy,
-        user_id=character.characters_user_id,
+        user_id=user.user_id,
         order_id=order_id
     )    
     await PaymentServise.create_energy_payment(
@@ -63,5 +60,5 @@ async def select_count_add_energy_handler(query: CallbackQuery, character: Chara
         amount_energy = callback_data.count_energy
     )
     
-    await query.message.answer(f"Купить 🔋 {callback_data.count_energy} за {price_energy} UAH",
+    await query.message.answer(f"Купити 🔋 {callback_data.count_energy} за {price_energy} UAH",
                                reply_markup=send_payment_keyboard(url_payment))

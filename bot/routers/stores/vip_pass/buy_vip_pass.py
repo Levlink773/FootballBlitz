@@ -10,6 +10,7 @@ from bot.keyboards.vip_pass import (
     select_type_vip_pass,
     buy_vip_pass
 )
+from database.models.user_bot import UserBot
 
 from services.payment_service import PaymentServise
 
@@ -57,7 +58,7 @@ async def select_type_vip_pass_handler(
 async def selected_type_vip_pass(
     query: CallbackQuery,
     callback_data: SelectTypeVipPass,
-    character: Character
+    user: UserBot
 ):
     current_vip_pass = vip_passes.get(callback_data.type_vip_pass) 
     
@@ -101,7 +102,7 @@ async def selected_type_vip_pass(
 
     payment = await PaymentServise.create_payment(
         price    = current_vip_pass.price,
-        user_id  = character.characters_user_id,
+        user_id  = user.user_id,
         order_id = order_id,
     )
     

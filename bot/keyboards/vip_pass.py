@@ -6,13 +6,13 @@ def select_type_vip_pass():
     return (
         InlineKeyboardBuilder()
         .button(
-            text = "На 7 дней",
+            text = "На 7 днів",
             callback_data = SelectTypeVipPass(
                 type_vip_pass=VipPassTypes.seven_days_pass
             )
         )
         .button(
-            text = "На 30 дней",
+            text = "На 30 днів",
             callback_data = SelectTypeVipPass(
                 type_vip_pass=VipPassTypes.month_pass
             )
