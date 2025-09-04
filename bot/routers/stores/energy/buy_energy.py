@@ -6,7 +6,7 @@ from bot.keyboards.gym_keyboard import menu_massage_room, send_payment_keyboard
 from bot.callbacks.massage_room_callbacks import SelectCountGetEnergy
 
 from constants import CONST_PRICE_ENERGY, ENERGY_STORE_PHOTO
-from config import CALLBACK_URL_WEBHOOK_ENERGY
+from config import CALLBACK_URL_WEBHOOK_ENERGY_BLITZ
 from database.models.character import Character
 
 from services.payment_service import PaymentServise
@@ -45,7 +45,7 @@ async def select_count_add_energy_handler(query: CallbackQuery, character: Chara
     payment = CreatePayment(
         price=price_energy,
         name_product=f"Buy {callback_data.count_energy} energy",
-        webhook_url = CALLBACK_URL_WEBHOOK_ENERGY
+        webhook_url = CALLBACK_URL_WEBHOOK_ENERGY_BLITZ
     )
     url_payment_response = await payment.send_request()
     if not url_payment_response:

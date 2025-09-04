@@ -4,7 +4,7 @@ from bot.callbacks.magazine_callbacks import SelectBox
 from bot.keyboards.magazine_keyboard import buy_box
 
 from api.monobank.create_payment import CreatePayment
-from config import CALLBACK_URL_WEBHOOK_BOX
+from config import CALLBACK_URL_WEBHOOK_BOX_BLITZ
 from constants import lootboxes
 from database.models.character import Character
 from services.payment_service import PaymentServise
@@ -39,7 +39,7 @@ async def select_box_handler(
     payment = CreatePayment(
         price=price_box,
         name_product=lootboxes[type_box]['name_lootbox'],
-        webhook_url=CALLBACK_URL_WEBHOOK_BOX
+        webhook_url=CALLBACK_URL_WEBHOOK_BOX_BLITZ
     )
     url_payment_response = await payment.send_request()
     if not url_payment_response:

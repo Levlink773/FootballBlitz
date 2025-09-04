@@ -17,5 +17,6 @@ def get_base():
     from database.models.blitz_team import BlitzTeam
     from database.models.statistics import Statistics
     from database.models.transfer_character import TransferCharacter
+    from database.models.payment.vip_pass_payment import VipPassPayment
 
     return Base

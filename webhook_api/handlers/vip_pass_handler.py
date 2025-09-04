@@ -8,6 +8,7 @@ from bot.routers.stores.vip_pass.types import VipPassTypes, vip_passes
 from database.models.payment.vip_pass_payment import VipPassPayment
 
 from services.payment_service import PaymentServise
+from services.user_service import UserService
 from services.vip_pass_service import VipPassService
 from services.character_service import CharacterService
 
@@ -44,7 +45,7 @@ class MonoResultVipPass(EndPoint):
     
 
     async def handle_request(self) -> Response:
-        payment:VipPassPayment = await PaymentServise.get_payment(
+        payment: VipPassPayment = await PaymentServise.get_payment(
             order_id=self.data.invoiceId,
             type_payment = self.type_payment
             )
@@ -61,9 +62,9 @@ class MonoResultVipPass(EndPoint):
         duration = vip_passes.get(payment.type_vip_pass).duration
         
         
-        character = await CharacterService.get_character(payment.payment.user_id)
+        user = await UserService.get_user(payment.payment.user_id)
         await VipPassService.update_vip_pass_time(
-            character = character,
+            user = user,
             day_vip_pass = duration
         )
         await self.bot.send_message(

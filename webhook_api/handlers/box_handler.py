@@ -4,6 +4,8 @@ from aiogram import Bot
 from aiohttp.web import Response
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+
+from services.user_service import UserService
 from webhook_api.schemas import MonoResultSchema
 from ..base_endpoint import EndPoint, HTTPMethod
 
@@ -11,7 +13,6 @@ from database.models.payment.box_payment import BoxPayment
 
 from bot.routers.stores.box.open_box import OpenBoxService
 from services.payment_service import PaymentServise
-from services.character_service import CharacterService
 from config import BOT_TOKEN
 from constants import lootboxes
 
@@ -42,7 +43,7 @@ class MonoResultBox(EndPoint):
             return
         
         
-        character = await CharacterService.get_character(payment.payment.user_id)
+        user = await UserService.get_user(payment.payment.user_id)
         
         name_box = lootboxes[payment.type_box]['name_lootbox']
         await self.bot.send_message(
@@ -51,7 +52,7 @@ class MonoResultBox(EndPoint):
         )
         open_box = OpenBoxService(
             type_box = payment.type_box,
-            character = character,
+            user = user,
             bot = self.bot
         )
         await PaymentServise.change_payment_status(order_id=self.data.invoiceId)

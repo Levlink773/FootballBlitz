@@ -16,7 +16,7 @@ from database.models.character import Character
 from services.payment_service import PaymentServise
 
 from constants import BANK_PHOTO
-from config import CALLBACK_URL_WEBHOOK_MONEY
+from config import CALLBACK_URL_WEBHOOK_MONEY_BLITZ
 
 from .types import MoneyPack, money_packs
 
@@ -79,7 +79,7 @@ async def select_money_pack(
     payment = CreatePayment(
         price        = money_pack.price,
         name_product = money_pack.name,
-        webhook_url  = CALLBACK_URL_WEBHOOK_MONEY
+        webhook_url  = CALLBACK_URL_WEBHOOK_MONEY_BLITZ
     )
     url_payment_response = await payment.send_request()
     if not url_payment_response:
