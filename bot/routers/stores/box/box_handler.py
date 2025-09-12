@@ -16,7 +16,6 @@ TEXT_TEMPLATE = """
 
 ⚡ <b>Енергія</b>: {min_energy} - {max_energy} 💥  
 💰 <b>Монети</b>: {min_money} - {max_money} 💎  
-🎓 <b>Досвід</b>: {min_exp} - {max_exp} 📈  
 
 💸 <b>Ціна</b>: СКИДКА 50% <del>{old_price}</del> - <b>{price}</b> UAH
 """

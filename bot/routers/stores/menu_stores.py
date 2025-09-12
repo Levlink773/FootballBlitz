@@ -16,7 +16,7 @@ from database.models.user_bot import (
 menu_magazine_router = Router()
 
 @menu_magazine_router.message(
-    F.text.regexp(r"(✅\s*)?🏬 Торговий квартал(\s*✅)?")
+    F.text.regexp(r"(✅\s*)?🏬 Магазин(\s*✅)?")
 )
 async def magazine_handler(
     message: Message,
@@ -25,7 +25,7 @@ async def magazine_handler(
     await message.answer_photo(
         photo=MAGAZINE_PHOTO, 
         caption=(
-    "🏬 Ласкаво просимо до <b>Торгового кварталу!</b> "
+    "🏬 Ласкаво просимо до <b>Магазину</b> "
     "Тут ви знайдете все необхідне: <b>монети, енергію, VIP-статус та бокси</b>\n"
     "Розпочніть свої покупки просто зараз!"
 ),

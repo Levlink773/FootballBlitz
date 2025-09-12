@@ -63,7 +63,7 @@ async def get_rewards_education_cernter(query: CallbackQuery, user: UserBot, cha
             minutes, _ = divmod(remainder, 60)
             return await query.message.answer(f"<b>Залишилося часу до отримання нагороди: {hours} год {minutes} хв</b>")
 
-        coins, energy = await calculation_bonus(character)
+        coins, energy = await calculation_bonus(user)
 
         await UserService.add_energy_user(
             user_id=user.user_id,
@@ -95,12 +95,12 @@ async def get_rewards_education_cernter(query: CallbackQuery, user: UserBot, cha
         )
 
 
-async def calculation_bonus(character: Character) -> tuple[int, int]:
+async def calculation_bonus(user: UserBot) -> tuple[int, int]:
     coins = GET_RANDOM_NUMBER(10, 20)
     energy = GET_RANDOM_NUMBER(20, 50)
 
     bonus_multiplier = 1
-    if X2_REWARD_WEEKEND_START_DAY <= datetime.now().day <= X2_REWARD_WEEKEND_END_DAY or character.owner.vip_pass_is_active:
+    if X2_REWARD_WEEKEND_START_DAY <= datetime.now().day <= X2_REWARD_WEEKEND_END_DAY or user.vip_pass_is_active:
         bonus_multiplier *= 2
 
     coins, energy = apply_multiplier((coins, energy), bonus_multiplier)

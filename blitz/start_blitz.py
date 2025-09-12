@@ -12,11 +12,13 @@ from blitz.services.blitz_announce_service import BlitzAnnounceService
 from blitz.services.blitz_reward_service import BlitzRewardService, RewardEnergyBlitzTeam
 from blitz.services.blitz_service import BlitzService
 from blitz.services.blitz_team_service import BlitzTeamService
+from blitz.services.message_sender.blitz_sender import send_message
 from blitz.utils import BlitzData
 from database.models.blitz import Blitz
 from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from logging_config import logger
+from services.user_service import UserService
 
 
 class StartBlitzs:
@@ -113,6 +115,43 @@ class StartBlitz:
         winner_team, looser_team = await blitz_match.start_match()
         return winner_team, looser_team
 
+    async def reward_rating(self, final_winner: BlitzTeam, final_looser: BlitzTeam, pure_semifinal_losers: list[BlitzTeam]):
+        await asyncio.sleep(3)
+        await UserService.add_rating(
+            user_id=final_winner.users[0].user_id,
+            rating_to_add=3
+        )
+        # Епічний фініш повідомлення про енергію
+        await send_message(
+            user=final_winner.users[0].user_id,
+            text=f"📊 <b>+3 очок рейтингу</b> за результат у турнірі Football Bliz! "
+                 "Ваші досягнення вже враховано у загальному рейтингу гравців. "
+                 "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+        )
+        await UserService.add_rating(
+            user_id=final_looser.users[0].user_id,
+            rating_to_add=2
+        )
+        # Епічний фініш повідомлення про енергію
+        await send_message(
+            user=final_looser.users[0].user_id,
+            text=f"📊 <b>+2 очок рейтингу</b> за результат у турнірі Football Bliz! "
+                 "Ваші досягнення вже враховано у загальному рейтингу гравців. "
+                 "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+        )
+        for semi_team in pure_semifinal_losers:
+            await UserService.add_rating(
+                user_id=semi_team.users[0].user_id,
+                rating_to_add=1
+            )
+            # Епічний фініш повідомлення про енергію
+            await send_message(
+                user=semi_team.users[0].user_id,
+                text=f"📊 <b>+1 очок рейтингу</b> за результат у турнірі Football Bliz! "
+                     "Ваші досягнення вже враховано у загальному рейтингу гравців. "
+                     "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+            )
+
     async def _start_blitz(self, blitz_id: int):
         teams: list[BlitzTeam] = await BlitzTeamService.create_teams(
             team_count=self.necessary_users,
@@ -174,6 +213,7 @@ class StartBlitz:
             ]
         )
         logger.info("Reward blitz match")
+        asyncio.create_task(self.reward_rating(final_winner, final_looser, pure_semifinal_losers))
         TeamBlitzMatchManager.clear_matches()
         return final_winner
 

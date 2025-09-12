@@ -43,7 +43,7 @@ class BlitzTeamService:
                 for idx in range(team_count):
                     # беремо по два рядки
                     bu1, user = rows[idx]
-                    team_name = f"{user.team_name} (" + "| ".join(
+                    team_name = f"{user.team_name_user} (" + "| ".join(
                         f"{char.name} ⚡{int(char.power)} , 🎯{char.talent} , 🎂{char.age}"
                         for char in user.characters
                     ) + ")"

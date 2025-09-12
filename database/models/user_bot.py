@@ -77,6 +77,14 @@ class UserBot(Base):
     count_go_to_gym = Column(BigInteger, default=0)
 
     @property
+    def team_name_user(self) -> str:
+        text = self.team_name
+        if self.vip_pass_is_active:
+            text = f"⚜️ <u><b>[VIP]</b></u> ⚜️ {text}"
+
+        return text
+
+    @property
     def vip_pass_is_active(self) -> bool:
         if not self.vip_pass_expiration_date:
             return False

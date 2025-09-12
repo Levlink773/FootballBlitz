@@ -1,0 +1,19 @@
+.mainContainer {
+    width: 422px;
+    height: 625px;
+    position: relative;
+    background: rgba(255, 255, 255, 0); /* Можна видалити, якщо фон завжди зображення */
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.backgroundImage {
+    width: 422px;
+    height: 633px;
+    left: 0;
+    top: -6px;
+    position: absolute;
+    box-shadow: 3px 3px 3px;
+    filter: blur(1.50px);
+    z-index: -1; /* Поміщаємо фон позаду всіх елементів */
+}

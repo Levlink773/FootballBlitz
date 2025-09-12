@@ -131,7 +131,7 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
         f"💰 Гроші: <b>{user.money}</b>\n"
         f"⚡ Енергія: <b>{user.energy}</b>\n"
         f"🎟 VIP статус: <b>{vip_status}</b>\n"
-        f"🏷 Назва команди: <b>{user.team_name or 'Без назви'}</b>\n\n"
+        f"🏷 Назва команди: <b>{user.team_name_user or 'Без назви'}</b>\n\n"
         "📋 Ваші персонажі (натисніть на ім'я, щоб побачити деталі):"
     )
 

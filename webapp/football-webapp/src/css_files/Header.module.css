@@ -1,0 +1,176 @@
+.headerContainer {
+    width: 399px;
+    height: 46px;
+    left: 11px;
+    top: 17px;
+    position: absolute;
+    background: linear-gradient(128deg, rgba(141.23, 141.23, 141.23, 0.40) 0%, rgba(133.92, 133.92, 133.92, 0.40) 100%);
+    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 15px;
+}
+
+/* --- Елементи всередині хедера --- */
+.menuIcon {
+    width: 27px;
+    height: 25px;
+    left: 22px;
+    top: 28px;
+    position: absolute;
+}
+
+.avatar {
+    width: 43px;
+    height: 37px;
+    left: 70px;
+    top: 22px;
+    position: absolute;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    border-radius: 9999px;
+    border: 1px #BABABA solid;
+}
+
+/* --- Блок валюти 1 (Coins) --- */
+.coinsContainer {
+    width: 96px;
+    height: 31px;
+    left: 127px;
+    top: 25px;
+    position: absolute;
+    border-radius: 10px;
+}
+
+.coinsIcon {
+    width: 16.39px;
+    height: 16.94px;
+    left: 133.33px;
+    top: 32.51px;
+    position: absolute;
+    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.coinsAmount {
+    width: 43.97px;
+    height: 22.32px;
+    left: 149.56px;
+    top: 29px;
+    position: absolute;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.addCoinsButton {
+    width: 22.40px;
+    height: 18.60px;
+    left: 194.63px;
+    top: 31.20px;
+    position: absolute;
+    background: linear-gradient(136deg, #FBD736 0%, #FA8C00 100%);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+}
+
+.addCoinsIcon {
+    width: 22.03px;
+    height: 19px;
+    left: 195px;
+    top: 29px;
+    position: absolute;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-family: 'Jomhuria', cursive;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+
+/* --- Блок валюти 2 (Gems) --- */
+.gemsContainer {
+    width: 102px;
+    height: 31px;
+    left: 223px;
+    top: 25px;
+    position: absolute;
+    border-radius: 10px;
+}
+
+.gemsIcon {
+    width: 14.79px;
+    height: 22.20px;
+    left: 229.56px;
+    top: 29.37px;
+    position: absolute;
+    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.gemsAmount {
+    width: 47.90px;
+    height: 22.32px;
+    left: 246px;
+    top: 29px;
+    position: absolute;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.addGemsButton {
+    width: 24.40px;
+    height: 18.60px;
+    left: 294.09px;
+    top: 31.20px;
+    position: absolute;
+    background: linear-gradient(140deg, #1840C6 0%, #0B1F60 100%);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+}
+
+.addGemsIcon {
+    width: 24px;
+    height: 19px;
+    left: 294px;
+    top: 29px;
+    position: absolute;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-family: 'Jomhuria', cursive;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+
+/* --- Кнопка налаштувань --- */
+.settingsBg {
+    width: 66px;
+    height: 25px;
+    left: 331px;
+    top: 28px;
+    position: absolute;
+    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+}
+
+.settingsIcon {
+    width: 21px;
+    height: 18px;
+    left: 354px;
+    top: 31px;
+    position: absolute;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}

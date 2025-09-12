@@ -1,0 +1,26 @@
+.tasksIcon {
+    width: 70px;
+    height: 63px;
+    left: 306px;
+    top: 176px;
+    position: absolute;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.tasksLabel {
+    width: 76px;
+    height: 22px;
+    left: 307px;
+    top: 247px;
+    position: absolute;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}

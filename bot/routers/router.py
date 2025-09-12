@@ -18,6 +18,7 @@ from .rating.router import rating_characters_router
 from .resources_router.routers import user_balance_router
 from .stores.router import magazine_main_router
 from .transfer.router import transfer_router
+from .webapp.webapp_router import webapp_router
 
 main_router = Router()
 main_router.include_routers(
@@ -38,5 +39,6 @@ main_router.include_routers(
     user_balance_router,
     rating_characters_router,
     transfer_router,
-    magazine_main_router
+    magazine_main_router,
+    webapp_router,
 )

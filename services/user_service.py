@@ -1,6 +1,8 @@
+import asyncio
 from datetime import datetime
 
 from sqlalchemy import select, update, or_, delete, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
@@ -378,34 +380,47 @@ class UserService:
                     raise e
 
     @classmethod
-    async def add_rating(cls, user_id: int, rating_to_add: int) -> dict:
-        """
-        Возвращает словарь с диагностикой: {'ok': bool, 'rows': int, 'new_points': int|None}
-        """
-        async for session in get_session():
-            async with session.begin():
-                # защищаем от NULL с помощью COALESCE (func.coalesce)
-                stmt = (
-                    update(UserBot)
-                    .where(UserBot.user_id == user_id)
-                    .values(points=func.coalesce(UserBot.points, 0) + rating_to_add)
-                )
-                result = await session.execute(stmt)
-                # result.rowcount может быть None в некоторых драйверах, но логировать стоит
-                rowcount = getattr(result, "rowcount", None)
-                if not rowcount:
-                    logger.warning(f"add_rating: UPDATE affected 0 rows for user_id={user_id}")
-                    # Для диагностики вернём текущее состояние пользователя (если есть)
-                    qry = select(UserBot).where(UserBot.user_id == user_id)
-                    user = (await session.execute(qry)).scalar_one_or_none()
-                    points = user.points if user is not None else None
-                    return {"ok": False, "rows": 0, "new_points": points}
+    async def add_rating(cls, user_id: int, rating_to_add: int, retries: int = 2) -> dict:
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                async for session in get_session():
+                    async with session.begin():
+                        # 1) заблокировать строку
+                        res = await session.execute(
+                            select(UserBot.points)
+                            .where(UserBot.user_id == user_id)
+                            .with_for_update()
+                        )
+                        current = res.scalar_one_or_none()
 
-                # Получим новое значение points для подтверждения
-                qry = select(UserBot.points).where(UserBot.user_id == user_id)
-                new_points = (await session.execute(qry)).scalar_one()
-                logger.info(f"add_rating: user_id={user_id} added {rating_to_add}, new_points={new_points}")
-                return {"ok": True, "rows": rowcount, "new_points": new_points}
+                        if current is None:
+                            # нет пользователя — можно создать (upsert) или вернуть ошибку
+                            logger.warning("add_rating_mysql: user not found user_id=%s", user_id)
+                            # опция: создать запись
+                            session.add(UserBot(user_id=user_id, points=rating_to_add))
+                            await session.flush()
+                            return {"ok": True, "rows": 1, "new_points": rating_to_add}
+
+                        new_points = int(current) + int(rating_to_add)
+
+                        # 2) применяем обновление
+                        await session.execute(
+                            update(UserBot)
+                            .where(UserBot.user_id == user_id)
+                            .values(points=new_points)
+                        )
+                        # commit автоматически выполнится по выходу из session.begin()
+
+                        logger.info("add_rating_mysql: user_id=%s added %s -> %s", user_id, rating_to_add, new_points)
+                        return {"ok": True, "rows": 1, "new_points": new_points}
+            except SQLAlchemyError as e:
+                logger.exception("add_rating_mysql: SQL error attempt %s for user_id=%s: %s", attempt, user_id, e)
+                if attempt <= retries:
+                    await asyncio.sleep(0.05 * attempt)
+                    continue
+                return {"ok": False, "rows": 0, "new_points": None}
 
     @classmethod
     async def add_energy_to_users(clc, user_ids: list[int], amount: int = 10):

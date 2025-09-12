@@ -42,7 +42,7 @@ def build_rating_text(users: list[UserBot], page: int) -> str:
     lines = []
     for i, user in enumerate(page_chars, start=start + 1):
         medal = get_medal_emoji(i)
-        team_name = user.team_name or "Без команди"
+        team_name = user.team_name_user or "Без команди"
         username = f"@{user.user_name}" if user.user_name else user.user_full_name
         lines.append(f"{medal} {i}. {username} ({team_name}) — {user.points} очок")
 
