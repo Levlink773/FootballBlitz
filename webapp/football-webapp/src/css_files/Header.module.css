@@ -1,176 +1,120 @@
 .headerContainer {
-    width: 399px;
+    display: flex;
+    align-items: center; /* Выровнять все элементы по вертикали */
+    justify-content: space-between; /* Разделить на левую, среднюю и правую зоны */
+    width: 100%;
+    max-width: 400px;
     height: 46px;
-    left: 11px;
-    top: 17px;
+
+    padding: 0 12px; /* Внутренние отступы слева и справа */
     position: absolute;
-    background: linear-gradient(128deg, rgba(141.23, 141.23, 141.23, 0.40) 0%, rgba(133.92, 133.92, 133.92, 0.40) 100%);
+    top: 10px; /* Поднял чуть выше */
+    left: 50%;
+    transform: translateX(-50%); /* Центрируем по горизонтали */
+
+    background: linear-gradient(128deg, rgba(141, 141, 141, 0.40) 0%, rgba(133, 133, 133, 0.40) 100%);
     box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 15px;
+    z-index: 10;
 }
 
-/* --- Елементи всередині хедера --- */
+/* Левый блок (меню и аватар) */
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Расстояние между иконкой и аватаром */
+}
+
 .menuIcon {
-    width: 27px;
-    height: 25px;
-    left: 22px;
-    top: 28px;
-    position: absolute;
+    width: 24px;
+    height: 24px;
+}
+
+.currencyGroup {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 2px 6px;
+}
+
+.currencyIcon {
+    width: 18px;
+    height: 18px;
+}
+
+.currencyAmount {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.addButton {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(136deg, #FBD736 0%, #FA8C00 100%);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+}
+
+/* Правый блок (кнопка настроек) */
+
+/* Левый блок (меню и аватар) */
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menuIcon {
+    width: 24px;
+    height: 24px;
 }
 
 .avatar {
-    width: 43px;
-    height: 37px;
-    left: 70px;
-    top: 22px;
-    position: absolute;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
-    border-radius: 9999px;
-    border: 1px #BABABA solid;
+    width: 51px;   /* фиксируем новое разрешение */
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0; /* не даём сжиматься */
 }
 
-/* --- Блок валюти 1 (Coins) --- */
-.coinsContainer {
-    width: 96px;
-    height: 31px;
-    left: 127px;
-    top: 25px;
-    position: absolute;
-    border-radius: 10px;
-}
-
-.coinsIcon {
-    width: 16.39px;
-    height: 16.94px;
-    left: 133.33px;
-    top: 32.51px;
-    position: absolute;
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-.coinsAmount {
-    width: 43.97px;
-    height: 22.32px;
-    left: 149.56px;
-    top: 29px;
-    position: absolute;
-    text-align: center;
-    justify-content: center;
+/* Средний блок (монеты и энергия) */
+.middleSection {
     display: flex;
-    flex-direction: column;
-    color: white;
-    font-size: 15px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    word-wrap: break-word;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    align-items: center;
+    gap: 12px;
 }
 
-.addCoinsButton {
-    width: 22.40px;
-    height: 18.60px;
-    left: 194.63px;
-    top: 31.20px;
-    position: absolute;
-    background: linear-gradient(136deg, #FBD736 0%, #FA8C00 100%);
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
-}
-
-.addCoinsIcon {
-    width: 22.03px;
-    height: 19px;
-    left: 195px;
-    top: 29px;
-    position: absolute;
-    text-align: center;
-    color: white;
-    font-size: 24px;
-    font-family: 'Jomhuria', cursive;
-    font-weight: 400;
-    word-wrap: break-word;
-}
-
-
-/* --- Блок валюти 2 (Gems) --- */
-.gemsContainer {
-    width: 102px;
-    height: 31px;
-    left: 223px;
-    top: 25px;
-    position: absolute;
-    border-radius: 10px;
-}
-
-.gemsIcon {
-    width: 14.79px;
-    height: 22.20px;
-    left: 229.56px;
-    top: 29.37px;
-    position: absolute;
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
-.gemsAmount {
-    width: 47.90px;
-    height: 22.32px;
-    left: 246px;
-    top: 29px;
-    position: absolute;
-    text-align: center;
-    justify-content: center;
+/* Правый блок (shop) */
+.rightSection {
     display: flex;
-    flex-direction: column;
-    color: white;
-    font-size: 15px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    word-wrap: break-word;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    align-items: center;
+    position: relative; /* чтобы иконка стояла относительно фона */
 }
 
-.addGemsButton {
-    width: 24.40px;
-    height: 18.60px;
-    left: 294.09px;
-    top: 31.20px;
-    position: absolute;
-    background: linear-gradient(140deg, #1840C6 0%, #0B1F60 100%);
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
-}
-
-.addGemsIcon {
-    width: 24px;
-    height: 19px;
-    left: 294px;
-    top: 29px;
-    position: absolute;
-    text-align: center;
-    color: white;
-    font-size: 24px;
-    font-family: 'Jomhuria', cursive;
-    font-weight: 400;
-    word-wrap: break-word;
-}
-
-
-/* --- Кнопка налаштувань --- */
 .settingsBg {
-    width: 66px;
-    height: 25px;
-    left: 331px;
-    top: 28px;
-    position: absolute;
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
+    width: 55px;   /* увеличил фон */
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .settingsIcon {
-    width: 21px;
-    height: 18px;
-    left: 354px;
-    top: 31px;
-    position: absolute;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    width: 28px;   /* увеличил сам shop-icon */
+    height: 28px;
+    position: absolute; /* ставим поверх фона */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* идеально центрируем */
+    cursor: pointer;
 }

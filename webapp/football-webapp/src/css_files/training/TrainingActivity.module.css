@@ -1,0 +1,51 @@
+.container {
+    width: 371px;
+    height: 130px;
+    position: relative;
+    border-radius: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: white;
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    border-radius: 15px;
+}
+
+/* Спільні стилі для текстових блоків */
+.title, .timer, .chance {
+    position: absolute;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.title {
+    width: 280px;
+    height: 22px;
+    left: 1px;
+    top: 28px;
+}
+
+.chance {
+    width: 148px;
+    height: 22px;
+    left: 8px;
+    top: 77px;
+    color: #4DC1FF;
+}
+
+.timer {
+    width: 125px;
+    height: 22px;
+    left: 231px;
+    top: 77px;
+}

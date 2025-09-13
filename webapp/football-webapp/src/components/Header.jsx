@@ -1,29 +1,67 @@
 import React from 'react';
 import styles from '../css_files/Header.module.css';
+import Config from "../assets_data.js";
+
+const CurrencyGroup = ({ icon, alt, amount, onAdd }) => (
+    <div className={styles.currencyGroup}>
+        <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
+        <span className={styles.currencyAmount}>{amount}</span>
+        <button
+            className={styles.addButton}
+            onClick={onAdd}
+            aria-label={`Add ${alt}`}
+        >
+            +
+        </button>
+    </div>
+);
 
 export const Header = ({ user }) => {
+    const { currencies = {} } = user || {};
+
+    const currencyData = [
+        {
+            icon: Config.IMAGES.coin,
+            alt: 'Coins',
+            amount: currencies.coins || 0,
+            onAdd: () => console.log('Add coins clicked'),
+        },
+        {
+            icon: Config.IMAGES.energy,
+            alt: 'Energy',
+            amount: currencies.energy || 0,
+            onAdd: () => console.log('Add energy clicked'),
+        },
+    ];
+
     return (
         <header className={styles.headerContainer}>
-            <img className={styles.menuIcon} src="../assets/img25.png" alt="menu"/>
-            <img className={styles.avatar} src={user.avatarUrl || "../assets/img26.png"} alt="avatar"/>
+            {/* Левый блок */}
+            <div className={styles.leftSection}>
+                <img className={styles.menuIcon} src={Config.IMAGES.bell_icon} alt="Notifications" />
+                <img className={styles.avatar} src={Config.IMAGES.avatar} alt="User avatar" />
+            </div>
 
-            {/* --- Coins --- */}
-            <div className={styles.coinsContainer} />
-            <img className={styles.coinsIcon} src="../assets/img21.png" alt="coins"/>
-            <div className={styles.coinsAmount}>1000</div>
-            <div className={styles.addCoinsButton} />
-            <div className={styles.addCoinsIcon}>+</div>
+            {/* Средний блок */}
+            <div className={styles.middleSection}>
+                {currencyData.map((currency, index) => (
+                    <CurrencyGroup key={index} {...currency} />
+                ))}
+            </div>
 
-            {/* --- Gems --- */}
-            <div className={styles.gemsContainer} />
-            <img className={styles.gemsIcon} src="../assets/img22.png" alt="gems"/>
-            <div className={styles.gemsAmount}>1000</div>
-            <div className={styles.addGemsButton} />
-            <div className={styles.addGemsIcon}>+</div>
-
-            {/* --- Settings --- */}
-            <img className={styles.settingsBg} src="../assets/img23.png" alt="settings background"/>
-            <img className={styles.settingsIcon} src="../assets/img24.png" alt="settings"/>
+            {/* Правый блок */}
+            <div className={styles.rightSection}>
+                <img
+                    className={styles.settingsBg}
+                    src={Config.IMAGES.vip_emblem_small}
+                    alt="VIP emblem background"
+                />
+                <img
+                    className={styles.settingsIcon}
+                    src={Config.IMAGES.shop_icon}
+                    alt="Shop"
+                />
+            </div>
         </header>
     );
 };

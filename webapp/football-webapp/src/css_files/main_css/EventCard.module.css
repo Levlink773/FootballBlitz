@@ -14,7 +14,6 @@
     left: 13px;
     top: 345px;
     position: absolute;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
 }
 
 .title {
@@ -59,7 +58,6 @@
     left: 123px;
     top: 413px;
     position: absolute;
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 5px;
 }
 

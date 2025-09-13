@@ -1,0 +1,101 @@
+/* Главный контейнер для всего блока */
+.statsPanel {
+    display: flex;
+    flex-direction: column; /* Располагаем дочерние элементы (header и statsContainer) в колонку */
+    align-items: center; /* Центрируем всё по горизонтали */
+    gap: 15px; /* Пространство между верхним и нижним блоками */
+    width: 100%; /* Занимает всю доступную ширину родителя */
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 430px;
+    /* Можно добавить фон, если нужно */
+    /* background: rgba(0, 80, 0, 0.3); */
+    /* border-radius: 15px; */
+}
+
+/* Контейнер для "Статистика", переключателя и "Рейтинги" */
+.header {
+    display: flex;
+    justify-content: center; /* Центрируем элементы по горизонтали */
+    align-items: center; /* Выравниваем по вертикали */
+    gap: 12px; /* Расстояние между элементами в строке */
+    position: relative;
+    top: 15px; /* визуально смещает вниз */
+}
+
+/* Общий стиль для заголовков "Статистика" и "Рейтинги" */
+.title {
+    color: #FEF21B;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.50);
+}
+
+/* Контейнер для статистики (три колонки) */
+.statsContainer {
+    width: 100%;
+    max-width: 320px; /* Ограничим максимальную ширину для больших экранов */
+    display: flex;
+    justify-content: space-around; /* Равномерно распределяем элементы с отступами */
+    align-items: center; /* Выравниваем по центру вертикально */
+}
+
+/* Общий стиль для блока со значением */
+.statBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Стиль для большого числа или процента */
+.statValue {
+    font-size: 30px;
+    font-weight: 400;
+}
+
+/* Стиль для подписи ("гри", "перемог") */
+.statLabel {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1; /* Уменьшаем межстрочный интервал */
+    margin-top: -5px; /* Сдвигаем подпись чуть выше */
+}
+
+/* Вертикальный разделитель */
+.divider {
+    width: 2px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 1px;
+}
+
+/* --- Стили для переключателя (остаются почти без изменений) --- */
+.toggleContainer {
+    width: 26px;
+    height: 14px;
+    background: #3B3B3B;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.50);
+    border-radius: 30px;
+    padding: 2px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.toggleCircle {
+    width: 9px;
+    height: 9px;
+    background: #FEF21B;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.50);
+    border-radius: 50%; /* Круг лучше делать через 50% */
+}
+
+/* Для активного состояния можно добавить класс, который сдвинет кружок */
+/* .toggleContainer.active .toggleCircle {
+    transform: translateX(11px);
+} */

@@ -1,31 +1,46 @@
 import React from 'react';
 import styles from '../css_files/NavigationBar.module.css';
+import Config from "../assets_data.js";
+
+const navItems = [
+        { label: 'Головна', icon: Config.IMAGES.home_icon, labelClass: styles.homeLabel, iconClass: styles.homeIcon },
+        { label: 'Турніри', icon: Config.IMAGES.cup_icon, labelClass: styles.tournamentsLabel, iconClass: styles.tournamentsIcon },
+        { label: 'Трансфери', icon: Config.IMAGES.stadion_icon, labelClass: styles.transfersLabel, iconClass: styles.transfersIcon },
+        { label: 'Учбовий центр', icon: Config.IMAGES.character_icon, labelClass: styles.learningLabel, iconClass: styles.learningIcon },
+        { label: 'Рейтинги', icon: Config.IMAGES.rating_icon, labelClass: styles.ratingsLabel, iconClass: styles.ratingsIcon },
+];
+
+const NavItem = ({ label, icon, labelClass, iconClass }) => (
+    <>
+            <div className={`${styles.navLabel} ${labelClass}`}>{label}</div>
+            <img
+                className={`${styles.navIcon} ${iconClass}`}
+                src={icon}
+                alt={label}
+                aria-label={label}
+            />
+    </>
+);
 
 export const NavigationBar = () => {
-    return (
-        <nav>
-            <div className={styles.trainingButtonBg} />
-            <div className={styles.mainButtonsBg} />
+        return (
+            <nav className={styles.navigationBar}>
+                    <div className={styles.trainingButtonBg} />
+                    <div className={styles.mainButtonsBg} />
 
-            {/* Training Button */}
-            <div className={styles.trainingLabel}>Тренування</div>
-            <img className={styles.trainingIcon} src="../assets/img3.png" alt="Тренування"/>
+                    {/* Training Button */}
+                    <div className={styles.trainingLabel}>Тренування</div>
+                    <img
+                        className={styles.trainingIcon}
+                        src={Config.IMAGES.dumbbell_icon}
+                        alt="Тренування"
+                        aria-label="Тренування"
+                    />
 
-            {/* Other Buttons */}
-            <div className={`${styles.navLabel} ${styles.homeLabel}`}>Головна</div>
-            <img className={`${styles.navIcon} ${styles.homeIcon}`} src="../assets/img7.png" alt="Головна"/>
-
-            <div className={`${styles.navLabel} ${styles.tournamentsLabel}`}>Турніри</div>
-            <img className={`${styles.navIcon} ${styles.tournamentsIcon}`} src="../assets/img2.png" alt="Турніри"/>
-
-            <div className={`${styles.navLabel} ${styles.transfersLabel}`}>Трансфери</div>
-            <img className={`${styles.navIcon} ${styles.transfersIcon}`} src="../assets/img4.png" alt="Трансфери"/>
-
-            <div className={`${styles.navLabel} ${styles.learningLabel}`}>Учбовий центр</div>
-            <img className={`${styles.navIcon} ${styles.learningIcon}`} src="../assets/img5.png" alt="Учбовий центр"/>
-
-            <div className={`${styles.navLabel} ${styles.ratingsLabel}`}>Рейтинги</div>
-            <img className={`${styles.navIcon} ${styles.ratingsIcon}`} src="../assets/img6.png" alt="Рейтинги"/>
-        </nav>
-    );
+                    {/* Dynamic Nav Items */}
+                    {navItems.map((item, index) => (
+                        <NavItem key={index} {...item} />
+                    ))}
+            </nav>
+        );
 };

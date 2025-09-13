@@ -17,3 +17,33 @@
     filter: blur(1.50px);
     z-index: -1; /* Поміщаємо фон позаду всіх елементів */
 }
+.trainingActivityPosition {
+    position: absolute;
+    top: 90px; /* Можете підібрати ідеальну висоту */
+
+    /* Ця комбінація ідеально центрує блок по горизонталі */
+    left: 50%;
+    transform: translateX(-50%);
+}
+/* НОВІ СТИЛІ ДЛЯ ЗАГОЛОВКА */
+.trainingRoomTitle {
+    /* Стилі з вашого div */
+    width: 354px;
+    height: 22px;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+
+    /* Позиціонування (розміщуємо його нижче TrainingActivity) */
+    position: absolute;
+    top: 240px; /* 180px (верхня точка TrainingActivity) + 130px (висота TrainingActivity) + 10px (відступ) = 320px */
+    left: 50%;
+    transform: translateX(-50%);
+}

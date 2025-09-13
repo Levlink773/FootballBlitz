@@ -1,13 +1,13 @@
 import React from "react";
-import styles from './Main.module.css';
+import styles from '../css_files/Main.module.css';
 import {Header} from "../components/Header.jsx";
-import {VipBanner} from "../components/VipBanner.jsx";
-import {UserProfile} from "../components/UserProfile.jsx";
-import {DailyTasks} from "../components/DailyTasks.jsx";
-import {EventCard} from "../components/EventCard.jsx";
-import {StatsPanel} from "../components/StatsPanel.jsx";
+import {VipBanner} from "../components/main_components/VipBanner.jsx";
+import {UserProfile} from "../components/main_components/UserProfile.jsx";
+import {DailyTasks} from "../components/main_components/DailyTasks.jsx";
+import {EventCard} from "../components/main_components/EventCard.jsx";
+import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
 import {NavigationBar} from "../components/NavigationBar.jsx";
-
+import Config from "../assets_data.js";
 // Припустимо, що об'єкт user має таку структуру
 const mockUser = {
     name: "Ronaldo",
@@ -17,7 +17,7 @@ const mockUser = {
 export const Main = () => {
     return (
         <div className={styles.mainContainer}>
-            <img className={styles.backgroundImage} src="../assets/img1.png" alt="background"/>
+            <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
 
             <Header user={mockUser} />
             <VipBanner />
