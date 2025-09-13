@@ -1,0 +1,23 @@
+.wrapper {
+    width: 100%;
+    max-width: 420px; /* ровно по макету */
+    margin: 0 auto; /* центрируем */
+    text-align: center;
+    padding-top: 20px; /* отступ сверху от хедера */
+    padding-bottom: 20px; /* чтобы не прилипало к навбару */
+    margin-top: 30px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px; /* отступ между заголовком и карточками */
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px; /* одинаковый отступ по вертикали и горизонтали */
+    justify-items: center; /* карточки строго по центру */
+}

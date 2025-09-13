@@ -40,6 +40,33 @@ import match_background from "./assets/img_4.png";
 import img52 from "./assets/img52.png";
 import img50 from "./assets/img50.png";
 import crown from "./assets/img_5.png";
+import gold_medal from "./assets/img112.png";
+import iron_medal from "./assets/img113.png";
+import copper_medal from "./assets/img114.png";
+import left_arrow from "./assets/img_7.png";
+import right_arrow from "./assets/img_8.png";
+import trophy_gold from "./assets/img142.png";
+import trophy_bronze from "./assets/img143.png";
+import trophy_silver from "./assets/img144.png";
+import box_mini from "./assets/img149.png";
+import box_medium from "./assets/img150.png";
+import box_premium from "./assets/img151.png";
+import energy_shop from "./assets/img145.png";
+import coin_shop from "./assets/img146.png";
+import big_coin from "./assets/img_9.png";
+import big_energy from "./assets/img_10.png";
+import gold_coin from "./assets/img152.png";
+
+import coin_mini from "./assets/img_11.png";
+import coin_medium from "./assets/img_12.png";
+import coin_large from "./assets/img_13.png";
+import coin_premium from "./assets/img_14.png";
+
+import energy_background from "./assets/img_15.png";
+import energy_mini from "./assets/img_16.png";
+import energy_medium from "./assets/img_17.png";
+import energy_large from "./assets/img_18.png";
+import energy_premium from "./assets/img_19.png";
 
 
 class Config {
@@ -87,6 +114,31 @@ class Config {
         trophy: img52,
         blitz_line: img50,
         crown: crown,
+        gold_medal: gold_medal,
+        iron_medal: iron_medal,
+        copper_medal: copper_medal,
+        left_arrow: left_arrow,
+        right_arrow: right_arrow,
+        trophy_gold: trophy_gold,
+        trophy_silver: trophy_silver,
+        trophy_bronze: trophy_bronze,
+        box_mini: box_mini,
+        box_medium: box_medium,
+        box_premium: box_premium,
+        energy_shop: energy_shop,
+        coin_shop: coin_shop,
+        big_coin: big_coin,
+        big_energy: big_energy,
+        gold_coin: gold_coin,
+        coin_mini: coin_mini,
+        coin_medium: coin_medium,
+        coin_large: coin_large,
+        coin_premium: coin_premium,
+        energy_background: energy_background,
+        energy_mini: energy_mini,
+        energy_medium: energy_medium,
+        energy_large: energy_large,
+        energy_premium: energy_premium,
     };
 
     // какие-то игровые настройки

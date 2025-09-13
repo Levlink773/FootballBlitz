@@ -1,0 +1,132 @@
+/* css_files/Rating.module.css */
+
+.ratingContainer {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 383px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.title {
+    color: white;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-align: center;
+}
+
+/* UPDATED: Converted to a flex container */
+.listBox {
+    width: 100%;
+    height: 384px;
+    background: rgba(38, 38, 38, 0.80);
+    border-radius: 15px;
+    border: 1px #A624DE solid;
+    padding: 15px;
+    box-sizing: border-box;
+    position: relative;
+    /* Flexbox properties to control children */
+    display: flex;
+    flex-direction: column;
+}
+
+.listBox::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 15px;
+    box-shadow: 10px 10px 10px rgba(0,0,0,0.5);
+    outline: 4px solid #A624DE;
+    filter: blur(5px);
+    z-index: -1;
+}
+
+/* NEW: Style for the scrollable list area */
+.scrollableList {
+    flex-grow: 1; /* Allows this div to take up all available space */
+    overflow-y: auto; /* Adds a scrollbar if the content overflows */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* This keeps the spacing between items */
+}
+
+/* ... .ratingItem, .rankInfo, etc. remain the same ... */
+
+.ratingItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: white;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.rankInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-basis: 60%;
+}
+
+.rankNumber {
+    text-align: center;
+    width: 27px;
+}
+
+.rankIcon {
+    width: 18px;
+    height: 22px;
+}
+
+.rankName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rankScore {
+    flex-basis: 30%;
+    text-align: right;
+}
+
+/* UPDATED: Positioned at the bottom of the flex container */
+.howToContainer {
+    width: 100%;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Increased gap for larger elements */
+    flex-shrink: 0; /* Prevents this container from shrinking */
+    padding-top: -400px; /* Adds space between the list and this section */
+    top: 100px;
+}
+
+/* UPDATED: Increased font size */
+.howToText {
+    color: #F700FF;
+    font-size: 14px; /* Made bigger */
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    cursor: pointer;
+}
+
+/* UPDATED: Increased arrow size */
+.arrowIcon {
+    width: 48px; /* Made bigger */
+    height: auto;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.50));
+}
