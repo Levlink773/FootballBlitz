@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../../css_files/main_css/UserProfile.module.css';
-import Config from "../../assets_data.js";
+import Config from "../../config.js";
 
 const StatItem = ({ icon, alt, value }) => (
     <div className={styles.stat}>

@@ -1,0 +1,6 @@
+* { box-sizing: border-box; }
+img { display: block; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1a1a2e; /* Темный фон для лучшего контраста */
+}

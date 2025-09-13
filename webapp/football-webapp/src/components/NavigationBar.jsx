@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../css_files/NavigationBar.module.css';
-import Config from "../assets_data.js";
+import Config from "../config.js";
 
 const navItems = [
         { label: 'Головна', icon: Config.IMAGES.home_icon, labelClass: styles.homeLabel, iconClass: styles.homeIcon },

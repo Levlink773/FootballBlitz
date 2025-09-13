@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../css_files/Header.module.css';
-import Config from "../assets_data.js";
+import Config from "../config.js";
 
 const CurrencyGroup = ({ icon, alt, amount, onAdd }) => (
     <div className={styles.currencyGroup}>

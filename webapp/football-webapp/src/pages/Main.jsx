@@ -7,11 +7,11 @@ import {DailyTasks} from "../components/main_components/DailyTasks.jsx";
 import {EventCard} from "../components/main_components/EventCard.jsx";
 import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
 import {NavigationBar} from "../components/NavigationBar.jsx";
-import Config from "../assets_data.js";
+import Config from "../config.js";
 // Припустимо, що об'єкт user має таку структуру
 const mockUser = {
     name: "Ronaldo",
-    avatarUrl: "../assets/img26.png"
+    avatarUrl: "../assets/avatar.png"
 };
 
 export const Main = () => {

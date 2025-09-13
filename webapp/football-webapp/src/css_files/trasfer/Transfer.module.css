@@ -1,0 +1,26 @@
+.myTeamFooter {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.myTeamButton {
+    height: 30px;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.myTeamButton:first-child {
+    width: 100px;
+    background: linear-gradient(180deg, #FBF21B 0%, #F8BA19 100%);
+    color: #333;
+}
+
+.myTeamButton:last-child {
+    width: 150px;
+    background: linear-gradient(180deg, rgba(82, 79, 137, 0.85) 0%, rgba(47, 44, 90, 0.95) 100%);
+    color: white;
+    border: 1.5px solid rgba(190, 188, 255, 0.5);
+}

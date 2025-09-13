@@ -7,7 +7,10 @@
     background: linear-gradient(128deg, rgba(141.23, 141.23, 141.23, 0.50) 0%, rgba(133.92, 133.92, 133.92, 0.50) 100%);
     border-radius: 15px;
 }
-
+.navigationBar {
+    position: absolute; /* или fixed, если нужно закрепить */
+    z-index: 20; /* больше, чем у contentWrapper */
+}
 .mainButtonsBg {
     width: 301px;
     height: 67px;
