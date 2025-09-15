@@ -9,12 +9,14 @@ import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
 import {NavigationBar} from "../components/NavigationBar.jsx";
 import Config from "../config.js";
 import {
+    AlertModal,
     BuyEnergyModal,
     DonateEnergyModal,
     ModalRoot,
     OutOfEnergyModal,
     PlayerModal, SetPriceModal, TopChancesAlert, VipPromoModal,
 } from "../components/modal_components/ModalComponents.jsx";
+import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
 // Припустимо, що об'єкт user має таку структуру
 const mockUser = {
     name: "Ronaldo",
@@ -31,8 +33,8 @@ const mockPlayer = {
     image: Config.IMAGES.avatar_uk,
 };
 const mockTeams = [
-    { name: "Real Madrid", meta: "Leonard", chance: 52 },
-    { name: "Spartak", meta: "Leonard", chance: 48 },
+    {name: "Real Madrid", meta: "Leonard", chance: 52},
+    {name: "Spartak", meta: "Leonard", chance: 48},
 ];
 
 export const Main = () => {
@@ -40,18 +42,23 @@ export const Main = () => {
         <div className={styles.mainContainer} data-modal-root>
             <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
 
-            <Header user={mockUser} />
-            <VipBanner />
-            <UserProfile user={mockUser} />
-            <ModalRoot>
-                <ModalRoot variant="alert">
-                    <TopChancesAlert teams={mockTeams} />
-                </ModalRoot>
+            <Header user={mockUser}/>
+            <VipBanner/>
+            <UserProfile user={mockUser}/>
+            <ModalRoot backdrop={false} style={{
+                // Зміщуємо модальне вікно вниз на 50px від його розрахованої позиції
+                transform: 'translate(-50%, calc(-50% + 90px))'
+            }}>
+                <BuyEnergyModal message={"Привет"}
+                            html={true}
+                            width={340}
+                            height={120}
+                />
             </ModalRoot>
-            <DailyTasks />
-            <EventCard />
-            <StatsPanel />
-            <NavigationBar />
+            <DailyTasks/>
+            <EventCard/>
+            <StatsPanel/>
+            <NavigationBar/>
         </div>
     );
 };

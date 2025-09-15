@@ -1,7 +1,8 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
 import ReactDOM from "react-dom";
 import Config from "../../config.js";
-
+import {motion, AnimatePresence} from "framer-motion";
+import default_sound from "../../assets/sounds/notification.mp3"
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)
  * и жёстко ограничивает размеры модалки (width/maxWidth/maxHeight + overflowY:auto).
@@ -12,15 +13,33 @@ export function ModalRoot({
                               onClose,
                               backdrop = true,
                               variant = "center",
-                              attachTo = null, // <--- поддерживаем проп
+                              attachTo = null,
                               className = "",
                               style = {},
+                              // --- NEW PROPS ---
+                              animation = true, // Prop to enable/disable animation
+                              soundOnOpen = default_sound, // Path to the sound file
                           }) {
-    // если attachTo передали и это DOM-элемент — монтируем относительно него (находим его центр)
+    // --- SOUND EFFECT LOGIC (ADDED) ---
+    useEffect(() => {
+        // Play sound only when the modal is opened and a sound path is provided
+        if (soundOnOpen) {
+            try {
+                const audio = new Audio(soundOnOpen);
+                audio.volume = 0.3; // Adjust volume if needed
+                audio.play().catch(e => console.error("Could not play sound:", e));
+            } catch (error) {
+                console.error("Error creating audio element for modal:", error);
+            }
+        }
+        // This effect runs only once when the component mounts
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // ... (ваш існуючий код для визначення mountNode та center залишається без змін)
     const mountNode = typeof document !== "undefined" ? document.body : null;
     if (!mountNode) return null;
 
-    // состояние центра (как у вас было)
     const [center, setCenter] = useState({
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
@@ -28,10 +47,9 @@ export function ModalRoot({
 
     useLayoutEffect(() => {
         function updateCenter() {
-            // prefer attachTo if provided and valid
             const container = attachTo instanceof Element
                 ? attachTo
-                : document.querySelector('[data-modal-root]'); // fallback (не надежный при CSS Modules)
+                : document.querySelector('[data-modal-root]');
 
             if (container) {
                 const rect = container.getBoundingClientRect();
@@ -55,14 +73,41 @@ export function ModalRoot({
             window.removeEventListener("scroll", updateCenter);
             mo.disconnect();
         };
-    }, [variant, attachTo]); // <-- завязано на attachTo
+    }, [variant, attachTo]);
 
+    // --- ANIMATION VARIANTS (ADDED) ---
+    // Animation for the backdrop (fade in/out)
+    const backdropVariants = {
+        hidden: {opacity: 0},
+        visible: {opacity: 1},
+    };
 
-    // Overlay: покрытие всего viewport (фон), модалка будет позиционироваться фиксированно по center
+    // Animation for the modal content (scale and fade in/out)
+    const modalVariants = {
+        hidden: {
+            opacity: 0,
+            scale: 0.95,
+            x: "-50%", // <--- ДОДАНО
+            y: "-50%", // <--- ДОДАНО
+        },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            x: "-50%", // <--- ДОДАНО
+            y: "-50%", // <--- ДОДАНО
+        },
+        exit: {    // <--- Додано для плавності виходу
+            opacity: 0,
+            scale: 0.95,
+            x: "-50%",
+            y: "-50%",
+        }
+    };
+
     const overlayBase = {
         position: "fixed",
         inset: 0,
-        display: "block", // фон один, модалка позиционируется отдельно
+        display: "block",
         zIndex: 2147483647,
         pointerEvents: "auto",
     };
@@ -75,14 +120,13 @@ export function ModalRoot({
         zIndex: 2147483646,
     };
 
-    // сам модальный контейнер — позиционируем его фиксированно в точке center
     const modalPositionStyle = {
         position: "fixed",
         left: `${center.x}px`,
         top: `${center.y}px`,
-        transform: "translate(-50%, -50%)",
-        // Ограничение размеров: никогда не вылезет за экран
-        width: "min(360px, 86vw)", // немного компактнее
+        // The transform is now handled by framer-motion, but we keep this for initial centering logic.
+        // We will apply the core centering `translate` via framer-motion's style props.
+        width: "min(360px, 86vw)",
         maxWidth: "360px",
         maxHeight: "72vh",
         overflowY: "auto",
@@ -91,13 +135,39 @@ export function ModalRoot({
         ...style,
     };
 
+    // --- JSX WITH ANIMATION (CHANGED) ---
     const modal = (
-        <div style={overlayBase} className={`modal-root ${className}`}>
-            <div style={backdropStyle} onClick={onClose}/>
-            <div style={modalPositionStyle} onClick={(e) => e.stopPropagation()}>
-                {children}
+        // AnimatePresence is crucial. It allows components to animate out when they are removed from the tree.
+        <AnimatePresence mode="wait">
+            <div style={overlayBase} className={`modal-root ${className}`}>
+                {/* Animated Backdrop */}
+                <motion.div
+                    key="backdrop"
+                    style={backdropStyle}
+                    onClick={onClose}
+                    variants={animation ? backdropVariants : {}}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    transition={{duration: 0.2, ease: "easeInOut"}}
+                />
+
+                {/* Animated Modal Content */}
+                <motion.div
+                    key="modal-content"
+                    style={modalPositionStyle}
+                    onClick={(e) => e.stopPropagation()}
+                    variants={animation ? modalVariants : {}}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    // Spring animation for a nice "bouncy" effect
+                    transition={{type: "spring", damping: 20, stiffness: 300}}
+                >
+                    {children}
+                </motion.div>
             </div>
-        </div>
+        </AnimatePresence>
     );
 
     return ReactDOM.createPortal(modal, mountNode);
@@ -438,52 +508,125 @@ export function OutOfEnergyModal({
 
 export function AlertModal({
                                message = "Повідомлення",
-                               onClose = () => {
-                               },
-                               autoCloseMs = 2500, // миллисекунд; 0 = не закрывать автоматически
-                               style = {},
+                               html = false, // если true, рендерим HTML строку
+                               onClose = () => {},
+                               autoCloseMs = 3000,
+                               width = 320,
+                               height = 200,
+                               maxFont = 22,
+                               minFont = 10,
                            }) {
+    const textRef = useRef(null);
+    const [fontSize, setFontSize] = useState(maxFont);
+
+    // авто-закрытие
     useEffect(() => {
         if (!autoCloseMs || autoCloseMs <= 0) return;
-        const t = setTimeout(() => onClose(), autoCloseMs);
+        const t = setTimeout(onClose, autoCloseMs);
         return () => clearTimeout(t);
     }, [autoCloseMs, onClose]);
 
+    // уменьшение текста пока не влезет
+    useLayoutEffect(() => {
+        const el = textRef.current;
+        if (!el) return;
+
+        let size = maxFont;
+        while (size > minFont) {
+            el.style.fontSize = size + "px";
+            if (el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth) {
+                break; // текст влез
+            }
+            size--; // уменьшаем
+        }
+        setFontSize(size);
+    }, [message, maxFont, minFont, width, height]);
+
     return (
         <div
-            role="alert"
-            aria-live="polite"
             style={{
+                width,
+                height,
+                background: "rgba(30,30,30,0.95)",
+                borderRadius: 14,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                padding: 16,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: "12px 20px",
-                borderRadius: 12,
-                background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.45), 0 0 18px rgba(80,200,255,0.06) inset",
-                border: "1px solid rgba(255,255,255,0.03)",
-                backdropFilter: "blur(6px)",
-                minWidth: 240,
-                maxWidth: "84vw",
-                ...style,
+                textAlign: "center",
+                position: "relative",
             }}
         >
-            <div style={{
-                color: "#FFFFFF",
-                fontWeight: 800,
-                fontSize: 18,
-                textAlign: "center",
-                lineHeight: 1.15,
-                textShadow: "0 2px 8px rgba(0,0,0,0.6)",
-                padding: "4px 6px",
-                wordBreak: "break-word",
-                whiteSpace: "pre-wrap",
-            }}>
-                {message}
-            </div>
+            {/* крестик */}
+            <button
+                onClick={onClose}
+                style={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    background: "transparent",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: 20,
+                    cursor: "pointer",
+                }}
+            >
+                ×
+            </button>
+
+            {html ? (
+                <div
+                    ref={textRef}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        overflow: "hidden",
+                        color: "#fff",
+                        boxSizing: "border-box",
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                        fontSize, // число — React трактует как px
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+
+                        // центруем содержимое внутри блока
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: message }}
+                />
+            ) : (
+                <div
+                    ref={textRef}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        overflow: "hidden",
+                        color: "#fff",
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                        fontSize,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+
+                        // центруем содержимое внутри блока
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                    }}
+                >
+                    {message}
+                </div>
+            )}
         </div>
     );
 }
+
 
 export function BuyEnergyModal({
                                    balanceCoins = null,
