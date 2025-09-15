@@ -1,0 +1,215 @@
+/* Обёртка для основного контента, чтобы он не перекрывался Header и NavigationBar */
+.contentWrapper {
+    flex-grow: 1; /* Занимает всё доступное пространство */
+    padding: 80px 20px 80px 20px; /* Отступы сверху и снизу под хедер/навбар, по бокам */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* Расстояние между основными блоками */
+    z-index: 2;
+    overflow-y: auto; /* Добавляем скролл, если контент не помещается */
+    margin-bottom: 30px;
+}
+
+
+/* --- СТИЛИ ЗАГОЛОВКОВ --- */
+.pageTitle {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    margin-bottom: 10px; /* Отступ после главного заголовка */
+}
+
+.sectionTitle {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-top: 10px; /* Отступ перед заголовком секции */
+}
+
+
+/* --- СТИЛИ БЛОКА ЕЖЕДНЕВНОЙ НАГРАДЫ --- */
+.dailyReward {
+    width: 358px;
+    height: 90px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    background-image: url('../../assets/img156.png'); /* Путь к вашему фону */
+    background-size: cover;
+    border-radius: 5px;
+}
+
+.dailyRewardIcon {
+    width: 51px;
+    height: 51px;
+}
+
+.dailyRewardTitle {
+    flex-grow: 1;
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.getRewardButton {
+    width: 90px;
+    height: 50px;
+    background: linear-gradient(131deg, rgba(35.57, 202.14, 63.33, 0.60) 0%, rgba(8, 113.33, 18.53, 0.60) 100%);
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+}
+
+.rewardAmount {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.rewardAmount img {
+    width: 17px;
+    height: 17px;
+}
+
+.getRewardButtonText {
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+
+/* --- СТИЛИ СЕТКИ И КАРТОЧЕК ЗАДАНИЙ --- */
+.tasksGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px; /* Расстояние между карточками */
+    width: 100%;
+    max-width: 358px; /* 170px + 18px + 170px */
+}
+
+.taskCard {
+    width: 170px;
+    height: 90px;
+    border-radius: 5px;
+    background-size: cover;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    position: relative;
+}
+
+.taskCardTitle {
+    font-size: 13px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.taskCardDivider {
+    width: calc(100% - 16px);
+    height: 1px;
+    background: white;
+    margin: 5px auto;
+}
+
+.taskCardBody {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.taskProgress {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #9403AA;
+    border: 3px solid #787878;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.taskRewards {
+    display: flex;
+    gap: 10px; /* Расстояние между наградами, если их несколько */
+    align-items: center;
+    justify-content: center;
+}
+
+.taskReward {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+}
+
+.taskReward img {
+    width: 10px;
+    height: auto;
+}
+
+.taskStatus {
+    position: absolute;
+    bottom: 10px;
+    left: 8px;
+    font-size: 7px;
+    color: #B1B1B1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    margin: 0;
+}
+.inactiveRewardWrapper {
+    width: 90px;
+    height: 50px;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.inactiveRewardOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(122, 122, 122, 0.9);
+    border: 1px solid rgba(63, 63, 63, 0.9);
+    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+.inactiveRewardText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #bcbcbc;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}

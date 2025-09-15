@@ -5,8 +5,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const inputFile = path.resolve(__dirname, "components", "shop", "ShopCoins.jsx");
-const outputFile = path.resolve(__dirname, "components","shop", "ShopCoins.jsx");
+const inputFile = path.resolve(__dirname, "components", "modal_components", "VipModal.jsx");
+const outputFile = path.resolve(__dirname, "components","modal_components", "VipModal.jsx");
 const imagesDir = path.resolve(__dirname, "assets");
 
 if (!fs.existsSync(imagesDir)) {
@@ -15,7 +15,7 @@ if (!fs.existsSync(imagesDir)) {
 
 let code = fs.readFileSync(inputFile, "utf-8");
 
-let counter = 152;
+let counter = 176;
 
 code = code.replace(
     /src="data:image\/(png|jpg|jpeg|gif);base64,([^"]+)"/g,

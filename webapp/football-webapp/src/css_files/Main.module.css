@@ -312,3 +312,89 @@
     color: white;
     border: 1.5px solid rgba(190, 188, 255, 0.5);
 }
+/* контейнер-обёртка: центрируем внутри .mainContainer */
+.promoCardWrapper {
+    position: absolute;
+    top: 80px;              /* подвинь по вертикали при необходимости */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;            /* фиксированная ширина карточки, подгоняй при необходимости */
+    z-index: 3;              /* поверх фона и большинства элементов */
+    pointer-events: auto;
+}
+
+/* внутренний сам серый полупрозрачный блок */
+.promoCardContainer {
+    width: 100%;
+    background: rgba(38,38,38,0.78); /* полупрозрачный серый */
+    backdrop-filter: blur(6px);      /* легкий блюр фона */
+    border-radius: 14px;
+    min-height: 420px;
+    padding: 14px;
+    box-sizing: border-box;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+.promoCardContainer {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 440px; /* или сколько тебе нужно */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* равномерно распределяет верх/низ */
+}
+
+/* картинка ворот: ограничим высоту, сохраняем пропорции */
+.promoGoal {
+    width: 100%;
+    height: auto;
+    max-height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* текстовый блок в карточке */
+.promoText {
+    text-align: left;
+    width: 100%;
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.2;
+    /* чуть затемним текстовый фон, чтобы он читался на ярком фоне */
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+.promoButtons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.promoBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;              /* расстояние между текстом и иконкой */
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    background: linear-gradient(90deg, #FFD700, #FFA500); /* пример для "ПІДСИЛИТИ" */
+}
+
+.promoBtn:nth-child(2) {
+    background: linear-gradient(90deg, #6A0DAD, #8A2BE2); /* пример для "КУПИТИ" */
+}
+
+.energyIcon {
+    width: 20px;
+    height: 20px;
+}

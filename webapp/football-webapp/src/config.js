@@ -68,6 +68,19 @@ import energy_medium from "./assets/img_17.png";
 import energy_large from "./assets/img_18.png";
 import energy_premium from "./assets/img_19.png";
 
+import calendar_icon from "./assets/img_20.png";
+import task_banner from "./assets/img161.png";
+import avatar_uk from "./assets/img172.png";
+import vip_hero from "./assets/img176.png";
+import vip_act from "./assets/img178.png";
+import vip_button from "./assets/img179.png";
+import vip_em from "./assets/img_21.png";
+
+import goal1 from "./assets/img_22.png";
+import gold_button from "./assets/img_23.png";
+import energy_button from "./assets/img_24.png";
+import energy_energy from "./assets/img_25.png";
+
 
 class Config {
 
@@ -139,6 +152,17 @@ class Config {
         energy_medium: energy_medium,
         energy_large: energy_large,
         energy_premium: energy_premium,
+        calendar_icon: calendar_icon,
+        task_banner: task_banner,
+        avatar_uk: avatar_uk,
+        vip_hero: vip_hero,
+        vip_act: vip_act,
+        vip_button: vip_button,
+        vip_em: vip_em,
+        gold_button: gold_button,
+        energy_button: energy_button,
+        goal1: goal1,
+        energy_energy: energy_energy,
     };
 
     // какие-то игровые настройки
