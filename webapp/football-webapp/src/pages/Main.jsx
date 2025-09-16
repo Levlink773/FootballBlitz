@@ -10,8 +10,7 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import Config from "../config.js";
 import {
     AlertModal,
-    BuyEnergyModal,
-    DonateEnergyModal,
+    BuyEnergyModal, BuyModal,
     ModalRoot,
     OutOfEnergyModal,
     PlayerModal, SetPriceModal, TopChancesAlert, VipPromoModal,
@@ -45,16 +44,13 @@ export const Main = () => {
             <Header user={mockUser}/>
             <VipBanner isActive={true}/>
             <UserProfile user={mockUser}/>
-            {/*<ModalRoot backdrop={false} style={{*/}
-            {/*    // Зміщуємо модальне вікно вниз на 50px від його розрахованої позиції*/}
-            {/*    transform: 'translate(-50%, calc(-50% + 90px))'*/}
-            {/*}}>*/}
-            {/*    <BuyEnergyModal message={"Привет"}*/}
-            {/*                html={true}*/}
-            {/*                width={340}*/}
-            {/*                height={120}*/}
-            {/*    />*/}
-            {/*</ModalRoot>*/}
+            <ModalRoot variant='alert' backdrop={false}>
+                <TopChancesAlert teams={mockTeams}
+                            html={true}
+                            width={340}
+                            height={120}
+                />
+            </ModalRoot>
             <DailyTasks/>
             <div className={styles.eventCardWrapperEventMain}>
                 <EventCard />
