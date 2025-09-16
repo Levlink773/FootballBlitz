@@ -13,6 +13,14 @@ class TransferCharacterService:
                 return list(result.scalars().all())
 
     @classmethod
+    async def get_all_free_agents(cls) -> list[TransferCharacter] | None:
+        async for session in get_session():
+            async with session.begin():
+                result = await session.execute(
+                    select(TransferCharacter).where(TransferCharacter.transfer_type == TransferType.FREE_AGENTS))
+                return list(result.scalars().all())
+
+    @classmethod
     async def get_by_id(cls, transfer_id: int) -> TransferCharacter | None:
         async for session in get_session():
             async with session.begin():

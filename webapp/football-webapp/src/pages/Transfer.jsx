@@ -7,10 +7,10 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import TransferOption from "../components/transfer/Transfer.jsx";
 
-export default function TransferCard({mockUser}) {
+export default function TransferCard({user}) {
     return (
         <div className={styles.mainContainer}>
-            <Header user={mockUser} />
+            <Header user={user} />
             <img
                 src={Config.IMAGES.transfer_background}
                 alt="background"
@@ -18,7 +18,7 @@ export default function TransferCard({mockUser}) {
             />
             <div className={styles.contentWrapper}>
 
-                <TransferOption />
+                <TransferOption user={user} />
             </div>
             <NavigationBar />
         </div>

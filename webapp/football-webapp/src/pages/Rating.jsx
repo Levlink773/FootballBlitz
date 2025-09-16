@@ -8,10 +8,10 @@ import styles from '../css_files/Main.module.css';
 import Rating from '../components/rating/Rating.jsx';
 import RatingInfo from "../components/rating/RatingInfo.jsx"; // <-- IMPORT THE NEW COMPONENT
 
-export default function RatingCard({ mockUser }) {
+export default function RatingCard({ user }) {
     return (
         <div className={styles.mainContainer}>
-            <Header user={mockUser} />
+            <Header user={user} />
 
             {/* Background Image */}
             <img

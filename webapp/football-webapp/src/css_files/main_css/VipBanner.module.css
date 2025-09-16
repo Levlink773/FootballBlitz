@@ -55,7 +55,7 @@
     align-items: center;
     box-sizing: border-box;
     padding-left: 55px;
-    background: url('../../assets/vip_emblem_large.png') no-repeat center center;
+    background: url('../../assets/public/vip_emblem_large.png') no-repeat center center;
     background-size: cover;
     border-radius: 8px;
 }

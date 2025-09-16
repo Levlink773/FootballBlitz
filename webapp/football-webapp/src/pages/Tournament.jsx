@@ -4,13 +4,13 @@ import Config from "../config.js";
 import { NavigationBar } from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import BlitzSchedule from "../components/tournament/BlitzSchedule.jsx";
-import {EventCard} from "../components/main_components/EventCard.jsx";
+import EventCard from "../components/main_components/EventCard.jsx";
 import {InfoPanel} from "../components/tournament/InfoPanel.jsx";
 
-export default function TournamentCard({ mockUser }) {
+export default function TournamentCard({ user }) {
     return (
         <div className={styles.mainContainer}>
-            <Header user={mockUser} />
+            <Header user={user} />
             <img
                 src={Config.IMAGES.blitz_background}
                 alt="background"

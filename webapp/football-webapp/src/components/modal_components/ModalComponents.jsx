@@ -2,7 +2,7 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
 import ReactDOM from "react-dom";
 import Config from "../../config.js";
 import {motion, AnimatePresence} from "framer-motion";
-import default_sound from "../../assets/sounds/notification.mp3"
+import default_sound from "../../assets/public/sounds/notification.mp3"
 import { useSpring, animated } from 'react-spring';
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)

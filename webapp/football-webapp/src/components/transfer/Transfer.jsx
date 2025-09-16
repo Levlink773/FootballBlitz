@@ -1,31 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// --- Импорты всех картинок ---
-import Img55 from '../../Assets/Img55.Png';
-import Img56 from '../../Assets/Img56.Png';
-import Img57 from '../../Assets/Img57.Png';
-import Img58 from '../../Assets/Img58.Png';
-import Img59 from '../../Assets/Img59.Png';
-import Img60 from '../../Assets/Img60.Png';
-import Img61 from '../../Assets/Img61.Png';
-import Img62 from '../../Assets/Img62.Png';
-import Img63 from '../../Assets/Img63.Png';
-import Img64 from '../../Assets/Img64.Png';
-import Img65 from '../../Assets/Img65.Png';
-import Img66 from '../../Assets/Img66.Png';
-import Img67 from '../../Assets/Img67.Png';
-import Img68 from '../../Assets/Img68.Png';
-import Img69 from '../../Assets/Img69.Png';
-import Img70 from '../../Assets/Img70.Png';
-import Img71 from '../../Assets/Img71.Png';
-import Img73 from '../../Assets/Img73.Png';
-import Img74 from '../../Assets/Img74.Png';
-import Img75 from '../../Assets/Img75.Png';
-import Img76 from '../../Assets/Img76.Png';
-import Img77 from '../../Assets/Img77.Png';
-import Img78 from '../../Assets/Img78.Png';
-import Img80 from '../../Assets/Img80.Png';
-import Card from '../../Assets/Img_6.Png';
+// --- Імпорты всех картинок ---
+import Img55 from '../../assets/public/img55.png';
+import Img56 from '../../assets/public/img56.png';
+import Img57 from '../../assets/public/img57.png';
+import Img58 from '../../assets/public/img58.png';
+import Img59 from '../../assets/public/img59.png';
+import Img60 from '../../assets/public/img60.png';
+import Img61 from '../../assets/public/img61.png';
+import Img62 from '../../assets/public/img62.png';
+import Img63 from '../../assets/public/img63.png';
+import Img64 from '../../assets/public/img64.png';
+import Img65 from '../../assets/public/img65.png';
+import Img66 from '../../assets/public/img66.png';
+import Img67 from '../../assets/public/img67.png';
+import Img68 from '../../assets/public/img68.png';
+import Img69 from '../../assets/public/img69.png';
+import Img70 from '../../assets/public/img70.png';
+import Img71 from '../../assets/public/img71.png';
+import Img73 from '../../assets/public/img73.png';
+import Img74 from '../../assets/public/img74.png';
+import Img75 from '../../assets/public/img75.png';
+import Img76 from '../../assets/public/img76.png';
+import Img77 from '../../assets/public/img77.png';
+import Img78 from '../../assets/public/img78.png';
+import Img80 from '../../assets/public/img80.png';
+import Card from '../../assets/public/img_6.png';
+
+// --- Вспомогательный массив со всеми импортами для удобства ---
+// Это "костыль", необходимый, так как бэкенд не отдает URL картинок.
+// В идеале, бэкенд должен присылать ссылки на изображения для каждого игрока.
+const ALL_IMAGES = {
+    playerSets: [
+        { cardBackground: Img55, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 },
+        { cardBackground: Img61, avatar: Img65, flag: Img66, stat1Icon: Img62, stat2Icon: Img63, priceIcon: Img64 },
+        { cardBackground: Img67, avatar: Img71, flag: Img73, stat1Icon: Img68, stat2Icon: Img69, priceIcon: Img70 },
+        { cardBackground: Img74, avatar: Img78, flag: Img80, stat1Icon: Img75, stat2Icon: Img76, priceIcon: Img77 },
+    ],
+    genericCdm: Card,
+};
 
 // --- Анимации ---
 const animationStyles = `
@@ -41,43 +54,31 @@ const animationStyles = `
     }
 `;
 
-// --- Тексты (вынесены для удобства перевода/редактирования) ---
+// --- Тексты ---
 const TEXT = {
     pageTitle: 'Моя команда',
     marketTitle: 'Трансферний ринок',
+    freeAgentsTitle: 'Вільні агенти',
     addPlayer: 'Додати гравця',
     sellerLabel: 'Продавець:',
     buyButton: 'Купити',
     sellButton: 'Продати',
-    priceUnit: '', // можно указать валюту/символ, например '₴' или '⚽'
+    priceUnit: '',
+    loading: 'Завантаження ринку...',
+    error: 'Не вдалося завантажити дані. Спробуйте пізніше.',
     altCardBg: (name) => `${name} — фон картки`,
     altAvatar: (name) => `${name} — аватар`,
     altFlag: (name) => `${name} — прапор`,
     altStatIcon: (statIndex) => `Іконка показника ${statIndex}`,
     addPlayerTitle: 'Додати нового гравця до команди',
+    noPlayersInTeam: 'У вас немає гравців',
 };
 
 // --- Утилиты ---
 function formatPrice(value) {
-    try {
-        // форматируем число с пробелами как разделителями тысяч
-        return new Intl.NumberFormat('uk-UA').format(value) + (TEXT.priceUnit ? ` ${TEXT.priceUnit}` : '');
-    } catch (e) {
-        return String(value);
-    }
+    if (typeof value !== 'number') return String(value);
+    return new Intl.NumberFormat('uk-UA').format(value) + (TEXT.priceUnit ? ` ${TEXT.priceUnit}` : '');
 }
-
-// --- Данные игроков ---
-const playersData = [
-    { id: 1, name: 'Іван Занько', position: 'Нападник', seller: '@Joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: Img55, cdm: Card, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 } },
-    { id: 2, name: 'Дмитро Гуц', position: 'Нападник', seller: '@Joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: Img61, cdm: Card, avatar: Img65, flag: Img66, stat1Icon: Img62, stat2Icon: Img63, priceIcon: Img64 } },
-    { id: 3, name: 'Торі Гевер', position: 'Нападник', seller: '@Joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: Img67, cdm: Card, avatar: Img71, flag: Img73, stat1Icon: Img68, stat2Icon: Img69, priceIcon: Img70 } },
-    { id: 4, name: 'Барні Гуц', position: 'Нападник', seller: '@Joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: Img74, cdm: Card, avatar: Img78, flag: Img80, stat1Icon: Img75, stat2Icon: Img76, priceIcon: Img77 } },
-    { id: 5, name: 'Іван Занько', position: 'Нападник', seller: '@Joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: Img55, cdm: Card, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 } },
-    { id: 6, name: 'Дмитро Гуц', position: 'Нападник', seller: '@Joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: Img61, cdm: Card, avatar: Img65, flag: Img66, stat1Icon: Img62, stat2Icon: Img63, priceIcon: Img64 } },
-    { id: 7, name: 'Торі Гевер', position: 'Нападник', seller: '@Joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: Img67, cdm: Card, avatar: Img71, flag: Img73, stat1Icon: Img68, stat2Icon: Img69, priceIcon: Img70 } },
-    { id: 8, name: 'Барні Гуц', position: 'Нападник', seller: '@Joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: Img74, cdm: Card, avatar: Img78, flag: Img80, stat1Icon: Img75, stat2Icon: Img76, priceIcon: Img77 } },
-];
 
 // --- Стили ---
 const styles = {
@@ -105,8 +106,9 @@ const styles = {
         margin: '6px 0 0 0',
     },
     myTeamSection: {
-        width: 'calc(188px * 2 + 20px)',
-        display: 'flex',
+        width: 'calc(188px * 2 + 16px)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        display: 'grid',
         gap: 16,
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -383,8 +385,106 @@ const MiniPlayer = React.memo(({ player }) => {
     );
 });
 
-export default function TransferOption() {
-    const firstPlayer = playersData[0];
+
+// --- Основной компонент с логикой загрузки данных ---
+// --- Основной компонент с логикой загрузки данных ---
+export default function TransferOption({ user }) {
+    // ВАЖЛИВО: Замініть це значення на ID поточного авторизованого користувача
+
+    const [myTeam, setMyTeam] = useState([]);
+    const [transfers, setTransfers] = useState([]);
+    const [freeAgents, setFreeAgents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    /**
+     * Преобразует данные трансфера из API в формат для PlayerCard.
+     */
+    const mapTransferToCard = (apiItem, index) => {
+        const character = apiItem.character;
+        if (!character) return null;
+
+        const imageSet = ALL_IMAGES.playerSets[index % ALL_IMAGES.playerSets.length];
+
+        return {
+            id: apiItem.id,
+            characterId: character.id,
+            name: character.name || 'Невідомий гравець',
+            position: 'Нападник',
+            seller: character.owner?.username || 'Система',
+            price: apiItem.price,
+            stats: {
+                value1: Math.round(character.power || 0),
+                value2: character.talent || 0
+            },
+            images: { ...imageSet, cdm: ALL_IMAGES.genericCdm }
+        };
+    };
+
+    /**
+     * Преобразует данные персонажа з API в формат для MiniPlayer.
+     */
+    const mapCharacterToCard = (character, index) => {
+        if (!character) return null;
+
+        const imageSet = ALL_IMAGES.playerSets[index % ALL_IMAGES.playerSets.length];
+
+        return {
+            id: character.id, // Використовуємо ID персонажа, оскільки ID трансфера тут немає
+            characterId: character.id,
+            name: character.name || 'Невідомий гравець',
+            position: 'Нападник',
+            // У персонажа є розрахункова вартість, а не ціна з ринку
+            price: character.character_price || 0, // Припускаємо, що character_to_dict повертає це поле
+            stats: {
+                value1: Math.round(character.power || 0),
+                value2: character.talent || 0
+            },
+            images: { ...imageSet, cdm: ALL_IMAGES.genericCdm }
+        }
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const [myTeamResponse, transfersResponse, freeAgentsResponse] = await Promise.all([
+                    fetch(`http://localhost:8123/characters/by-user/${user.user_id}`), // Новий запит
+                    fetch('http://localhost:8123/transfers'),
+                    fetch('http://localhost:8123/transfers/free_agents')
+                ]);
+
+                if (!myTeamResponse.ok || !transfersResponse.ok || !freeAgentsResponse.ok) {
+                    throw new Error('Помилка мережі при завантаженні даних');
+                }
+
+                const myTeamData = await myTeamResponse.json();
+                const transfersData = await transfersResponse.json();
+                const freeAgentsData = await freeAgentsResponse.json();
+
+                setMyTeam(myTeamData.map(mapCharacterToCard).filter(Boolean));
+                setTransfers(transfersData.map(mapTransferToCard).filter(Boolean));
+                setFreeAgents(freeAgentsData.map(mapTransferToCard).filter(Boolean));
+
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError(TEXT.error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [user.user_id]); // Додаємо ID як залежність, щоб перезавантажити дані при зміні користувача
+
+    if (loading) {
+        return <div style={{...styles.title, textAlign: 'center'}}>{TEXT.loading}</div>;
+    }
+
+    if (error) {
+        return <div style={{...styles.title, textAlign: 'center', color: '#ff6b6b'}}>{error}</div>;
+    }
 
     return (
         <section style={styles.outerWrapper} aria-label="Трансферний інтерфейс">
@@ -392,8 +492,15 @@ export default function TransferOption() {
 
             <h2 style={styles.title}>{TEXT.pageTitle}</h2>
 
+            {/* --- НАЧАЛО ИЗМЕНЕНИЙ В JSX --- */}
             <div style={styles.myTeamSection}>
-                <MiniPlayer player={firstPlayer} />
+                {myTeam.length > 0
+                    ? myTeam.map(player => <MiniPlayer key={player.characterId} player={player} />)
+                    // Если игроков нет, можно ничего не выводить, т.к. кнопка добавления будет всегда
+                    : null
+                }
+
+                {/* Кнопка "Додати гравця" теперь является элементом сетки */}
                 <div
                     role="button"
                     tabIndex={0}
@@ -401,10 +508,10 @@ export default function TransferOption() {
                     style={{
                         width: 188, height: 120, borderRadius: 15,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2))',
                         boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)', color: '#F1F1F1',
                         fontWeight: 800, textTransform: 'uppercase', fontSize: 14, textAlign: 'center',
-                        cursor: 'pointer',
+                        cursor: 'pointer', flexShrink: 0
                     }}
                     onClick={() => console.log('Додати гравця')}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') console.log('Додати гравця'); }}
@@ -413,14 +520,26 @@ export default function TransferOption() {
                     <div>{TEXT.addPlayer}</div>
                 </div>
             </div>
+            {/* --- КОНЕЦ ИЗМЕНЕНИЙ В JSX --- */}
+
 
             <h3 style={styles.sectionTitle}>{TEXT.marketTitle}</h3>
-
             <div style={styles.gridContainer}>
-                {playersData.map((player, index) => (
+                {transfers.map((player, index) => (
                     <PlayerCard key={player.id} player={player} index={index} />
                 ))}
             </div>
+
+            {freeAgents.length > 0 && (
+                <>
+                    <h3 style={styles.sectionTitle}>{TEXT.freeAgentsTitle}</h3>
+                    <div style={styles.gridContainer}>
+                        {freeAgents.map((player, index) => (
+                            <PlayerCard key={player.id} player={player} index={transfers.length + index} />
+                        ))}
+                    </div>
+                </>
+            )}
         </section>
     );
 }

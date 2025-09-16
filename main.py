@@ -1,5 +1,6 @@
 import asyncio
 
+import uvicorn
 from aiohttp import web
 
 from config import WEBAPP_HOST, WEBAPP_PORT, CALLBACK_URL_WEBHOOK_BOX_BLITZ, CALLBACK_URL_WEBHOOK_ENERGY_BLITZ, \
@@ -8,6 +9,7 @@ from loader import bot, dp, app
 from bot.routers.router import main_router
 from bot.middlewares import handlers
 from load_utils import start_utils
+from webapp.fastapi.app import app_fastapi
 from webhook_api.handlers.box_handler import MonoResultBox
 from webhook_api.handlers.energy_handler import MonoResultEnergy
 from webhook_api.handlers.money_handler import MonoResultMoney
@@ -21,6 +23,11 @@ async def start_weebhook():
     await runner.setup()
     site = web.TCPSite(runner, WEBAPP_HOST, WEBAPP_PORT)
     await site.start()
+
+async def start_fastapi():
+    config = uvicorn.Config(app_fastapi, host="0.0.0.0", port=8123, loop="asyncio")
+    server = uvicorn.Server(config)
+    await server.serve()
 
 def add_patch_payments():
     app.router.add_post("/" + CALLBACK_URL_WEBHOOK_ENERGY_BLITZ.split("/")[-1], MonoResultEnergy.router)
@@ -38,6 +45,7 @@ async def main():
     await asyncio.gather(
         start_polling(),
         start_weebhook(),
+        start_fastapi()
     )
 
 

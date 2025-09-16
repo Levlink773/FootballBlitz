@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from '../css_files/Header.module.css';
 import Config from "../config.js";
 
@@ -21,13 +21,12 @@ const NotificationIcon = ({ hasNotification }) => (
     </svg>
 );
 
-// --- ИСПРАВЛЕННАЯ ЗОЛОТАЯ КНОПКА МАГАЗИНА ---
+// --- Золотая кнопка магазина ---
 const ShopButton = () => (
     <button className={styles.shopButton} aria-label="Shop">
         {/* Фоновый SVG */}
         <svg className={styles.shopButtonSvg} viewBox="0 0 100 38" preserveAspectRatio="none">
             <defs>
-                {/* Золотой градиент */}
                 <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor="#FFECB3" />
                     <stop offset="25%" stopColor="#FFD700" />
@@ -35,19 +34,16 @@ const ShopButton = () => (
                     <stop offset="75%" stopColor="#FFD700" />
                     <stop offset="100%" stopColor="#FFECB3" />
                 </linearGradient>
-                {/* Блик для золотого эффекта */}
                 <radialGradient id="goldShine" cx="50%" cy="0%" r="100%" fx="50%" fy="0%">
                     <stop offset="0%" stopColor="rgba(255,255,255,0.7)" />
                     <stop offset="100%" stopColor="rgba(255,255,255,0)" />
                 </radialGradient>
             </defs>
-            {/* Фон кнопки */}
             <rect x="0" y="0" width="100" height="38" rx="12" ry="12" fill="url(#goldGradient)" />
-            {/* Блик на кнопке */}
             <rect x="0" y="0" width="100" height="38" rx="12" ry="12" fill="url(#goldShine)" className={styles.shineEffect} />
         </svg>
 
-        {/* Иконка магазина (корзина/тележка) - ОНА ОСТАЕТСЯ */}
+        {/* Иконка магазина */}
         <img
             src={Config.IMAGES.shop_icon}
             alt="Shop Icon"
@@ -56,42 +52,37 @@ const ShopButton = () => (
     </button>
 );
 
-// Компонент валюты остался без изменений
-const CurrencyGroup = ({ icon, alt, amount, onAdd }) => (
+// --- Компонент валюты (без кнопки "+") ---
+const CurrencyGroup = ({ icon, alt, amount }) => (
     <div className={styles.currencyGroup}>
         <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
-        <span className={styles.currencyAmount}>{amount}</span>
-        <button
-            className={styles.addButton}
-            onClick={onAdd}
-            aria-label={`Add ${alt}`}
-        >
-            +
-        </button>
+        {/* Отображаем количество или "0", если данные еще не пришли */}
+        <span className={styles.currencyAmount}>{amount ?? 0}</span>
     </div>
 );
 
-// Основной компонент хедера
+// --- Основной компонент хедера ---
 export const Header = ({ user }) => {
-    const [currencies, setCurrencies] = useState(user?.currencies || { coins: 1250, energy: 85 });
 
-    const handleAddCoins = () => setCurrencies(prev => ({ ...prev, coins: prev.coins + 100 }));
-    const handleAddEnergy = () => setCurrencies(prev => ({ ...prev, energy: prev.energy + 10 }));
-
+    // Данные для валют теперь формируются напрямую из пропса 'user'
     const currencyData = [
-        { icon: Config.IMAGES.coin, alt: 'Coins', amount: currencies.coins, onAdd: handleAddCoins },
-        { icon: Config.IMAGES.energy, alt: 'Energy', amount: currencies.energy, onAdd: handleAddEnergy },
+        { icon: Config.IMAGES.coin, alt: 'Coins', amount: user?.money },
+        { icon: Config.IMAGES.energy, alt: 'Energy', amount: user?.energy },
     ];
+
+    // Определяем URL аватара: используем user.avatar если есть, иначе — дефолтный
+    const avatarUrl = user?.avatar_url || Config.IMAGES.avatar;
 
     return (
         <header className={styles.headerContainer}>
             {/* Левый блок */}
             <div className={styles.leftSection}>
                 <button className={styles.iconButton} aria-label="Notifications">
+                    {/* В будущем можно будет подставлять значение из user.has_new_notifications */}
                     <NotificationIcon hasNotification={false} />
                 </button>
                 <div className={styles.avatarContainer}>
-                    <img className={styles.avatar} src={Config.IMAGES.avatar} alt="User avatar" />
+                    <img className={styles.avatar} src={avatarUrl} alt="User avatar" />
                     <span className={styles.avatarGlow}></span>
                 </div>
             </div>

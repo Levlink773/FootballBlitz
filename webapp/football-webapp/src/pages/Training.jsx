@@ -1,10 +1,10 @@
 import React from 'react';
 import {Header} from "../components/Header.jsx";
-import TrainingActivity from "../components/training/TrainingActivity.jsx";
 import Config from "../config.js";
 import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import TrainingOption from "../components/training/TrainingOption.jsx";
+import TrainingStatus from "../components/training/TrainingStatus.jsx";
 const TRAINING_OPTIONS = [
     { id: 1, bg: Config.IMAGES.train_line, chance: '~35%', duration: '30 хв.', cost: -10, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
     { id: 2, bg: Config.IMAGES.train_line, chance: '~45%', duration: '60 хв.', cost: -20, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
@@ -12,10 +12,10 @@ const TRAINING_OPTIONS = [
     { id: 4, bg: Config.IMAGES.train_line, chance: '~75%', duration: '120 хв.', cost: -60, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
 ];
 
-export default function TrainingRoomCard({mockUser}) {
+export default function TrainingRoomCard({user}) {
     return (
         <div className={styles.mainContainer}>
-            <Header user={mockUser} />
+            <Header user={user} />
             <img
                 src={Config.IMAGES.training_background}
                 alt="background"
@@ -23,10 +23,8 @@ export default function TrainingRoomCard({mockUser}) {
             />
 
             {/* Передаємо клас для позиціонування */}
-            <TrainingActivity
-                timeLeft={"00:23:45"}
-                chance={"~ 35%"}
-                className={styles.trainingActivityPosition}
+            <TrainingStatus
+                userId={user.user_id}
             />
             {/* ОСЬ ВАШ НОВИЙ ЕЛЕМЕНТ */}
             <div className={styles.trainingRoomTitle}>

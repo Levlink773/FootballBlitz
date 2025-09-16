@@ -1,193 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import styles from '../../css_files/education_centre/EducationCentre.module.css';
+// EducationCentre.jsx
+
+import React, { useState, useEffect, useCallback } from 'react';
+import EducationCentreView from './EducationCentreView'; // Імпортуємо компонент для відображення
 import Config from "../../config.js";
 
-// --- DUMMY DATA WITH NEW PROPERTIES ---
-// Added 'status' ('in-progress', 'claimable')
-// Changed 'progress' to an object for easier calculations
-const initialTasksData = [
-    {
-        id: 1,
-        title: "Проведи 3 тренування",
-        rewards: [{ type: 'coin', amount: 50, icon: Config.IMAGES.coin }],
-        progress: { current: 2, total: 3 },
-        status: 'in-progress', // Can be 'in-progress', 'claimable'
+// Допоміжна мапа для збагачення даних з бекенду (іконки, фон),
+// оскільки бекенд не повертає цю візуальну інформацію.
+const TASK_METADATA = {
+    CONDUCT_3_TRAINING: {
+        id: 'CONDUCT_3_TRAINING',
+        rewards: [{ type: 'energy', amount: 50, icon: Config.IMAGES.energy }],
+        progressTotal: 3,
         backgroundImage: Config.IMAGES.task_banner
     },
-    {
-        id: 2,
-        title: "Зіграй турнір",
-        rewards: [{ type: 'coin', amount: 20, icon: Config.IMAGES.coin }],
-        progress: { current: 1, total: 1 },
-        status: 'claimable', // This task is ready to be claimed
-        statusText: "Турнір зіграно!",
+    PLAY_BLITZ: {
+        id: 'PLAY_BLITZ',
+        rewards: [{ type: 'energy', amount: 20, icon: Config.IMAGES.energy }],
+        progressTotal: 1,
         backgroundImage: Config.IMAGES.task_banner
     },
-    {
-        id: 3,
-        title: "Дійди до півфіналу",
-        rewards: [
-            { type: 'star', amount: 50, icon: Config.IMAGES.energy },
-            { type: 'coin', amount: 50, icon: Config.IMAGES.coin }
-        ],
-        progress: { current: 0, total: 1 },
-        status: 'in-progress',
-        statusText: "Вже досягли 0 разів",
+    RICH_SEMI_FINAL_BLITZ: {
+        id: 'RICH_SEMI_FINAL_BLITZ',
+        rewards: [{ type: 'energy', amount: 50, icon: Config.IMAGES.energy }],
+        progressTotal: 1,
         backgroundImage: Config.IMAGES.task_banner
     }
-];
-
-// --- REUSABLE BUTTON COMPONENTS ---
-
-const ButtonReward = ({ rewards, onClick }) => {
-    // Calculate total reward for display if there's only one type
-    const totalAmount = rewards.length === 1 ? rewards[0].amount : '🎁';
-    const icon = rewards.length === 1 ? rewards[0].icon : null;
-
-    return (
-        <button className={`${styles.getRewardButton} ${styles.glowingButton}`} onClick={onClick}>
-            <div className={styles.rewardAmount}>
-                <span>{totalAmount}</span>
-                {icon && <img src={icon} alt="reward" />}
-            </div>
-            <span className={styles.getRewardButtonText}>ОТРИМАТI</span>
-        </button>
-    );
 };
 
-const ButtonUnactiveReward = ({ time }) => (
-    <div className={styles.inactiveRewardWrapper}>
-        <div className={styles.inactiveRewardOverlay}></div>
-        <div className={styles.inactiveRewardText}>
-            {time}
-        </div>
-    </div>
-);
+// Трансформує дані з API у формат, зрозумілий для TaskCard
+const transformApiTasks = (apiTasks) => {
+    return apiTasks.map(task => {
+        const metadata = TASK_METADATA[task.stat_type] || {};
+        const statusMap = {
+            'in_progress': 'in-progress',
+            'done_and_ready': 'claimable',
+            'done_and_claimed': 'claimed'
+        };
+
+        return {
+            id: metadata.id || task.stat_type,
+            title: task.description.split('—')[0].trim(), // "Проведи 3 тренування"
+            rewards: metadata.rewards || [],
+            progress: {
+                current: task.progress_raw || 0,
+                total: metadata.progressTotal || 1
+            },
+            status: statusMap[task.status] || 'in-progress',
+            statusText: task.status === 'done_and_ready' ? (task.extra?.ready_text || "Готово до отримання!") : task.progress,
+            backgroundImage: metadata.backgroundImage
+        };
+    }).filter(task => task.status !== 'claimed'); // Не показуємо вже отримані завдання
+};
 
 
-// --- REUSABLE UI COMPONENTS ---
+const EducationCentre = ({ userId }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [tasks, setTasks] = useState([]);
+    const [dailyReward, setDailyReward] = useState({ isClaimable: false, timeLeft: 0 });
 
-const DailyReward = () => {
-    const [timeLeft, setTimeLeft] = useState(12 * 3600 + 9 * 60 + 9); // 12:09:09 in seconds
-    const [isClaimable, setIsClaimable] = useState(false);
+    // Функція для завантаження всіх даних
+    const fetchData = useCallback(async () => {
+        if (!userId) return;
+        setIsLoading(true);
+        try {
+            const [remainingRes, tasksRes] = await Promise.all([
+                fetch(`http://localhost:8123/education/remaining/${userId}`), // Перевірте шлях до API
+                fetch(`http://localhost:8123/education/tasks/${userId}`)      // Перевірте шлях до API
+            ]);
 
+            const remainingData = await remainingRes.json();
+            const tasksData = await tasksRes.json();
+
+            setDailyReward({
+                isClaimable: remainingData.ready,
+                timeLeft: remainingData.seconds_remaining
+            });
+
+            setTasks(transformApiTasks(tasksData.tasks));
+
+        } catch (error) {
+            console.error("Failed to fetch education centre data:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [userId]);
+
+    // Первинне завантаження даних
     useEffect(() => {
-        if (isClaimable) return;
+        fetchData();
+    }, [fetchData]);
+
+    // Таймер для щоденної нагороди
+    useEffect(() => {
+        if (dailyReward.isClaimable || dailyReward.timeLeft <= 0) return;
 
         const timer = setInterval(() => {
-            setTimeLeft(prevTime => {
-                if (prevTime <= 1) {
-                    clearInterval(timer);
-                    setIsClaimable(true);
-                    return 0;
-                }
-                return prevTime - 1;
-            });
+            setDailyReward(prev => ({ ...prev, timeLeft: prev.timeLeft - 1 }));
+            if (dailyReward.timeLeft <= 1) {
+                setDailyReward({ isClaimable: true, timeLeft: 0 });
+                clearInterval(timer);
+            }
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isClaimable]);
+    }, [dailyReward.isClaimable, dailyReward.timeLeft]);
 
-    const formatTime = (seconds) => {
-        const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        return `${h}:${m}:${s}`;
+
+    // Обробник для отримання щоденної нагороди
+    const handleClaimDaily = async () => {
+        try {
+            const response = await fetch('http://localhost:8123/education/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId })
+            });
+            const data = await response.json();
+            if (data.ok) {
+                alert(`Нагорода отримана: ${data.message}`);
+                fetchData(); // Оновлюємо дані після отримання
+            } else {
+                alert(`Помилка: ${data.message}`);
+            }
+        } catch (error) {
+            console.error("Failed to claim daily reward:", error);
+            alert("Сталася помилка мережі.");
+        }
     };
 
-    // Dummy rewards for the daily bonus
-    const dailyRewards = [{ type: 'coin', amount: 100, icon: Config.IMAGES.coin }];
-
-    return (
-        <div className={styles.dailyReward}>
-            <img src={Config.IMAGES.calendar_icon} alt="Calendar" className={styles.dailyRewardIcon} />
-            <span className={styles.dailyRewardTitle}>ЩОДЕННА НАГОРОДА</span>
-            {isClaimable ? (
-                <ButtonReward rewards={dailyRewards} onClick={() => setIsClaimable(false)} />
-            ) : (
-                <ButtonUnactiveReward time={formatTime(timeLeft)} />
-            )}
-        </div>
-    );
-};
-
-const TaskCard = ({ task, onClaim }) => {
-    const { title, rewards, progress, status, statusText, backgroundImage } = task;
-    const progressPercent = progress ? (progress.current / progress.total) * 100 : 0;
-    const isClaimable = status === 'claimable'; // Создаем переменную для удобства
-
-    return (
-        // 👇 ВОТ ИЗМЕНЕНИЕ: Добавляем класс isClaimable, если задание можно забрать
-        <div
-            className={`${styles.taskCard} ${isClaimable ? styles.isClaimable : ''}`}
-            style={{ backgroundImage: `url(${backgroundImage})` }}
-        >
-            <h3 className={styles.taskCardTitle}>{title}</h3>
-            <div className={styles.taskCardDivider} />
-            <div className={styles.taskCardBody}>
-                {progress && !isClaimable && (
-                    <div
-                        className={styles.taskProgress}
-                        style={{ '--progress-percent': `${progressPercent}%` }}
-                    >
-                        <span>{progress.current}/{progress.total}</span>
-                    </div>
-                )}
-
-                <div className={styles.taskRewards}>
-                    {rewards.map((reward, index) => (
-                        <div key={index} className={styles.taskReward}>
-                            <span>+{reward.amount}</span>
-                            <img src={reward.icon} alt={reward.type} />
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {isClaimable && (
-                <div className={styles.claimButtonWrapper}>
-                    <ButtonReward rewards={rewards} onClick={() => onClaim(task.id)} />
-                </div>
-            )}
-
-            {statusText && !isClaimable && <p className={styles.taskStatus}>{statusText}</p>}
-        </div>
-    );
-};
-
-
-// --- MAIN COMPONENT ---
-
-const EducationCentre = () => {
-    const [tasks, setTasks] = useState(initialTasksData);
-
-    const handleClaimReward = (taskId) => {
-        console.log(`Claiming reward for task ${taskId}`);
-        // Here you would typically make an API call.
-        // For this demo, we'll just remove the task from the list.
-        setTasks(currentTasks => currentTasks.filter(task => task.id !== taskId));
+    // Обробник для отримання нагороди за завдання
+    const handleClaimTask = async (taskId) => {
+        try {
+            const response = await fetch('http://localhost:8123/education/tasks/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, stat_type: taskId })
+            });
+            const data = await response.json();
+            if (data.ok) {
+                alert(`Нагорода отримана: ${data.message}`);
+                fetchData(); // Оновлюємо дані, щоб завдання зникло зі списку
+            } else {
+                alert(`Помилка: ${data.message}`);
+            }
+        } catch (error) {
+            console.error("Failed to claim task reward:", error);
+            alert("Сталася помилка мережі.");
+        }
     };
 
+    if (isLoading) {
+        return <div>Завантаження учбового центру...</div>;
+    }
+
     return (
-        // Added 'animate' class to trigger entry animations
-        <div className={`${styles.contentWrapper} ${styles.animate}`}>
-            <h2 className={styles.pageTitle}>УЧБОВИЙ ЦЕНТР</h2>
-
-            <DailyReward />
-
-            <h3 className={styles.sectionTitle}>ЗАВДАННЯ</h3>
-
-            <div className={styles.tasksGrid}>
-                {tasks.map((task, index) => (
-                    <div key={task.id} style={{ animationDelay: `${index * 100}ms` }}>
-                        <TaskCard
-                            task={task}
-                            onClaim={handleClaimReward}
-                        />
-                    </div>
-                ))}
-            </div>
-        </div>
+        <EducationCentreView
+            dailyReward={dailyReward}
+            tasks={tasks}
+            onClaimDaily={handleClaimDaily}
+            onClaimTask={handleClaimTask}
+        />
     );
 };
 

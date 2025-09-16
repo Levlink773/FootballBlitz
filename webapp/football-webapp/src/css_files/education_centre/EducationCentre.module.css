@@ -24,14 +24,14 @@
 /* --- WRAPPER & TITLES --- */
 .contentWrapper {
     flex-grow: 1;
-    padding: 80px 20px 120px 20px;
+    padding: 50px 20px 120px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 1px;
     z-index: 2;
     overflow-y: auto;
-    margin-bottom: 20px;
+    margin-bottom: 80px;
 }
 
 /* Add animations to child elements of the wrapper */
@@ -67,12 +67,12 @@
 /* --- DAILY REWARD BLOCK --- */
 .dailyReward {
     width: 358px;
-    height: 90px;
+    height: 120px;
     position: relative;
     display: flex;
     align-items: center;
     padding: 0 15px;
-    background-image: url('../../assets/img156.png');
+    background-image: url('../../assets/public/img156.png');
     background-size: cover;
     border-radius: 10px; /* Smoother radius */
     border: 1px rgba(255, 255, 255, 0.15); /* Subtle border */
@@ -86,7 +86,7 @@
 
 .dailyRewardIcon {
     width: 51px;
-    height: 51px;
+    height: 70px;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); /* Add shadow to icon */
 }
 
@@ -195,25 +195,24 @@
 
 .taskCard {
     width: 170px;
-    height: 90px; /* Стандартная высота карточки */
+    /* ❌ REMOVED a fixed height. This is the most important change! */
+    /* ✅ ADDED a minimum height to keep cards aligned when empty */
+    min-height: 90px;
+
     border-radius: 10px;
     background-size: cover;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
     color: white;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    position: relative;
-    border: rgba(255, 255, 255, 1);
-    /* 👇 Плавный переход высоты */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, height 0.4s ease;
-    overflow: hidden;
-}
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-/* 👇 НОВЫЙ СТИЛЬ: Увеличиваем высоту карточки, если она готова к получению награды */
-.taskCard.isClaimable {
-    height: 110px;
+    /* ✅ ADDED: Making the card a master flex container */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: space-between; /* Push content to top and bottom */
+    align-items: center; /* Center items horizontally */
+    padding: 12px 8px; /* Added more vertical padding */
+    box-sizing: border-box; /* Ensures padding is included in the width/height */
 }
 
 
@@ -228,24 +227,26 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
     margin: 0;
     line-height: 1.2;
+    width: 100%; /* Ensure title takes full width for centering */
 }
 
 .taskCardDivider {
-    width: calc(100% - 16px);
+    width: 90%; /* Slightly smaller */
     height: 1px;
-    background: rgba(255, 255, 255, 0.5); /* Make it softer */
-    margin: 5px auto;
+    background: rgba(255, 255, 255, 0.4);
+    margin: 8px 0; /* Vertical margin */
 }
 
 .taskCardBody {
     display: flex;
-    justify-content: space-around;
+    justify-content: center; /* Use center instead of space-around */
     align-items: center;
-    flex-grow: 1;
+    gap: 15px; /* Consistent spacing */
+    width: 100%;
+    margin-bottom: 8px; /* Add some space before status/button */
 }
 
-
-/* --- RADIAL PROGRESS BAR --- */
+/* --- PROGRESS & REWARDS --- */
 .taskProgress {
     width: 40px;
     height: 40px;
@@ -257,8 +258,9 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     position: relative;
     background: radial-gradient(closest-side, #2c013a 79%, transparent 80% 100%),
-    conic-gradient(#9403AA var(--progress-percent, 0%), #444 0); /* Dynamic progress */
+    conic-gradient(#9403AA var(--progress-percent, 0%), #444 0);
     transition: background 0.5s ease;
+    flex-shrink: 0; /* Prevent progress bar from shrinking */
 }
 
 .taskProgress span {
@@ -267,7 +269,7 @@
 
 .taskRewards {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     justify-content: center;
 }
@@ -281,29 +283,34 @@
 }
 
 .taskReward img {
-    width: 12px; /* Slightly bigger */
+    width: 12px;
     height: auto;
     filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
 }
 
+/* --- STATUS & CLAIM BUTTON (IMPROVED) --- */
 .taskStatus {
-    position: absolute;
-    bottom: 5px; /* Adjusted position */
-    left: 0;
-    right: 0;
+    /* ❌ REMOVED absolute positioning */
     text-align: center;
-    font-size: 8px; /* Slightly bigger */
+    font-size: 10px; /* Slightly bigger for readability */
     font-weight: 500;
     color: #d1d1d1;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     margin: 0;
+    margin-top: auto; /* Push to the bottom */
+    padding: 4px 0;
 }
 
 .claimButtonWrapper {
-    position: absolute;
-    bottom: 24px; /* Позиция от нижнего края */
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 1; /* Всегда видима */
-    transition: opacity 0.4s ease; /* Плавное появление */
+    /* ❌ REMOVED absolute positioning */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: auto; /* Push to the bottom */
+}
+
+/* You can apply styles directly to the button inside the wrapper */
+.claimButtonWrapper > button {
+    width: 140px; /* Give the button a consistent width */
+    height: 45px;
 }

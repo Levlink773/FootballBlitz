@@ -59,14 +59,14 @@ class CharacterService:
                 return list(all_characters_not_bot)
 
     @classmethod
-    async def get_character(cls, character_user_id: int) -> Character | None:
+    async def get_characters(cls, character_user_id: int) -> list[Character] | None:
         async for session in get_session():
             async with session.begin():
                 result = await session.execute(
                     select(Character).where(Character.characters_user_id == character_user_id)
                 )
-                current_character = result.scalar_one_or_none()
-                return current_character
+                current_character = result.scalars().all()
+                return list(current_character)
 
     @classmethod
     async def get_character_by_name(cls, character_name: str) -> Character | None:

@@ -1,3 +1,4 @@
+from aiogram.types import MenuButtonWebApp, WebAppInfo
 from aiohttp import web
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -25,9 +26,19 @@ async def init_bot_command():
                               scope=BotCommandScopeChat(chat_id=admin_id))
         except Exception as e:
             logger.warning(f"Warn: {e}")
+
+async def set_default_menu():
+    await bot.set_chat_menu_button(
+        # не передаём chat_id => это будет default (у всех пользователей)
+        menu_button=MenuButtonWebApp(
+            text="Open",
+            web_app=WebAppInfo(url="https://847d8d686867.ngrok-free.app/")
+        )
+    )
   
 async def start():
     await init_bot_command()
+    await set_default_menu()
     await init_db()
 
 

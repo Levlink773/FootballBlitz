@@ -39,6 +39,7 @@
     height: 130px;
     position: absolute;
     left: 35px;
+    top: 90px;
     border-radius: 15px;
     /* Улучшенный шрифт для более технологичного вида */
     font-family: 'Exo 2', sans-serif;
@@ -101,4 +102,16 @@
     left: 231px;
     top: 77px;
     animation: pulse 2s infinite ease-in-out; /* Применяем анимацию пульсации */
+}
+.noTrainingText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffd700; /* або інший колір */
+    font-size: 1.5rem; /* приклад розміру */
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    width: 100%;
 }

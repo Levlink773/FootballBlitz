@@ -4,7 +4,6 @@ import {Header} from "../components/Header.jsx";
 import {VipBanner} from "../components/main_components/VipBanner.jsx";
 import {UserProfile} from "../components/main_components/UserProfile.jsx";
 import {DailyTasks} from "../components/main_components/DailyTasks.jsx";
-import {EventCard} from "../components/main_components/EventCard.jsx";
 import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
 import {NavigationBar} from "../components/NavigationBar.jsx";
 import Config from "../config.js";
@@ -16,11 +15,8 @@ import {
     PlayerModal, SetPriceModal, TopChancesAlert, VipPromoModal,
 } from "../components/modal_components/ModalComponents.jsx";
 import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
+import EventCard from "../components/main_components/EventCard.jsx";
 // Припустимо, що об'єкт user має таку структуру
-const mockUser = {
-    name: "Ronaldo",
-    avatarUrl: "../assets/avatar.png"
-};
 const mockPlayer = {
     name: "Іван Занько",
     position: "Нападник",
@@ -36,21 +32,23 @@ const mockTeams = [
     {name: "Spartak", meta: "Leonard", chance: 48},
 ];
 
-export const Main = () => {
+export const Main = ({user}) => {
+    const vip_pass_status = user?.vip_pass_is_active;
+    console.log(vip_pass_status);
     return (
         <div className={styles.mainContainer} data-modal-root>
             <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
 
-            <Header user={mockUser}/>
-            <VipBanner isActive={true}/>
-            <UserProfile user={mockUser}/>
-            <ModalRoot variant='alert' backdrop={false}>
-                <TopChancesAlert teams={mockTeams}
-                            html={true}
-                            width={340}
-                            height={120}
-                />
-            </ModalRoot>
+            <Header user={user}/>
+            <VipBanner isActive={vip_pass_status}/>
+            <UserProfile user={user}/>
+            {/*<ModalRoot variant='alert' backdrop={false}>*/}
+            {/*    <TopChancesAlert teams={mockTeams}*/}
+            {/*                html={true}*/}
+            {/*                width={340}*/}
+            {/*                height={120}*/}
+            {/*    />*/}
+            {/*</ModalRoot>*/}
             <DailyTasks/>
             <div className={styles.eventCardWrapperEventMain}>
                 <EventCard />

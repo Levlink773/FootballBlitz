@@ -5,16 +5,16 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import EducationCentre from "../components/education_centre/EducationCentre.jsx";
 
-export default function EducationCard({mockUser}) {
+export default function EducationCard({user}) {
     return (
         <div className={styles.mainContainer}>
-            <Header user={mockUser} />
+            <Header user={user} />
             <img
                 src={Config.IMAGES.education_background}
                 alt="background"
                 className={styles.backgroundImage}
             />
-            <EducationCentre/>
+            <EducationCentre userId={user.user_id}/>
             <NavigationBar />
         </div>
     );
