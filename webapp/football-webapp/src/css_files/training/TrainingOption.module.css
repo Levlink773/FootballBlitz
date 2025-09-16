@@ -1,0 +1,154 @@
+/* --- Анимации --- */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes textGlow {
+    0%, 100% {
+        text-shadow: 0 0 4px #F6FF4D, 0 0 8px #d9e044;
+    }
+    50% {
+        text-shadow: 0 0 8px #F6FF4D, 0 0 16px #d9e044;
+    }
+}
+
+/* --- Основной контейнер --- */
+.container {
+    width: 371px;
+    height: 57px;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInSlideUp 0.5s ease-out forwards;
+    cursor: pointer;
+}
+
+.container:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    z-index: -1;
+}
+
+/* --- Разделители --- */
+.separator {
+    position: absolute;
+    top: 50%;
+    width: 1px;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-50%);
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.separator1 { left: 156px; }
+.separator2 { left: 221px; }
+
+/* --- Секции с текстом --- */
+.label {
+    font-size: 12px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.chanceWrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 15px;
+    width: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.chanceValue {
+    font-size: 15px;
+    background: linear-gradient(180deg, #FFF5A1 0%, #F6FF4D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    animation: textGlow 2.5s infinite ease-in-out;
+}
+
+.duration {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 166px;
+    width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* --- Кнопка действия --- */
+.actionButton {
+    position: absolute;
+    right: 20px;
+    top: 46%;
+    transform: translateY(-50%);
+    width: 100px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0 10px;
+}
+
+.actionButton:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    filter: brightness(1.1);
+}
+
+.actionButton:active {
+    transform: translateY(-45%) scale(1.02); /* Эффект нажатия */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+    filter: brightness(0.95);
+}
+
+.actionButtonText {
+    color: black;
+    font-size: 12px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    /* Тонкая белая обводка для читаемости на любом фоне кнопки */
+    text-shadow: 0 0 3px white, 0 0 5px white;
+    margin-right: 6px;
+}
+
+.actionButtonIcon {
+    width: 10px;
+    height: 14px;
+}

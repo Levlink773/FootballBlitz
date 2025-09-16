@@ -9,21 +9,17 @@ export const VipBannerActive = ({
                                 }) => {
     return (
         <div className={styles.container}>
-            {/* Фоновое изображение баннера */}
             <img
                 className={styles.bannerBackground}
                 src={bannerImage}
                 alt="VIP background"
             />
-
-            {/* Персонаж слева */}
+            <div className={styles.shimmerEffect}></div> {/* Елемент для мерехтіння */}
             <img
                 className={styles.characterImage}
                 src={characterImage}
                 alt="VIP character"
             />
-
-            {/* Контейнер для текста */}
             <div className={styles.textContainer}>
                 <div className={styles.vipTitle}>VIP АКТИВНИЙ</div>
                 <div className={styles.expiryText}>

@@ -1,47 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-// Импорты всех картинок
-import img55 from '../../assets/img55.png';
-import img56 from '../../assets/img56.png';
-import img57 from '../../assets/img57.png';
-import img58 from '../../assets/img58.png';
-import img59 from '../../assets/img59.png';
-import img60 from '../../assets/img60.png';
+// --- Импорты всех картинок ---
+import Img55 from '../../Assets/Img55.Png';
+import Img56 from '../../Assets/Img56.Png';
+import Img57 from '../../Assets/Img57.Png';
+import Img58 from '../../Assets/Img58.Png';
+import Img59 from '../../Assets/Img59.Png';
+import Img60 from '../../Assets/Img60.Png';
+import Img61 from '../../Assets/Img61.Png';
+import Img62 from '../../Assets/Img62.Png';
+import Img63 from '../../Assets/Img63.Png';
+import Img64 from '../../Assets/Img64.Png';
+import Img65 from '../../Assets/Img65.Png';
+import Img66 from '../../Assets/Img66.Png';
+import Img67 from '../../Assets/Img67.Png';
+import Img68 from '../../Assets/Img68.Png';
+import Img69 from '../../Assets/Img69.Png';
+import Img70 from '../../Assets/Img70.Png';
+import Img71 from '../../Assets/Img71.Png';
+import Img73 from '../../Assets/Img73.Png';
+import Img74 from '../../Assets/Img74.Png';
+import Img75 from '../../Assets/Img75.Png';
+import Img76 from '../../Assets/Img76.Png';
+import Img77 from '../../Assets/Img77.Png';
+import Img78 from '../../Assets/Img78.Png';
+import Img80 from '../../Assets/Img80.Png';
+import Card from '../../Assets/Img_6.Png';
 
-import img61 from '../../assets/img61.png';
-import img62 from '../../assets/img62.png';
-import img63 from '../../assets/img63.png';
-import img64 from '../../assets/img64.png';
-import img65 from '../../assets/img65.png';
-import img66 from '../../assets/img66.png';
+// --- Анимации ---
+const animationStyles = `
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
 
-import img67 from '../../assets/img67.png';
-import img68 from '../../assets/img68.png';
-import img69 from '../../assets/img69.png';
-import img70 from '../../assets/img70.png';
-import img71 from '../../assets/img71.png';
-import img73 from '../../assets/img73.png';
+// --- Тексты (вынесены для удобства перевода/редактирования) ---
+const TEXT = {
+    pageTitle: 'Моя команда',
+    marketTitle: 'Трансферний ринок',
+    addPlayer: 'Додати гравця',
+    sellerLabel: 'Продавець:',
+    buyButton: 'Купити',
+    sellButton: 'Продати',
+    priceUnit: '', // можно указать валюту/символ, например '₴' или '⚽'
+    altCardBg: (name) => `${name} — фон картки`,
+    altAvatar: (name) => `${name} — аватар`,
+    altFlag: (name) => `${name} — прапор`,
+    altStatIcon: (statIndex) => `Іконка показника ${statIndex}`,
+    addPlayerTitle: 'Додати нового гравця до команди',
+};
 
-import img74 from '../../assets/img74.png';
-import img75 from '../../assets/img75.png';
-import img76 from '../../assets/img76.png';
-import img77 from '../../assets/img77.png';
-import img78 from '../../assets/img78.png';
-import img80 from '../../assets/img80.png';
-import card from '../../assets/img_6.png';
-// Данные игроков
+// --- Утилиты ---
+function formatPrice(value) {
+    try {
+        // форматируем число с пробелами как разделителями тысяч
+        return new Intl.NumberFormat('uk-UA').format(value) + (TEXT.priceUnit ? ` ${TEXT.priceUnit}` : '');
+    } catch (e) {
+        return String(value);
+    }
+}
+
+// --- Данные игроков ---
 const playersData = [
-    { id: 1, name: 'Іван Занько', position: 'Нападник', seller: '@joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: img55, cdm: card, avatar: img59, flag: img60, stat1Icon: img56, stat2Icon: img57, priceIcon: img58 } },
-    { id: 2, name: 'Дмитро Гуц', position: 'Нападник', seller: '@joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: img61, cdm: card, avatar: img65, flag: img66, stat1Icon: img62, stat2Icon: img63, priceIcon: img64 } },
-    { id: 3, name: 'Торі Гевер', position: 'Нападник', seller: '@joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: img67, cdm: card, avatar: img71, flag: img73, stat1Icon: img68, stat2Icon: img69, priceIcon: img70 } },
-    { id: 4, name: 'Барні Гуц', position: 'Нападник', seller: '@joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: img74, cdm: card, avatar: img78, flag: img80, stat1Icon: img75, stat2Icon: img76, priceIcon: img77 } },
-    { id: 5, name: 'Іван Занько', position: 'Нападник', seller: '@joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: img55,cdm: card, avatar: img59, flag: img60, stat1Icon: img56, stat2Icon: img57, priceIcon: img58 } },
-    { id: 6, name: 'Дмитро Гуц', position: 'Нападник', seller: '@joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: img61,cdm: card, avatar: img65, flag: img66, stat1Icon: img62, stat2Icon: img63, priceIcon: img64 } },
-    { id: 7, name: 'Торі Гевер', position: 'Нападник', seller: '@joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: img67,cdm: card, avatar: img71, flag: img73, stat1Icon: img68, stat2Icon: img69, priceIcon: img70 } },
-    { id: 8, name: 'Барні Гуц', position: 'Нападник', seller: '@joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: img74,cdm: card, avatar: img78, flag: img80, stat1Icon: img75, stat2Icon: img76, priceIcon: img77 } },
+    { id: 1, name: 'Іван Занько', position: 'Нападник', seller: '@Joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: Img55, cdm: Card, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 } },
+    { id: 2, name: 'Дмитро Гуц', position: 'Нападник', seller: '@Joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: Img61, cdm: Card, avatar: Img65, flag: Img66, stat1Icon: Img62, stat2Icon: Img63, priceIcon: Img64 } },
+    { id: 3, name: 'Торі Гевер', position: 'Нападник', seller: '@Joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: Img67, cdm: Card, avatar: Img71, flag: Img73, stat1Icon: Img68, stat2Icon: Img69, priceIcon: Img70 } },
+    { id: 4, name: 'Барні Гуц', position: 'Нападник', seller: '@Joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: Img74, cdm: Card, avatar: Img78, flag: Img80, stat1Icon: Img75, stat2Icon: Img76, priceIcon: Img77 } },
+    { id: 5, name: 'Іван Занько', position: 'Нападник', seller: '@Joe33', price: 1500, stats: { value1: 61, value2: 5 }, images: { cardBackground: Img55, cdm: Card, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 } },
+    { id: 6, name: 'Дмитро Гуц', position: 'Нападник', seller: '@Joe33', price: 1800, stats: { value1: 57, value2: 8 }, images: { cardBackground: Img61, cdm: Card, avatar: Img65, flag: Img66, stat1Icon: Img62, stat2Icon: Img63, priceIcon: Img64 } },
+    { id: 7, name: 'Торі Гевер', position: 'Нападник', seller: '@Joe33', price: 4000, stats: { value1: 70, value2: 10 }, images: { cardBackground: Img67, cdm: Card, avatar: Img71, flag: Img73, stat1Icon: Img68, stat2Icon: Img69, priceIcon: Img70 } },
+    { id: 8, name: 'Барні Гуц', position: 'Нападник', seller: '@Joe33', price: 2000, stats: { value1: 57, value2: 10 }, images: { cardBackground: Img74, cdm: Card, avatar: Img78, flag: Img80, stat1Icon: Img75, stat2Icon: Img76, priceIcon: Img77 } },
 ];
 
-// Стили
+// --- Стили ---
 const styles = {
     outerWrapper: {
         width: '100%',
@@ -49,24 +87,37 @@ const styles = {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 18,
+        fontFamily: 'Inter, sans-serif',
     },
-    myTeamTitle: {
+    title: {
         fontSize: 28,
         fontWeight: 800,
         color: 'white',
-        textShadow: '0px 3px 6px rgba(0,0,0,0.75)',
+        textShadow: '0 3px 8px rgba(0,0,0,0.8)',
         letterSpacing: 1,
         marginTop: 0,
     },
+    sectionTitle: {
+        fontSize: 26,
+        fontWeight: 800,
+        color: 'white',
+        textShadow: '0 3px 8px rgba(0,0,0,0.8)',
+        margin: '6px 0 0 0',
+    },
     myTeamSection: {
-        width: 'calc(180px * 2 + 20px)',
+        width: 'calc(188px * 2 + 20px)',
         display: 'flex',
         gap: 16,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
-
-    // мини-карта
+    gridContainer: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '20px',
+        width: 'calc(180px * 2 + 20px)',
+        paddingBottom: 110,
+    },
     miniCard: {
         width: 188,
         height: 120,
@@ -74,9 +125,9 @@ const styles = {
         borderRadius: 15,
         overflow: 'hidden',
         color: 'white',
-        fontFamily: 'Inter, sans-serif',
         boxShadow: '0 6px 18px rgba(0,0,0,0.45)',
         background: 'rgba(0,0,0,0.08)',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
     },
     miniCardBg: {
         position: 'absolute',
@@ -102,18 +153,17 @@ const styles = {
         color: 'white',
         fontWeight: 800,
         fontSize: 14,
-        textShadow: '0 2px 4px rgba(0,0,0,0.6)',
+        textShadow: '0 2px 4px rgba(0,0,0,0.7)',
     },
     miniPosition: {
         fontSize: 10,
         color: '#ddd',
         fontWeight: 700,
     },
-    // поднял статы выше (чтобы не конфликтовали с аватаром/кнопкой)
     miniStats: {
         position: 'absolute',
         left: 80,
-        top: 46,          // <-- moved up (was bottom-based)
+        top: 46,
         display: 'flex',
         gap: 12,
         alignItems: 'center',
@@ -125,8 +175,7 @@ const styles = {
         gap: 6,
         fontSize: 12,
         fontWeight: 800,
-        color: 'white',
-        textShadow: '0 1px 3px rgba(0,0,0,0.6)',
+        textShadow: '0 1px 3px rgba(0,0,0,0.7)',
     },
     miniPriceWrap: {
         position: 'absolute',
@@ -136,10 +185,8 @@ const styles = {
         alignItems: 'center',
         gap: 8,
         fontWeight: 800,
-        color: 'white',
-        textShadow: '0 1px 3px rgba(0,0,0,0.6)',
+        textShadow: '0 1px 3px rgba(0,0,0,0.7)',
     },
-    // кнопка ПРОДАТИ — теперь в стиле основной кнопки (градиент, тень)
     miniSellButton: {
         position: 'absolute',
         right: 12,
@@ -150,17 +197,16 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(179deg, #FBF21B 0%, #F8BA19 100%)', // same as main buy
-        boxShadow: '0px 6px 12px rgba(0,0,0,0.35)',
+        background: 'linear-gradient(179deg, #fbf21b 0%, #f8ba19 100%)',
+        boxShadow: '0 6px 12px rgba(0,0,0,0.35)',
         color: '#111',
         fontWeight: 800,
         cursor: 'pointer',
         fontSize: 12,
         border: '1px solid rgba(0,0,0,0.08)',
         zIndex: 3,
+        transition: 'transform 0.2s ease, filter 0.2s ease',
     },
-
-    // большие карточки (как были)
     card: {
         width: 180,
         height: 120,
@@ -168,11 +214,12 @@ const styles = {
         borderRadius: 15,
         overflow: 'hidden',
         color: 'white',
-        fontFamily: 'Inter, sans-serif',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        cursor: 'pointer',
     },
     cardBackground: { position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: -1 },
     avatar: { width: 43, height: 47, left: 11, top: 11, position: 'absolute', borderRadius: 10 },
-    textShadow: { textShadow: '2px 2px 4px rgba(0, 0, 0, 0.50)' },
+    textShadow: { textShadow: '0 2px 5px rgba(0, 0, 0, 0.75)' },
     playerInfo: { position: 'absolute', top: 9, left: 60 },
     playerName: { fontSize: 11, fontWeight: '700' },
     playerPosition: { fontSize: 6, color: '#A5A5A5', fontWeight: '700' },
@@ -180,36 +227,59 @@ const styles = {
     statsContainer: { position: 'absolute', top: 38, left: 60, display: 'flex', alignItems: 'center', gap: 12 },
     statItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: '700' },
     sellerInfo: { position: 'absolute', top: 60, left: 60, fontSize: 6, fontWeight: '700' },
-    sellerName: { color: '#02FE1F' },
+    sellerName: { color: '#02fe1f' },
     buySection: { position: 'absolute', bottom: 9, left: 11, display: 'flex', alignItems: 'center' },
-    price: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: '700' },
+    price: { top: '10px', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: '700' },
     buyButton: {
-        width: 68, height: 21,
-        background: 'linear-gradient(179deg, #FBF21B 0%, #F8BA19 100%)',
-        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-        borderRadius: 10, display: 'flex', justifyContent: 'center', alignItems: 'center',
-        color: 'black', fontSize: 9, fontWeight: '400', cursor: 'pointer', marginLeft: 15
+        width: 68,
+        height: 21,
+        background: 'linear-gradient(179deg, #fbf21b 0%, #f8ba19 100%)',
+        boxShadow: '0 4px 4px rgba(0, 0, 0, 0.25)',
+        borderRadius: 10,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'black',
+        fontSize: 9,
+        fontWeight: '400',
+        cursor: 'pointer',
+        marginLeft: 15,
+        transition: 'transform 0.2s ease, filter 0.2s ease',
+        border: 'none',
     },
-    gridContainer: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '20px',
-        padding: '10px',
-        width: 'calc(180px * 2 + 20px)',
-        background: 'rgba(255, 255, 255, 0)',
-        marginTop: 6,
-        paddingBottom: 110,
-    }
 };
 
-// Основной PlayerCard (как раньше)
-function PlayerCard({ player, overrideStyle }) {
+// --- Компоненты ---
+
+const PlayerCard = React.memo(({ player, index }) => {
     const { name, position, seller, price, stats, images } = player;
+    const [isHovered, setIsHovered] = useState(false);
+
+    const cardStyle = {
+        ...styles.card,
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: isHovered ? '0 10px 25px rgba(0,0,0,0.5)' : '0 5px 15px rgba(0,0,0,0.3)',
+        opacity: 0,
+        animation: `fadeIn 0.5s ease-out forwards`,
+        animationDelay: `${index * 0.07}s`,
+    };
+
+    const buyButtonStyle = {
+        ...styles.buyButton,
+        transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+        filter: isHovered ? 'brightness(1.1)' : 'brightness(1)',
+    };
+
     return (
-        <div style={{ ...styles.card, ...overrideStyle }}>
-            <img src={images.cardBackground} style={styles.cardBackground} alt={`${name} background`} />
-            <img src={images.avatar} style={styles.avatar} alt={`${name} avatar`} />
-            <img src={images.flag} style={styles.flag} alt="flag" />
+        <article
+            style={cardStyle}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            aria-label={`${name} — картка гравця`}
+        >
+            <img src={images.cardBackground} style={styles.cardBackground} alt={TEXT.altCardBg(name)} />
+            <img src={images.avatar} style={styles.avatar} alt={TEXT.altAvatar(name)} />
+            <img src={images.flag} style={styles.flag} alt={TEXT.altFlag(name)} />
 
             <div style={styles.playerInfo}>
                 <div style={{ ...styles.playerName, ...styles.textShadow }}>{name}</div>
@@ -217,107 +287,140 @@ function PlayerCard({ player, overrideStyle }) {
             </div>
 
             <div style={styles.statsContainer}>
-                <div style={styles.statItem}>
-                    <img src={images.stat1Icon} alt="stat icon" />
+                <div style={styles.statItem} title={`Показник: ${stats.value1}`}>
+                    <img src={images.stat1Icon} alt={TEXT.altStatIcon(1)} />
                     <span>{stats.value1}</span>
                 </div>
-                <div style={styles.statItem}>
-                    <img src={images.stat2Icon} alt="stat icon" />
+                <div style={styles.statItem} title={`Показник: ${stats.value2}`}>
+                    <img src={images.stat2Icon} alt={TEXT.altStatIcon(2)} />
                     <span>{stats.value2}</span>
                 </div>
             </div>
 
             <div style={{ ...styles.sellerInfo, ...styles.textShadow }}>
-                <span>Продавець: </span>
-                <span style={styles.sellerName}>{seller}</span>
+                <span>{TEXT.sellerLabel} </span>
+                <span style={styles.sellerName}>{seller ?? '—'}</span>
             </div>
 
             <div style={styles.buySection}>
-                <div style={{ ...styles.price, ...styles.textShadow }}>
-                    <img src={images.priceIcon} alt="price icon" />
-                    <span>{price}</span>
+                <div style={{ ...styles.price, ...styles.textShadow }} title={`${formatPrice(price)} `}>
+                    <img src={images.priceIcon} alt="Price Icon" style={{ position: 'relative', top: 3, left: 5 }} />
+                    <span>{formatPrice(price)}</span>
                 </div>
-                <div style={styles.buyButton}>КУПИТИ</div>
+                <button
+                    type="button"
+                    style={buyButtonStyle}
+                    aria-label={`${TEXT.buyButton} ${name}`}
+                    title={`${TEXT.buyButton} ${name}`}
+                    onClick={() => console.log('Купити', player.id)}
+                >
+                    {TEXT.buyButton}
+                </button>
             </div>
-        </div>
+        </article>
     );
-}
+});
 
-// Мини-карта с кнопкой ПРОДАТИ и показом статов (обновлено)
-function MiniPlayer({ player }) {
+const MiniPlayer = React.memo(({ player }) => {
     const { name, position, price, stats, images } = player;
-    return (
-        <div style={styles.miniCard}>
-            <img src={images.cdm} style={styles.miniCardBg} alt="mini bg" />
+    const [isHovered, setIsHovered] = useState(false);
 
-            <img src={images.avatar} style={styles.miniAvatar} alt={`${name} avatar`} />
+    const cardStyle = {
+        ...styles.miniCard,
+        transform: isHovered ? 'scale(1.04)' : 'scale(1)',
+        boxShadow: isHovered ? '0 8px 22px rgba(0,0,0,0.55)' : '0 6px 18px rgba(0,0,0,0.45)',
+    };
+
+    const sellButtonStyle = {
+        ...styles.miniSellButton,
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+        filter: isHovered ? 'brightness(1.1)' : 'brightness(1)',
+    };
+
+    return (
+        <div
+            style={cardStyle}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            aria-label={`${name} — міні-картка`}
+        >
+            <img src={images.cdm} style={styles.miniCardBg} alt={TEXT.altCardBg(name)} />
+            <img src={images.avatar} style={styles.miniAvatar} alt={TEXT.altAvatar(name)} />
 
             <div style={styles.miniNameWrap}>
                 <div>{name}</div>
                 <div style={styles.miniPosition}>{position}</div>
             </div>
 
-            {/* Поднял статы вверх, чтобы не конфликтовали */}
             <div style={styles.miniStats}>
-                <div style={styles.miniStatItem}>
-                    <img src={images.stat1Icon} alt="stat1" style={{ width: 18, height: 18 }} />
+                <div style={styles.miniStatItem} title={`Показник: ${stats.value1}`}>
+                    <img src={images.stat1Icon} alt={TEXT.altStatIcon(1)} style={{ width: 18, height: 18 }} />
                     <span>{stats.value1}</span>
                 </div>
-                <div style={styles.miniStatItem}>
-                    <img src={images.stat2Icon} alt="stat2" style={{ width: 18, height: 18 }} />
+                <div style={styles.miniStatItem} title={`Показник: ${stats.value2}`}>
+                    <img src={images.stat2Icon} alt={TEXT.altStatIcon(2)} style={{ width: 18, height: 18 }} />
                     <span>{stats.value2}</span>
                 </div>
             </div>
 
             <div style={styles.miniPriceWrap}>
-                <img src={images.priceIcon} alt="coin" style={{ width: 20, height: 20 }} />
-                <div>{price}</div>
+                <img src={images.priceIcon} alt={`Іконка ціни`} style={{ width: 20, height: 20, position: 'relative', top: 3, left: 5 }} />
+                <div>{formatPrice(price)}</div>
             </div>
 
-            {/* Кнопка ПРОДАТИ в общем стиле (градиент как у основной кнопки) */}
             <button
-                style={styles.miniSellButton}
+                style={sellButtonStyle}
+                aria-label={`${TEXT.sellButton} ${name}`}
+                title={`${TEXT.sellButton} ${name}`}
                 onClick={() => {
-                    // TODO: логика продажи (модал/API) — заменяй на нужный обработчик
-                    console.log('Продать игрока', player.id);
+                    console.log('Продати Ігрока', player.id);
                 }}
+                type="button"
             >
-                ПРОДАТИ
+                {TEXT.sellButton}
             </button>
         </div>
     );
-}
+});
 
-// Основной компонент страницы
 export default function TransferOption() {
     const firstPlayer = playersData[0];
 
     return (
-        <div style={styles.outerWrapper}>
-            <h2 style={styles.myTeamTitle}>МОЯ КОМАНДА</h2>
+        <section style={styles.outerWrapper} aria-label="Трансферний інтерфейс">
+            <style>{animationStyles}</style>
+
+            <h2 style={styles.title}>{TEXT.pageTitle}</h2>
 
             <div style={styles.myTeamSection}>
                 <MiniPlayer player={firstPlayer} />
-                <div style={{
-                    width: 188, height: 120, borderRadius: 15,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
-                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)', color: '#f1f1f1',
-                    fontWeight: 800, textTransform: 'uppercase', fontSize: 14
-                }}>
-                    <div>ДОДАТИ<br />ГРАВЦЯ</div>
+                <div
+                    role="button"
+                    tabIndex={0}
+                    title={TEXT.addPlayerTitle}
+                    style={{
+                        width: 188, height: 120, borderRadius: 15,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+                        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)', color: '#F1F1F1',
+                        fontWeight: 800, textTransform: 'uppercase', fontSize: 14, textAlign: 'center',
+                        cursor: 'pointer',
+                    }}
+                    onClick={() => console.log('Додати гравця')}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') console.log('Додати гравця'); }}
+                    aria-label={TEXT.addPlayer}
+                >
+                    <div>{TEXT.addPlayer}</div>
                 </div>
             </div>
 
-            <h3 style={{ fontSize: 26, fontWeight: 800, color: 'white', textShadow: '0px 3px 6px rgba(0,0,0,0.75)', margin: '6px 0 0 0' }}>
-                ТРАНСФЕРНИЙ РИНОК
-            </h3>
+            <h3 style={styles.sectionTitle}>{TEXT.marketTitle}</h3>
 
             <div style={styles.gridContainer}>
-                {playersData.map(player => (
-                    <PlayerCard key={player.id} player={player} />
+                {playersData.map((player, index) => (
+                    <PlayerCard key={player.id} player={player} index={index} />
                 ))}
             </div>
-        </div>
+        </section>
     );
 }

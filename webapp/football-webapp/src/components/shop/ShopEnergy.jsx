@@ -1,121 +1,70 @@
-import Config from "../../config.js";
+import React from "react";
 import styles from "../../css_files/shop/ShopItems.module.css";
+import Config from "../../config.js";
 
-// ShopCard с обновлённой кнопкой Купить (больше и выше)
-function ShopCard({ title, price, image }) {
-    const baseStyle = {
-        width: 150,
-        height: 190,
-        borderRadius: 16,
-        backgroundImage: `url(${Config.IMAGES.energy_background})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        boxShadow: '0 6px 12px rgba(0,0,0,0.25)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '10px',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        cursor: 'pointer',
-        overflow: 'hidden',
-    };
+/*
+  Ожидается, что в Config.IMAGES есть:
+    - energy_background (опционально) – фон карточки
+    - energy_mini / energy_medium / energy_large / energy_premium – картинки пакетов
+*/
 
-    const titleStyle = {
-        fontWeight: 'bold',
-        fontSize: 15,
-        color: '#fff',
-        textAlign: 'center',
-        marginBottom: 4,
-        textShadow: '0 1px 3px rgba(0,0,0,0.6)',
-    };
-
-    const imgWrapperStyle = {
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '8px 0',
-    };
-
-    const priceStyle = {
-        backgroundImage: `url(${Config.IMAGES.bannerImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        color: '#fff',
-        padding: '10px 20px',
-        borderRadius: 12,
-        fontWeight: 'bold',
-        fontSize: 18,
-        textAlign: 'center',
-        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-        minWidth: '100px',
-        marginBottom: '4px',
-    };
-
-    const buttonStyle = {
-        backgroundImage: `url(${Config.IMAGES.bannerImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        color: '#fff',
-        padding: '12px 24px',
-        borderRadius: 14,
-        fontWeight: 'bold',
-        fontSize: 18,
-        textAlign: 'center',
-        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-        cursor: 'pointer',
-        marginTop: '2px',
-    };
+function ShopCard({ title, price, image, badge }) {
+    // надежно подставляем фон (если есть) инлайново, чтобы избежать проблем с относительными путями
+    const bgStyle = Config.IMAGES?.energy_background
+        ? { backgroundImage: `url(${Config.IMAGES.energy_background})` }
+        : {};
 
     return (
-        <div
-            style={baseStyle}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.35)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.25)';
-            }}
-        >
-            {/* Заголовок */}
-            <div style={titleStyle}>{title}</div>
+        <article className={styles.card} aria-label={`${title} — ${price}`}>
+            <div className={styles.cardInner} style={bgStyle}>
+                {badge && <div className={styles.badge}>{badge}</div>}
 
-            {/* Картинка */}
-            <div style={imgWrapperStyle}>
-                <img
-                    src={image}
-                    alt={title}
-                    style={{
-                        maxWidth: '120%',
-                        maxHeight: '120%',
-                        objectFit: 'contain',
-                    }}
-                />
+                <div className={styles.art}>
+                    <div className={styles.energyWrap}>
+                        <img src={image} alt={title} className={styles.energyImg} />
+                        <div className={styles.energyGlow} aria-hidden="true" />
+                    </div>
+                </div>
+
+                <div className={styles.info}>
+                    <h3 className={styles.cardTitle}>{title}</h3>
+
+                    <div className={styles.bottomRow}>
+                        <button
+                            className={styles.buyBtn}
+                            onClick={() => {
+                                // TODO: заменить на реальную логику покупки
+                                console.log("Buy", title);
+                            }}
+                            aria-label={`Купить ${title} за ${price}`}
+                        >
+                            Купить
+                            <span className={styles.buySpark} aria-hidden="true" />
+                        </button>
+
+                        <div className={styles.price} aria-hidden="true">
+                            {price}
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            {/* Цена */}
-            <div style={priceStyle}>{price}</div>
-        </div>
+        </article>
     );
 }
 
-
 export default function ShopEnergy() {
     return (
-        <div className={styles.wrapper}>
-            <h2 className={styles.title}>ЕНЕРГІЯ</h2>
+        <section className={styles.wrapper} aria-labelledby="shop-energy-title">
+            <h2 id="shop-energy-title" className={styles.title}>
+                ЕНЕРГІЯ
+            </h2>
+
             <div className={styles.grid}>
                 <ShopCard title="100 енергії" price="125 грн" image={Config.IMAGES.energy_mini} />
-                <ShopCard title="200 енергії" price="200 грн" image={Config.IMAGES.energy_medium} />
+                <ShopCard title="200 енергії" price="200 грн" image={Config.IMAGES.energy_medium} badge="Популярно" />
                 <ShopCard title="500 енергії" price="350 грн" image={Config.IMAGES.energy_large} />
-                <ShopCard title="1000 енергії" price="600 грн" image={Config.IMAGES.energy_premium} />
+                <ShopCard title="1 000 енергії" price="600 грн" image={Config.IMAGES.energy_premium} badge="Лучшее" />
             </div>
-        </div>
+        </section>
     );
 }

@@ -43,20 +43,22 @@ export const Main = () => {
             <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
 
             <Header user={mockUser}/>
-            <VipBanner/>
+            <VipBanner isActive={true}/>
             <UserProfile user={mockUser}/>
-            <ModalRoot backdrop={false} style={{
-                // Зміщуємо модальне вікно вниз на 50px від його розрахованої позиції
-                transform: 'translate(-50%, calc(-50% + 90px))'
-            }}>
-                <BuyEnergyModal message={"Привет"}
-                            html={true}
-                            width={340}
-                            height={120}
-                />
-            </ModalRoot>
+            {/*<ModalRoot backdrop={false} style={{*/}
+            {/*    // Зміщуємо модальне вікно вниз на 50px від його розрахованої позиції*/}
+            {/*    transform: 'translate(-50%, calc(-50% + 90px))'*/}
+            {/*}}>*/}
+            {/*    <BuyEnergyModal message={"Привет"}*/}
+            {/*                html={true}*/}
+            {/*                width={340}*/}
+            {/*                height={120}*/}
+            {/*    />*/}
+            {/*</ModalRoot>*/}
             <DailyTasks/>
-            <EventCard/>
+            <div className={styles.eventCardWrapperEventMain}>
+                <EventCard />
+            </div>
             <StatsPanel/>
             <NavigationBar/>
         </div>

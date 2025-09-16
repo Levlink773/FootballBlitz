@@ -10,8 +10,8 @@ import Config from "../../config.js";
  */
 function TrainingActivity({ chance, timeLeft, className }) {
     return (
-        // 2. Додаємо зовнішній клас до існуючих
-        <div className={`${styles.container} ${className || ''}`}>
+        // Контейнеру добавлен класс для анимации появления
+        <div className={`${styles.container} ${styles.fadeIn} ${className || ''}`}>
             <img
                 className={styles.background}
                 src={Config.IMAGES.train_active}

@@ -1,65 +1,122 @@
-.container {
-    /* --- ВНЕШНЕЕ ПОЗИЦИОНИРОВАНИЕ (ИСПРАВЛЕНО) --- */
-    /* Эти строки вернут баннер на его место на экране */
-    position: absolute;
-    top: 90px;  /* Координата сверху, как у VipBanner */
-    left: 45px; /* Немного подобрал отступ слева, чтобы было по центру */
-    width: 360px;
-    height: 90px;
-    z-index: 10; /* Убедимся, что баннер выше других элементов */
-
-    /* --- ВНУТРЕННЕЕ ВЫРАВНИВАНИЕ --- */
-    /* Flexbox для удобного расположения персонажа и текста */
-    display: flex;
-    align-items: center;
+/* --- Анімації --- */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(255, 223, 0, 0.6), 0 0 12px rgba(255, 223, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(255, 223, 0, 0.8), 0 0 24px rgba(255, 223, 0, 0.6);
+    }
 }
 
+@keyframes characterFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) skewX(-20deg);
+    }
+    100% {
+        transform: translateX(200%) skewX(-20deg);
+    }
+}
+
+
+/* --- Основний контейнер --- */
+.container {
+    /* Позиціонування не змінено */
+    position: absolute;
+    top: 90px;
+    left: 45px;
+    width: 360px;
+    height: 90px;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+
+    /* Анімація преміального сяйва */
+    animation: pulseGlow 3s infinite ease-in-out;
+    border-radius: 8px; /* Важливо для коректного відображення box-shadow */
+}
+
+/* --- Фон банера --- */
 .bannerBackground {
-    /* --- ФОН --- */
     width: 329px;
     height: 65px;
     position: absolute;
     left: 31px;
     top: 50%;
     transform: translateY(-50%);
-    border-radius: 5px;
-    z-index: 1; /* Фон под элементами */
+    border-radius: 8px;
+    z-index: 1;
+    overflow: hidden; /* Ховаємо все, що виходить за межі */
 }
 
+/* --- Ефект мерехтіння (новий) --- */
+.shimmerEffect {
+    position: absolute;
+    top: 0;
+    left: 31px; /* Починаємо звідки й фон */
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0) 100%
+    );
+    z-index: 4; /* Поверх усього */
+    pointer-events: none; /* Не заважає клікам */
+    animation: shimmer 4s infinite linear;
+    animation-delay: 2s; /* Запускаємо не одразу */
+}
+
+/* --- Персонаж --- */
 .characterImage {
-    /* --- ПЕРСОНАЖ --- */
     width: 62px;
     height: 89px;
-    position: relative; /* Оставляем relative, чтобы он был в потоке flex */
-    z-index: 3; /* Персонаж поверх всего */
+    position: relative;
+    z-index: 3;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    /* Анімація "дихання" */
+    animation: characterFloat 4s infinite ease-in-out;
 }
 
+/* --- Контейнер з текстом --- */
 .textContainer {
-    /* --- КОНТЕЙНЕР ДЛЯ ТЕКСТА --- */
     position: relative;
-    z-index: 2; /* Текст поверх фона */
+    z-index: 2;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding-left: 0px; /* Немного уменьшил отступ */
     left: -6%;
+    font-family: 'Inter', sans-serif;
     color: white;
-    font-family: Inter, sans-serif;
 }
 
+/* --- Заголовок VIP --- */
 .vipTitle {
-    /* --- ЗАГОЛОВОК "VIP АКТИВНИЙ" --- */
-    font-size: 20px;
+    font-size: 22px; /* Збільшимо розмір */
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: #FFD700; /* Золотий колір для преміум статусу */
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+    letter-spacing: 1px;
 }
 
+/* --- Текст з датою --- */
 .expiryText {
-    /* --- ДАТА ОКОНЧАНИЯ --- */
     font-size: 10px;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-    margin-top: 2px;
+    font-weight: 600;
+    color: #FFFFFF;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    margin-top: 4px;
+    text-transform: uppercase; /* Великі літери для кращого стилю */
 }

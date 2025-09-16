@@ -80,6 +80,7 @@ import goal1 from "./assets/img_22.png";
 import gold_button from "./assets/img_23.png";
 import energy_button from "./assets/img_24.png";
 import energy_energy from "./assets/img_25.png";
+import king from "./assets/img_26.png";
 
 
 class Config {
@@ -163,6 +164,7 @@ class Config {
         energy_button: energy_button,
         goal1: goal1,
         energy_energy: energy_energy,
+        king: king,
     };
 
     // какие-то игровые настройки

@@ -1,37 +1,85 @@
-/* css_files/Rating.module.css */
+/* --- Анимации --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) translateX(-50%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(-50%);
+    }
+}
+
+@keyframes slideInItem {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 10px 10px 15px rgba(166, 36, 222, 0.4);
+        opacity: 0.8;
+    }
+    50% {
+        box-shadow: 10px 10px 25px rgba(166, 36, 222, 0.6);
+        opacity: 1;
+    }
+}
+
+@keyframes pulseArrow {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+
+/* --- Основные стили --- */
 
 .ratingContainer {
     position: absolute;
     top: 80px;
     left: 50%;
+    /* НЕ МЕНЯЕМ: Сохранено позиционирование */
     transform: translateX(-50%);
     width: 383px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
+
+    /* НОВОЕ: Анимация появления всего блока */
+    animation: fadeIn 0.6s ease-out forwards;
 }
 
 .title {
     color: white;
-    font-size: 20px;
+    font-size: 22px; /* Немного увеличен для акцента */
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.7); /* Улучшенная тень */
     text-align: center;
+    letter-spacing: 1px; /* Добавляет "воздуха" */
 }
 
-/* UPDATED: Converted to a flex container */
 .listBox {
     width: 100%;
     height: 384px;
-    background: rgba(38, 38, 38, 0.80);
+    /* УЛУЧШЕНО: Градиент вместо сплошного цвета для глубины */
+    background: linear-gradient(180deg, rgba(45, 25, 65, 0.85) 0%, rgba(30, 30, 30, 0.9) 100%);
     border-radius: 15px;
-    border: 1px #A624DE solid;
+    border: 1px solid #A624DE;
     padding: 15px;
     box-sizing: border-box;
     position: relative;
-    /* Flexbox properties to control children */
     display: flex;
     flex-direction: column;
 }
@@ -39,94 +87,159 @@
 .listBox::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 15px;
-    box-shadow: 10px 10px 10px rgba(0,0,0,0.5);
+    top: -2px; left: -2px; right: -2px; bottom: -2px; /* Покрывает border */
+    border-radius: 17px; /* Чуть больше основного радиуса */
     outline: 4px solid #A624DE;
-    filter: blur(5px);
+    filter: blur(8px); /* Немного увеличено размытие */
     z-index: -1;
+    /* НОВОЕ: Пульсирующее свечение */
+    animation: pulseGlow 5s infinite ease-in-out;
 }
 
-/* NEW: Style for the scrollable list area */
 .scrollableList {
-    flex-grow: 1; /* Allows this div to take up all available space */
-    overflow-y: auto; /* Adds a scrollbar if the content overflows */
+    flex-grow: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* This keeps the spacing between items */
+    gap: 10px;
+    padding-right: 5px; /* Небольшой отступ, чтобы контент не прилипал к скроллбару */
 }
 
-/* ... .ratingItem, .rankInfo, etc. remain the same ... */
+/* НОВОЕ: Стилизация скроллбара */
+.scrollableList::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollableList::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+.scrollableList::-webkit-scrollbar-thumb {
+    background: #A624DE;
+    border-radius: 3px;
+}
+.scrollableList::-webkit-scrollbar-thumb:hover {
+    background: #c347ff;
+}
+
 
 .ratingItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    padding: 8px 12px; /* Добавлены внутренние отступы */
+    border-radius: 8px; /* Скругление для красивого ховера */
     color: white;
     font-size: 14px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    box-sizing: border-box;
+
+    /* НОВОЕ: Плавные переходы для ховер-эффекта */
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+    /* НОВОЕ: Анимация появления с задержкой */
+    opacity: 0; /* Изначально прозрачный */
+    animation: slideInItem 0.5s ease-out forwards;
+    animation-delay: calc(var(--delay-index) * 75ms); /* Каскадная задержка */
+}
+
+/* НОВОЕ: Эффект при наведении */
+.ratingItem:hover {
+    transform: scale(1.03); /* Плавное увеличение */
+    background-color: rgba(255, 255, 255, 0.1); /* Легкая подсветка */
+    cursor: default;
 }
 
 .rankInfo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-basis: 60%;
+    gap: 12px; /* Немного увеличен отступ */
+    flex-basis: 70%; /* Даем больше места для имени */
+    overflow: hidden; /* Важно для обрезки текста */
 }
 
 .rankNumber {
     text-align: center;
     width: 27px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .rankIcon {
-    width: 18px;
-    height: 22px;
+    width: 20px;
+    height: 24px;
 }
 
 .rankName {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500; /* Сделаем имя чуть менее жирным, чем очки */
 }
 
-.rankScore {
+/* НОВОЕ: Контейнер для очков для лучшего выравнивания */
+.rankScoreContainer {
+    display: flex;
+    align-items: baseline; /* Выравнивание по базовой линии */
+    justify-content: flex-end;
+    gap: 5px;
     flex-basis: 30%;
     text-align: right;
 }
 
-/* UPDATED: Positioned at the bottom of the flex container */
+.rankScore {
+    font-size: 18px; /* Увеличиваем цифру */
+    font-weight: 800; /* Делаем ее жирнее */
+    color: #f0f0f0;
+}
+
+/* НОВОЕ: Стиль для слова "очок" */
+.scoreUnit {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+/* ИСПРАВЛЕНО: Позиционирование нижней секции */
 .howToContainer {
     width: 100%;
     height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px; /* Increased gap for larger elements */
-    flex-shrink: 0; /* Prevents this container from shrinking */
-    padding-top: -400px; /* Adds space between the list and this section */
-    top: 100px;
+    gap: 15px;
+    flex-shrink: 0;
+    margin-top: 15px; /* Отступ сверху вместо неправильных свойств */
+    padding-top: 10px; /* Небольшой отступ от разделительной линии */
+    border-top: 1px solid rgba(166, 36, 222, 0.3); /* Разделитель */
 }
 
-/* UPDATED: Increased font size */
 .howToText {
     color: #F700FF;
-    font-size: 14px; /* Made bigger */
+    font-size: 14px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 0 4px rgba(247, 0, 255, 0.5);
     cursor: pointer;
+    transition: color 0.2s ease, text-shadow 0.2s ease; /* Плавный переход для ховера */
 }
 
-/* UPDATED: Increased arrow size */
+/* НОВОЕ: Эффект при наведении */
+.howToText:hover {
+    color: #ff80ff; /* Более яркий цвет */
+    text-shadow: 0 0 8px rgba(255, 128, 255, 0.8); /* Усиленное свечение */
+}
+
 .arrowIcon {
-    width: 48px; /* Made bigger */
+    width: 48px;
     height: auto;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.50));
+}
+
+/* НОВОЕ: Пульсация стрелок при наведении на всю область */
+.howToContainer:hover .arrowIcon {
+    animation: pulseArrow 1s infinite ease-in-out;
 }

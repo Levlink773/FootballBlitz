@@ -10,7 +10,7 @@ const StatItem = ({ icon, alt, value }) => (
 );
 
 export const UserProfile = ({ user }) => {
-    const { name = 'Unknown', age = 'N/A', country = 'Unknown', stats = {} } = user || {};
+    const { name = 'Ronaldo', age = 'N/A', country = 'Unknown', stats = {} } = user || {};
 
     const statsData = [
         { icon: Config.IMAGES.coin, alt: 'Coins', value: stats.coins || 0 },
@@ -20,7 +20,7 @@ export const UserProfile = ({ user }) => {
 
     return (
         <div className={styles.userProfile}>
-            {/* Аватар игрока */}
+            {/* Аватар гравця */}
             <img
                 className={styles.playerImage}
                 src={Config.IMAGES.face_character}
@@ -28,7 +28,7 @@ export const UserProfile = ({ user }) => {
             />
 
             <div className={styles.infoBox}>
-                {/* Левая часть: имя, возраст, страна */}
+                {/* Ліва частина: ім'я, вік, країна */}
                 <div className={styles.leftSection}>
                     <div className={styles.nameAge}>
                         <span className={styles.name}>{name}</span>
@@ -45,7 +45,7 @@ export const UserProfile = ({ user }) => {
                     </div>
                 </div>
 
-                {/* Правая часть: статистика */}
+                {/* Права частина: статистика */}
                 <div className={styles.stats}>
                     {statsData.map((stat, index) => (
                         <StatItem key={index} {...stat} />

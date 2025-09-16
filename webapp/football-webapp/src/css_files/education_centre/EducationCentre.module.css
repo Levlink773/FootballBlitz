@@ -1,36 +1,70 @@
-/* Обёртка для основного контента, чтобы он не перекрывался Header и NavigationBar */
+/* --- KEYFRAMES FOR ANIMATIONS --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px 2px rgba(138, 255, 159, 0.4), inset 0 0 3px rgba(255, 255, 255, 0.2);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 15px 5px rgba(138, 255, 159, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+}
+
+/* --- WRAPPER & TITLES --- */
 .contentWrapper {
-    flex-grow: 1; /* Занимает всё доступное пространство */
-    padding: 80px 20px 80px 20px; /* Отступы сверху и снизу под хедер/навбар, по бокам */
+    flex-grow: 1;
+    padding: 80px 20px 120px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px; /* Расстояние между основными блоками */
+    gap: 20px;
     z-index: 2;
-    overflow-y: auto; /* Добавляем скролл, если контент не помещается */
-    margin-bottom: 30px;
+    overflow-y: auto;
+    margin-bottom: 20px;
 }
 
+/* Add animations to child elements of the wrapper */
+.contentWrapper.animate > *,
+.contentWrapper.animate .tasksGrid > div {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
 
-/* --- СТИЛИ ЗАГОЛОВКОВ --- */
+/* Stagger animations for a nice effect */
+.contentWrapper.animate > *:nth-child(1) { animation-delay: 0s; }
+.contentWrapper.animate > *:nth-child(2) { animation-delay: 100ms; }
+.contentWrapper.animate > *:nth-child(3) { animation-delay: 200ms; }
+.contentWrapper.animate > *:nth-child(4) { animation-delay: 300ms; }
+
+
 .pageTitle {
     color: white;
-    font-size: 24px;
+    font-size: 26px; /* Slightly bigger */
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    margin-bottom: 10px; /* Отступ после главного заголовка */
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.7); /* Softer, deeper shadow */
+    margin-bottom: 10px;
 }
 
 .sectionTitle {
     color: white;
     font-size: 20px;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    margin-top: 10px; /* Отступ перед заголовком секции */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    margin-top: 10px;
 }
 
 
-/* --- СТИЛИ БЛОКА ЕЖЕДНЕВНОЙ НАГРАДЫ --- */
+/* --- DAILY REWARD BLOCK --- */
 .dailyReward {
     width: 358px;
     height: 90px;
@@ -38,14 +72,22 @@
     display: flex;
     align-items: center;
     padding: 0 15px;
-    background-image: url('../../assets/img156.png'); /* Путь к вашему фону */
+    background-image: url('../../assets/img156.png');
     background-size: cover;
-    border-radius: 5px;
+    border-radius: 10px; /* Smoother radius */
+    border: 1px rgba(255, 255, 255, 0.15); /* Subtle border */
+    transition: all 0.3s ease;
+}
+
+.dailyReward:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 .dailyRewardIcon {
     width: 51px;
     height: 51px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); /* Add shadow to icon */
 }
 
 .dailyRewardTitle {
@@ -54,15 +96,16 @@
     color: white;
     font-size: 20px;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
+/* --- REWARD BUTTON (ACTIVE) --- */
 .getRewardButton {
     width: 90px;
     height: 50px;
-    background: linear-gradient(131deg, rgba(35.57, 202.14, 63.33, 0.60) 0%, rgba(8, 113.33, 18.53, 0.60) 100%);
+    background: linear-gradient(131deg, #23ca3f 0%, #087113 100%);
     border-radius: 10px;
-    border: none;
+    border: 1px solid #6bff81;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -70,6 +113,17 @@
     align-items: center;
     gap: 5px;
     padding: 5px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(45, 255, 84, 0.3);
+}
+
+.getRewardButton:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+/* Glowing animation for claimable buttons */
+.glowingButton {
+    animation: pulseGlow 2.5s infinite;
 }
 
 .rewardAmount {
@@ -79,36 +133,70 @@
     color: white;
     font-size: 15px;
     font-weight: 700;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .rewardAmount img {
     width: 17px;
     height: 17px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
 }
 
 .getRewardButtonText {
     color: white;
     font-size: 14px;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* --- REWARD BUTTON (INACTIVE) --- */
+.inactiveRewardWrapper {
+    width: 90px;
+    height: 50px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.inactiveRewardOverlay {
+    position: absolute;
+    inset: 0;
+    /* Frosted glass effect */
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.inactiveRewardText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e0e0e0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 
-/* --- СТИЛИ СЕТКИ И КАРТОЧЕК ЗАДАНИЙ --- */
+/* --- TASKS GRID & CARDS --- */
 .tasksGrid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 18px; /* Расстояние между карточками */
+    gap: 18px;
     width: 100%;
-    max-width: 358px; /* 170px + 18px + 170px */
+    max-width: 358px;
 }
 
 .taskCard {
     width: 170px;
-    height: 90px;
-    border-radius: 5px;
+    height: 90px; /* Стандартная высота карточки */
+    border-radius: 10px;
     background-size: cover;
     padding: 8px;
     display: flex;
@@ -117,12 +205,27 @@
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     position: relative;
+    border: rgba(255, 255, 255, 1);
+    /* 👇 Плавный переход высоты */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, height 0.4s ease;
+    overflow: hidden;
 }
 
+/* 👇 НОВЫЙ СТИЛЬ: Увеличиваем высоту карточки, если она готова к получению награды */
+.taskCard.isClaimable {
+    height: 110px;
+}
+
+
+.taskCard:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* ... (стили .taskCardTitle, .taskCardDivider, .taskCardBody и т.д. без изменений) ... */
 .taskCardTitle {
     font-size: 13px;
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
     margin: 0;
     line-height: 1.2;
 }
@@ -130,7 +233,7 @@
 .taskCardDivider {
     width: calc(100% - 16px);
     height: 1px;
-    background: white;
+    background: rgba(255, 255, 255, 0.5); /* Make it softer */
     margin: 5px auto;
 }
 
@@ -141,22 +244,30 @@
     flex-grow: 1;
 }
 
+
+/* --- RADIAL PROGRESS BAR --- */
 .taskProgress {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #9403AA;
-    border: 3px solid #787878;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 11px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    position: relative;
+    background: radial-gradient(closest-side, #2c013a 79%, transparent 80% 100%),
+    conic-gradient(#9403AA var(--progress-percent, 0%), #444 0); /* Dynamic progress */
+    transition: background 0.5s ease;
+}
+
+.taskProgress span {
+    z-index: 1;
 }
 
 .taskRewards {
     display: flex;
-    gap: 10px; /* Расстояние между наградами, если их несколько */
+    gap: 10px;
     align-items: center;
     justify-content: center;
 }
@@ -166,50 +277,33 @@
     align-items: center;
     gap: 4px;
     font-size: 11px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .taskReward img {
-    width: 10px;
+    width: 12px; /* Slightly bigger */
     height: auto;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
 }
 
 .taskStatus {
     position: absolute;
-    bottom: 10px;
-    left: 8px;
-    font-size: 7px;
-    color: #B1B1B1;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    bottom: 5px; /* Adjusted position */
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8px; /* Slightly bigger */
+    font-weight: 500;
+    color: #d1d1d1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     margin: 0;
 }
-.inactiveRewardWrapper {
-    width: 90px;
-    height: 50px;
-    position: relative;
-    border-radius: 10px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-}
 
-.inactiveRewardOverlay {
+.claimButtonWrapper {
     position: absolute;
-    inset: 0;
-    background: rgba(122, 122, 122, 0.9);
-    border: 1px solid rgba(63, 63, 63, 0.9);
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-}
-
-.inactiveRewardText {
-    position: absolute;
-    top: 50%;
+    bottom: 24px; /* Позиция от нижнего края */
     left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    font-family: Inter, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: #bcbcbc;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transform: translateX(-50%);
+    opacity: 1; /* Всегда видима */
+    transition: opacity 0.4s ease; /* Плавное появление */
 }

@@ -24,7 +24,10 @@
 }
 .eventCardWrapperEvent {
     position: absolute;
-    top: 80px; /* регулируешь насколько ниже */
+    top: 90px; /* регулируешь насколько ниже */
+}
+.eventCardWrapperEventMain {
+    position: absolute;
 }
 /* Обёртка для расписания — абсолютное позиционирование, центрирование */
 .eventCardWrapper {

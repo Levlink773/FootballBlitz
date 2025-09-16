@@ -1,37 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSpring, animated } from 'react-spring';
 import styles from '../../css_files/main_css/StatsPanel.module.css';
 
 const statsData = [
-    { value: '903', label: 'гри' },
-    { value: '89.3%', label: 'перемог' },
-    { value: '120', label: 'турнірів' },
+    { value: 903, label: 'гри' },
+    { value: 89.3, label: 'перемог', isPercent: true },
+    { value: 120, label: 'турнірів' },
 ];
 
-const StatBox = ({ value, label }) => (
+// Компонент для анимированного числа
+const AnimatedNumber = ({ n, isPercent }) => {
+    const { number } = useSpring({
+        from: { number: 0 },
+        to: { number: n },
+        delay: 200,
+        config: { mass: 1, tension: 20, friction: 10 },
+    });
+    return (
+        <animated.span>
+            {number.to((val) => {
+                if (isPercent) {
+                    // Форматируем для одного знака после запятой и добавляем %
+                    return `${val.toFixed(1)}%`;
+                }
+                // Округляем до целого числа
+                return val.toFixed(0);
+            })}
+        </animated.span>
+    );
+};
+
+
+const StatBox = ({ value, label, isPercent }) => (
     <div className={styles.statBox}>
-        <span className={styles.statValue}>{value}</span>
+        <div className={styles.statValue}>
+            <AnimatedNumber n={value} isPercent={isPercent} />
+        </div>
         <span className={styles.statLabel}>{label}</span>
     </div>
 );
 
 export const StatsPanel = () => {
+    const [isRatings, setIsRatings] = useState(false);
+
+    const handleToggle = () => {
+        setIsRatings(!isRatings);
+    };
+
     return (
         <div className={styles.statsPanel}>
             {/* --- Верхний блок с переключателем --- */}
             <div className={styles.header}>
-                <div className={styles.title}>Статистика</div>
-                <div className={styles.toggleContainer}>
+                <div className={`${styles.title} ${!isRatings ? styles.activeTitle : ''}`}>
+                    Статистика
+                </div>
+                <div
+                    className={`${styles.toggleContainer} ${isRatings ? styles.active : ''}`}
+                    onClick={handleToggle}
+                >
                     <div className={styles.toggleCircle}></div>
                 </div>
-                <div className={styles.title}>Рейтинги</div>
+                <div className={`${styles.title} ${isRatings ? styles.activeTitle : ''}`}>
+                    Рейтинги
+                </div>
             </div>
 
             {/* --- Блок с тремя колонками статистики --- */}
             <div className={styles.statsContainer}>
                 {statsData.map((stat, index) => (
                     <React.Fragment key={index}>
-                        <StatBox value={stat.value} label={stat.label} />
-                        {/* Добавляем divider только между элементами */}
+                        <StatBox value={stat.value} label={stat.label} isPercent={stat.isPercent} />
                         {index < statsData.length - 1 && <div className={styles.divider}></div>}
                     </React.Fragment>
                 ))}

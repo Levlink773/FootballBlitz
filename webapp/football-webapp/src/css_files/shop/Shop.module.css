@@ -1,334 +1,142 @@
-/* --- Общий сброс --- */
+:root {
+    --shop-width: 370px;
+    --accent-yellow: #FFDE07;
+    --accent-yellow-dark: #D4A000;
+    --muted: #909090;
+    --danger: #D40000;
+    --glass: rgba(255,255,255,0.06);
+    --shadow-strong: 0 6px 14px rgba(0,0,0,0.45);
+    --transition-fast: 160ms;
+    --transition-base: 260ms;
+}
+
+/* GENERAL RESET */
 *,
 *::before,
-*::after {
-    box-sizing: border-box;
-}
+*::after{ box-sizing: border-box; }
 
-/* --- SHOP CONTAINER --- */
 .shopContainer {
     position: absolute;
-    top: 80px; /* Adjust as needed to position below the header */
+    top: 80px; /* не меняем */
     left: 50%;
     transform: translateX(-50%);
-    width: 370px; /* Main content width */
+    width: var(--shop-width); /* не меняем */
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Space between shop sections */
+    gap: 20px;
+    padding-bottom: 110px; /* оставляем для нижнего отступа */
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #F7F7F7;
 }
 
-/* --- FEATURED --- */
-.featuredItem {
-    position: relative;
-    width: 100%;
-    border-radius: 8px;
+/* mounting flicker prevention + simple entrance */
+.shopContainer.mounted { --mounted: 1; }
+
+/* FEATURED */
+.featuredItem{ position: relative; width: 100%; border-radius: 8px; overflow: visible; }
+.featuredBg{ width: 100%; height: 150px; object-fit: cover; border-radius: 8px; display:block; filter: saturate(1.05); transform-origin: center center; transition: transform var(--transition-base) ease, filter var(--transition-base) ease; }
+
+/* subtle parallax / float effect on hover */
+.featuredItem:hover .featuredBg{ transform: scale(1.02) translateY(-3px); filter: saturate(1.08) contrast(1.02); }
+
+.popularTag{
+    position: absolute; top: -8px; right: 12px; z-index: 6;
+    background: linear-gradient(90deg,var(--accent-yellow),#FFC400);
+    color: #111; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase;
+    overflow: hidden; position: absolute; display: inline-block;
 }
 
-.featuredItem img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 5px 6px 10px rgba(0,0,0,0.55);
-    display: block;
-    filter: saturate(1.05);
+/* shiny sweep on popular tag */
+.popularTag::after{
+    content: '';
+    position: absolute; left: -60%; top: 0; width: 40%; height: 100%; transform: skewX(-20deg);
+    background: linear-gradient(90deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05));
+    animation: sweep 2.4s linear infinite;
+}
+@keyframes sweep{ 0%{ left: -60%; } 100%{ left: 160%; } }
+
+.featuredContent{
+    position: absolute; inset: 0; display:flex; gap: 18px; align-items:center; padding:18px; z-index:5; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.18) 85%);
+    transition: transform var(--transition-base) cubic-bezier(.2,.9,.3,1), opacity var(--transition-base);
+}
+.featuredContent:hover{ transform: translateY(-2px); }
+
+.featuredIcon{ width:82px; height:98px; object-fit:contain; border-radius:8px; background: rgba(255,255,255,0.05); padding:8px; pointer-events:auto; transition: transform var(--transition-fast) ease; }
+.featuredItem:hover .featuredIcon{ transform: translateY(-6px) rotate(-3deg) scale(1.02); }
+
+.featuredText{ display:flex; flex-direction:column; justify-content:center; gap:8px; color: #fff; flex:1 1 auto; min-width:0; pointer-events:auto; }
+.featuredTitle{ font-size:20px; font-weight:900; margin:0; text-shadow: 0 2px 6px rgba(0,0,0,0.5); letter-spacing: .6px; }
+.featuredDesc{ font-size:12px; line-height:1.25; color: rgba(255,255,255,0.94); margin:0; }
+
+.featuredFooter{ display:flex; align-items:center; gap:12px; margin-top:6px; flex-wrap:nowrap; }
+.featuredPrice{ font-size:18px; font-weight:900; color: var(--accent-yellow); text-shadow: 0 2px 6px rgba(0,0,0,0.45); }
+
+.buyButton{ background: linear-gradient(180deg, var(--accent-yellow) 0%, var(--accent-yellow-dark) 100%); border:none; border-radius:10px; padding:8px 18px; font-size:14px; font-weight:900; cursor:pointer; transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast); pointer-events:auto; }
+.buyButton:hover{ transform: translateY(-3px) scale(1.02); }
+.buyButton:active{ transform: translateY(-1px) scale(.99); }
+
+/* BOXES */
+.boxesContainer{ background: rgba(55,55,55,0.70); border-radius:5px; padding:20px 12px; display:flex; justify-content:space-around; align-items:flex-end; height:180px; overflow:visible; }
+
+.shopBox{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; width:30%; transform-origin: center bottom; transition: transform var(--transition-base) cubic-bezier(.2,.9,.3,1), box-shadow var(--transition-base); opacity:0; transform: translateY(12px) scale(.98); }
+
+/* staggered pop-in using CSS var --i */
+.shopBox{ animation: pop-in 420ms cubic-bezier(.2,.9,.3,1) forwards; animation-delay: calc(120ms * var(--i)); }
+@keyframes pop-in{ to{ opacity:1; transform: translateY(0) scale(1); } }
+
+.shopBox:hover{ transform: translateY(-8px) scale(1.02); }
+
+.boxImageWrap{ display:flex; align-items:flex-end; height: auto; }
+.boxImage{ margin-bottom:6px; display:block; max-width:100%; height:auto; transition: transform var(--transition-base) ease, filter var(--transition-base) ease; }
+
+/* premium special lift (still keep original translateY behavior if user had .premium class) */
+.shopBox:nth-child(3) .boxImage{ transform-origin: center bottom; }
+
+.boxTitle{ color:#F9F9F9; font-size:12px; font-weight:800; text-shadow: 2px 2px 4px rgba(0,0,0,0.50); }
+
+.boxPrices{ display:flex; gap:6px; font-size:11px; font-weight:900; align-items:center; }
+.originalPrice{ color: var(--muted); text-decoration: line-through; font-weight:700; }
+.discountedPrice{ color: var(--danger); }
+.discountTag{ color: var(--accent-yellow); font-size:9px; font-weight:800; }
+
+/* buy inside box: compact button */
+.boxBuy{ margin-top:6px; padding:6px 10px; border-radius:8px; background:linear-gradient(180deg,#FFD84D,#D6A000); border:none; font-weight:800; cursor:pointer; transition: transform var(--transition-fast) ease; }
+.boxBuy:hover{ transform: translateY(-3px); }
+
+/* CURRENCY */
+.currencyContainer{ width:100%; max-width:340px; margin:0 auto 90px; display:flex; gap:10px; justify-content:space-between; align-items:flex-end; box-sizing:border-box; }
+.currencyItem{ position:relative; flex:0 0 calc(50% - 5px); border-radius:10px; overflow:hidden; min-height:84px; display:flex; align-items:center; justify-content:center; padding-bottom:8px; background-clip:padding-box; }
+.coinItem{ background: linear-gradient(135deg,#FFD84D 0%,#FFC400 100%); }
+.energyItem{ background: linear-gradient(135deg,#0E74FF 0%,#083B9A 100%); }
+.currencyBigImg{ width:auto; height:45px; max-height:72%; max-width:62%; object-fit:contain; transform: translateY(-12px); filter: drop-shadow(0 6px 12px rgba(0,0,0,0.55)); z-index:2; pointer-events:none; display:block; transition: transform var(--transition-base) ease; }
+.currencyItem:hover .currencyBigImg{ transform: translateY(-8px) scale(1.02); }
+
+.currencyItem::after{ content: ""; position:absolute; left:0; right:0; bottom:0; height:42%; background: linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%); z-index:1; }
+
+.currencyOverlay{ position:absolute; left:8px; right:8px; bottom:16px; display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center; z-index:4; pointer-events:auto; }
+.currencyLabel{ color:#fff; font-size:18px; font-weight:900; text-transform:uppercase; text-shadow:0 5px 12px rgba(0,0,0,0.65); margin:0; display:block; white-space:normal; word-break:normal; overflow-wrap:normal; line-height:1; padding:0; }
+.currencyOverlay .buyButton{ white-space:nowrap; padding:6px 12px; border-radius:9px; font-size:12px; z-index:6; flex-shrink:0; align-self:center; }
+
+/* RESPONSIVE */
+@media (max-width:420px){
+    .featuredContent{ flex-direction:row; gap:12px; padding:12px; }
+    .featuredIcon{ width:64px; height:78px; }
+    .featuredTitle{ font-size:18px; }
+    .featuredPrice{ font-size:16px; }
+
+    .currencyContainer{ max-width:100%; display:flex; flex-direction:column; gap:10px; padding:0 12px; margin-bottom:120px; }
+    .currencyItem{ min-height:86px; flex:1 1 auto; }
+    .currencyBigImg{ height:56px; }
+    .currencyLabel{ font-size:16px; }
+    .currencyOverlay .buyButton{ padding:6px 10px; font-size:12px; }
 }
 
-.popularTag {
-    position: absolute;
-    top: -8px;
-    right: 12px;
-    background: linear-gradient(90deg,#FFD84D,#FFC400);
-    color: #1a1a1a;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: .5px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    z-index: 6;
-    text-transform: uppercase;
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+    .shopBox, .popularTag::after, .featuredBg, .featuredIcon, .currencyBigImg { animation: none !important; transition: none !important; }
 }
 
-.featuredContent {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    padding: 18px;
-    z-index: 5;
-    pointer-events: none;
-    background: linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.18) 85%);
-}
-
-.featuredContent img {
-    width: 82px;
-    height: 98px;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.5);
-    background: rgba(255,255,255,0.05);
-    padding: 8px;
-    pointer-events: auto;
-}
-
-.featuredText {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 8px;
-    color: #FFFFFF;
-    flex: 1 1 auto;
-    min-width: 0;
-    pointer-events: auto;
-}
-
-.featuredText h3,
-.featuredText p,
-.featuredPrice {
-    margin: 0;
-    padding: 0;
-}
-
-.featuredTitle {
-    font-size: 20px;
-    font-weight: 900;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-}
-
-.featuredDesc {
-    font-size: 12px;
-    line-height: 1.25;
-    color: rgba(255,255,255,0.92);
-    max-width: 100%;
-    white-space: normal;
-}
-
-.featuredFooter {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 6px;
-    flex-wrap: nowrap;
-}
-
-.featuredPrice {
-    font-size: 18px;
-    font-weight: 900;
-    color: #FFDE07;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.45);
-}
-
-.buyButton {
-    background: linear-gradient(180deg, #FFDE07 0%, #D4A000 100%);
-    border: none;
-    border-radius: 10px;
-    padding: 8px 18px;
-    font-size: 14px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.45);
-    transition: transform .12s ease;
-    pointer-events: auto;
-}
-
-.buyButton:hover {
-    transform: translateY(-2px) scale(1.02);
-}
-
-@media (max-width: 420px) {
-    .featuredContent { flex-direction: row; gap: 12px; padding: 12px; }
-    .featuredContent img { width: 64px; height: 78px; }
-    .featuredTitle { font-size: 18px; }
-    .featuredPrice { font-size: 16px; }
-}
-
-/* --- BOXES --- */
-.boxesContainer {
-    background: rgba(55, 55, 55, 0.70);
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.50);
-    border-radius: 5px;
-    padding: 20px 12px;
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    height: 180px;
-    overflow: visible;
-}
-
-.shopBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 5px;
-    width: 30%;
-}
-
-.shopBox .boxImage {
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.50);
-    margin-bottom: 6px;
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-.shopBox.premium .boxImage {
-    transform: translateY(-18px);
-}
-
-.boxTitle {
-    color: #F9F9F9;
-    font-size: 11px;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.50);
-}
-
-.boxPrices {
-    display: flex;
-    gap: 5px;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.originalPrice {
-    color: #909090;
-    text-decoration: line-through;
-}
-
-.discountedPrice {
-    color: #D40000;
-}
-
-.discountTag {
-    color: #FFDE07;
-    font-size: 7px;
-    font-weight: 700;
-}
-
-/* --- CURRENCY: компактный + приподнятый блок, кнопки не вылезают --- */
-/* --- CURRENCY: исправленный компактный вариант (grid overlay) --- */
-.currencyContainer {
-    width: 100%;
-    max-width: 340px;          /* можно уменьшить / увеличить по вкусу */
-    margin: 0 auto 90px;
-    display: flex;
-    gap: 10px;
-    justify-content: space-between;
-    align-items: flex-end;
-    box-sizing: border-box;
-}
-
-/* карточка */
-.currencyItem {
-    position: relative;
-    flex: 0 0 calc(50% - 5px); /* две карточки ровно по половине с gap */
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.45);
-    min-height: 84px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 8px;
-    background-clip: padding-box;
-}
-
-/* фоны */
-.coinItem { background: linear-gradient(135deg,#FFD84D 0%,#FFC400 100%); }
-.energyItem { background: linear-gradient(135deg,#0E74FF 0%,#083B9A 100%); }
-
-/* картинка и её ограничения */
-.currencyBigImg {
-    width: auto;
-    height: 64px;
-    max-height: 72%;
-    max-width: 62%;
-    object-fit: contain;
-    transform: translateY(-4px);
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.55));
-    z-index: 2;
-    pointer-events: none;
-    display: block;
-}
-
-/* низовый градиент для контраста */
-.currencyItem::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 42%;
-    background: linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%);
-    z-index: 1;
-}
-
-/* overlay — используем grid: 1fr auto (название | кнопка) */
-.currencyOverlay {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    display: grid;
-    grid-template-columns: 1fr auto; /* название занимает всё свободное, кнопка — по контенту */
-    column-gap: 8px;
-    align-items: center;
-    z-index: 4;
-    pointer-events: auto;
-}
-
-/* НИКОГДА не используем break-word / word-break: break-all — это ломает слова по буквам.
-   Вместо этого — нормальное поведение переноса и защита от странных разрывов. */
-.currencyLabel {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 900;
-    text-transform: uppercase;
-    text-shadow: 0 5px 12px rgba(0,0,0,0.65);
-    margin: 0;
-
-    display: block;
-    /* гибкость: займёт всё доступное место по горизонтали */
-    /* но НЕ будет дробиться посимвольно */
-    white-space: normal;    /* позволяет перенос по словам */
-    word-break: normal;     /* НЕ ломать по буквам */
-    overflow-wrap: normal;  /* нормальный перенос */
-    line-height: 1;
-    padding: 0;             /* убираем padding-right и т.п. */
-}
-
-/* кнопка справа: фиксируем по контенту, не даём ей сжиматься */
-.currencyOverlay .buyButton {
-    white-space: nowrap;
-    padding: 6px 12px;
-    border-radius: 9px;
-    font-size: 12px;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.42);
-    z-index: 6;
-    flex-shrink: 0;
-    align-self: center;
-}
-
-/* если всё ещё нужно ужать карточки больше — уменьшите max-width контейнера или height картинки */
-/* Отступ снизу у всего shopContainer чтобы карточки не лезли в нижний nav */
-.shopContainer {
-    padding-bottom: 110px;
-}
-
-/* responsive */
-@media (max-width: 420px) {
-    .currencyContainer {
-        max-width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 0 12px;
-        margin-bottom: 120px;
-    }
-    .currencyItem { min-height: 86px; flex: 1 1 auto; }
-    .currencyBigImg { height: 56px; }
-    .currencyLabel { font-size: 16px; }
-    .currencyOverlay .buyButton { padding: 6px 10px; font-size: 12px; }
-}
+/* Small utility: make text crisp on iOS */
+.featuredText, .boxTitle, .currencyLabel { -webkit-font-smoothing: antialiased; }

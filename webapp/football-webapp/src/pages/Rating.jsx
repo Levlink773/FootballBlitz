@@ -21,7 +21,7 @@ export default function RatingCard({ mockUser }) {
             />
 
             {/* Main Content */}
-            <RatingInfo /> {/* <-- USE THE COMPONENT HERE */}
+            <Rating /> {/* <-- USE THE COMPONENT HERE */}
 
             {/* Navigation Bar at the bottom */}
             <NavigationBar />

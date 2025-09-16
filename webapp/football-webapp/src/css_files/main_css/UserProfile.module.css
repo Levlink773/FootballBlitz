@@ -1,92 +1,143 @@
+/* --- Анімації --- */
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Головний контейнер (ВИПРАВЛЕНО) --- */
+.userProfile {
+    /* Цей контейнер служить лише як "якорь" для абсолютно позиціонованих
+       елементів всередині. Йому НЕ потрібні власні розміри. */
+    position: relative;
+    bottom: 16px;
+    /* Властивості width: 100% та height: 100% були видалені, щоб не ламати потік сторінки. */
+}
+
+/* --- Зображення гравця --- */
 .playerImage {
+    /* Позиціонування залишаємо без змін */
     width: 226px;
     height: 256px;
     left: 105px;
     top: 104px;
     position: absolute;
+    z-index: 2;
+
+    /* Покращення: додаємо тінь, щоб "відірвати" персонажа від фону */
+    filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.4));
+
+    /* Анімація появи */
+    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
+/* --- Інформаційний блок --- */
 .infoBox {
     width: 336px;
-    height: 47px;
+    height: 55px;
     left: 50px;
     top: 295px;
     position: absolute;
+    z-index: 3;
 
-    background: linear-gradient(180deg, rgba(141, 141, 141, 0.70) 0%, rgba(134, 134, 134, 0.70) 100%);
-    box-shadow: 5px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 15px;
+    /* Ефект "матового скла" (Glassmorphism) */
+    background: rgba(40, 40, 40, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    /* Покращена, м'яка тінь */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 0 15px;
+
+    /* Анімація появи з затримкою */
+    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+    opacity: 0;
 }
 
-/* Левая часть */
+
+/* --- Ліва частина --- */
 .leftSection {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 
 .nameAge {
     display: flex;
     align-items: baseline;
-    gap: 2px;
+    gap: 4px;
 }
 
 .name {
     color: white;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .age {
-    color: white;
+    color: rgba(255, 255, 255, 0.8);
     font-size: 14px;
-    font-weight: 700;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .locationGroup {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .location {
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .locationIcon {
     width: 15px;
     height: 15px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 
-/* Правая часть */
+
+/* --- Права частина (статистика) --- */
 .stats {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .stat {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     color: white;
     font-size: 14px;
     font-weight: 700;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    transition: transform 0.2s ease-in-out;
+}
+
+.stat:hover {
+    transform: scale(1.1);
 }
 
 .stat img {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
 }

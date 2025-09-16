@@ -5,6 +5,7 @@ import { NavigationBar } from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import BlitzSchedule from "../components/tournament/BlitzSchedule.jsx";
 import {EventCard} from "../components/main_components/EventCard.jsx";
+import {InfoPanel} from "../components/tournament/InfoPanel.jsx";
 
 export default function TournamentCard({ mockUser }) {
     return (
@@ -24,31 +25,7 @@ export default function TournamentCard({ mockUser }) {
                 <BlitzSchedule />
             </div>
 
-            {/* --- ОБНОВЛЕННЫЙ КОНТЕЙНЕР С ИКОНКАМИ И ТЕКСТОМ --- */}
-            <div className={styles.infoContainer}>
-                {/* Блок с кубком */}
-                <div className={styles.infoBlock}>
-                    <img
-                        src={Config.IMAGES.trophy}
-                        alt="trophy"
-                        className={styles.infoIcon}
-                    />
-                    <p>
-                        Участь у бліц-турнірах дає енергію, монети та кубки.
-                    </p>
-                </div>
-                {/* Блок с короной */}
-                <div className={styles.infoBlock}>
-                    <img
-                        src={Config.IMAGES.crown}
-                        alt="crown"
-                        className={styles.infoIcon}
-                    />
-                    <p>
-                        Преміум турніри та інші функції для VIP-користувачів.
-                    </p>
-                </div>
-            </div>
+            <InfoPanel/>
             <div className={styles.eventCardWrapperEvent}>
                 <EventCard />
             </div>

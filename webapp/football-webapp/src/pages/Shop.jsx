@@ -17,7 +17,7 @@ export default function ShopCard({mockUser}) {
                 className={styles.backgroundImage}
             />
             {/* Main Shop Content */}
-            <ShopEnergy /> {/* <-- USE THE COMPONENT HERE */}
+            <ShopCoins /> {/* <-- USE THE COMPONENT HERE */}
             <NavigationBar />
         </div>
     );

@@ -1,23 +1,338 @@
+/* ============ Layout ============ */
 .wrapper {
     width: 100%;
-    max-width: 420px; /* ровно по макету */
-    margin: 0 auto; /* центрируем */
-    text-align: center;
-    padding-top: 20px; /* отступ сверху от хедера */
-    padding-bottom: 20px; /* чтобы не прилипало к навбару */
-    margin-top: 30px;
+    max-width: 420px;
+    margin: 24px auto;
+    padding: 18px 14px;
+    box-sizing: border-box;
+    color: #fff;
 }
 
 .title {
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 20px; /* отступ между заголовком и карточками */
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    margin-bottom: 14px;
+    text-align: center;
+
+    /* тонкая обводка + глубина */
+    -webkit-text-stroke: 0.8px rgba(0,0,0,0.9);
+    text-stroke: 0.8px rgba(0,0,0,0.9);
+    text-shadow:
+            0 1px 0 rgba(0,0,0,0.95),
+            0 6px 18px rgba(0,0,0,0.45);
 }
 
+/* grid */
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px; /* одинаковый отступ по вертикали и горизонтали */
-    justify-items: center; /* карточки строго по центру */
+    gap: 16px;
+    justify-items: center;
 }
+
+/* ============ Card ============ */
+.card {
+    width: 152px;
+    height: 200px;
+    perspective: 900px;
+}
+
+.cardInner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    /* glass + soft gradient */
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(10,12,20,0.06));
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(6px) saturate(1.05);
+    box-shadow:
+            0 8px 26px rgba(4,6,16,0.6),
+            inset 0 1px 0 rgba(255,255,255,0.02);
+    transition: transform 260ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease;
+    will-change: transform;
+}
+
+/* if background provided via inline style, keep it subtle (overlaid by gradient) */
+.cardInner[style] {
+    background-repeat: no-repeat;
+    background-position: center 18%;
+    background-size: cover;
+}
+
+/* hover lift */
+.cardInner:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+            0 22px 54px rgba(4,6,16,0.7),
+            0 8px 28px rgba(4,6,16,0.35);
+}
+
+/* small screens */
+@media (max-width: 380px) {
+    .card { width: 146px; height: 196px; }
+}
+
+/* badge */
+.badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    padding: 6px 9px;
+    background: linear-gradient(90deg, #ffd36b, #ffb14d);
+    color: #2b1b00;
+    font-weight: 800;
+    font-size: 11px;
+    border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.32);
+    z-index: 40;
+}
+
+/* ============ Art area ============ */
+.art {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    padding-top: 6px;
+}
+
+.energyWrap {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.energyImg {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    transform-origin: center;
+    animation: floatEnergy 3.6s ease-in-out infinite;
+    -webkit-backface-visibility: hidden;
+    z-index: 30;
+}
+
+/* soft radial glow under the energy */
+.energyGlow {
+    position: absolute;
+    width: 120px;
+    height: 64px;
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    background: radial-gradient(ellipse at center, rgba(120,200,255,0.10) 0%, rgba(120,200,255,0.04) 30%, transparent 60%);
+    filter: blur(10px);
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* ============ Info area ============ */
+.info {
+    z-index: 40;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 6px;
+}
+
+.cardTitle {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.2px;
+
+    /* outline + shadow for crisp reading */
+    -webkit-text-stroke: 0.5px rgba(0,0,0,0.9);
+    text-stroke: 0.5px rgba(0,0,0,0.9);
+    text-shadow:
+            0 0.8px 0 rgba(0,0,0,0.95),
+            0 2px 8px rgba(0,0,0,0.45);
+    line-height: 1;
+}
+
+.bottomRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center; /* кнопка будет по центру */
+    padding: 0 6px;
+    position: relative;      /* <- важно для абсолютного позиционирования прайса */
+}
+
+/* прайс — фиксируем слева внутри карточки */
+.price {
+    top: -50px;
+    position: absolute;
+    left: 30px;        /* отступ от левого края карточки — подгони по макету */
+    bottom: 12px;      /* вертикаль — подгони при необходимости */
+    z-index: 60;       /* над остальными слоями */
+    min-width: 74px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    text-align: left;  /* теперь левое выравнивание */
+    -webkit-text-stroke: 0.8px rgba(0,0,0,0.95);
+    text-stroke: 0.8px rgba(0,0,0,0.95);
+    text-shadow:
+            0 1px 0 rgba(0,0,0,0.9),
+            0 3px 8px rgba(0,0,0,0.45);
+}
+
+/* ============ Buy button ============ */
+.buyBtn {
+    margin: 0 auto;
+    --btn-h: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--btn-h);
+    min-width: 86px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ffd36b, #ffb74d);
+    color: #2b1b00;
+    font-weight: 900;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+/* sparkle strip */
+.buyBtn::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -40%;
+    width: 40%;
+    height: 180%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.48), rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+    transform: rotate(-18deg);
+    filter: blur(6px);
+    opacity: 0;
+    transition: left 620ms cubic-bezier(.2,.9,.3,1), opacity 180ms ease;
+    pointer-events: none;
+}
+
+/* small sparkle dot */
+.buySpark {
+    position: absolute;
+    right: 8%;
+    top: -18%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0.5) 40%, rgba(255,255,255,0) 60%);
+    transform: translateZ(0);
+    animation: sparkPulse 1500ms ease-in-out infinite;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/* button hover/focus */
+.buyBtn:hover,
+.buyBtn:focus {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.36);
+}
+.buyBtn:hover::after,
+.buyBtn:focus::after {
+    left: 120%;
+    opacity: 1;
+}
+
+/* focus visible */
+.buyBtn:focus {
+    outline: 3px solid rgba(255,210,80,0.18);
+    outline-offset: 3px;
+}
+
+/* ============ Keyframes ============ */
+@keyframes floatEnergy {
+    0% { transform: translateY(0) rotate(-3deg); }
+    30% { transform: translateY(-7px) rotate(2deg); }
+    60% { transform: translateY(-3px) rotate(-1deg); }
+    100% { transform: translateY(0) rotate(-3deg); }
+}
+
+@keyframes sparkPulse {
+    0% { transform: scale(0.6) translateY(0); opacity: 0; }
+    10% { opacity: 1; transform: scale(1.12) translateY(-2px); }
+    50% { transform: scale(1) translateY(0); opacity: 0.85; }
+    100% { opacity: 0; transform: scale(0.7) translateY(0); }
+}
+
+/* ============ Reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+    .cardInner, .energyImg, .buySpark { transition: none; animation: none; transform: none; }
+}
+/* ============ Art area ============ */
+.art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 8px;
+    flex: 1 1 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.coinWrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coin {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    transform-origin: center;
+    will-change: transform;
+    animation: floatCoin 3.6s ease-in-out infinite;
+    z-index: 4;
+    -webkit-backface-visibility: hidden;
+}
+
+.coinGlow {
+    position: absolute;
+    width: 120px;
+    height: 64px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    background: radial-gradient(ellipse at center, rgba(255,209,102,0.18) 0%, rgba(255,180,50,0.06) 30%, transparent 60%);
+    filter: blur(10px);
+    z-index: 3;
+    pointer-events: none;
+}
+
