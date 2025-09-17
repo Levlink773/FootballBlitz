@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import Config from "../../config.js";
 import {motion, AnimatePresence} from "framer-motion";
 import default_sound from "../../assets/public/sounds/notification.mp3"
-import { useSpring, animated } from 'react-spring';
+import {useSpring, animated} from 'react-spring';
+
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)
  * и жёстко ограничивает размеры модалки (width/maxWidth/maxHeight + overflowY:auto).
@@ -247,7 +248,8 @@ function Box({children, style = {}, className = "", onClose}) {
 
     return (
         <div style={baseStyle} className={`modal-box ${className}`}>
-            <div style={gradientBorderStyle}/> {/* ✨ Градієнтна обводка */}
+            <div style={gradientBorderStyle}/>
+            {/* ✨ Градієнтна обводка */}
             {onClose && (
                 <motion.button
                     aria-label="Close"
@@ -320,13 +322,13 @@ function GradientButton({children, onClick, style = {}, variant = 'primary'}) {
 
 
 // ✨ 2. Створюємо невеликий компонент для анімації числа
-const AnimatedChance = ({ chance }) => {
+const AnimatedChance = ({chance}) => {
     // Використовуємо хук useSpring для анімації
-    const { number } = useSpring({
-        from: { number: 0 },
+    const {number} = useSpring({
+        from: {number: 0},
         to: chance,
         delay: 300, // Невелика затримка перед початком анімації
-        config: { mass: 1, tension: 20, friction: 15 }, // Налаштування для плавної анімації
+        config: {mass: 1, tension: 20, friction: 15}, // Налаштування для плавної анімації
     });
 
     // Повертаємо анімований елемент
@@ -339,9 +341,9 @@ const AnimatedChance = ({ chance }) => {
 
 
 /* ---------- TopChancesAlert (Покращена версія з анімацією) ---------- */
-export function TopChancesAlert({ teams = [] }) {
+export function TopChancesAlert({teams = []}) {
     return (
-        <Box style={{ width: 360, padding: 16 }}>
+        <Box style={{width: 360, padding: 16}}>
             <div style={{
                 color: "var(--glow-secondary)",
                 fontWeight: 800,
@@ -362,7 +364,7 @@ export function TopChancesAlert({ teams = [] }) {
                     background: 'var(--surface-highlight)',
                     borderRadius: 10
                 }}>
-                    <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}>
+                    <div style={{color: "var(--text-secondary)", fontSize: 14, fontWeight: 500}}>
                         {`Команда ${t.name} (${t.meta}):`}
                     </div>
                     <div style={{
@@ -372,7 +374,7 @@ export function TopChancesAlert({ teams = [] }) {
                         textShadow: `0 0 8px ${t.chance >= 50 ? 'var(--green-accent)' : 'var(--red-accent)'}`
                     }}>
                         {/* ✨ 3. Замінюємо статичний вивід на анімований компонент */}
-                        <AnimatedChance chance={t.chance} />
+                        <AnimatedChance chance={t.chance}/>
                     </div>
                 </div>
             ))}
@@ -390,7 +392,7 @@ export function PlayerModal({
                                 onInstantSell,
                                 onClose,
                                 isProcessing = false, // <-- Новий пропс для блокування кнопок
-}) {
+                            }) {
     console.log("Player: ", player);
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -441,7 +443,11 @@ export function PlayerModal({
 
                 <div style={{flex: "1 1 60%", minWidth: 140, boxSizing: "border-box"}}>
                     <div style={{fontSize: 20, fontWeight: 800}}>{player.name || "—"}</div>
-                    <div style={{color: "var(--text-secondary)", marginTop: 4, fontStyle: 'italic'}}>{player.position || "—"}</div>
+                    <div style={{
+                        color: "var(--text-secondary)",
+                        marginTop: 4,
+                        fontStyle: 'italic'
+                    }}>{player.position || "—"}</div>
 
                     <div style={{
                         display: "grid",
@@ -473,24 +479,35 @@ export function PlayerModal({
                                         {isProcessing ? 'Знімаємо...' : 'Зняти з продажу'}
                                     </GradientButton>
                                 ) : (
-                                    <div style={{ display: 'flex', gap: '20px', width: '100%', height: 70, position: 'relative', right: 60 }}>
-                                        <GradientButton onClick={onSell} variant="alt" disabled={isProcessing} style={{ flex: 1 }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '20px',
+                                        width: '100%',
+                                        height: 70,
+                                        position: 'relative',
+                                        right: 60
+                                    }}>
+                                        <GradientButton onClick={onSell} variant="alt" disabled={isProcessing}
+                                                        style={{flex: 1}}>
                                             Продати на ринку
                                         </GradientButton>
-                                        <GradientButton onClick={onInstantSell} variant="danger" disabled={isProcessing} style={{ flex: 1 }}>
+                                        <GradientButton onClick={onInstantSell} variant="danger" disabled={isProcessing}
+                                                        style={{flex: 1}}>
                                             Продати моментально
                                         </GradientButton>
                                     </div>
                                 )}
                             </>
                         ) : (
-                            <GradientButton onClick={onBuy} disabled={isProcessing}>
-                                {isProcessing ? 'Купуємо...' : 'Купити'}
-                            </GradientButton>
+                            <>
+                                <GradientButton onClick={onBuy} disabled={isProcessing}>
+                                    {isProcessing ? 'Купуємо...' : 'Купити'}
+                                </GradientButton>
+                                <div style={{marginLeft: "auto", /* ... */}}>
+                                    @{player.seller || player.owner.username || "—"}
+                                </div>
+                            </>
                         )}
-                        <div style={{ marginLeft: "auto", /* ... */ }}>
-                            @{player.seller || player.owner?.user_name || "—"}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -500,6 +517,7 @@ export function PlayerModal({
 
 
 /* ---------- DonateEnergyModal & OutOfEnergyModal (Об'єднані стилі карток) ---------- */
+
 // ✨ Компонент для картки товару, щоб уникнути дублювання
 function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix = " грн"}) {
     return (
@@ -561,7 +579,7 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
 
     return (
         <Box style={{padding: 16, maxWidth: 520, height: 480}}>
-            <HeaderBar title={type === 'coin' ? "Купити монети": "Купити енергію"}/>
+            <HeaderBar title={type === 'coin' ? "Купити монети" : "Купити енергію"}/>
 
             <motion.div
                 style={{display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12}}
@@ -716,7 +734,7 @@ export function AlertModal({
 
     return (
         <div style={alertStyle}>
-            <div style={gradientBorderStyle} />
+            <div style={gradientBorderStyle}/>
             <motion.button
                 onClick={onClose}
                 style={{
@@ -743,9 +761,8 @@ export function AlertModal({
 }
 
 
-
 // ✨--- НОВИЙ КОМПОНЕНТ ДЛЯ ВТОРИННИХ КНОПОК ---✨
-function SecondaryButton({ children, onClick, style = {} }) {
+function SecondaryButton({children, onClick, style = {}}) {
     const buttonStyle = {
         borderRadius: 18,
         padding: "10px 16px",
@@ -761,8 +778,8 @@ function SecondaryButton({ children, onClick, style = {} }) {
         <motion.button
             onClick={onClick}
             style={buttonStyle}
-            whileHover={{ scale: 1.05, color: 'var(--text-primary)', background: 'rgba(255,255,255,0.1)' }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{scale: 1.05, color: 'var(--text-primary)', background: 'rgba(255,255,255,0.1)'}}
+            whileTap={{scale: 0.98}}
         >
             {children}
         </motion.button>
@@ -774,8 +791,10 @@ function SecondaryButton({ children, onClick, style = {} }) {
 export function BuyEnergyModal({
                                    balanceCoins = null,
                                    packs = null,
-                                   onConfirm = () => {},
-                                   onClose = () => {},
+                                   onConfirm = () => {
+                                   },
+                                   onClose = () => {
+                                   },
                                }) {
     const defaultPacks = [
         {id: 1, label: "20", energy: 20, img: Config.IMAGES.energy_mini},
@@ -843,11 +862,18 @@ export function BuyEnergyModal({
                     animate={{opacity: 1, scale: 1}}
                     transition={{delay: 0.1, type: 'spring', stiffness: 200}}
                 >
-                    <img src={Config.IMAGES.energy_large} alt="energy" style={{width: 80, height: 80, objectFit: "contain", filter: 'drop-shadow(0 5px 10px rgba(0,0,0,0.5))'}}/>
+                    <img src={Config.IMAGES.energy_large} alt="energy" style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "contain",
+                        filter: 'drop-shadow(0 5px 10px rgba(0,0,0,0.5))'
+                    }}/>
                 </motion.div>
 
                 <div style={{flex: 1}}>
-                    <div style={{color: "var(--text-secondary)", marginBottom: 8, fontSize: 14}}>Оберіть кількість або введіть вручну</div>
+                    <div style={{color: "var(--text-secondary)", marginBottom: 8, fontSize: 14}}>Оберіть кількість або
+                        введіть вручну
+                    </div>
                     <motion.div
                         style={{display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12}}
                         variants={{visible: {transition: {staggerChildren: 0.05}}}}
@@ -875,7 +901,7 @@ export function BuyEnergyModal({
 
                     <input ref={inputRef} value={customQty} onChange={(e) => handleCustomChange(e.target.value)}
                            placeholder="Кількість" inputMode="numeric" style={inputStyle}
-                           onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)} />
+                           onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}/>
                 </div>
             </div>
 
@@ -896,9 +922,12 @@ export function SetPriceModal({
                                   initialPrice = 1000,
                                   minPrice = 1,
                                   maxPrice = 1000000,
-                                  onConfirm = () => {},
-                                  onClose = () => {},
-                                  onBack = () => {}, // <-- Новий пропс
+                                  onConfirm = () => {
+                                  },
+                                  onClose = () => {
+                                  },
+                                  onBack = () => {
+                                  }, // <-- Новий пропс
                                   isProcessing = false, // <-- Новий пропс для блокування кнопки
                               }) {
     const [price, setPrice] = useState(initialPrice);
@@ -925,6 +954,7 @@ export function SetPriceModal({
         if (num > maxPrice) num = maxPrice;
         setPrice(num);
     }
+
     function handleConfirm() {
         if (isProcessing) return;
         const p = Number(price || 0);
@@ -948,13 +978,21 @@ export function SetPriceModal({
     return (
         <Box style={{padding: 16, maxWidth: 420}} onClose={onClose}>
             <HeaderBar title="Встановити ціну"/>
-            <div style={{color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center'}}>Введіть суму в монетах</div>
+            <div style={{color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center'}}>Введіть
+                суму в монетах
+            </div>
 
             <div style={inputContainerStyle}>
-                <span style={{position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 24}}>🪙</span>
+                <span style={{
+                    position: 'absolute',
+                    left: 18,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: 24
+                }}>🪙</span>
                 <input ref={inputRef} value={price} onChange={(e) => handleChange(e.target.value)}
                        inputMode="numeric" placeholder={`${minPrice}`} style={inputStyle}
-                       onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)} />
+                       onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}/>
             </div>
 
             <div style={{color: "var(--text-secondary)", fontSize: 12, marginTop: 8, textAlign: 'center'}}>
@@ -980,8 +1018,10 @@ export function VipPromoModal({
                                   price = "999,99 грн",
                                   benefits = ["+100 ЕНЕРГІЇ ЩОДНЯ", "X2 НАГОРОДИ НАВЧАЛЬНОГО ЦЕНТРУ", "VIP ТУРНІРИ"],
                                   assets = {},
-                                  onSubscribe = () => {},
-                                  onClose = () => {},
+                                  onSubscribe = () => {
+                                  },
+                                  onClose = () => {
+                                  },
                                   scale = 1,
                               }) {
     const background = assets.background || Config.IMAGES.vip_hero || Config.IMAGES.vipBackground;
@@ -1001,12 +1041,23 @@ export function VipPromoModal({
                 borderRadius: s(16), display: "flex", flexDirection: "column",
             }}>
                 <motion.img src={background} alt="vip background"
-                            style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none"}}
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                pointerEvents: "none"
+                            }}
                             initial={{scale: 1.2, opacity: 0.8}}
                             animate={{scale: 1, opacity: 1}}
                             transition={{duration: 0.5, ease: 'easeOut'}}
                 />
-                <div style={{ position: "absolute", inset: 0, background: 'radial-gradient(circle at 50% 30%, transparent 0%, rgba(0,0,0,0.8) 100%)' }} />
+                <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: 'radial-gradient(circle at 50% 30%, transparent 0%, rgba(0,0,0,0.8) 100%)'
+                }}/>
 
                 <div style={{
                     position: "relative", zIndex: 1, padding: s(base.padding), boxSizing: "border-box",
@@ -1014,28 +1065,60 @@ export function VipPromoModal({
                     flex: "1 1 auto", overflowY: "auto", textAlign: "center",
                 }}>
                     <motion.div
-                        style={{color: "#FFFFFF", fontSize: s(base.titleFont), fontWeight: 900, textShadow: "0 4px 12px rgba(0,0,0,0.7)"}}
+                        style={{
+                            color: "#FFFFFF",
+                            fontSize: s(base.titleFont),
+                            fontWeight: 900,
+                            textShadow: "0 4px 12px rgba(0,0,0,0.7)"
+                        }}
                         initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.2}}
                     >
                         {title}
                     </motion.div>
 
                     <motion.div
-                        style={{marginTop: s(8), width: "80%", maxWidth: s(240), display: "flex", justifyContent: "center", alignItems: "center"}}
-                        initial={{opacity: 0, scale: 0.7}} animate={{opacity: 1, scale: 1}} transition={{delay: 0.3, type: 'spring', damping: 10}}
+                        style={{
+                            marginTop: s(8),
+                            width: "80%",
+                            maxWidth: s(240),
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center"
+                        }}
+                        initial={{opacity: 0, scale: 0.7}} animate={{opacity: 1, scale: 1}}
+                        transition={{delay: 0.3, type: 'spring', damping: 10}}
                     >
                         <motion.img src={vipImage} alt="VIP"
-                                    style={{maxHeight: s(base.vipMaxHeight), width: "auto", objectFit: "contain", filter: "drop-shadow(0 10px 25px rgba(0,0,0,0.6))"}}
-                                    animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                                    style={{
+                                        maxHeight: s(base.vipMaxHeight),
+                                        width: "auto",
+                                        objectFit: "contain",
+                                        filter: "drop-shadow(0 10px 25px rgba(0,0,0,0.6))"
+                                    }}
+                                    animate={{y: [0, -8, 0]}}
+                                    transition={{duration: 3, repeat: Infinity, ease: 'easeInOut'}}
                         />
                     </motion.div>
 
                     <motion.div
-                        style={{ marginTop: s(8), color: "#FDE400", fontWeight: 700, fontSize: s(base.benefitsFont), lineHeight: 1.4, textShadow: "0 2px 4px rgba(0,0,0,0.6)"}}
+                        style={{
+                            marginTop: s(8),
+                            color: "#FDE400",
+                            fontWeight: 700,
+                            fontSize: s(base.benefitsFont),
+                            lineHeight: 1.4,
+                            textShadow: "0 2px 4px rgba(0,0,0,0.6)"
+                        }}
                         initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.5}}
                     >
                         {benefits.map((b, i) => (
-                            <div key={i} style={{marginBottom: i === benefits.length - 1 ? 0 : s(6), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8}}>
+                            <div key={i} style={{
+                                marginBottom: i === benefits.length - 1 ? 0 : s(6),
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 8
+                            }}>
                                 <span style={{color: '#37C35F'}}>✓</span><span>{b}</span>
                             </div>
                         ))}
@@ -1057,11 +1140,21 @@ export function VipPromoModal({
                             boxShadow: "0 8px 25px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -3px 3px rgba(0,0,0,0.2)",
                             backgroundColor: "#10783c",
                         }}
-                        whileHover={{scale: 1.03, boxShadow: "0 12px 30px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -3px 3px rgba(0,0,0,0.2)", filter: 'brightness(1.1)'}}
+                        whileHover={{
+                            scale: 1.03,
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -3px 3px rgba(0,0,0,0.2)",
+                            filter: 'brightness(1.1)'
+                        }}
                         whileTap={{scale: 0.98, filter: 'brightness(0.95)'}}
                         transition={{type: 'spring', stiffness: 300, damping: 15}}
                     >
-                        <span style={{fontWeight: 900, fontSize: s(base.priceFont), color: "#fff", textShadow: "0 2px 5px rgba(0,0,0,0.7)", pointerEvents: "none"}}>
+                        <span style={{
+                            fontWeight: 900,
+                            fontSize: s(base.priceFont),
+                            color: "#fff",
+                            textShadow: "0 2px 5px rgba(0,0,0,0.7)",
+                            pointerEvents: "none"
+                        }}>
                             {price}
                         </span>
                     </motion.button>

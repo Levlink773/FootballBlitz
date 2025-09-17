@@ -82,6 +82,7 @@ const Shop = ({ onOpenModal }) => {
                             {/* The button's onClick also triggers the modal and stops propagation */}
                             <button
                                 className={styles.buyButton}
+                                style={{top: -5, right: -5}}
                                 aria-label="Купити VIP-пасс"
                                 onClick={(e) => {
                                     e.stopPropagation(); // Prevent parent onClick from firing too
@@ -117,13 +118,6 @@ const Shop = ({ onOpenModal }) => {
                     className={`${styles.currencyItem} ${styles.coinItem}`}
                     // Add onClick to open the coin purchase modal
                     onClick={() => onOpenModal('coin')}
-                    style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%), url(${Config.IMAGES.gold_small_line})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        cursor: 'pointer' // Add pointer cursor
-                    }}
                 >
                     <img src={Config.IMAGES.big_coin} alt="Монети" className={styles.currencyBigImg} />
                     <div className={styles.currencyOverlay}>
@@ -143,13 +137,6 @@ const Shop = ({ onOpenModal }) => {
                     className={`${styles.currencyItem} ${styles.energyItem}`}
                     // Add onClick to open the energy purchase modal
                     onClick={() => onOpenModal('energy')}
-                    style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%), url(${Config.IMAGES.train_line})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        cursor: 'pointer' // Add pointer cursor
-                    }}
                 >
                     <img src={Config.IMAGES.big_energy} alt="Енергія" className={styles.currencyBigImg} />
                     <div className={styles.currencyOverlay}>
