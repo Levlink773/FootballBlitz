@@ -103,6 +103,7 @@ const TaskCard = ({ task, onClaim }) => {
 // --- MAIN VIEW COMPONENT ---
 
 const EducationCentreView = ({ dailyReward, tasks, onClaimDaily, onClaimTask }) => {
+    console.log("d: ", dailyReward);
     return (
         <div className={`${styles.contentWrapper} ${styles.animate}`}>
             <h2 className={styles.pageTitle}>УЧБОВИЙ ЦЕНТР</h2>

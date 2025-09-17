@@ -1,13 +1,14 @@
 // Файл TransferCard.jsx
 
-import React from 'react';
+import React, {useState} from 'react';
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
 import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import TransferOption from "../components/transfer/Transfer.jsx";
 
-export default function TransferCard({user}) {
+export default function TransferCard({initialUserFromServer}) {
+    const [user, setUser] = useState(initialUserFromServer);
     return (
         <div className={styles.mainContainer} data-modal-root>
             <Header user={user} />
@@ -18,7 +19,7 @@ export default function TransferCard({user}) {
             />
             <div className={styles.contentWrapper}>
 
-                <TransferOption user={user} />
+                <TransferOption user={user} onUserUpdate={setUser}/>
             </div>
             <NavigationBar />
         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import EducationCentreView from './EducationCentreView'; // Імпортуємо компонент для відображення
 import Config from "../../config.js";
+import {showAlert} from "../../alertService.jsx";
 
 // Допоміжна мапа для збагачення даних з бекенду (іконки, фон),
 // оскільки бекенд не повертає цю візуальну інформацію.
@@ -36,7 +37,6 @@ const transformApiTasks = (apiTasks) => {
             'done_and_ready': 'claimable',
             'done_and_claimed': 'claimed'
         };
-
         return {
             id: metadata.id || task.stat_type,
             title: task.description.split('—')[0].trim(), // "Проведи 3 тренування"
@@ -53,11 +53,20 @@ const transformApiTasks = (apiTasks) => {
 };
 
 
-const EducationCentre = ({ userId }) => {
+const EducationCentre = ({ userId, onUserUpdate }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [dailyReward, setDailyReward] = useState({ isClaimable: false, timeLeft: 0 });
-
+    const fetchUser = async () => {
+        try {
+            const res = await fetch(`http://localhost:8123/users/${userId}`);
+            if (!res.ok) return;
+            const userData = await res.json();
+            if (onUserUpdate) onUserUpdate(userData);
+        } catch (e) {
+            console.error("fetchUser error", e);
+        }
+    };
     // Функція для завантаження всіх даних
     const fetchData = useCallback(async () => {
         if (!userId) return;
@@ -70,7 +79,6 @@ const EducationCentre = ({ userId }) => {
 
             const remainingData = await remainingRes.json();
             const tasksData = await tasksRes.json();
-
             setDailyReward({
                 isClaimable: remainingData.ready,
                 timeLeft: remainingData.seconds_remaining
@@ -116,14 +124,15 @@ const EducationCentre = ({ userId }) => {
             });
             const data = await response.json();
             if (data.ok) {
-                alert(`Нагорода отримана: ${data.message}`);
-                fetchData(); // Оновлюємо дані після отримання
+                showAlert(`Нагорода отримана: ${data.message}`);
+                await fetchData(); // Оновлюємо дані після отримання
+                await fetchUser();
             } else {
-                alert(`Помилка: ${data.message}`);
+                showAlert(`Помилка: ${data.message}`);
             }
         } catch (error) {
             console.error("Failed to claim daily reward:", error);
-            alert("Сталася помилка мережі.");
+            showAlert("Сталася помилка мережі.");
         }
     };
 
@@ -137,14 +146,15 @@ const EducationCentre = ({ userId }) => {
             });
             const data = await response.json();
             if (data.ok) {
-                alert(`Нагорода отримана: ${data.message}`);
-                fetchData(); // Оновлюємо дані, щоб завдання зникло зі списку
+                showAlert(`Нагорода отримана: ${data.message}`);
+                await fetchData(); // Оновлюємо дані, щоб завдання зникло зі списку
+                await fetchUser();
             } else {
-                alert(`Помилка: ${data.message}`);
+                showAlert(`Помилка: ${data.message}`);
             }
         } catch (error) {
             console.error("Failed to claim task reward:", error);
-            alert("Сталася помилка мережі.");
+            showAlert("Сталася помилка мережі.");
         }
     };
 

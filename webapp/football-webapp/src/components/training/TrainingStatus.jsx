@@ -36,9 +36,9 @@ const formatTime = (totalSeconds) => {
 /**
  * Компонент, що завантажує та відображає статус поточного тренування.
  * @param {object} props - Пропси компонента.
- * @param {number} props.userId - ID поточного користувача.
+ * @param {number} props.user - ID поточного користувача.
  */
-function TrainingStatus({ userId }) {
+function TrainingStatus({ user }) {
     const [isLoading, setIsLoading] = useState(true);
     const [trainingInfo, setTrainingInfo] = useState({
         isActive: false,
@@ -47,7 +47,7 @@ function TrainingStatus({ userId }) {
     });
 
     useEffect(() => {
-        if (!userId) {
+        if (!user) {
             setIsLoading(false);
             return;
         }
@@ -56,12 +56,12 @@ function TrainingStatus({ userId }) {
             setIsLoading(true);
             try {
                 // Запитуємо статус тренування
-                const statusRes = await fetch(`http://localhost:8123/training/status/${userId}`); // Переконайтеся, що шлях правильний
+                const statusRes = await fetch(`http://localhost:8123/training/status/${user.user_id}`); // Переконайтеся, що шлях правильний
                 const statusData = await statusRes.json();
 
                 if (statusData.in_training) {
                     // Якщо тренування активне, запитуємо залишок часу та загальну тривалість
-                    const remainingRes = await fetch(`http://localhost:8123/training/remaining/${userId}`);
+                    const remainingRes = await fetch(`http://localhost:8123/training/remaining/${user.user_id}`);
                     const remainingData = await remainingRes.json();
 
                     const { seconds_remaining, total_training_seconds } = remainingData;
@@ -91,7 +91,7 @@ function TrainingStatus({ userId }) {
         };
 
         fetchTrainingData();
-    }, [userId]);
+    }, [user]);
 
     // Цей useEffect відповідає за зворотний відлік
     useEffect(() => {

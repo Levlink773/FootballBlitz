@@ -19,6 +19,7 @@ from services.character_service import CharacterService
 from services.reminder_character_service import RemniderCharacterService
 from services.user_service import UserService
 from utils.randomaizer import check_chance
+from webapp.fastapi.publisher import make_payload, publish_event
 from .manager import GymCharacterManager
 
 
@@ -110,6 +111,18 @@ class Gym:
                 photo=photo,
                 caption=message_text
             )
+            event_payload = make_payload(
+                event_type="show_alert",
+                user_id=self.character.characters_user_id,
+                payload={
+                    "message": message_text,
+                }
+            )
+
+            # Публікуємо подію в Redis
+            success = await publish_event(event_payload)
+            logger.info(f"Status socket on finish training: {success}")
+
         except Exception as e:
             logger.error(f"Ошибка при отправке сообщения пользователю {self.character.name}: {e}")
             

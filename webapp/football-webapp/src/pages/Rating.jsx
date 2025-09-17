@@ -17,7 +17,7 @@ export default function RatingCard({ user }) {
     const showRating = () => setCurrentView('rating');
 
     return (
-        <div className={styles.mainContainer}>
+        <div className={styles.mainContainer} data-modal-root>
             <Header user={user} />
 
             {/* Background Image */}

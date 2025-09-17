@@ -28,7 +28,8 @@ import Img80 from '../../assets/public/img80.png';
 import Card from '../../assets/public/img_6.png';
 import styles from '../../css_files/trasfer/Transfer.module.css';
 import {ModalRoot, PlayerModal, SetPriceModal} from "../modal_components/ModalComponents.jsx";
-import {instantSellPlayer, postPlayerToTransfer, removePlayerFromTransfer} from "../../api.js";
+import {buyPlayerFromTransfer, instantSellPlayer, postPlayerToTransfer, removePlayerFromTransfer} from "../../api.js";
+import {showAlert} from "../../alertService.jsx";
 
 /// --- Constants & Configuration ---
 
@@ -212,7 +213,7 @@ const MarketGrid = ({ players, onPlayerClick, startIndex = 0 }) => (
 
 // --- Main Component ---
 
-export default function TransferOption({ user }) {
+export default function TransferOption({ user, onUserUpdate }) {
     const [myTeam, setMyTeam] = useState([]);
     const [transfers, setTransfers] = useState([]);
     const [freeAgents, setFreeAgents] = useState([]);
@@ -223,6 +224,16 @@ export default function TransferOption({ user }) {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const userId = user?.user_id;
+    const fetchUser = async () => {
+        try {
+            const res = await fetch(`http://localhost:8123/users/${userId}`);
+            if (!res.ok) return;
+            const userData = await res.json();
+            if (onUserUpdate) onUserUpdate(userData);
+        } catch (e) {
+            console.error("fetchUser error", e);
+        }
+    };
 
     const fetchData = useMemo(() => async () => {
         if (!userId) {
@@ -337,7 +348,7 @@ export default function TransferOption({ user }) {
             closeModal();
         } catch (error) {
             console.error("Sell error:", error);
-            alert(error.message);
+            showAlert(error.message);
         } finally {
             setIsProcessing(false);
         }
@@ -352,7 +363,7 @@ export default function TransferOption({ user }) {
             closeModal();
         } catch (error) {
             console.error("Remove from sale error:", error);
-            alert(error.message);
+            showAlert(error.message);
         } finally {
             setIsProcessing(false);
         }
@@ -366,12 +377,42 @@ export default function TransferOption({ user }) {
         setIsProcessing(true);
         try {
             const result = await instantSellPlayer(selectedPlayer.id);
-            alert(result.message);
+            showAlert(result.message);
             await fetchData();
+            await fetchUser()
             closeModal();
         } catch (error) {
             console.error("Instant sell error:", error);
-            alert(error.message);
+            showAlert(error.message);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+    const handleBuy = async () => {
+        if (!selectedPlayer || !selectedPlayer.transfer) {
+            showAlert("Помилка: гравець або трансфер не вибрані.");
+            return;
+        }
+
+        const confirmBuy = window.confirm(`Ви впевнені, що хочете купити ${selectedPlayer.name} за ${selectedPlayer.price} монет?`);
+        if (!confirmBuy) return;
+
+        setIsProcessing(true);
+        try {
+            const transferId = selectedPlayer.transfer.id;
+            const result = await buyPlayerFromTransfer(transferId, userId);
+
+            showAlert(result.message); // Показуємо повідомлення з бекенда
+
+            // Оновлюємо всі дані на сторінці
+            await fetchData();
+            await fetchUser(); // Оновлюємо баланс користувача
+
+            closeModal(); // Закриваємо модальне вікно
+
+        } catch (error) {
+            console.error("Buy error:", error);
+            showAlert(error.message); // Показуємо помилку з бекенда
         } finally {
             setIsProcessing(false);
         }
@@ -414,7 +455,7 @@ export default function TransferOption({ user }) {
                         onClose={closeModal}
                         isProcessing={isProcessing}
                         onInstantSell={handleInstantSell}
-                        onBuy={() => console.log("Buy player:", selectedPlayer.id)}
+                        onBuy={handleBuy}
                         onSell={() => setModalView('setPrice')}
                         onRemoveFromSale={handleRemoveFromSale}
                     />

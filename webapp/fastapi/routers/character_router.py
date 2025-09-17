@@ -147,8 +147,6 @@ async def get_characters_by_user(user_id: int):
     Returns single character or 404.
     """
     chs = await CharacterService.get_characters(user_id)
-    if not chs:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found for given user_id")
     return [character_to_dict(ch) for ch in chs]
 @router.get("/by-user-main/{user_id}", response_model=dict)
 async def get_character_by_user(user_id: int):

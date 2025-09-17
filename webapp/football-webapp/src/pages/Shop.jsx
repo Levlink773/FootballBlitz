@@ -7,7 +7,7 @@ import Shop from "../components/shop/Shop.jsx";
 // Assuming your modals are exported from this file
 import {VipPromoModal, BuyModal, ModalRoot} from "../components/modal_components/ModalComponents.jsx";
 
-export default function ShopCard({ mockUser }) {
+export default function ShopCard({ user }) {
     // State to manage which modal is currently open
     const [activeModal, setActiveModal] = useState(null);
 
@@ -19,7 +19,7 @@ export default function ShopCard({ mockUser }) {
 
     return (
         <div className={styles.mainContainer} data-modal-root>
-            <Header user={mockUser} />
+            <Header user={user} />
             <img
                 src={Config.IMAGES.shop_background}
                 alt="background"

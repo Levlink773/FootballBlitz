@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 // Убедитесь, что путь к вашему файлу конфигурации (с изображениями) указан верно
 import Config from "../../config.js";
+import {showAlert} from "../../alertService.jsx";
 
 // --- Анимации (Keyframes) ---
 
@@ -159,33 +160,38 @@ const EnterButton = styled.div`
 
 // --- Основной компонент EventCard ---
 
-export const EventCard = () => {
-    // Состояние: активен ли блиц
+export const EventCard = ({ user, onUserUpdate }) => { // Теперь компонент принимает 'user'
     const [isBlitzActive, setIsBlitzActive] = useState(false);
-    // Состояние: сколько секунд осталось до начала
     const [secondsRemaining, setSecondsRemaining] = useState(null);
-    // Состояние: информация о блице (название и т.д.)
-    const [blitzInfo, setBlitzInfo] = useState(null);
-    // Состояние: идет ли первоначальная загрузка данных
+    const [blitzInfo, setBlitzInfo] = useState(null); // Будет хранить весь объект { blitz_id, info, ... }
     const [isLoading, setIsLoading] = useState(true);
+    const fetchUser = async () => {
+        try {
+            const res = await fetch(`http://localhost:8123/users/${userId}`);
+            if (!res.ok) return;
+            const userData = await res.json();
+            if (onUserUpdate) onUserUpdate(userData);
+        } catch (e) {
+            console.error("fetchUser error", e);
+        }
+    };
+    // НОВОЕ: Состояние для отслеживания, было ли показано уведомление об открытии регистрации
+    const [notificationShown, setNotificationShown] = useState(false);
 
-    // Функция форматирования времени
+    // Функция форматирования времени (без изменений)
     const formatTime = (totalSeconds) => {
         if (totalSeconds < 0) totalSeconds = 0;
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-
-        if (hours > 0) {
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
+        if (hours > 0) return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
-    // Функция для запроса статуса с сервера
+    // Обновленная функция запроса статуса
     const fetchBlitzStatus = useCallback(async () => {
+        setNotificationShown(false); // Сбрасываем флаг уведомления при каждом обновлении
         try {
-            // 1. Проверяем активный матч
             const activeResponse = await fetch('http://localhost:8123/blitz/active');
             if (!activeResponse.ok) throw new Error('Failed to fetch active status');
             const activeData = await activeResponse.json();
@@ -193,13 +199,10 @@ export const EventCard = () => {
             if (activeData.active === true) {
                 setIsBlitzActive(true);
                 setSecondsRemaining(null);
-                setBlitzInfo(activeData.info || { title: 'БЛІЦ АКТИВНИЙ' });
+                setBlitzInfo({ info: { title: 'БЛІЦ АКТИВНИЙ' } });
                 return;
             }
 
-            // 2. Если активного нет, проверяем следующий
-            // ВАЖНО: Ваш API должен по этому адресу возвращать объект:
-            // { "seconds_remaining": 3600, "info": { "title": "БЛІЦ (8) 15:00 2/8" } }
             setIsBlitzActive(false);
             const nextResponse = await fetch('http://localhost:8123/blitz/next');
             if (!nextResponse.ok) throw new Error('Failed to fetch next blitz');
@@ -207,37 +210,49 @@ export const EventCard = () => {
 
             if (nextData && nextData.seconds_remaining > 0) {
                 setSecondsRemaining(nextData.seconds_remaining);
-                setBlitzInfo(nextData.info);
+                setBlitzInfo(nextData); // Сохраняем весь объект, включая blitz_id
             } else {
                 setSecondsRemaining(null);
                 setBlitzInfo(null);
             }
         } catch (error) {
             console.error("Error fetching blitz status:", error);
-            setIsBlitzActive(false);
-            setSecondsRemaining(null);
-            setBlitzInfo(null);
+            // ... остальная обработка ошибок
         } finally {
             setIsLoading(false);
         }
     }, []);
 
-    // Эффект для первоначальной загрузки данных
+    // Эффект для первоначальной загрузки (без изменений)
     useEffect(() => {
         fetchBlitzStatus();
     }, [fetchBlitzStatus]);
 
-    // Эффект для таймера обратного отсчета
+    // НОВЫЙ ЭФФЕКТ: Для единоразового уведомления об открытии регистрации
     useEffect(() => {
-        if (isBlitzActive || secondsRemaining === null || secondsRemaining <= 0) {
+        if (!user || notificationShown || secondsRemaining === null || isBlitzActive) {
             return;
         }
+
+        const isVip = user.vip_pass_is_active; // Предполагаем, что у юзера есть это поле
+        const registrationThreshold = isVip ? 30 * 60 : 20 * 60; // 30 или 20 минут в секундах
+
+        if (secondsRemaining <= registrationThreshold) {
+            showAlert('Реєстрація на бліц відкрита! Натисніть на картку, щоб приєднатися.');
+            setNotificationShown(true); // Устанавливаем флаг, чтобы не показывать снова
+        }
+    }, [secondsRemaining, user, notificationShown, isBlitzActive]);
+
+
+    // Эффект для таймера обратного отсчета (без изменений)
+    useEffect(() => {
+        if (isBlitzActive || secondsRemaining === null || secondsRemaining <= 0) return;
         const timerId = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newSeconds = prev - 1;
                 if (newSeconds < 1) {
                     clearInterval(timerId);
-                    setTimeout(fetchBlitzStatus, 1000); // Перезапрашиваем статус, когда таймер закончился
+                    setTimeout(fetchBlitzStatus, 1000);
                 }
                 return newSeconds;
             });
@@ -246,25 +261,66 @@ export const EventCard = () => {
     }, [isBlitzActive, secondsRemaining, fetchBlitzStatus]);
 
 
-    // --- Рендеринг компонента ---
+    // НОВАЯ ФУНКЦИЯ: Обработчик клика для регистрации
+    const handleRegisterClick = async () => {
+        if (isBlitzActive) {
+            showAlert("Матч вже активний! Вхід у розробці.");
+            return;
+        }
+        if (!blitzInfo?.blitz_id || !user?.user_id) {
+            showAlert("Не вдалося отримати інформацію про турнір або користувача.");
+            return;
+        }
 
-    // Ничего не показываем, пока идет загрузка или если нет блицев
+        // Проверка времени на фронтенде для быстрого ответа
+        const isVip = user.vip_pass_is_active;
+        const registrationWindow = isVip ? 30 * 60 : 20 * 60; // 30 или 20 минут в секундах
+        if (secondsRemaining > registrationWindow) {
+            const minutesLeft = Math.ceil((secondsRemaining - registrationWindow) / 60);
+            showAlert(`Реєстрація ще не відкрита. Зачекайте приблизно ${minutesLeft} хв.`);
+            return;
+        }
+
+        // Если проверка пройдена, отправляем запрос на сервер
+        try {
+            const response = await fetch(`http://localhost:8123/blitz/${blitzInfo.blitz_id}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: user.user_id }),
+            });
+            const result = await response.json();
+
+            // Показываем пользователю сообщение от бэкенда
+            showAlert(result.message);
+
+            // Если регистрация успешна, обновляем данные о блице
+            if (response.ok && result.ok) {
+                fetchBlitzStatus();
+                await fetchUser()
+            }
+        } catch (error) {
+            console.error("Registration failed:", error);
+            showAlert("Сталася помилка під час реєстрації. Спробуйте пізніше.");
+        }
+    };
+
+
+    // Рендеринг компонента
     if (isLoading || (!isBlitzActive && !secondsRemaining)) {
         return null;
     }
 
     return (
-        <CardWrapper className="card-wrapper">
+        <CardWrapper className="card-wrapper" onClick={handleRegisterClick}>
             <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
             <CupIcon className="cup-icon" src={Config.IMAGES.cup} alt="tournament cup"/>
 
-            {/* Условный рендеринг: показываем либо кнопку, либо таймер */}
             {isBlitzActive ? (
                 <EnterButton>Увійти в матч</EnterButton>
             ) : (
-                secondsRemaining > 0 && blitzInfo && (
+                secondsRemaining > 0 && blitzInfo?.info && (
                     <ContentWrapper>
-                        <Title>{blitzInfo.title || 'БЛІЦ ТУРНІР'}</Title>
+                        <Title>{blitzInfo.info.title || 'БЛІЦ ТУРНІР'}</Title>
                         <Countdown>ДО СТАРТУ: {formatTime(secondsRemaining)}</Countdown>
                     </ContentWrapper>
                 )

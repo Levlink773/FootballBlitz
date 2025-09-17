@@ -659,8 +659,8 @@ export function AlertModal({
                                onClose = () => {
                                },
                                autoCloseMs = 3000,
-                               width = 320,
-                               height = 200,
+                               width = 350,
+                               height = 150,
                                maxFont = 22,
                                minFont = 10,
                            }) {

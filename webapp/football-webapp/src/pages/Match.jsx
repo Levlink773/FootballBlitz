@@ -6,7 +6,7 @@ import styles from '../css_files/Main.module.css';
 
 export default function MatchCard({mockUser}) {
     return (
-        <div className={styles.mainContainer}>
+        <div className={styles.mainContainer} data-modal-root>
             <Header user={mockUser} />
             <img
                 src={Config.IMAGES.match_background}

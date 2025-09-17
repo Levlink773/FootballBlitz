@@ -17,16 +17,17 @@ from webapp.fastapi.ws_manager import redis_listener, manager
 @asynccontextmanager
 async def lifespan(app_fastapi: FastAPI):
     # стартуем redis_listener в фоне с авто-reconnect
-    # loop = asyncio.get_event_loop()
-    # app_fastapi.state._redis_task = loop.create_task(_run_redis_listener_with_retries())
+    loop = asyncio.get_event_loop()
+    app_fastapi.state._redis_task = loop.create_task(_run_redis_listener_with_retries())
     print("STARTED")
     yield
     # shutdown listener
-    # app_fastapi.state._redis_task.cancel()
-    # try:
-    #     await app_fastapi.state._redis_task
-    # except asyncio.CancelledError:
-    #     pass
+    app_fastapi.state._redis_task.cancel()
+    try:
+        await app_fastapi.state._redis_task
+    except asyncio.CancelledError:
+        pass
+
 
 async def _run_redis_listener_with_retries():
     backoff = 0.5
@@ -47,7 +48,7 @@ app_fastapi = FastAPI(lifespan=lifespan)
 # (опционально) CORS, если нужен доступ из браузера
 app_fastapi.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],            # ограничьте в prod
+    allow_origins=["*"],  # ограничьте в prod
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -79,6 +80,8 @@ app_fastapi.include_router(blitz_router)
 @app_fastapi.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
 @app_fastapi.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket, user_id: int = Query(None)):
     # Validate token and find user_id. В вашем проекте лучше проверять токен JWT или сессии.

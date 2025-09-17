@@ -53,7 +53,8 @@ async def message_middleware(
         if not character.reminder:
             logger.warning("Not reminder for character %s", character.id)
             await RemniderCharacterService.create_character_reminder(character_id=character.id)
-            character = await CharacterService.get_character(character.id)
+            characters: list[Character] = await CharacterService.get_characters(character.id)
+            character :Character = characters[0] if characters else None
     logger.info(f"Main character {character}")
     data.update({"user":user, "character": character})
     result = await handler(event, data)

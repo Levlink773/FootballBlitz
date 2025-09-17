@@ -72,3 +72,27 @@ export const instantSellPlayer = async (characterId) => {
 
     return response.json();
 };
+/**
+ * Відправляє запит на купівлю гравця з трансферного ринку.
+ * @param {number} transferId - ID трансферу.
+ * @param {number} buyerUserId - ID користувача, який купує.
+ * @returns {Promise<any>} - Результат відповіді сервера.
+ */
+export const buyPlayerFromTransfer = async (transferId, buyerUserId) => {
+    const response = await fetch(`http://localhost:8123/transfers/${transferId}/buy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ buyer_user_id: buyerUserId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        // Викидаємо помилку з повідомленням від бекенда
+        throw new Error(data.detail || 'Не вдалося купити гравця.');
+    }
+
+    return data;
+};

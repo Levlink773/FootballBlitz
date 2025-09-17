@@ -33,72 +33,9 @@ def reminder_to_dict(r) -> dict:
         "time_training_seconds": int(getattr(r, "time_training_seconds")) if getattr(r, "time_training_seconds", None) is not None else None,
         "education_reward_date": getattr(r, "education_reward_date").isoformat() if getattr(r, "education_reward_date", None) else None,
     }
-
-
-@router.get("/status/{user_id}")
-async def is_user_main_character_in_training(user_id: int):
-    """
-    Возвращает {"in_training": bool} — тренируется ли главный персонаж пользователя.
-    """
-    user = await UserService.get_user(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-
-    main_char = getattr(user, "main_character", None)
-    if not main_char:
-        return {"in_training": False}
-
-    reminder = getattr(main_char, "reminder", None)
-    if not reminder:
-        return {"in_training": False}
-
-    return {"in_training": bool(reminder.character_in_training)}
-
-
-@router.get("/remaining/{user_id}")
-async def training_remaining_seconds(user_id: int):
-    """
-    Возвращает количество секунд до окончания и общую длительность тренировки
-    главного персонажа пользователя.
-    Если тренировки нет — возвращает {"seconds_remaining": 0, "total_training_seconds": 0}.
-    """
-    user = await UserService.get_user(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-
-    main_char = getattr(user, "main_character", None)
-    if not main_char:
-        return {"seconds_remaining": 0, "total_training_seconds": 0}
-
-    reminder = getattr(main_char, "reminder", None)
-    if not reminder:
-        return {"seconds_remaining": 0, "total_training_seconds": 0}
-
-    if not reminder.character_in_training:
-        return {"seconds_remaining": 0, "total_training_seconds": 0}
-
-    time_start = getattr(reminder, "time_start_training", None)
-    total_seconds = getattr(reminder, "time_training_seconds", None)
-
-    if not time_start or not total_seconds:
-        return {"seconds_remaining": 0, "total_training_seconds": 0}
-
-    end_time = time_start + timedelta(seconds=int(total_seconds))
-    now = datetime.now()
-    remaining = int((end_time - now).total_seconds())
-    if remaining < 0:
-        remaining = 0
-
-    # --- ЗМІНА ТУТ ---
-    # Повертаємо не тільки залишок, а й загальну тривалість
-    return {
-        "seconds_remaining": remaining,
-        "total_training_seconds": int(total_seconds)
-    }
-
-
 @router.post("/start", status_code=status.HTTP_200_OK)
 async def start_training(body: StartTrainingBody):
+    logger.info("Training start")
     """
     Запуск тренировки для главного персонажа пользователя.
     """
@@ -180,4 +117,65 @@ async def start_training(body: StartTrainingBody):
         "reminder": reminder_to_dict(reminder_fresh),
         "seconds_remaining": seconds_remaining,
         "message": f"Тренировка начата, списано {body.cost_energy} энергии"
+    }
+
+@router.get("/status/{user_id}")
+async def is_user_main_character_in_training(user_id: int):
+    """
+    Возвращает {"in_training": bool} — тренируется ли главный персонаж пользователя.
+    """
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    main_char = getattr(user, "main_character", None)
+    if not main_char:
+        return {"in_training": False}
+
+    reminder = getattr(main_char, "reminder", None)
+    if not reminder:
+        return {"in_training": False}
+
+    return {"in_training": bool(reminder.character_in_training)}
+
+
+@router.get("/remaining/{user_id}")
+async def training_remaining_seconds(user_id: int):
+    """
+    Возвращает количество секунд до окончания и общую длительность тренировки
+    главного персонажа пользователя.
+    Если тренировки нет — возвращает {"seconds_remaining": 0, "total_training_seconds": 0}.
+    """
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    main_char = getattr(user, "main_character", None)
+    if not main_char:
+        return {"seconds_remaining": 0, "total_training_seconds": 0}
+
+    reminder = getattr(main_char, "reminder", None)
+    if not reminder:
+        return {"seconds_remaining": 0, "total_training_seconds": 0}
+
+    if not reminder.character_in_training:
+        return {"seconds_remaining": 0, "total_training_seconds": 0}
+
+    time_start = getattr(reminder, "time_start_training", None)
+    total_seconds = getattr(reminder, "time_training_seconds", None)
+
+    if not time_start or not total_seconds:
+        return {"seconds_remaining": 0, "total_training_seconds": 0}
+
+    end_time = time_start + timedelta(seconds=int(total_seconds))
+    now = datetime.now()
+    remaining = int((end_time - now).total_seconds())
+    if remaining < 0:
+        remaining = 0
+
+    # --- ЗМІНА ТУТ ---
+    # Повертаємо не тільки залишок, а й загальну тривалість
+    return {
+        "seconds_remaining": remaining,
+        "total_training_seconds": int(total_seconds)
     }

@@ -61,9 +61,12 @@ class ParticipantsResponse(BaseModel):
     max_participants: Optional[int] = None
 
 
+# --- ИЗМЕНЕНО ---
+# Добавляем ID блица и делаем info более гибким
 class BlitzResponse(BaseModel):
+    blitz_id: Optional[int] = None
     seconds_remaining: int
-    info: dict[str, str] = {"title": "", "participants": ""}
+    info: dict = {}
 
 
 # ---------- Helpers ----------
@@ -194,11 +197,11 @@ async def next_blitz_participants():
     )
 
 
+# --- ИЗМЕНЕНО ---
 @router.get("/next", response_model=BlitzResponse)
 async def seconds_to_next_blitz():
     """
-    Возвращает количество секунд до ближайшего грядущего блица.
-    Если нет будущих или ближайший уже начался — возвращает 0.
+    Возвращает количество секунд и ID до ближайшего грядущего блица.
     """
     blitz_list = await BlitzService.get_all_blitz()
     if not blitz_list:
@@ -211,7 +214,15 @@ async def seconds_to_next_blitz():
 
     next_blitz: Blitz = sorted(future, key=lambda b: b.start_at)[0]
     seconds = max(0, int((next_blitz.start_at - now).total_seconds()))
-    return BlitzResponse(seconds_remaining=seconds, info={
-        "title": BLITZ_TYPE_NAMES.get(next_blitz.blitz_type, str(next_blitz.blitz_type)),
-        "participants": f"{len(next_blitz.users)} / {BLITZ_LIMITS.get(next_blitz.blitz_type, None)}",
-    })
+    max_participants = BLITZ_LIMITS.get(next_blitz.blitz_type)
+
+    # Возвращаем расширенную информацию, включая ID
+    return BlitzResponse(
+        blitz_id=next_blitz.id,
+        seconds_remaining=seconds,
+        info={
+            "title": BLITZ_TYPE_NAMES.get(next_blitz.blitz_type, str(next_blitz.blitz_type)),
+            "participants_count": len(next_blitz.users),
+            "max_participants": max_participants,
+        }
+    )
