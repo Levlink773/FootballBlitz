@@ -51,8 +51,7 @@ const ShopBox = ({title, originalPrice, discountedPrice, discount, image, imageS
     );
 };
 
-const Shop = () => {
-    // add a small mount class to trigger entrance animations (useful when this component is mounted)
+const Shop = ({ onOpenModal }) => {
     useEffect(() => {
         const root = document.querySelector(`.${styles.shopContainer}`);
         if (!root) return;
@@ -63,7 +62,13 @@ const Shop = () => {
     return (
         <div className={styles.shopContainer}>
             {/* Featured Item Section */}
-            <div className={styles.featuredItem} aria-hidden="false">
+            {/* Add onClick to open the VIP modal */}
+            <div
+                className={styles.featuredItem}
+                aria-hidden="false"
+                onClick={() => onOpenModal('vip')}
+                style={{ cursor: 'pointer' }}
+            >
                 <img src={Config.IMAGES.bannerImage} alt="Featured background" className={styles.featuredBg}/>
                 <span className={styles.popularTag} aria-hidden="true">НАЙПОПУЛЯРНІШЕ</span>
                 <div className={styles.featuredContent}>
@@ -74,13 +79,23 @@ const Shop = () => {
 
                         <div className={styles.featuredFooter}>
                             <span className={styles.featuredPrice}>999,99 грн</span>
-                            <button className={styles.buyButton} aria-label="Купити VIP-пасс">Купити</button>
+                            {/* The button's onClick also triggers the modal and stops propagation */}
+                            <button
+                                className={styles.buyButton}
+                                aria-label="Купити VIP-пасс"
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent parent onClick from firing too
+                                    onOpenModal('vip');
+                                }}
+                            >
+                                Купити
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Boxes Section */}
+            {/* Boxes Section (unchanged) */}
             <div className={styles.boxesContainer}>
                 {BOX_ITEMS.map((item, idx) => (
                     <ShopBox
@@ -100,32 +115,54 @@ const Shop = () => {
             <div className={styles.currencyContainer}>
                 <div
                     className={`${styles.currencyItem} ${styles.coinItem}`}
+                    // Add onClick to open the coin purchase modal
+                    onClick={() => onOpenModal('coin')}
                     style={{
                         backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%), url(${Config.IMAGES.gold_small_line})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
+                        backgroundRepeat: 'no-repeat',
+                        cursor: 'pointer' // Add pointer cursor
                     }}
                 >
                     <img src={Config.IMAGES.big_coin} alt="Монети" className={styles.currencyBigImg} />
                     <div className={styles.currencyOverlay}>
                         <span className={styles.currencyLabel}>Монети</span>
-                        <button className={styles.buyButton}>Купити</button>
+                        <button
+                            className={styles.buyButton}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenModal('coin');
+                            }}
+                        >
+                            Купити
+                        </button>
                     </div>
                 </div>
                 <div
                     className={`${styles.currencyItem} ${styles.energyItem}`}
+                    // Add onClick to open the energy purchase modal
+                    onClick={() => onOpenModal('energy')}
                     style={{
                         backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.28) 100%), url(${Config.IMAGES.train_line})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
+                        backgroundRepeat: 'no-repeat',
+                        cursor: 'pointer' // Add pointer cursor
                     }}
                 >
                     <img src={Config.IMAGES.big_energy} alt="Енергія" className={styles.currencyBigImg} />
                     <div className={styles.currencyOverlay}>
                         <span className={styles.currencyLabel}>Енергія</span>
-                        <button className={styles.buyButton}>Купити</button>
+                        <button
+                            className={styles.buyButton}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenModal('energy');
+                            }}
+                        >
+                            Купити
+                        </button>
                     </div>
                 </div>
             </div>

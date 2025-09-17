@@ -34,17 +34,22 @@
     margin-bottom: 80px;
 }
 
-/* Add animations to child elements of the wrapper */
-.contentWrapper.animate > *,
+/* Анімуємо тільки заголовок, блок щоденної нагороди та підзаголовок */
+.contentWrapper.animate > .pageTitle,
+.contentWrapper.animate > .dailyReward,
+.contentWrapper.animate > .sectionTitle {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Анімуємо картки завдань окремо (вони вже мають інлайн-затримку з JSX) */
 .contentWrapper.animate .tasksGrid > div {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* Stagger animations for a nice effect */
-.contentWrapper.animate > *:nth-child(1) { animation-delay: 0s; }
-.contentWrapper.animate > *:nth-child(2) { animation-delay: 100ms; }
-.contentWrapper.animate > *:nth-child(3) { animation-delay: 200ms; }
-.contentWrapper.animate > *:nth-child(4) { animation-delay: 300ms; }
+/* Задаємо затримки тільки для перших трьох елементів */
+.contentWrapper.animate > .pageTitle { animation-delay: 0s; }
+.contentWrapper.animate > .dailyReward { animation-delay: 100ms; }
+.contentWrapper.animate > .sectionTitle { animation-delay: 200ms; }
 
 
 .pageTitle {

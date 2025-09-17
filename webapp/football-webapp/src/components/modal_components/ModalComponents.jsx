@@ -232,6 +232,7 @@ function Box({children, style = {}, className = "", onClose}) {
         top: 10,
         width: 32,
         height: 32,
+        zIndex: 2,
         borderRadius: 10,
         border: "none",
         background: "rgba(255,255,255,0.08)",
@@ -380,7 +381,28 @@ export function TopChancesAlert({ teams = [] }) {
 }
 
 /* ---------- PlayerModal (Більш виразний дизайн) ---------- */
-export function PlayerModal({player = {}, onBuy, onSell}) {
+export function PlayerModal({
+                                player = {},
+                                isOwner = false, // <-- Новий пропс, що визначає, чи це гравець користувача
+                                onBuy,
+                                onSell, // Тепер це функція для переходу до SetPriceModal
+                                onRemoveFromSale, // <-- Нова функція
+                                onInstantSell,
+                                onClose,
+                                isProcessing = false, // <-- Новий пропс для блокування кнопок
+}) {
+    console.log("Player: ", player);
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onClose]);
     const statItemStyle = {
         display: "contents" // Дозволяє дочірнім елементам поводитись як прямі нащадки grid
     };
@@ -393,13 +415,13 @@ export function PlayerModal({player = {}, onBuy, onSell}) {
     };
 
     return (
-        <Box style={{padding: 16}}>
+        <Box style={{padding: 16}} onClose={onClose}>
             <HeaderBar title="Інформація про гравця"/>
 
             <div style={{display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap"}}>
                 <div style={{flex: "0 0 auto", width: 92, maxWidth: "28%", boxSizing: "border-box"}}>
                     <motion.img
-                        src={player.image || "/assets/img172.png"}
+                        src={player.images.avatar || "/assets/img172.png"}
                         alt={player.name}
                         style={{
                             width: "100%",
@@ -434,8 +456,6 @@ export function PlayerModal({player = {}, onBuy, onSell}) {
                             style={statValueStyle}>{player.power ?? "—"}</span></div>
                         <div style={statItemStyle}><span style={statLabelStyle}>Талант:</span><span
                             style={statValueStyle}>{player.talent ?? "—"}</span></div>
-                        <div style={statItemStyle}><span style={statLabelStyle}>Точність:</span><span
-                            style={statValueStyle}>{player.accuracy ?? "—"}</span></div>
                     </div>
 
                     <div style={{
@@ -445,15 +465,31 @@ export function PlayerModal({player = {}, onBuy, onSell}) {
                         alignItems: "center",
                         flexWrap: "wrap"
                     }}>
-                        <GradientButton onClick={onBuy}>Купити</GradientButton>
-                        <GradientButton onClick={onSell} variant="alt">Продати</GradientButton>
-                        <div style={{
-                            marginLeft: "auto",
-                            color: "var(--text-secondary)",
-                            fontSize: 12,
-                            fontWeight: 500
-                        }}>
-                            Продавець: {player.seller || "—"}
+                        {/* --- УМОВНИЙ РЕНДЕРИНГ КНОПОК --- */}
+                        {isOwner ? (
+                            <>
+                                {player.transfer ? (
+                                    <GradientButton onClick={onRemoveFromSale} variant="danger" disabled={isProcessing}>
+                                        {isProcessing ? 'Знімаємо...' : 'Зняти з продажу'}
+                                    </GradientButton>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: '20px', width: '100%', height: 70, position: 'relative', right: 60 }}>
+                                        <GradientButton onClick={onSell} variant="alt" disabled={isProcessing} style={{ flex: 1 }}>
+                                            Продати на ринку
+                                        </GradientButton>
+                                        <GradientButton onClick={onInstantSell} variant="danger" disabled={isProcessing} style={{ flex: 1 }}>
+                                            Продати моментально
+                                        </GradientButton>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <GradientButton onClick={onBuy} disabled={isProcessing}>
+                                {isProcessing ? 'Купуємо...' : 'Купити'}
+                            </GradientButton>
+                        )}
+                        <div style={{ marginLeft: "auto", /* ... */ }}>
+                            @{player.seller || player.owner?.user_name || "—"}
                         </div>
                     </div>
                 </div>
@@ -524,7 +560,7 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
     ]
 
     return (
-        <Box style={{padding: 16, maxWidth: 520}}>
+        <Box style={{padding: 16, maxWidth: 520, height: 480}}>
             <HeaderBar title={type === 'coin' ? "Купити монети": "Купити енергію"}/>
 
             <motion.div
@@ -862,6 +898,8 @@ export function SetPriceModal({
                                   maxPrice = 1000000,
                                   onConfirm = () => {},
                                   onClose = () => {},
+                                  onBack = () => {}, // <-- Новий пропс
+                                  isProcessing = false, // <-- Новий пропс для блокування кнопки
                               }) {
     const [price, setPrice] = useState(initialPrice);
     const [isInputFocused, setInputFocused] = useState(false);
@@ -887,8 +925,8 @@ export function SetPriceModal({
         if (num > maxPrice) num = maxPrice;
         setPrice(num);
     }
-
     function handleConfirm() {
+        if (isProcessing) return;
         const p = Number(price || 0);
         if (p < minPrice || p > maxPrice) return;
         onConfirm(p);
@@ -924,10 +962,13 @@ export function SetPriceModal({
             </div>
 
             <div style={{display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20}}>
-                <SecondaryButton onClick={onClose}>Відміна</SecondaryButton>
-                <GradientButton onClick={handleConfirm} variant="alt" style={{minWidth: 140}}>
-                    Підтвердити
-                </GradientButton>
+                {/* --- ДОДАНО КНОПКУ НАЗАД --- */}
+                <SecondaryButton onClick={onBack}>Назад</SecondaryButton>
+                <div style={{display: "flex", gap: 10}}>
+                    <GradientButton onClick={handleConfirm} variant="alt" style={{minWidth: 140}}>
+                        {isProcessing ? 'Обробка...' : 'Підтвердити'}
+                    </GradientButton>
+                </div>
             </div>
         </Box>
     );

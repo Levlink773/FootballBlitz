@@ -1,5 +1,7 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
+from database.models.character import Character
 from database.models.transfer_character import TransferCharacter, TransferType
 from database.session import get_session
 
@@ -45,7 +47,16 @@ class TransferCharacterService:
                 )
                 session.add(transfer)
                 await session.flush()
-                return transfer
+                q = (
+                    select(TransferCharacter)
+                    .options(
+                        selectinload(TransferCharacter.character)
+                        .selectinload(Character.owner)  # подгрузим owner у character
+                    )
+                    .where(TransferCharacter.id == transfer.id)
+                )
+                result = await session.scalar(q)
+                return result
 
     @classmethod
     async def update(

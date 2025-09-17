@@ -1,29 +1,30 @@
-import React, { useState } from 'react';
+// src/components/NavigationBar.jsx
+
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import hooks
 import styles from '../css_files/NavigationBar.module.css';
 import Config from "../config.js";
 
-// Мы объединили все элементы навигации в один массив для гибкости.
-// Теперь легко менять их порядок, добавлять или удалять.
+// Додаємо властивість 'path' до кожного елемента
 const navItems = [
-    { id: 'training', label: 'Тренування', icon: Config.IMAGES.dumbbell_icon },
-    { id: 'home', label: 'Головна', icon: Config.IMAGES.home_icon },
-    { id: 'tournaments', label: 'Турніри', icon: Config.IMAGES.cup_icon },
-    { id: 'transfers', label: 'Трансфери', icon: Config.IMAGES.stadion_icon },
-    { id: 'learning', label: 'Учбовий центр', icon: Config.IMAGES.character_icon },
-    { id: 'ratings', label: 'Рейтинги', icon: Config.IMAGES.rating_icon },
+    { id: 'training', label: 'Тренування', icon: Config.IMAGES.dumbbell_icon, path: '/trainings' },
+    { id: 'home', label: 'Головна', icon: Config.IMAGES.home_icon, path: '/' },
+    { id: 'tournaments', label: 'Турніри', icon: Config.IMAGES.cup_icon, path: '/blitz' },
+    { id: 'transfers', label: 'Трансфери', icon: Config.IMAGES.stadion_icon, path: '/transfer' },
+    { id: 'learning', label: 'Учбовий центр', icon: Config.IMAGES.character_icon, path: '/education_centre' },
+    { id: 'ratings', label: 'Рейтинги', icon: Config.IMAGES.rating_icon, path: '/rating' },
 ];
 
-// Улучшенный дочерний компонент для каждого элемента навигации
 const NavItem = ({ item, isActive, onClick }) => {
-    // Динамически создаем классы. Если кнопка активна, добавляется класс 'active'.
     const itemClasses = `${styles.navItem} ${isActive ? styles.active : ''}`;
 
+    // Передаємо item.path в обробник
     return (
-        <button className={itemClasses} onClick={onClick} aria-label={item.label}>
+        <button className={itemClasses} onClick={() => onClick(item.path)} aria-label={item.label}>
             <img
                 className={styles.navIcon}
                 src={item.icon}
-                alt="" // alt оставляем пустым, т.к. aria-label на кнопке уже описывает действие
+                alt=""
             />
             <span className={styles.navLabel}>{item.label}</span>
         </button>
@@ -31,8 +32,14 @@ const NavItem = ({ item, isActive, onClick }) => {
 };
 
 export const NavigationBar = () => {
-    // Состояние для отслеживания активной вкладки. 'home' будет активна по умолчанию.
-    const [activeItem, setActiveItem] = useState('home');
+    // Ініціалізуємо хуки
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Функція для переходу за вказаним шляхом
+    const handleNavigate = (path) => {
+        navigate(path);
+    };
 
     return (
         <nav className={styles.navigationBar}>
@@ -40,8 +47,9 @@ export const NavigationBar = () => {
                 <NavItem
                     key={item.id}
                     item={item}
-                    isActive={activeItem === item.id}
-                    onClick={() => setActiveItem(item.id)}
+                    // Активність визначається порівнянням шляху елемента з поточним URL
+                    isActive={location.pathname === item.path}
+                    onClick={handleNavigate}
                 />
             ))}
         </nav>

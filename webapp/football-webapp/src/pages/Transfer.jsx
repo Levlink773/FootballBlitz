@@ -9,7 +9,7 @@ import TransferOption from "../components/transfer/Transfer.jsx";
 
 export default function TransferCard({user}) {
     return (
-        <div className={styles.mainContainer}>
+        <div className={styles.mainContainer} data-modal-root>
             <Header user={user} />
             <img
                 src={Config.IMAGES.transfer_background}

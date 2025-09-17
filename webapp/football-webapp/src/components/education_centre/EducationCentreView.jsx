@@ -21,7 +21,7 @@ const ButtonReward = ({ rewards, onClick, daily = false }) => {
         <button className={`${styles.getRewardButton} ${styles.glowingButton}`} onClick={onClick}>
             <div className={styles.rewardAmount}>
                 {/* Замість суми тепер іконка енергії */}
-                <img src={Config.IMAGES.energy_icon} alt="energy reward" />
+                <img src={Config.IMAGES.energy} alt="energy reward" />
                 {/* Іконка монети залишається */}
                 <img src={Config.IMAGES.coin} alt="coin reward" />
             </div>
