@@ -1,18 +1,24 @@
 // src/hooks/useWebSocket.js
 import { useEffect, useRef } from 'react';
-import {showAlert} from "./src/alertService.jsx";
+import { showAlert } from "./src/alertService.jsx";
 
-const useWebSocket = (userId) => {
+/**
+ * @param {string|null} userId
+ * @param {{ onShowAlert?: (payload) => void }} options
+ */
+const useWebSocket = (userId, options = {}) => {
     const ws = useRef(null);
+    const onShowAlertRef = useRef(options.onShowAlert);
+
+    // Обновляем ref на каждый ререндер, не пересоздавая сокет
+    useEffect(() => {
+        onShowAlertRef.current = options.onShowAlert;
+    }, [options.onShowAlert]);
 
     useEffect(() => {
-        // Не встановлюємо з'єднання, якщо немає userId
-        if (!userId) {
-            return;
-        }
+        if (!userId) return;
 
-        // URL вашого WebSocket сервера
-        const wsUrl = `ws://localhost:8123/ws?user_id=${userId}`; // Замініть на ваш URL в продакшені
+        const wsUrl = `ws://localhost:8123/ws?user_id=${userId}`;
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
@@ -24,14 +30,23 @@ const useWebSocket = (userId) => {
                 const data = JSON.parse(event.data);
                 console.log("Received message:", data);
 
-                // Обробляємо подію, яку ми відправили з бота
-                if (data.type === 'show_alert' && data.payload?.message) {
-                    showAlert(data.payload.message, {html: data.payload.html}); // Викликаємо alert!
+                if (data.type === 'show_alert' && data.payload) {
+                    // Если пользователь передал свою функцию — вызываем её.
+                    if (typeof onShowAlertRef.current === 'function') {
+                        try {
+                            onShowAlertRef.current(data.payload);
+                            showAlert(data.payload.message, { html: data.payload.html });
+                        } catch (err) {
+                            console.error('onShowAlert handler threw:', err);
+                            // fallback к дефолтному алерту
+                        }
+                    } else {
+                        // По умолчанию используем локальный showAlert
+                        showAlert(data.payload.message, { html: data.payload.html });
+                    }
                 }
 
-                // Тут можна додати обробники для інших типів подій (data.type)
-                // наприклад, оновлення балансу, завершення тренування тощо.
-
+                // ...обработка других типов сообщений...
             } catch (error) {
                 console.error("Failed to parse WebSocket message:", error);
             }
@@ -39,20 +54,18 @@ const useWebSocket = (userId) => {
 
         ws.current.onclose = () => {
             console.log("WebSocket disconnected");
-            // Тут можна реалізувати логіку автоматичного перепідключення
         };
 
         ws.current.onerror = (error) => {
             console.error("WebSocket error:", error);
         };
 
-        // Функція для очищення при розмонтуванні компонента
         return () => {
             if (ws.current) {
                 ws.current.close();
             }
         };
-    }, [userId]); // Перестворюємо з'єднання, якщо змінився userId
+    }, [userId]); // сокет пересоздаётся только при изменении userId
 };
 
 export default useWebSocket;

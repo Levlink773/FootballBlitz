@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from api.monobank.create_payment import CreatePayment
+from bot.routers.stores.vip_pass.types import VipPassTypes
 from services.payment_service import PaymentServise
 
 # Adjust these imports to match your project structure
@@ -33,7 +34,7 @@ class EnergyRequest(BasePaymentRequest):
 
 
 class VipPassRequest(BasePaymentRequest):
-    type_vip_pass: Any = Field(..., description="Identifier of VIP pass (string/int/enum)")
+    type_vip_pass: Any = Field(default=VipPassTypes.month_pass, description="Identifier of VIP pass (string/int/enum)")
 
 
 def _prepare_result(url_resp: dict, created_payment) -> dict:
@@ -81,6 +82,7 @@ async def create_box_payment(req: BoxRequest):
 
     payment_obj = await PaymentServise.create_payment(price=req.price, user_id=req.user_id, order_id=order_id)
     if not payment_obj:
+
         raise HTTPException(status_code=500, detail="Не удалось сохранить запись платежа в БД")
 
     await PaymentServise.create_box_payment(order_id=payment_obj.order_id, type_box=req.type_box)

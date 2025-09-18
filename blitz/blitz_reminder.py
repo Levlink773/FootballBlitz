@@ -11,6 +11,7 @@ from database.models.blitz import Blitz
 from database.models.user_bot import UserBot
 from logging_config import logger
 from services.user_service import UserService
+from webapp.fastapi.publisher import make_payload, publish_event, make_payloads_for_users, publish_batch
 
 
 class BlitzTextGetter:
@@ -119,6 +120,17 @@ class BlitzReminder:
         if len(users) >= self.necessary_count_users:
             users = users[:self.necessary_count_users]
             logger.info(f"Users len 1: {len(users)}")
+            payloads = make_payloads_for_users(
+                "show_alert",
+                users,
+                payload_factory=lambda u: {
+                    "message": "Бліц турнір почався!"
+                }
+            )
+
+            # 2а) Лучший вариант — отправить пакетами через pipeline
+            results = await publish_batch(payloads, batch_size=32)
+            logger.info("publish_batch results: sent=%s total=%s", sum(1 for r in results if r), len(results))
             await send_message_all_users(users, self.blitz_text_getter.start_tournament(), photo_path=START_BLITZ_PHOTO)
         else:
             await UserService.add_energy_to_users(
@@ -136,6 +148,16 @@ class BlitzReminder:
 
 ⚽️ Залишайся з нами, новий бліц-турнір вже скоро, дивись на графіку!
             '''
+            payloads = make_payloads_for_users(
+                "show_alert",
+                users,
+                payload_factory=lambda u: {
+                    "message": f"❌ Гра не відбулася. \n {len(users)} / {self.necessary_count_users}"}
+            )
+
+            # 2а) Лучший вариант — отправить пакетами через pipeline
+            results = await publish_batch(payloads, batch_size=32)
+            logger.info("publish_batch results: sent=%s total=%s", sum(1 for r in results if r), len(results))
             await send_message_all_users(users, cancel_blitz_text)
             return False
         return True

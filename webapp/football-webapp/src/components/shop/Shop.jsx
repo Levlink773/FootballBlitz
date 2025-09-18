@@ -32,7 +32,7 @@ const BOX_ITEMS = [
     }
 ];
 
-const ShopBox = ({title, originalPrice, discountedPrice, discount, image, imageStyle, index}) => {
+const ShopBox = ({ title, originalPrice, discountedPrice, discount, image, imageStyle, index, onBuy }) => {
     // using inline style var --i to stagger animations
     const style = {['--i']: index};
     return (
@@ -46,12 +46,14 @@ const ShopBox = ({title, originalPrice, discountedPrice, discount, image, imageS
                 <span className={styles.discountedPrice}>{discountedPrice}</span>
             </div>
             <span className={styles.discountTag}>{discount}</span>
-            <button className={styles.boxBuy} aria-label={`Купити ${title}`}>Купити</button>
+            <button className={styles.boxBuy} aria-label={`Купити ${title}`} onClick={onBuy}>
+                Купити
+            </button>
         </div>
     );
 };
 
-const Shop = ({ onOpenModal }) => {
+const Shop = ({ onOpenModal, onPurchase }) => {
     useEffect(() => {
         const root = document.querySelector(`.${styles.shopContainer}`);
         if (!root) return;
@@ -101,16 +103,14 @@ const Shop = ({ onOpenModal }) => {
                 {BOX_ITEMS.map((item, idx) => (
                     <ShopBox
                         key={item.id}
-                        title={item.title}
-                        originalPrice={item.originalPrice}
-                        discountedPrice={item.discountedPrice}
-                        discount={item.discount}
-                        image={item.image}
-                        imageStyle={item.imageStyle}
+                        {...item} // Pass all item properties
                         index={idx}
+                        // Pass a function to handle the purchase for this specific item
+                        onBuy={() => onPurchase('box', item)}
                     />
                 ))}
             </div>
+
 
             {/* Currency Purchase Section */}
             <div className={styles.currencyContainer}>

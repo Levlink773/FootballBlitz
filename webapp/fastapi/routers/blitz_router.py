@@ -79,6 +79,51 @@ class ActiveBlitzResponse(BaseModel):
     count: int = 0
     match_ids: List[str] = []
 
+class RegisterStatusResponse(BaseModel):
+    blitz_id: int
+    user_id: int
+    registered: bool
+    participants_count: int = 0
+    max_participants: Optional[int] = None
+    message: Optional[str] = None
+
+
+def _is_user_in_blitz_users(users_list, user) -> bool:
+    """
+    Универсальная проверка: users_list может содержать объекты с полем user_id,
+    объекты с вложенным .user, или просто числовые id.
+    """
+    if not users_list:
+        return False
+
+    target_ids = {getattr(user, "user_id", None), getattr(user, "id", None)}
+    # убираем None
+    target_ids.discard(None)
+
+    for u in users_list:
+        if u is None:
+            continue
+        # если просто число (id)
+        if isinstance(u, int):
+            if u in target_ids:
+                return True
+            continue
+
+        # если объект BlitzUser-like с полем user_id
+        u_user_id = getattr(u, "user_id", None)
+        if u_user_id in target_ids:
+            return True
+
+        # если вложенный user
+        inner = getattr(u, "user", None)
+        if inner is not None:
+            inner_ids = {getattr(inner, "user_id", None), getattr(inner, "id", None)}
+            inner_ids.discard(None)
+            if inner_ids & target_ids:
+                return True
+
+    return False
+
 
 @router.get("/active", response_model=ActiveBlitzResponse)
 async def blitz_is_active():
@@ -166,7 +211,41 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
         raise HTTPException(status_code=500, detail="Внутрішня помилка при реєстрації")
 
     return RegisterResponse(ok=True, message="Успішна реєстрація на бліц", blitz_id=blitz_id)
+@router.get("/{blitz_id}/is_registered/{user_id}", response_model=RegisterStatusResponse)
+async def is_user_registered_in_blitz(blitz_id: int, user_id: int):
+    """
+    Проверяет, зарегистрирован ли пользователь (user_id) в блиц (blitz_id).
+    Возвращает registered=True/False, текущий count и max участников для типа блица.
+    """
+    # получаем пользователя (если у вас не нужно загружать пользователя — можно убрать этот запрос,
+    # но мы его делаем для валидации и совместимости с остальной логикой)
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не знайдений")
 
+    blitz = await BlitzService.get_blitz_by_id(blitz_id)
+    if not blitz:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Бліц з id {blitz_id} не знайдено")
+
+    users_list = getattr(blitz, "users", []) or []
+    participants_count = len(users_list) if users_list is not None else 0
+    max_participants = BLITZ_LIMITS.get(blitz.blitz_type)
+
+    try:
+        registered = _is_user_in_blitz_users(users_list, user)
+    except Exception as e:
+        logger.exception("Error checking registration for user %s in blitz %s: %s", user_id, blitz_id, e)
+        # на ошибке безопасно вернуть False, но логируем проблему
+        registered = False
+
+    return RegisterStatusResponse(
+        blitz_id=blitz_id,
+        user_id=user_id,
+        registered=registered,
+        participants_count=participants_count,
+        max_participants=max_participants,
+        message="Користувач зареєстрований" if registered else "Користувач не зареєстрований"
+    )
 
 @router.get("/next/participants", response_model=ParticipantsResponse)
 async def next_blitz_participants():

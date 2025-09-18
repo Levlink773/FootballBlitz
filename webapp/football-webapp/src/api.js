@@ -96,3 +96,108 @@ export const buyPlayerFromTransfer = async (transferId, buyerUserId) => {
 
     return data;
 };
+
+/**
+ * A helper function to parse price strings like "999,99 грн" into an integer number of cents/kopecks.
+ * @param {string} priceString - The price string to parse.
+ * @returns {number} The price in the smallest currency unit (e.g., kopecks).
+ */
+const parsePrice = (priceString) => {
+    if (typeof priceString !== 'string') return priceString;
+    const numberString = priceString.replace(/[^\d,]/g, '').replace(',', '.');
+    return Math.round(parseFloat(numberString));
+};
+
+/**
+ * A generic function to make a payment request to the backend.
+ * @param {string} endpoint - The API endpoint (e.g., '/payments/vip').
+ * @param {object} payload - The data to send in the request body.
+ * @returns {Promise<object>} The JSON response from the server.
+ */
+const createPaymentRequest = async (endpoint, payload) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Network response was not ok');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error(`Error creating payment for ${endpoint}:`, error);
+        throw error; // Re-throw the error to be caught by the component
+    }
+};
+
+// This URL should be configured properly for your environment
+const WEBHOOK_URL = "https://your-domain.com/api/v1/monobank/webhook";
+
+// --- Specific API Functions ---
+
+export const api = {
+    /**
+     * Creates a payment for a VIP Pass.
+     * @param {object} data - { userId, price, type }
+     */
+    createVipPayment: (data) => {
+        const payload = {
+            user_id: data.userId,
+            price: parsePrice(data.price), // Convert "999,99 грн" to 99999
+            name_product: "VIP Підписка",
+            webhook_url: WEBHOOK_URL,
+        };
+        return createPaymentRequest('/payments/vip', payload);
+    },
+
+    /**
+     * Creates a payment for a Coin Pack.
+     * @param {object} data - { userId, pack }
+     */
+    createCoinPayment: (data) => {
+        const payload = {
+            user_id: data.userId,
+            price: data.pack.price, // Assuming price is already an integer
+            name_product: `Монети ${data.pack.label}`,
+            webhook_url: WEBHOOK_URL,
+            count_money: parseInt(data.pack.label.replace('x', '')),
+        };
+        return createPaymentRequest('/payments/money', payload);
+    },
+
+    /**
+     * Creates a payment for an Energy Pack.
+     * @param {object} data - { userId, pack }
+     */
+    createEnergyPayment: (data) => {
+        const payload = {
+            user_id: data.userId,
+            price: data.pack.price,
+            name_product: `Енергія ${data.pack.label}`,
+            webhook_url: WEBHOOK_URL,
+            amount_energy: parseInt(data.pack.label.replace('x', '')),
+        };
+        return createPaymentRequest('/payments/energy', payload);
+    },
+
+    /**
+     * Creates a payment for a Box.
+     * @param {object} data - { userId, box }
+     */
+    createBoxPayment: (data) => {
+        const payload = {
+            user_id: data.userId,
+            price: parsePrice(data.box.discountedPrice), // Convert "75 грн" to 7500
+            name_product: data.box.title,
+            webhook_url: WEBHOOK_URL,
+            type_box: data.box.id,
+        };
+        return createPaymentRequest('/payments/box', payload);
+    },
+};

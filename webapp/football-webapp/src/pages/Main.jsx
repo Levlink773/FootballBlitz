@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useState} from "react";
 import styles from '../css_files/Main.module.css';
 import {Header} from "../components/Header.jsx";
 import {VipBanner} from "../components/main_components/VipBanner.jsx";
@@ -14,7 +14,6 @@ export const Main = ({initialUserFromServer}) => {
     const [user, setUser] = useState(initialUserFromServer);
     const vip_pass_status = user?.vip_pass_is_active;
     console.log(vip_pass_status);
-    useWebSocket(user?.user_id);
     return (
         <div className={styles.mainContainer} data-modal-root>
             <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>

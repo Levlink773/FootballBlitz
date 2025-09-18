@@ -15,7 +15,8 @@ _redis_client: redis.Redis | None = None
 def get_redis() -> redis.Redis:
     global _redis_client
     if _redis_client is None:
-        _redis_client = redis.from_url(REDIS_URL, decode_responses=False)  # мы отправляем байты
+        # Можно настроить max_connections по необходимости
+        _redis_client = redis.from_url(REDIS_URL, decode_responses=False, max_connections=48)
     return _redis_client
 
 
@@ -62,3 +63,71 @@ def make_payload(event_type: str, user_id: int | None = None, target: dict | Non
         "payload": payload or {},
         "ts": datetime.utcnow().isoformat() + "Z"
     }
+
+async def publish_batch(payloads: list[dict], batch_size: int = 50) -> list[bool]:
+    """
+    Публикует payloads пакетами через Redis pipeline.
+    Возвращает список bool — успех/неудача для каждого payload.
+    Pipeline уменьшает количество TCP round-trips.
+    """
+    if not payloads:
+        return []
+
+    r = get_redis()
+    results: list[bool] = []
+    # разбиваем на окна
+    for i in range(0, len(payloads), batch_size):
+        window = payloads[i:i + batch_size]
+        pipe = r.pipeline()
+        for p in window:
+            pipe.publish(REDIS_CHANNEL, json.dumps(p).encode())
+        try:
+            # execute вернёт list[int] с числом подписчиков для каждой publish
+            exec_res = await pipe.execute()
+            # True, если команда выполнена (нет исключения)
+            results.extend([True] * len(exec_res))
+        except Exception as e:
+            logger.exception("publish_batch pipeline failed for window start=%s err=%s", i, e)
+            # В случае падения pipeline — отмечаем неуспехы. Можно тут реализовать fallback на поэлементную отправку.
+            results.extend([False] * len(window))
+    return results
+
+
+async def publish_many_concurrent(payloads: list[dict], max_concurrency: int = 10) -> list[bool]:
+    """
+    Параллельная публикация с ограничением одновременных задач (Semaphore).
+    Полезно, если pipeline по какой-то причине недоступен или вам нужно
+    вызвать существующий publish_event (с retry-логикой).
+    """
+    if not payloads:
+        return []
+
+    sem = asyncio.Semaphore(max_concurrency)
+
+    async def _worker(p):
+        async with sem:
+            try:
+                ok = await publish_event(p)
+                return bool(ok)
+            except Exception as e:
+                logger.exception("publish_many_concurrent single publish failed err=%s payload=%s", e, p)
+                return False
+
+    tasks = [asyncio.create_task(_worker(p)) for p in payloads]
+    gathered = await asyncio.gather(*tasks, return_exceptions=True)
+    # convert exceptions to False
+    return [bool(r) and not isinstance(r, Exception) for r in gathered]
+
+
+# Утилита: собрать payloads для списка пользователей (пример)
+def make_payloads_for_users(event_type: str, users: list, payload_factory=lambda u: {}):
+    """
+    users — итерируемый объектов с .user_id или просто id.
+    payload_factory(user) -> payload dict
+    """
+    out = []
+    for u in users:
+        uid = getattr(u, "user_id", None) or (u if isinstance(u, (int, str)) else None)
+        p = make_payload(event_type=event_type, user_id=uid, payload=payload_factory(u))
+        out.append(p)
+    return out

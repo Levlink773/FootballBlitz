@@ -1,3 +1,4 @@
+import traceback
 from typing import Any
 
 from sqlalchemy import select, update
@@ -32,6 +33,7 @@ class PaymentServise:
                     await sess.commit()
                     return new_payment
                 except Exception as E:
+                    traceback.print_exc()
                     logger.error(f"err create payment: {E}")
 
     @classmethod
