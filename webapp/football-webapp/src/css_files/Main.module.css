@@ -315,89 +315,228 @@
     color: white;
     border: 1.5px solid rgba(190, 188, 255, 0.5);
 }
-/* контейнер-обёртка: центрируем внутри .mainContainer */
+/* Wrapper for the promo card, ensures proper centering */
 .promoCardWrapper {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     position: absolute;
-    top: 80px;              /* подвинь по вертикали при необходимости */
+    top: 80px;
     left: 50%;
     transform: translateX(-50%);
-    width: 400px;            /* фиксированная ширина карточки, подгоняй при необходимости */
-    z-index: 3;              /* поверх фона и большинства элементов */
+    width: min(400px, 90vw); /* Responsive width */
+    z-index: 3;
     pointer-events: auto;
 }
 
-/* внутренний сам серый полупрозрачный блок */
+/* The card itself, now with a premium "glassmorphism" effect */
 .promoCardContainer {
+    position: relative; /* Required for pseudo-elements like the border */
     width: 100%;
-    background: rgba(38,38,38,0.78); /* полупрозрачный серый */
-    backdrop-filter: blur(6px);      /* легкий блюр фона */
-    border-radius: 14px;
-    min-height: 420px;
-    padding: 14px;
+    background: rgba(28, 28, 30, 0.75); /* Dark, semi-transparent background */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 20px;
+    padding: 24px;
     box-sizing: border-box;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-    color: #fff;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
+    overflow: hidden; /* Important for the border effect */
+    max-height: 70vh; /* Ограничиваем высоту (например, 70% высоты экрана) */
+    overflow-y: auto; /* Добавляем скролл, если контент не помещается */
 }
-.promoCardContainer {
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 16px;
-    padding: 20px;
-    min-height: 440px; /* или сколько тебе нужно */
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* равномерно распределяет верх/низ */
+/* ✨ Бонус: Сделаем скроллбар красивым и минималистичным */
+.promoCardContainer::-webkit-scrollbar {
+    width: 5px;
 }
 
-/* картинка ворот: ограничим высоту, сохраняем пропорции */
+.promoCardContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.promoCardContainer::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    border: 3px solid transparent;
+}
+
+/* Subtle gradient border to add depth and a premium feel */
+.gradientBorder {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px; /* Border thickness */
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
+    -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.promoTitle {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
 .promoGoal {
     width: 100%;
     height: auto;
-    max-height: 110px;
+    max-height: 120px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* текстовый блок в карточке */
 .promoText {
-    text-align: left;
+    text-align: center;
     width: 100%;
-    color: #ffffff;
-    font-size: 13px;
-    line-height: 1.2;
-    /* чуть затемним текстовый фон, чтобы он читался на ярком фоне */
-    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    color: #e0e0e0; /* Softer white for better readability */
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
+
+/* Highlighted text for the main call-to-action */
+.promoHighlight {
+    font-weight: 700;
+    font-size: 16px;
+    color: #FFD700;
+    padding: 8px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
 .promoButtons {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     justify-content: center;
+    width: 100%;
+    margin-top: 8px;
+    /* Добавляем перспективу для 3D эффекта при наведении */
+    perspective: 800px;
 }
 
 .promoBtn {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;              /* расстояние между текстом и иконкой */
-    padding: 12px 20px;
-    border: none;
-    border-radius: 12px;
+    gap: 8px;
+    padding: 14px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Тонкая рамка для четкости */
+    border-radius: 14px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
     color: white;
     cursor: pointer;
-    background: linear-gradient(90deg, #FFD700, #FFA500); /* пример для "ПІДСИЛИТИ" */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    /* ✨ Магия начинается здесь */
+    position: relative; /* Необходимо для псевдо-элементов */
+    overflow: hidden; /* Скрываем все, что выходит за рамки */
+    z-index: 1;
+
+    /* Плавные переходы для всех эффектов */
+    transition:
+            transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+            box-shadow 0.4s ease-out,
+            background-position 0.8s ease;
+
+    /* Улучшенная тень для глубины */
+    box-shadow:
+            0 4px 15px rgba(0, 0, 0, 0.4),
+            inset 0 1px 1px rgba(255, 255, 255, 0.25),
+            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+
+    /* Настройка для анимированного градиента */
+    background-size: 250% auto;
+    background-position: left center;
 }
 
-.promoBtn:nth-child(2) {
-    background: linear-gradient(90deg, #6A0DAD, #8A2BE2); /* пример для "КУПИТИ" */
+/* Эффект блика при наведении */
+.promoBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 75%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-25deg);
+    transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+}
+
+/* Состояние при наведении курсора */
+.promoBtn:hover {
+    /* Легкий 3D-поворот и подъем */
+    transform: rotateX(-5deg) rotateY(5deg) translateY(-4px) scale(1.05);
+
+    /* Анимация градиента */
+    background-position: right center;
+}
+
+.promoBtn:hover::before {
+    /* Движение блика */
+    left: 125%;
+}
+
+/* Состояние при нажатии */
+.promoBtn:active {
+    transform: translateY(1px) scale(0.98); /* Эффект "нажатия" */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.3);
+    transition-duration: 0.1s;
+}
+
+/* === Стили для конкретных кнопок === */
+
+.boostBtn {
+    /* Более сочный и сложный градиент */
+    background-image: linear-gradient(115deg, #FFD700, #FFB800, #FF8C00);
+}
+
+.boostBtn:hover {
+    /* Сияние в цвет кнопки */
+    box-shadow:
+            0 8px 30px rgba(255, 200, 0, 0.5),
+            inset 0 1px 1px rgba(255, 255, 255, 0.25),
+            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.buyBtn {
+    /* Глубокий и насыщенный фиолетовый градиент */
+    background-image: linear-gradient(115deg, #8A2BE2, #9932CC, #6A0DAD);
+}
+
+.buyBtn:hover {
+    /* Магическое фиолетовое свечение */
+    box-shadow:
+            0 8px 30px rgba(138, 43, 226, 0.6),
+            inset 0 1px 1px rgba(255, 255, 255, 0.25),
+            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .energyIcon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
 }

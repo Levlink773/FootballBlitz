@@ -11,6 +11,7 @@ from loader import bot
 from logging_config import logger
 from utils.blitz_photo_utils import get_photo, save_photo_id
 from utils.rate_limitter import rate_limiter
+from webapp.fastapi.publisher import publish_match_state
 from .render_scene import SceneRenderer
 from .templates import (
     GetterTemplatesMatch,
@@ -26,6 +27,7 @@ from ..constans import (
     MIN_DONATE_ENERGY_TO_BONUS_KOEF,
     KOEF_DONATE_ENERGY, STAGE_MAP
 )
+from ..core.manager import TeamBlitzMatchManager, BlitzStateData, BlitzState
 from ..entities import BlitzMatchData, MatchTeamBlitz
 from ..enum_blitz_match import TypeGoalEvent
 
@@ -118,6 +120,11 @@ class BlitzMatchSender:
                 "stages_of_blitz": STAGE_MAP.get(self.match_data.stage / 2)
             }
         )
+        TeamBlitzMatchManager.set_match_state(
+            self.match_data.blitz_match_id,
+            BlitzStateData(state=BlitzState.PREPARATION_MATCH, message=text),
+        )
+        await publish_match_state(self.match_data.blitz_match_id)
         message_photo = await self.sender.send_messages(
             text=text,
             users=self.match_data.all_users,
@@ -197,7 +204,11 @@ class BlitzMatchSender:
                 }
             )
             text_scene += f"{text_score}"
-
+        TeamBlitzMatchManager.set_match_state(
+            self.match_data.blitz_match_id,
+            BlitzStateData(BlitzState.GOAL if goal_event == TypeGoalEvent.GOAL else BlitzState.NO_GOAL, text_scene),
+        )
+        await publish_match_state(self.match_data.blitz_match_id)
         message_photo = await self.sender.send_messages(
             text=text_scene,
             users=self.match_data.all_users,
@@ -228,6 +239,11 @@ class BlitzMatchSender:
                 "koef_donate_energy": KOEF_DONATE_ENERGY * 100
             }
         )
+        TeamBlitzMatchManager.set_match_state(
+            self.match_data.blitz_match_id,
+            BlitzStateData(state=BlitzState.PING, message=text),
+        )
+        await publish_match_state(self.match_data.blitz_match_id)
         message_photo = await self.sender.send_messages(
             users=self.match_data.all_users,
             text=text,
@@ -275,6 +291,11 @@ class BlitzMatchSender:
         else:
             template = TemplatesMatch.DRAW_TEMPLATE
             text = self.getter_templates.format_message(template=template)
+        TeamBlitzMatchManager.set_match_state(
+            self.match_data.blitz_match_id,
+            BlitzStateData(state=BlitzState.END_MATCH, message=text),
+        )
+        await publish_match_state(self.match_data.blitz_match_id)
 
         message_photo = await self.sender.send_messages(
             users=self.match_data.all_users,

@@ -4,6 +4,7 @@ import Config from "../../config.js";
 import {motion, AnimatePresence} from "framer-motion";
 import default_sound from "../../assets/public/sounds/notification.mp3"
 import {useSpring, animated} from 'react-spring';
+import {showAlert} from "../../alertService.jsx";
 
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)
@@ -340,10 +341,10 @@ const AnimatedChance = ({chance}) => {
 };
 
 
-/* ---------- TopChancesAlert (Покращена версія з анімацією) ---------- */
-export function TopChancesAlert({teams = []}) {
+/* ---------- НОВЫЙ КОМПОНЕНТ TopChancesAlert (без 'meta') ---------- */
+export function TopChancesAlert({ teams = [] }) {
     return (
-        <Box style={{width: 360, padding: 16}}>
+        <Box style={{ width: 360, padding: 16 }}>
             <div style={{
                 color: "var(--glow-secondary)",
                 fontWeight: 800,
@@ -364,8 +365,9 @@ export function TopChancesAlert({teams = []}) {
                     background: 'var(--surface-highlight)',
                     borderRadius: 10
                 }}>
-                    <div style={{color: "var(--text-secondary)", fontSize: 14, fontWeight: 500}}>
-                        {`Команда ${t.name} (${t.meta}):`}
+                    {/* --- УБРАНО (t.meta) --- */}
+                    <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}>
+                        {`Команда ${t.name}:`}
                     </div>
                     <div style={{
                         color: t.chance >= 50 ? "var(--green-accent)" : "var(--red-accent)",
@@ -373,8 +375,7 @@ export function TopChancesAlert({teams = []}) {
                         fontSize: 16,
                         textShadow: `0 0 8px ${t.chance >= 50 ? 'var(--green-accent)' : 'var(--red-accent)'}`
                     }}>
-                        {/* ✨ 3. Замінюємо статичний вивід на анімований компонент */}
-                        <AnimatedChance chance={t.chance}/>
+                        <AnimatedChance chance={t.chance} />
                     </div>
                 </div>
             ))}
@@ -625,7 +626,7 @@ export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
     const shopPacks = packs || defaultPacks;
 
     return (
-        <Box style={{padding: 16, maxWidth: 520}}>
+        <Box style={{padding: 16, maxWidth: 520}} onClose={onClose}>
             <HeaderBar title="Недостатньо енергії"/>
             <div style={{
                 color: "var(--text-secondary)",
@@ -788,7 +789,7 @@ function SecondaryButton({children, onClick, style = {}}) {
 
 
 // ✨ --- BuyEnergyModal (Покращена версія) --- ✨
-export function BuyEnergyModal({
+export function DonateEnergyModal({
                                    balanceCoins = null,
                                    packs = null,
                                    onConfirm = () => {
@@ -838,8 +839,14 @@ export function BuyEnergyModal({
 
     function handleConfirm() {
         const qty = Number(energy || 0);
-        if (!qty || qty <= 0) return;
-        onConfirm({energy: qty});
+
+        // --- ЗМІНА: Додано перевірку на мінімальну кількість ---
+        if (!qty || qty < 10) {
+            showAlert("Мінімальна кількість для донату — 10 енергії.");
+            return;
+        }
+
+        onConfirm({ energy: qty });
     }
 
     const inputStyle = {
@@ -1174,5 +1181,5 @@ export default {
     BuyModal,
     AlertModal,
     SetPriceModal,
-    BuyEnergyModal
+    DonateEnergyModal
 };

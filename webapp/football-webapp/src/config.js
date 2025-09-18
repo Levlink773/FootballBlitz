@@ -76,7 +76,12 @@ import vip_act from "./assets/public/img178.png";
 import vip_button from "./assets/public/img179.png";
 import vip_em from "./assets/public/img_21.png";
 
+
+import goal0 from "./assets/public/football_goal.png";
 import goal1 from "./assets/public/img_22.png";
+import goal2 from "./assets/public/img_27.png";
+import goal3 from "./assets/public/img_28.png";
+
 import gold_button from "./assets/public/img_23.png";
 import energy_button from "./assets/public/img_24.png";
 import energy_energy from "./assets/public/img_25.png";
@@ -162,7 +167,10 @@ class Config {
         vip_em: vip_em,
         gold_button: gold_button,
         energy_button: energy_button,
+        goal0: goal0,
         goal1: goal1,
+        goal2: goal2,
+        goal3: goal3,
         energy_energy: energy_energy,
         king: king,
     };

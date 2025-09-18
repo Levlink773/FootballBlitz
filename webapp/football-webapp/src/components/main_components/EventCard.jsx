@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+// --- ШАГ 1: Импортируем useNavigate ---
+import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 // Убедитесь, что путь к вашему файлу конфигурации (с изображениями) указан верно
 import Config from "../../config.js";
 import {showAlert} from "../../alertService.jsx";
 import useWebSocket from "../../../useWebsocket.js";
 
-// --- Анимации (Keyframes) ---
+// --- Анимации и стили (без изменений) ---
 
 const fadeIn = keyframes`
     from { opacity: 0; transform: translateY(20px); }
@@ -17,8 +19,6 @@ const pulsate = keyframes`
     50% { transform: scale(1.02); opacity: 1; }
     100% { transform: scale(1); opacity: 0.9; }
 `;
-
-// --- Стилизованные компоненты (Styled Components) ---
 
 const CardWrapper = styled.div`
     position: relative;
@@ -116,7 +116,6 @@ const Countdown = styled.div`
     animation: ${pulsate} 2s infinite ease-in-out;
 `;
 
-// НОВЫЙ СТИЛЬ: для сообщения о статусе регистрации
 const RegistrationStatus = styled.div`
     color: #2ecc71;
     font-size: 10px;
@@ -154,7 +153,6 @@ const EnterButton = styled.div`
     }
 `;
 
-// НОВЫЙ СТИЛЬ: для сообщения, когда юзер не зарегистрирован в активном блице
 const NotRegisteredMessage = styled.div`
     color: #f1c40f;
     font-size: 13px;
@@ -167,6 +165,7 @@ const NotRegisteredMessage = styled.div`
     text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
 `;
 
+
 // --- Основной компонент EventCard ---
 
 export const EventCard = ({ user, onUserUpdate }) => {
@@ -175,9 +174,10 @@ export const EventCard = ({ user, onUserUpdate }) => {
     const [blitzInfo, setBlitzInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notificationShown, setNotificationShown] = useState(false);
-
-    // НОВОЕ СОСТОЯНИЕ: отслеживание статуса регистрации
     const [isRegistered, setIsRegistered] = useState(false);
+
+    // --- ШАГ 2: Инициализируем хук навигации ---
+    const navigate = useNavigate();
 
     const fetchUser = async () => {
         try {
@@ -200,7 +200,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
     };
 
     const fetchBlitzStatus = useCallback(async () => {
-        if (!user?.user_id) return; // Не делаем запросы, если нет user
+        if (!user?.user_id) return;
         console.log("fetch blitzStatus: ", user.user_id);
 
         setNotificationShown(false);
@@ -209,13 +209,24 @@ export const EventCard = ({ user, onUserUpdate }) => {
             if (!activeResponse.ok) throw new Error('Failed to fetch active status');
             const activeData = await activeResponse.json();
 
-            // Если есть активный блиц, то проверяем статус регистрации для него.
-            // Примечание: Эта логика предполагает, что isRegistered уже был установлен,
-            // когда блиц был в состоянии "next". Состояние сохранится при переключении.
             if (activeData.active === true) {
                 setIsBlitzActive(true);
                 setSecondsRemaining(null);
                 setBlitzInfo({ info: { title: 'БЛІЦ АКТИВНИЙ' } });
+
+                // Даже если блиц активен, нам нужно знать, зарегистрирован ли в нем юзер,
+                // чтобы показать правильную кнопку/сообщение
+                try {
+                    const regResponse = await fetch(`http://localhost:8123/blitz/${activeData.blitz_id}/is_registered/${user.user_id}`);
+                    if (regResponse.ok) {
+                        const regData = await regResponse.json();
+                        setIsRegistered(regData.registered);
+                    } else {
+                        setIsRegistered(false);
+                    }
+                } catch (e) {
+                    setIsRegistered(false);
+                }
                 return;
             }
 
@@ -229,14 +240,13 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 setSecondsRemaining(nextData.seconds_remaining);
                 setBlitzInfo(nextData);
 
-                // ОБНОВЛЕНО: Проверяем статус регистрации для следующего блица
                 try {
                     const regResponse = await fetch(`http://localhost:8123/blitz/${nextData.blitz_id}/is_registered/${user.user_id}`);
                     if (regResponse.ok) {
                         const regData = await regResponse.json();
                         setIsRegistered(regData.registered);
                     } else {
-                        setIsRegistered(false); // Безопасное значение по умолчанию
+                        setIsRegistered(false);
                     }
                 } catch (e) {
                     console.error("Failed to fetch registration status", e);
@@ -245,7 +255,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
             } else {
                 setSecondsRemaining(null);
                 setBlitzInfo(null);
-                setIsRegistered(false); // Сбрасываем, если нет будущих блицев
+                setIsRegistered(false);
             }
         } catch (error) {
             console.error("Error fetching blitz status:", error);
@@ -253,13 +263,12 @@ export const EventCard = ({ user, onUserUpdate }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [user]); // user - зависимость, т.к. используем user.user_id
+    }, [user]);
     useWebSocket(user.user_id, {onShowAlert: fetchBlitzStatus});
     useEffect(() => {
         fetchBlitzStatus();
     }, [fetchBlitzStatus]);
 
-    // ОБНОВЛЕННЫЙ ЭФФЕКТ: Уведомление не покажется, если юзер уже зарегистрирован
     useEffect(() => {
         if (isLoading || !user || notificationShown || secondsRemaining === null || isBlitzActive || isRegistered) {
             return;
@@ -272,7 +281,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
             showAlert('Реєстрація на бліц відкрита! Натисніть на картку, щоб приєднатися.');
             setNotificationShown(true);
         }
-    }, [isLoading, secondsRemaining, user, notificationShown, isBlitzActive, isRegistered]); // Добавлена зависимость isRegistered
+    }, [isLoading, secondsRemaining, user, notificationShown, isBlitzActive, isRegistered]);
 
 
     useEffect(() => {
@@ -282,7 +291,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 const newSeconds = prev - 1;
                 if (newSeconds < 1) {
                     clearInterval(timerId);
-                    setTimeout(fetchBlitzStatus, 1000); // Перепроверяем статус после окончания таймера
+                    setTimeout(fetchBlitzStatus, 1000);
                 }
                 return newSeconds;
             });
@@ -291,17 +300,24 @@ export const EventCard = ({ user, onUserUpdate }) => {
     }, [isBlitzActive, secondsRemaining, fetchBlitzStatus]);
 
 
+    // --- ШАГ 3: Обновляем логику обработчика клика ---
     const handleRegisterClick = async () => {
-        // Добавлена проверка, чтобы не отправлять лишние запросы
+        // Если блиц активен, основное действие - вход в матч (если зарегистрирован)
+        if (isBlitzActive) {
+            if (isRegistered) {
+                navigate('/match'); // <-- Перенаправление на страницу матча
+            } else {
+                showAlert("Ви не зареєстровані на цей бліц. Дочекайтесь наступного.");
+            }
+            return; // Прекращаем выполнение функции
+        }
+
+        // Если блиц еще не начался, работает логика регистрации
         if (isRegistered) {
             showAlert("Ви вже зареєстровані на цей бліц.");
             return;
         }
-        if (isBlitzActive) {
-            // Эта логика остаётся для полноты, хотя UI теперь другой
-            showAlert("Матч вже активний! Вхід у розробці.");
-            return;
-        }
+
         if (!blitzInfo?.blitz_id || !user?.user_id) {
             showAlert("Не вдалося отримати інформацію про турнір або користувача.");
             return;
@@ -326,7 +342,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
             showAlert(result.message);
 
             if (response.ok && result.ok) {
-                // Обновляем статус и данные пользователя после успешной регистрации
                 setNotificationShown(true);
                 fetchBlitzStatus();
                 await fetchUser();
@@ -347,7 +362,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
             <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
             <CupIcon className="cup-icon" src={Config.IMAGES.cup} alt="tournament cup"/>
 
-            {/* ОБНОВЛЕННЫЙ РЕНДЕРИНГ */}
             {isBlitzActive ? (
                 isRegistered ? (
                     <EnterButton>Увійти в матч</EnterButton>

@@ -1,12 +1,16 @@
 # routers/blitz_router.py
 from __future__ import annotations
+
+import time
 from datetime import datetime
 from typing import Optional, List
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
+from blitz.blitz_match.constans import MIN_DONATE_ENERGY_TO_BONUS_KOEF
 from blitz.blitz_match.core.manager import TeamBlitzMatchManager
+from blitz.blitz_match.entities import BlitzMatchData
 from blitz.services.blitz_service import BlitzService
 from logging_config import logger
 
@@ -21,6 +25,7 @@ from blitz.exception import (
 )
 
 from database.models.blitz import BlitzType, Blitz
+from webapp.fastapi.publisher import make_payloads_for_users, publish_batch
 
 router = APIRouter(prefix="/blitz", tags=["blitz"])
 
@@ -51,7 +56,10 @@ class RegisterResponse(BaseModel):
     ok: bool
     message: str
     blitz_id: Optional[int] = None
-
+class MatchStateResponse(BaseModel):
+    match_id: Optional[str] = None
+    state: Optional[str] = None
+    message: Optional[str] = None
 
 class ParticipantsResponse(BaseModel):
     blitz_id: Optional[int]
@@ -68,7 +76,16 @@ class BlitzResponse(BaseModel):
     seconds_remaining: int
     info: dict = {}
 
+# --- МОДЕЛІ ДЛЯ НОВОГО ЕНДПОІНТУ ---
+class DonateEnergyRequest(BaseModel):
+    user_id: int
+    energy: int
 
+class DonateEnergyResponse(BaseModel):
+    ok: bool
+    message: str
+    chance_first_team: Optional[float] = None
+    chance_second_team: Optional[float] = None
 # ---------- Helpers ----------
 def _minutes_left_to_start(start_at: datetime) -> int:
     delta = start_at - datetime.now()
@@ -246,6 +263,165 @@ async def is_user_registered_in_blitz(blitz_id: int, user_id: int):
         max_participants=max_participants,
         message="Користувач зареєстрований" if registered else "Користувач не зареєстрований"
     )
+@router.get("/user/{user_id}/match_state", response_model=MatchStateResponse)
+async def get_user_match_state(user_id: int):
+    """
+    Находит первый матч в TeamBlitzMatchManager, где присутствует user_id,
+    и возвращает его BlitzStateData: state и message.
+    """
+    try:
+        matches = getattr(TeamBlitzMatchManager, "all_matches", {}) or {}
+    except Exception as e:
+        logger.exception("get_user_match_state: cannot access TeamBlitzMatchManager.all_matches: %s", e)
+        raise HTTPException(status_code=500, detail="Internal error")
+
+    # Итерируем в порядке появления (first found)
+    for match_id, match_tuple in list(matches.items()):
+        try:
+            match_data, state_data = match_tuple
+        except Exception:
+            # некорректная запись — пропускаем
+            logger.warning("get_user_match_state: invalid match tuple for match_id=%s", match_id)
+            continue
+
+        try:
+            user_ids = match_data.all_user_ids_in_match
+        except Exception as e:
+            logger.exception("get_user_match_state: cannot read user ids for match_id=%s: %s", match_id, e)
+            continue
+
+        if not user_ids:
+            continue
+
+        if user_id in user_ids:
+            # нашли — возвращаем state
+            state_value = None
+            message = ""
+            try:
+                state_value = state_data.state.value if hasattr(state_data, "state") and hasattr(state_data.state, "value") else str(getattr(state_data, "state", None))
+                message = getattr(state_data, "message", "") or ""
+            except Exception:
+                # на случай, если структура неожиданная
+                logger.exception("get_user_match_state: unexpected state_data structure for match_id=%s", match_id)
+
+            return MatchStateResponse(match_id=match_id, state=state_value, message=message)
+    # не найдено
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Пользователь {user_id} не найден ни в одном активном матче")
+
+
+# --- ✨ НОВИЙ, БІЛЬШ ЗРУЧНИЙ ЕНДПОІНТ ✨ ---
+@router.post("/match/donate_by_user", response_model=DonateEnergyResponse, tags=["blitz", "match actions"])
+async def donate_energy_by_user(body: DonateEnergyRequest):
+    """
+    Додає енергію від гравця. Автоматично знаходить активний матч за user_id.
+    """
+    # Припускаємо, що ці константи імпортовані або визначені
+    MIN_ENERGY_DONATE_MATCH = 10
+
+    # 1. Валідація вхідних даних (аналогічно до попередньої версії)
+    energy = body.energy
+    user_id = body.user_id
+    if energy < MIN_ENERGY_DONATE_MATCH:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Мінімум {MIN_ENERGY_DONATE_MATCH} енергії"
+        )
+
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Користувача не знайдено")
+
+    if user.energy < energy:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="У вас не вистачає енергії!"
+        )
+
+    # 2. ✨ Пошук матчу за user_id
+    match_data = None
+    # TeamBlitzMatchManager.all_matches повертає словник {match_id: (match_data, state_data)}
+    all_active_matches = getattr(TeamBlitzMatchManager, "all_matches", {})
+
+    for match_tuple in all_active_matches.values():
+        current_match_data = match_tuple[0]  # Об'єкт BlitzMatchData
+        # Використовуємо властивість, що містить ID всіх гравців матчу
+        if user_id in getattr(current_match_data, 'all_user_ids_in_match', []):
+            match_data: BlitzMatchData = current_match_data
+            break  # Знайшли потрібний матч, виходимо з циклу
+
+    if not match_data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Активний матч для цього користувача не знайдено")
+
+    # 3. Решта логіки, яка тепер працює зі знайденим `match_data`
+    end_time = getattr(match_data, "end_time", None)
+    if not end_time or int(time.time()) > end_time:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Час для цього голу вже закінчився"
+        )
+
+    old_chance_team = match_data.get_chance_teams()
+    old_first_club_chance = old_chance_team[0] * 100
+    old_second_club_chance = old_chance_team[1] * 100
+
+    my_team = None
+    if user.user_id in match_data.first_team.users_match_ids:
+        match_data.first_team.episode_donate_energy += energy
+        my_team = match_data.first_team
+    elif user.user_id in match_data.second_team.users_match_ids:
+        match_data.second_team.episode_donate_energy += energy
+        my_team = match_data.second_team
+
+    # Ця перевірка по суті вже не потрібна, якщо логіка пошуку правильна, але залишаємо для надійності
+    if not my_team:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail="Не вдалося визначити команду гравця в знайденому матчі.")
+
+    # 4. Списання енергії
+    await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=energy)
+
+    # 5. Логіка бонусних повідомлень та сповіщень
+    if my_team.episode_donate_energy >= MIN_DONATE_ENERGY_TO_BONUS_KOEF and not my_team.text_is_send_epizode_donate_energy:
+        # Тут можна залишити вашу логіку відправки бонусного фото
+        my_team.text_is_send_epizode_donate_energy = True
+        pass
+
+    after_chance_club = match_data.get_chance_teams()
+    chance_first_team_after = after_chance_club[0] * 100
+    chance_second_team_after = after_chance_club[1] * 100
+
+    text = f"""
+⚽️ <b>{user.main_character.name} додав {energy}🔋 до сил команді {my_team.team_name}!</b> ⚽️  
+
+🔥 <b>Зміни шансів на гол:</b>  
+- ⚽️ Команда: {match_data.first_team.team_name} - <b>{old_first_club_chance:.2f}%</b> → <b>{chance_first_team_after:.2f}%</b>  
+- ⚽️ Команда: {match_data.second_team.team_name} - <b>{old_second_club_chance:.2f}%</b> → <b>{chance_second_team_after:.2f}%</b>  
+
+💪 Завдяки підтримці команда {my_team.team_name} отримала значний поштовх! 🚀 
+    """
+
+    payloads = make_payloads_for_users(
+        "show_top_alert",
+        match_data.all_users,
+        payload_factory=lambda u: {
+            "message": f"{text}",
+            "team1": match_data.first_team.team_name,
+            "team2": match_data.second_team.team_name,
+            "chance_first_team_after": chance_first_team_after,
+            "chance_second_team_after": chance_second_team_after,
+        }
+    )
+    await publish_batch(payloads, batch_size=32)
+
+    # 6. Повернення успішної відповіді
+    return DonateEnergyResponse(
+        ok=True,
+        message=f"{user.main_character.name} додав {energy}🔋 до сил команді!",
+        chance_first_team=chance_first_team_after,
+        chance_second_team=chance_second_team_after,
+    )
+
 
 @router.get("/next/participants", response_model=ParticipantsResponse)
 async def next_blitz_participants():

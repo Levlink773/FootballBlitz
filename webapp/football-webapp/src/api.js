@@ -185,6 +185,22 @@ export const api = {
         };
         return createPaymentRequest('/payments/energy', payload);
     },
+    async donateEnergy(payload) {
+        const response = await fetch(`${API_BASE_URL}/blitz/match/donate_by_user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const responseData = await response.json();
+        if (!response.ok) {
+            // Викидаємо помилку з деталями від бекенду
+            throw new Error(responseData.detail || 'Сталася помилка під час донату');
+        }
+        return responseData;
+    },
 
     /**
      * Creates a payment for a Box.

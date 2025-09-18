@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {AlertModal, ModalRoot} from "./components/modal_components/ModalComponents.jsx";
+import {AlertModal, ModalRoot, TopChancesAlert} from "./components/modal_components/ModalComponents.jsx";
 /**
  * Показує глобальний Alert, динамічно створюючи та знищуючи його в DOM.
  * @param {string | React.ReactNode} message - Повідомлення для показу.
@@ -50,6 +50,49 @@ export function showAlert(message, options = {}) {
             animation={true}
         >
             <AlertModal {...alertProps} />
+        </ModalRoot>
+    );
+}
+
+/* ---------- НОВАЯ ФУНКЦИЯ showTopChanceAlert ---------- */
+export function showTopChanceAlert(payload, options = {}) {
+    const targetContainer = document.querySelector('[data-modal-root]');
+    if (!targetContainer) {
+        console.error('Контейнер [data-modal-root] не знайдено в DOM.');
+        return;
+    }
+
+    const alertHost = document.createElement('div');
+    targetContainer.appendChild(alertHost);
+
+    const root = createRoot(alertHost);
+
+    const cleanup = () => {
+        root.unmount();
+        if (targetContainer.contains(alertHost)) {
+            targetContainer.removeChild(alertHost);
+        }
+    };
+
+    // Устанавливаем таймер на автоматическое закрытие
+    const autoCloseMs = options.autoCloseMs || 7000; // По умолчанию 7 секунд
+    setTimeout(cleanup, autoCloseMs);
+
+    // 1. Трансформируем данные из payload в формат, который ожидает компонент
+    const teamsData = [
+        { name: payload.team1, chance: payload.chance_first_team_after },
+        { name: payload.team2, chance: payload.chance_second_team_after }
+    ];
+
+    // 2. Рендерим компонент TopChancesAlert внутри ModalRoot для консистентности
+    root.render(
+        <ModalRoot
+            onClose={cleanup}
+            variant="alert"
+            backdrop={false}
+            animation={true}
+        >
+            <TopChancesAlert teams={teamsData} />
         </ModalRoot>
     );
 }

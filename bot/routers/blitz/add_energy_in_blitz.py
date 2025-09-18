@@ -20,6 +20,7 @@ from logging_config import logger
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 from utils.club_utils import send_message_user_team
+from webapp.fastapi.publisher import make_payloads_for_users, publish_batch
 
 add_energy_in_match_router = Router()
 
@@ -120,7 +121,7 @@ async def donate_epizode_energy(
     else:
         logger.warning("Without team")
         return
-
+    text_epizode_donate = '\n'
     if my_team.episode_donate_energy >= MIN_DONATE_ENERGY_TO_BONUS_KOEF:
         if not my_team.text_is_send_epizode_donate_energy:
             random_patch = random.choice(DONE_ENERGY_PHOTOS)
@@ -158,6 +159,18 @@ async def donate_epizode_energy(
 
 💪 Завдяки підтримці команда {my_team.team_name} отримала значний поштовх! 🚀 
     """
+    payloads = make_payloads_for_users(
+        "show_top_alert",
+        match_data.all_users,
+        payload_factory=lambda u: {
+            "message": f"{text}{text_epizode_donate}",
+            "team1": match_data.first_team.team_name,
+            "team2": match_data.second_team.team_name,
+            "chance_first_team_after": chance_first_team_after,
+            "chance_second_team_after": chance_second_team_after,
+        }
+    )
+    await publish_batch(payloads, batch_size=32)
     await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=energy)
     await send_message_user_team(
         user_team=match_data.all_users,

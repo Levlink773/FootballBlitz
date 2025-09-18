@@ -41,10 +41,11 @@ class BlitzAnnounceService:
 
         # 🧹 Убираем дубликаты по ID (если надо)
         unique_user = {user.user_id: user for user in involved_characters}.values()
-        await send_message_all_users(list(unique_user), text, photo_path=stage[1])
+        asyncio.create_task(send_message_all_users(list(unique_user), text, photo_path=stage[1]))
+        return text
 
     @classmethod
-    async def announce_end(cls, users: list[UserBot], final_winner: BlitzTeam, final_looser: BlitzTeam, reward_energy: int) -> None:
+    async def announce_end(cls, users: list[UserBot], final_winner: BlitzTeam, final_looser: BlitzTeam, reward_energy: int) -> str:
         res_winner, res_looser = await asyncio.gather(
             BlitzTeamService.get_user_from_blitz_team(final_winner),
             BlitzTeamService.get_user_from_blitz_team(final_looser)
@@ -61,6 +62,7 @@ class BlitzAnnounceService:
 ⚡ Усі учасники отримують +{reward_energy} енергії! Дякуємо за гру — до наступного блиц-турніру! 💪
 """
         await send_message_all_users(users, end_text, photo_path=END_BLITZ_PHOTO)
+        return end_text
 
     @classmethod
     async def announce_round_results(cls, winners: list[BlitzTeam], losers: list[BlitzTeam], reward_energy: int) -> None:

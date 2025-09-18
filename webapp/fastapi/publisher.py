@@ -4,6 +4,8 @@ import asyncio
 import os
 from datetime import datetime
 import redis.asyncio as redis
+
+from blitz.blitz_match.core.manager import TeamBlitzMatchManager
 from logging_config import logger
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -131,3 +133,116 @@ def make_payloads_for_users(event_type: str, users: list, payload_factory=lambda
         p = make_payload(event_type=event_type, user_id=uid, payload=payload_factory(u))
         out.append(p)
     return out
+
+# --- добавьте в конец services/publisher.py ---
+
+async def publish_match_state(match_id: str) -> list[bool]:
+    """
+    Находит матч по match_id в TeamBlitzMatchManager и отправляет каждому пользователю матча
+    payload с полями: { state: str, message: str, match_id: str }.
+
+    Возвращает список bool для каждого отправленного payload (успех/неудача).
+    """
+    # пытаемся найти запись
+    match_tuple = TeamBlitzMatchManager.all_matches.get(match_id)
+    if not match_tuple:
+        logger.warning("publish_match_state: match not found match_id=%s", match_id)
+        return []
+
+    match_data, state_data = match_tuple
+
+    # Получаем список user_id в матче
+    try:
+        user_ids = match_data.all_user_ids_in_match
+    except Exception as e:
+        logger.exception("publish_match_state: failed to read user ids from match_data: %s", e)
+        return []
+
+    if not user_ids:
+        logger.info("publish_match_state: no users in match match_id=%s", match_id)
+        return []
+
+    # сформировать payloads для каждого пользователя
+    def payload_factory(u):
+        return {
+            "state": state_data.state.value if hasattr(state_data.state, "value") else str(state_data.state),
+            "message": getattr(state_data, "message", "") or "",
+            "match_id": match_id
+        }
+
+    payloads = make_payloads_for_users(event_type="blitz_match_state", users=user_ids, payload_factory=payload_factory)
+
+    # Публикуем пакетно (pipeline) — можно менять на publish_many_concurrent если нужно
+    try:
+        results = await publish_batch(payloads)
+        logger.info("publish_match_state: published %s payloads for match_id=%s", len(results), match_id)
+        return results
+    except Exception as e:
+        logger.exception("publish_match_state: publish_batch failed for match_id=%s err=%s", match_id, e)
+        # как fallback — пробуем параллельно
+        try:
+            results = await publish_many_concurrent(payloads)
+            return results
+        except Exception as e2:
+            logger.exception("publish_match_state: fallback publish_many_concurrent also failed: %s", e2)
+            return [False] * len(payloads)
+async def publish_all_matches_state() -> dict:
+    """
+    Для всех матчей в TeamBlitzMatchManager отправляет каждому пользователю матча
+    payload с полями: { state: str, message: str, match_id: str }.
+
+    Возвращает dict: { match_id: [bool, bool, ...], ... } — список результатов для каждого матча.
+    """
+
+    all_matches = getattr(TeamBlitzMatchManager, "all_matches", None)
+    if not all_matches:
+        logger.info("publish_all_matches_state: no matches found")
+        return {}
+
+    results_by_match: dict[str, list[bool]] = {}
+
+    # Итерируем копию элементов, чтобы избежать проблем при изменении словаря во время работы
+    for match_id, match_tuple in list(all_matches.items()):
+        try:
+            match_data, state_data = match_tuple
+        except Exception as e:
+            logger.exception("publish_all_matches_state: invalid tuple for match_id=%s err=%s", match_id, e)
+            continue
+
+        try:
+            user_ids = match_data.all_user_ids_in_match
+        except Exception as e:
+            logger.exception("publish_all_matches_state: failed to get user ids for match_id=%s err=%s", match_id, e)
+            results_by_match[match_id] = []
+            continue
+
+        if not user_ids:
+            logger.info("publish_all_matches_state: no users in match match_id=%s", match_id)
+            results_by_match[match_id] = []
+            continue
+
+        def payload_factory(u):
+            return {
+                "state": state_data.state.value if hasattr(state_data.state, "value") else str(state_data.state),
+                "message": getattr(state_data, "message", "") or "",
+                "match_id": match_id
+            }
+
+        payloads = make_payloads_for_users(event_type="blitz_match_state", users=user_ids, payload_factory=payload_factory)
+
+        try:
+            res = await publish_batch(payloads)
+            results_by_match[match_id] = res
+            logger.info("publish_all_matches_state: published %s payloads for match_id=%s", len(res), match_id)
+        except Exception as e:
+            logger.exception("publish_all_matches_state: publish_batch failed for match_id=%s err=%s", match_id, e)
+            # fallback на concurrent
+            try:
+                res = await publish_many_concurrent(payloads)
+                results_by_match[match_id] = res
+                logger.info("publish_all_matches_state: fallback publish_many_concurrent done for match_id=%s", match_id)
+            except Exception as e2:
+                logger.exception("publish_all_matches_state: fallback failed for match_id=%s err=%s", match_id, e2)
+                results_by_match[match_id] = [False] * len(payloads)
+
+    return results_by_match
