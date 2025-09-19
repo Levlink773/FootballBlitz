@@ -319,6 +319,7 @@ async def donate_energy_by_user(body: DonateEnergyRequest):
     Додає енергію від гравця. Автоматично знаходить активний матч за user_id.
     """
     # Припускаємо, що ці константи імпортовані або визначені
+    from blitz.blitz_match.core.manager import TeamBlitzMatchManager
     MIN_ENERGY_DONATE_MATCH = 10
 
     # 1. Валідація вхідних даних (аналогічно до попередньої версії)
