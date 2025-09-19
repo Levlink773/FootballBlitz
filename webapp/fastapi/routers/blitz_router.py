@@ -36,6 +36,7 @@ BLITZ_LIMITS = {
     BlitzType.BLITZ_V16: 16,
     BlitzType.BLITZ_V32: 32,
     BlitzType.BLITZ_V64: 64,
+    BlitzType.BLITZ_V4: 4,
 }
 
 BLITZ_TYPE_NAMES = {
@@ -44,6 +45,7 @@ BLITZ_TYPE_NAMES = {
     BlitzType.BLITZ_V16: "Бліц (16)",
     BlitzType.BLITZ_V32: "Бліц (32)",
     BlitzType.BLITZ_V64: "Бліц (64)",
+    BlitzType.BLITZ_V4: "Бліц (4)",
 }
 
 

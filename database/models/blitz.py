@@ -11,6 +11,7 @@ class BlitzType(EnumBase):
     BLITZ_V16 = 2
     BLITZ_V32 = 3
     BLITZ_V64 = 4
+    BLITZ_V4 = 5
 
 class Blitz(Base):
     __tablename__ = 'blitzs'

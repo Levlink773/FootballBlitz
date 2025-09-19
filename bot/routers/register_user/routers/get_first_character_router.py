@@ -19,7 +19,6 @@ from utils.generate_character import get_character, CharacterData, character_cre
 
 get_first_character_router = Router()
 
-
 async def get_first_character_handler(
         user: UserBot,
         query: Optional[CallbackQuery] = None,
