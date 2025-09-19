@@ -11,7 +11,8 @@ from blitz.blitz_match.constans import (
     KOEF_DONATE_ENERGY,
     DONE_ENERGY_PHOTOS
 )
-from blitz.blitz_match.core.manager import TeamBlitzMatchManager
+from blitz.blitz_match.core.manager import BlitzStateData
+from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager, BlitzState
 from blitz.blitz_match.entities import BlitzMatchData
 from bot.callbacks.blitz_callback import EpizodeDonateEnergyToBlitzMatch
 from bot.filters.donate_energy_filter import CheckTimeDonateEnergyMatch
@@ -20,8 +21,8 @@ from logging_config import logger
 from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 from utils.club_utils import send_message_user_team
-from webapp.fastapi.publisher import make_payloads_for_users, publish_batch
-
+from webapp.fastapi.publisher import make_payloads_for_users, publish_batch, publish_match_state
+from blitz.blitz_match.core.manager import TeamBlitzMatchManager as TBMatchManager
 add_energy_in_match_router = Router()
 
 TEXT_EPIZODE_DONATE_ENERGY = """
@@ -53,7 +54,7 @@ async def donate_energy_from_blitz_match_handler(
                            show_alert=True)
         return await query.message.delete()
 
-    match_data: BlitzMatchData = TeamBlitzMatchManager.get_match(callback_data.blitz_match_id)
+    match_data: BlitzMatchData = TBMatchManager.get_match(callback_data.blitz_match_id)
     if not match_data:
         return
 
@@ -105,7 +106,7 @@ async def donate_epizode_energy(
         return await message.answer(
             "Час для цього голу вже закінчився",
         )
-    match_data: BlitzMatchData = TeamBlitzMatchManager.get_match(match_data_id)
+    match_data: BlitzMatchData = TBMatchManager.get_match(match_data_id)
 
     old_chance_team = match_data.get_chance_teams()
     old_first_club_chance = old_chance_team[0] * 100
@@ -171,6 +172,11 @@ async def donate_epizode_energy(
         }
     )
     await publish_batch(payloads, batch_size=32)
+    await TeamBlitzMatchManager.set_match_state(
+        match_data.blitz_match_id,
+        BlitzStateData(state=BlitzState.PING, message=text),
+    )
+    await publish_match_state(match_data.blitz_match_id)
     await UserService.consume_energy(user_id=user.user_id, amount_energy_consume=energy)
     await send_message_user_team(
         user_team=match_data.all_users,

@@ -3,6 +3,7 @@ import asyncio
 import uvicorn
 from aiohttp import web
 
+from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager
 from config import WEBAPP_HOST, WEBAPP_PORT, CALLBACK_URL_WEBHOOK_BOX_BLITZ, CALLBACK_URL_WEBHOOK_ENERGY_BLITZ, \
     CALLBACK_URL_WEBHOOK_VIP_PASS_BLITZ, CALLBACK_URL_WEBHOOK_MONEY_BLITZ
 from loader import bot, dp, app
@@ -42,6 +43,7 @@ async def start_polling():
 
 async def main():
     await start_utils()
+    await TeamBlitzMatchManager.clear_matches()
     await asyncio.gather(
         start_polling(),
         start_weebhook(),

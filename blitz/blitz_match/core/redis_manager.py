@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from blitz.blitz_match.core.manager import BlitzStateData
 from blitz.blitz_match.entities import BlitzMatchData, MatchTeamBlitz
+from logging_config import logger
 from webapp.fastapi.publisher import get_redis
 
 
@@ -19,7 +20,7 @@ class BlitzState(Enum):
 
 # Модель для хранения состояния
 class RedisBlitzStateData(BaseModel):
-    state: BlitzState
+    state: Union[BlitzState, str]
     message: str
 
 # Упрощенная модель команды для Redis
@@ -62,9 +63,7 @@ class TeamBlitzMatchManager:
         Сохраняет новый матч в Redis.
         Конвертирует сложные объекты в простые Pydantic-модели для хранения.
         """
-        # Конвертация в Redis-совместимые модели
-        storage_model = RedisMatchStorage(
-            match_data={
+        matc_d = {
                 "blitz_match_id": match_data.blitz_match_id,
                 "stage": match_data.stage,
                 "first_team": {
@@ -75,11 +74,15 @@ class TeamBlitzMatchManager:
                     "team_id": match_data.second_team.team_id,
                     "user_ids": [user.user_id for user in match_data.second_team.users_in_match]
                 }
-            },
-            state_data={
-                "state": blitz_state.state,
-                "message": blitz_state.message
-            }
+        }
+        logger.debug("add_match: %s", matc_d)
+        # Конвертация в Redis-совместимые модели
+        storage_model = RedisMatchStorage(
+            match_data=matc_d,
+            state_data=RedisBlitzStateData(  # <-- вот так
+                state=blitz_state.state.value,
+                message=blitz_state.message
+            )
         )
 
         key = cls._get_key(match_data.blitz_match_id)
@@ -129,7 +132,7 @@ class TeamBlitzMatchManager:
             return False
 
         # Обновляем только часть данных о состоянии
-        storage.state_data = RedisBlitzStateData(state=new_state.state, message=new_state.message)
+        storage.state_data = RedisBlitzStateData(state=new_state.state.value, message=new_state.message)
 
         key = cls._get_key(blitz_match_id)
         r = get_redis()
@@ -140,10 +143,66 @@ class TeamBlitzMatchManager:
     async def get_all_match_ids(cls) -> List[str]:
         """Возвращает список ID всех активных матчей."""
         r = get_redis()
-        keys = [key async for key in r.scan_iter(f"{cls.MATCH_KEY_PREFIX}:*")]
-        # Извлекаем ID из ключа 'blitz_match:12345' -> '12345'
-        return [key.split(":")[-1] for key in keys]
 
+        keys: list[str] = []
+        async for key in r.scan_iter(f"{cls.MATCH_KEY_PREFIX}:*"):
+            # Redis может вернуть bytes или str, обработаем оба варианта
+            if isinstance(key, (bytes, bytearray)):
+                try:
+                    key = key.decode("utf-8")
+                except Exception:
+                    # если вдруг декодирование не удалось — пропустим такой ключ
+                    continue
+            # Приводим к строке на всякий случай
+            key = str(key)
+            keys.append(key)
+
+        # Извлекаем ID из ключа 'blitz_match:12345' -> '12345'
+        ids: list[str] = []
+        for key in keys:
+            if ":" in key:
+                ids.append(key.rsplit(":", 1)[-1])
+        return ids
+
+    @classmethod
+    async def set_all_matches_state(cls, new_state: BlitzStateData) -> int:
+        """
+        Массово обновляет состояние для всех активных матчей.
+        Возвращает количество обновленных матчей.
+        """
+        match_ids = await cls.get_all_match_ids()
+        if not match_ids:
+            return 0
+
+        r = get_redis()
+        updated = 0
+
+        for match_id in match_ids:
+            storage = await cls.get_match_storage(match_id)
+            if not storage:
+                continue
+
+            storage.state_data = RedisBlitzStateData(
+                state=new_state.state.value,
+                message=new_state.message
+            )
+
+            key = cls._get_key(match_id)
+            await r.set(key, storage.json(), ex=cls.MATCH_TTL_SECONDS)
+            updated += 1
+
+        return updated
+
+    @classmethod
+    async def get_match_state(cls, blitz_match_id: str) -> Optional[RedisBlitzStateData]:
+        """
+        Возвращает состояние матча по его ID.
+        Если матч не найден в Redis — возвращает None.
+        """
+        storage = await cls.get_match_storage(blitz_match_id)
+        if not storage:
+            return None
+        return storage.state_data
     @classmethod
     async def clear_matches(cls) -> None:
         """Удаляет все матчи из Redis."""

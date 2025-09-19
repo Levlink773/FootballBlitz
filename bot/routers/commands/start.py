@@ -1,6 +1,6 @@
 from aiogram import F
 from aiogram import Router
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, FSInputFile
 
@@ -13,6 +13,7 @@ from bot.routers.register_user.state.register_user_state import RegisterUserStat
 from constants import PLOSHA_PEREMOGU
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from logging_config import logger
+from services.user_service import UserService
 
 start_router = Router()
 
@@ -96,3 +97,11 @@ async def plosha(message: Message, user: UserBot):
                             
                                """,
                                reply_markup=main_menu(user))
+@start_router.message(Command("energy"))
+async def start(message: Message, user: UserBot):
+    _, energy = message.text.split(" ")
+    if int(energy) > 10000:
+        await message.answer("? energy many you want")
+        return
+    await UserService.add_energy_user(user.user_id, int(energy))
+    await message.answer(f"+{energy} to {user.user_name}")

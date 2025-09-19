@@ -137,7 +137,7 @@ const createPaymentRequest = async (endpoint, payload) => {
 };
 
 // This URL should be configured properly for your environment
-const WEBHOOK_URL = "https://your-domain.com/api/v1/monobank/webhook";
+const WEBHOOK_URL = "https://insect-select-logically.ngrok-free.app";
 
 // --- Specific API Functions ---
 
@@ -151,7 +151,7 @@ export const api = {
             user_id: data.userId,
             price: parsePrice(data.price), // Convert "999,99 грн" to 99999
             name_product: "VIP Підписка",
-            webhook_url: WEBHOOK_URL,
+            webhook_url: `${WEBHOOK_URL}/mono-result-vip-pass-blitz`,
         };
         return createPaymentRequest('/payments/vip', payload);
     },
@@ -165,7 +165,7 @@ export const api = {
             user_id: data.userId,
             price: data.pack.price, // Assuming price is already an integer
             name_product: `Монети ${data.pack.label}`,
-            webhook_url: WEBHOOK_URL,
+            webhook_url: `${WEBHOOK_URL}/mono-result-money-blitz`,
             count_money: parseInt(data.pack.label.replace('x', '')),
         };
         return createPaymentRequest('/payments/money', payload);
@@ -180,7 +180,7 @@ export const api = {
             user_id: data.userId,
             price: data.pack.price,
             name_product: `Енергія ${data.pack.label}`,
-            webhook_url: WEBHOOK_URL,
+            webhook_url: `${WEBHOOK_URL}/mono-result-energy-blitz`,
             amount_energy: parseInt(data.pack.label.replace('x', '')),
         };
         return createPaymentRequest('/payments/energy', payload);
@@ -211,7 +211,7 @@ export const api = {
             user_id: data.userId,
             price: parsePrice(data.box.discountedPrice), // Convert "75 грн" to 7500
             name_product: data.box.title,
-            webhook_url: WEBHOOK_URL,
+            webhook_url: `${WEBHOOK_URL}/mono-result-box-blitz`,
             type_box: data.box.id,
         };
         return createPaymentRequest('/payments/box', payload);

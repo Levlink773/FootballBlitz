@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useSpring, animated } from 'react-spring';
 import styles from '../../css_files/main_css/StatsPanel.module.css';
 
+// Компоненты AnimatedNumber и StatBox остаются без изменений
+
 const statsData = [
     { value: 903, label: 'гри' },
     { value: 89.3, label: 'перемог', isPercent: true },
     { value: 120, label: 'турнірів' },
 ];
 
-// Компонент для анимированного числа
 const AnimatedNumber = ({ n, isPercent }) => {
     const { number } = useSpring({
         from: { number: 0 },
@@ -20,10 +21,8 @@ const AnimatedNumber = ({ n, isPercent }) => {
         <animated.span>
             {number.to((val) => {
                 if (isPercent) {
-                    // Форматируем для одного знака после запятой и добавляем %
                     return `${val.toFixed(1)}%`;
                 }
-                // Округляем до целого числа
                 return val.toFixed(0);
             })}
         </animated.span>
@@ -49,6 +48,9 @@ export const StatsPanel = () => {
 
     return (
         <div className={styles.statsPanel}>
+            {/* === ДОБАВЛЕНА НАДПИСЬ "ТЕСТ" === */}
+            <div className={styles.testLabel}>ТЕСТ</div>
+
             {/* --- Верхний блок с переключателем --- */}
             <div className={styles.header}>
                 <div className={`${styles.title} ${!isRatings ? styles.activeTitle : ''}`}>

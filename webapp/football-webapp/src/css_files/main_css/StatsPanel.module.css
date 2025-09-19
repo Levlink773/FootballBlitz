@@ -12,6 +12,7 @@
 
 /* Главный контейнер для всего блока */
 .statsPanel {
+    position: relative; /* ВАЖНО: Это нужно для позиционирования дочернего элемента */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,10 +20,26 @@
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
-    margin-top: 430px; /* Позиция сохранена */
-    /* Плавное появление всего блока */
+    margin-top: 430px;
     animation: fadeIn 0.8s ease-out forwards;
 }
+
+/* === НОВЫЙ СТИЛЬ ДЛЯ НАДПИСИ "ТЕСТ" === */
+.testLabel {
+    position: absolute; /* Позиционируем абсолютно, чтобы не влиять на другие элементы */
+    top: 25px;        /* Отступ сверху */
+    right: 15px;      /* Отступ справа */
+    font-size: 18px;  /* Небольшой шрифт */
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4); /* Полупрозрачный цвет */
+    background: rgba(0, 0, 0, 0.2);  /* Легкий фон для читаемости */
+    padding: 2px 6px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none; /* Чтобы надпись не перехватывала клики мыши */
+}
+
 
 /* Контейнер для "Статистика", переключателя и "Рейтинги" */
 .header {
@@ -34,23 +51,23 @@
     top: 10px;
 }
 
-/* Общий стиль для заголовков "Статистика" и "Рейтинги" */
+/* Общий стиль для заголовков "Статистика" и "Рейтинги" (без изменений) */
 .title {
-    color: #a09b3b; /* Менее яркий цвет для неактивного состояния */
+    color: #a09b3b;
     font-size: 12px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4);
-    transition: color 0.4s ease, text-shadow 0.4s ease; /* Плавный переход */
+    transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
-/* Стиль для активного заголовка */
+/* Стиль для активного заголовка (без изменений) */
 .activeTitle {
     color: #FEF21B;
-    text-shadow: 0px 0px 8px rgba(254, 242, 27, 0.7), 0px 4px 4px rgba(0, 0, 0, 0.5); /* Эффект свечения */
+    text-shadow: 0px 0px 8px rgba(254, 242, 27, 0.7), 0px 4px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Контейнер для статистики */
+/* Контейнер для статистики (без изменений) */
 .statsContainer {
     width: 100%;
     max-width: 320px;
@@ -59,7 +76,7 @@
     align-items: center;
 }
 
-/* Общий стиль для блока со значением */
+/* Общий стиль для блока со значением (без изменений) */
 .statBox {
     display: flex;
     flex-direction: column;
@@ -68,32 +85,31 @@
     text-align: center;
     color: white;
     font-family: 'Inter', sans-serif;
-    transition: transform 0.3s ease; /* Анимация при наведении */
+    transition: transform 0.3s ease;
 }
 
 .statBox:hover {
-    transform: scale(1.05); /* Легкое увеличение при наведении */
+    transform: scale(1.05);
 }
 
 
-/* Стиль для большого числа или процента */
+/* Стиль для большого числа или процента (без изменений) */
 .statValue {
     font-size: 30px;
     font-weight: 400;
-    /* Легкое свечение для текста */
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
-/* Стиль для подписи */
+/* Стиль для подписи (без изменений) */
 .statLabel {
     font-size: 14px;
     font-weight: 400;
     line-height: 1;
     margin-top: -5px;
-    color: rgba(255, 255, 255, 0.8); /* Чуть менее яркий цвет для подписи */
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* Вертикальный разделитель */
+/* Вертикальный разделитель (без изменений) */
 .divider {
     width: 2px;
     height: 40px;
@@ -102,42 +118,41 @@
             rgba(255, 255, 255, 0.2),
             rgba(255, 255, 255, 0.8),
             rgba(255, 255, 255, 0.2)
-    ); /* Градиент вместо сплошного цвета */
+    );
     border-radius: 1px;
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.3); /* Легкое свечение */
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
 }
 
-/* --- Улучшенные стили для переключателя --- */
+/* --- Улучшенные стили для переключателя --- (без изменений) */
 .toggleContainer {
     width: 26px;
     height: 14px;
     background: #3B3B3B;
-    box-shadow: inset 0px 2px 2px rgba(0, 0, 0, 0.5), 0px 4px 4px rgba(0, 0, 0, 0.5); /* Внутренняя тень для объема */
+    box-shadow: inset 0px 2px 2px rgba(0, 0, 0, 0.5), 0px 4px 4px rgba(0, 0, 0, 0.5);
     border-radius: 30px;
     padding: 2px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    cursor: pointer; /* Показываем, что элемент кликабельный */
-    transition: background-color 0.4s ease; /* Плавная смена фона */
+    cursor: pointer;
+    transition: background-color 0.4s ease;
 }
 
 .toggleCircle {
     width: 9px;
     height: 9px;
-    background: #999; /* Серый цвет для неактивного состояния */
+    background: #999;
     box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.5);
     border-radius: 50%;
-    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background-color 0.4s ease; /* Пружинистая анимация движения и смена цвета */
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background-color 0.4s ease;
 }
 
-/* Активное состояние переключателя */
 .toggleContainer.active {
-    background: #504d1b; /* Цвет фона активного переключателя */
+    background: #504d1b;
 }
 
 .toggleContainer.active .toggleCircle {
     background: #FEF21B;
     box-shadow: 0px 0px 8px rgba(254, 242, 27, 0.7), 0px 2px 3px rgba(0, 0, 0, 0.5);
-    transform: translateX(11px); /* Сдвигаем кружок вправо */
+    transform: translateX(11px);
 }

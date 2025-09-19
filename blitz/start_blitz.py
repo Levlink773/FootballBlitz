@@ -2,8 +2,10 @@ import asyncio
 import random
 from datetime import datetime, timedelta
 
-from blitz.blitz_match.core.manager import TeamBlitzMatchManager, BlitzStateData, BlitzState
+from blitz.blitz_match.core.manager import BlitzStateData, BlitzState
 from blitz.blitz_match.core.match import BlitzMatch
+from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager
+from blitz.blitz_match.core.manager import TeamBlitzMatchManager as TBMatchManager
 from blitz.blitz_match.entities import MatchTeamBlitz, BlitzMatchData
 from blitz.blitz_match.utils import generate_blitz_match_id
 from blitz.blitz_reminder import BlitzReminder
@@ -112,10 +114,12 @@ class StartBlitz:
             first_team=match_team_first,
             second_team=match_team_second
         )
-        TeamBlitzMatchManager.add_match(
+        await match_data.init_teams()
+        await TeamBlitzMatchManager.add_match(
             match_data,
             BlitzStateData(state=BlitzState.STARTED, message=text_init)
         )
+        TBMatchManager.add_match(match_data, BlitzStateData(state=BlitzState.STARTED, message=text_init))
         await publish_match_state(match_data.blitz_match_id)
         payloads = make_payloads_for_users(
             "show_alert",
@@ -187,7 +191,8 @@ class StartBlitz:
             )
             asyncio.create_task(_delayed_publish(payloads))
 
-        TeamBlitzMatchManager.clear_matches()
+        await TeamBlitzMatchManager.clear_matches()
+        TBMatchManager.clear_matches()
         logger.info("Состояние матчей очищено.")
 
     async def _start_blitz(self, blitz_id: int):
@@ -219,7 +224,7 @@ class StartBlitz:
             logger.info(f"tasks: {tasks}")
             logger.info("blitz match started")
             results_match = await asyncio.gather(*tasks)
-            TeamBlitzMatchManager.clear_matches()
+            await TeamBlitzMatchManager.clear_matches()
             logger.info(f"blitz match finish: {results_match}")
             looser_teams_stage = [looser for _, looser in results_match]
             winner_teams_stage = [winner for winner, _ in results_match]
@@ -255,7 +260,7 @@ class StartBlitz:
         bz_reward = BlitzRewardService.reward_blitz_team
         text = await BlitzAnnounceService.announce_end(users, final_winner, final_looser, reward_energy_garanted)
 
-        TeamBlitzMatchManager.set_all_matches_state(
+        await TeamBlitzMatchManager.set_all_matches_state(
             BlitzStateData(state=BlitzState.FINISHED, message=text),
         )
         asyncio.create_task(_delayed_publish_all_match())
@@ -298,6 +303,8 @@ class StartBlitz:
             logger.info("🏁 Блиц завершен!")
             return BlitzStatus.FINISH
         finally:
+            TBMatchManager.clear_matches()
+            await TeamBlitzMatchManager.clear_matches()
             await BlitzService.remove_all_blitzes()
             await BlitzTeamService.remove_all_blitz_teams()
             logger.info("🏁 Блиц удален!")

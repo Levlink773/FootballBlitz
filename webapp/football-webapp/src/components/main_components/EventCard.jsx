@@ -131,7 +131,7 @@ const EnterButton = styled.div`
     position: absolute;
     width: 200px;
     height: 40px;
-    bottom: -25px; // Изменено для лучшего позиционирования
+    bottom: 25px; // Изменено для лучшего позиционирования
     left: 55%;
     transform: translateX(-50%);
     border-radius: 8px;
@@ -217,10 +217,10 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 // Даже если блиц активен, нам нужно знать, зарегистрирован ли в нем юзер,
                 // чтобы показать правильную кнопку/сообщение
                 try {
-                    const regResponse = await fetch(`http://localhost:8123/blitz/${activeData.blitz_id}/is_registered/${user.user_id}`);
+                    const regResponse = await fetch(`http://localhost:8123/blitz/user/${user.user_id}/match_state`);
                     if (regResponse.ok) {
                         const regData = await regResponse.json();
-                        setIsRegistered(regData.registered);
+                        setIsRegistered(true);
                     } else {
                         setIsRegistered(false);
                     }
@@ -241,7 +241,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 setBlitzInfo(nextData);
 
                 try {
-                    const regResponse = await fetch(`http://localhost:8123/blitz/${nextData.blitz_id}/is_registered/${user.user_id}`);
+                    const regResponse = await fetch(`http://localhost:8123/blitz/is_registered/${user.user_id}`);
                     if (regResponse.ok) {
                         const regData = await regResponse.json();
                         setIsRegistered(regData.registered);

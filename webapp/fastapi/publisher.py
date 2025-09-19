@@ -5,7 +5,6 @@ import os
 from datetime import datetime
 import redis.asyncio as redis
 
-from blitz.blitz_match.core.manager import TeamBlitzMatchManager
 from logging_config import logger
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -13,6 +12,7 @@ REDIS_CHANNEL = os.getenv("REDIS_CHANNEL", "events")
 
 # ленивый singleton клиента
 _redis_client: redis.Redis | None = None
+
 
 def get_redis() -> redis.Redis:
     global _redis_client
@@ -47,7 +47,8 @@ async def publish_event(payload: dict, retries: int = 3, backoff: float = 0.05) 
 
 
 # Вспомогательная функция для типового payload
-def make_payload(event_type: str, user_id: int | None = None, target: dict | None = None, payload: dict | None = None) -> dict:
+def make_payload(event_type: str, user_id: int | None = None, target: dict | None = None,
+                 payload: dict | None = None) -> dict:
     """
     Формат:
     {
@@ -65,6 +66,7 @@ def make_payload(event_type: str, user_id: int | None = None, target: dict | Non
         "payload": payload or {},
         "ts": datetime.utcnow().isoformat() + "Z"
     }
+
 
 async def publish_batch(payloads: list[dict], batch_size: int = 50) -> list[bool]:
     """
@@ -134,6 +136,7 @@ def make_payloads_for_users(event_type: str, users: list, payload_factory=lambda
         out.append(p)
     return out
 
+
 # --- добавьте в конец services/publisher.py ---
 
 async def publish_match_state(match_id: str, options: dict | None = None) -> list[bool]:
@@ -143,14 +146,12 @@ async def publish_match_state(match_id: str, options: dict | None = None) -> lis
 
     Возвращает список bool для каждого отправленного payload (успех/неудача).
     """
+    from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager
     # пытаемся найти запись
     options = options or {}
-    match_tuple = TeamBlitzMatchManager.all_matches.get(match_id)
-    if not match_tuple:
-        logger.warning("publish_match_state: match not found match_id=%s", match_id)
-        return []
-
-    match_data, state_data = match_tuple
+    match_data = await TeamBlitzMatchManager.get_match(match_id)
+    state_data = await TeamBlitzMatchManager.get_match_state(match_id)
+    await match_data.init_teams()
 
     # Получаем список user_id в матче
     try:
@@ -190,27 +191,36 @@ async def publish_match_state(match_id: str, options: dict | None = None) -> lis
         except Exception as e2:
             logger.exception("publish_match_state: fallback publish_many_concurrent also failed: %s", e2)
             return [False] * len(payloads)
-async def publish_all_matches_state() -> dict:
+
+
+async def publish_all_matches_state() -> dict[str, list[bool]]:
     """
-    Для всех матчей в TeamBlitzMatchManager отправляет каждому пользователю матча
+    Для всех матчей в Redis отправляет каждому пользователю матча
     payload с полями: { state: str, message: str, match_id: str }.
 
     Возвращает dict: { match_id: [bool, bool, ...], ... } — список результатов для каждого матча.
     """
+    from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager
 
-    all_matches = getattr(TeamBlitzMatchManager, "all_matches", None)
-    if not all_matches:
+    match_ids = await TeamBlitzMatchManager.get_all_match_ids()
+    if not match_ids:
         logger.info("publish_all_matches_state: no matches found")
         return {}
 
     results_by_match: dict[str, list[bool]] = {}
 
-    # Итерируем копию элементов, чтобы избежать проблем при изменении словаря во время работы
-    for match_id, match_tuple in list(all_matches.items()):
-        try:
-            match_data, state_data = match_tuple
-        except Exception as e:
-            logger.exception("publish_all_matches_state: invalid tuple for match_id=%s err=%s", match_id, e)
+    for match_id in match_ids:
+        storage = await TeamBlitzMatchManager.get_match_storage(match_id)
+        if not storage:
+            logger.warning("publish_all_matches_state: storage not found for match_id=%s", match_id)
+            continue
+
+        match_data = await TeamBlitzMatchManager.get_match(match_id)
+        state_data = storage.state_data
+
+        if not match_data:
+            logger.warning("publish_all_matches_state: match not restored for match_id=%s", match_id)
+            results_by_match[match_id] = []
             continue
 
         try:
@@ -232,7 +242,11 @@ async def publish_all_matches_state() -> dict:
                 "match_id": match_id
             }
 
-        payloads = make_payloads_for_users(event_type="blitz_match_state", users=user_ids, payload_factory=payload_factory)
+        payloads = make_payloads_for_users(
+            event_type="blitz_match_state",
+            users=user_ids,
+            payload_factory=payload_factory
+        )
 
         try:
             res = await publish_batch(payloads)
@@ -244,12 +258,14 @@ async def publish_all_matches_state() -> dict:
             try:
                 res = await publish_many_concurrent(payloads)
                 results_by_match[match_id] = res
-                logger.info("publish_all_matches_state: fallback publish_many_concurrent done for match_id=%s", match_id)
+                logger.info("publish_all_matches_state: fallback publish_many_concurrent done for match_id=%s",
+                            match_id)
             except Exception as e2:
                 logger.exception("publish_all_matches_state: fallback failed for match_id=%s err=%s", match_id, e2)
                 results_by_match[match_id] = [False] * len(payloads)
 
     return results_by_match
+
 
 async def _delayed_publish(payloads, delay=5):
     await asyncio.sleep(delay)  # не блокирует цикл
@@ -258,6 +274,7 @@ async def _delayed_publish(payloads, delay=5):
         logger.info("publish_batch finished, result=%s", result)
     except Exception:
         logger.exception("publish_batch failed (delayed)")
+
 
 async def _delayed_publish_all_match(delay=5):
     await asyncio.sleep(delay)  # не блокирует цикл

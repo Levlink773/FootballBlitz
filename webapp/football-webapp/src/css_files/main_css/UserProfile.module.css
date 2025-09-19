@@ -141,3 +141,9 @@
     height: 22px;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
 }
+/* Добавьте этот класс в UserProfile.module.css */
+.statIcon {
+    width: 24px;  /* Или любой другой размер, который вам подходит */
+    height: 24px;
+    object-fit: contain; /* Для <img>, чтобы картинка не искажалась */
+}

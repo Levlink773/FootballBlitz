@@ -44,7 +44,7 @@ class BlitzMatch:
         return count
 
     async def start_match(self) -> tuple[BlitzTeam, BlitzTeam]:
-        await self.match_data.init_teams()
+        # await self.match_data.init_teams()
 
         await self.goal_generator.start()
         await self.match_sender.start_match()
