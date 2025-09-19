@@ -34,31 +34,71 @@ class GoalGenerator:
         if self._producer_task:
             await self._producer_task
 
-
     async def _start_producer(self) -> None:
         events = self.generate_events()
         event_times = self.generate_time_events()
 
-        for event, event_time in zip(events, event_times):
-            now = datetime.now()
+        # Используем current_time для отслеживания времени последнего события
+        current_time = datetime.now()
 
+        for event, event_time in zip(events, event_times):
             if not self._running:
                 break
 
             if event == TypeGoalEvent.GOAL:
+                # 1. Рассчитываем время для пинга
                 ping_time = event_time - timedelta(seconds=TIME_EVENT_DONATE_ENERGY)
-                delay_ping = (ping_time - now).total_seconds()
+
+                # 2. Вычисляем задержку до пинга от текущего момента
+                delay_ping = (ping_time - current_time).total_seconds()
                 if delay_ping > 0:
                     await asyncio.sleep(delay_ping)
-                await self.queue.put(TypeGoalEvent.PING_DONATE_ENERGY)
 
-            delay_event = (event_time - datetime.now()).total_seconds()
-            if delay_event > 0:
-                await asyncio.sleep(delay_event)
+                # 3. Отправляем пинг и ОБЯЗАТЕЛЬНО ждём фиксированное время
+                if self._running:  # Проверяем снова, т.к. после sleep могло измениться
+                    await self.queue.put(TypeGoalEvent.PING_DONATE_ENERGY)
+                    await asyncio.sleep(TIME_EVENT_DONATE_ENERGY)
 
-            await self.queue.put(event)
+            else:  # Это событие NO_GOAL
+                # Просто ждем до запланированного времени события
+                delay_event = (event_time - current_time).total_seconds()
+                if delay_event > 0:
+                    await asyncio.sleep(delay_event)
 
-        await self.queue.put(None)
+            # 4. Отправляем основное событие (GOAL или NO_GOAL)
+            if self._running:
+                await self.queue.put(event)
+
+            # 5. Обновляем наше "текущее" время на время только что произошедшего события
+            current_time = event_time
+
+        if self._running:
+            await self.queue.put(None)
+
+    # async def _start_producer(self) -> None:
+    #     events = self.generate_events()
+    #     event_times = self.generate_time_events()
+    #
+    #     for event, event_time in zip(events, event_times):
+    #         now = datetime.now()
+    #
+    #         if not self._running:
+    #             break
+    #
+    #         if event == TypeGoalEvent.GOAL:
+    #             ping_time = event_time - timedelta(seconds=TIME_EVENT_DONATE_ENERGY)
+    #             delay_ping = (ping_time - now).total_seconds()
+    #             if delay_ping > 0:
+    #                 await asyncio.sleep(delay_ping)
+    #             await self.queue.put(TypeGoalEvent.PING_DONATE_ENERGY)
+    #
+    #         delay_event = (event_time - datetime.now()).total_seconds()
+    #         if delay_event > 0:
+    #             await asyncio.sleep(delay_event)
+    #
+    #         await self.queue.put(event)
+    #
+    #     await self.queue.put(None)
         
     async def generate_goals(self) -> AsyncGenerator[TypeGoalEvent, None]:
         while True:

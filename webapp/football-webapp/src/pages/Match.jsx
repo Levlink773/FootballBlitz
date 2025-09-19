@@ -135,7 +135,6 @@ export default function MatchCard({initialUserFromServer}) {
                 energy: energyToDonate,
             });
             await fetchUser();
-            showAlert(`Ви успішно задонатили ${energyToDonate}🔋!`, { type: 'success' });
         } catch (error) {
             console.error("Donation failed:", error);
             showAlert(`Помилка: ${error.message}`);

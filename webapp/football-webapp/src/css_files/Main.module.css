@@ -344,8 +344,17 @@
     gap: 16px;
     align-items: center;
     overflow: hidden; /* Important for the border effect */
-    max-height: 70vh; /* Ограничиваем высоту (например, 70% высоты экрана) */
-    overflow-y: auto; /* Добавляем скролл, если контент не помещается */
+    height: calc(70vh - 1px);
+    max-height: calc(70vh - 1px);
+    min-height: 200px; /* при необходимости подберите порог */
+    overflow-y: auto;
+}
+.promoCardContainer::after {
+    content: "";
+    display: block;
+    height: 1px;
+    width: 100%;
+    pointer-events: none; /* псевдоэлемент не мешает кликам */
 }
 /* ✨ Бонус: Сделаем скроллбар красивым и минималистичным */
 .promoCardContainer::-webkit-scrollbar {

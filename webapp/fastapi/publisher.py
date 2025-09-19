@@ -136,7 +136,7 @@ def make_payloads_for_users(event_type: str, users: list, payload_factory=lambda
 
 # --- добавьте в конец services/publisher.py ---
 
-async def publish_match_state(match_id: str) -> list[bool]:
+async def publish_match_state(match_id: str, options: dict | None = None) -> list[bool]:
     """
     Находит матч по match_id в TeamBlitzMatchManager и отправляет каждому пользователю матча
     payload с полями: { state: str, message: str, match_id: str }.
@@ -144,6 +144,7 @@ async def publish_match_state(match_id: str) -> list[bool]:
     Возвращает список bool для каждого отправленного payload (успех/неудача).
     """
     # пытаемся найти запись
+    options = options or {}
     match_tuple = TeamBlitzMatchManager.all_matches.get(match_id)
     if not match_tuple:
         logger.warning("publish_match_state: match not found match_id=%s", match_id)
@@ -164,11 +165,14 @@ async def publish_match_state(match_id: str) -> list[bool]:
 
     # сформировать payloads для каждого пользователя
     def payload_factory(u):
-        return {
+        base = {
             "state": state_data.state.value if hasattr(state_data.state, "value") else str(state_data.state),
             "message": getattr(state_data, "message", "") or "",
-            "match_id": match_id
+            "match_id": match_id,
+            "user_id": u,
         }
+        # options распаковываем позже, чтобы они могли переопределить базовые поля при необходимости
+        return {**base, **options}
 
     payloads = make_payloads_for_users(event_type="blitz_match_state", users=user_ids, payload_factory=payload_factory)
 
@@ -246,3 +250,19 @@ async def publish_all_matches_state() -> dict:
                 results_by_match[match_id] = [False] * len(payloads)
 
     return results_by_match
+
+async def _delayed_publish(payloads, delay=5):
+    await asyncio.sleep(delay)  # не блокирует цикл
+    try:
+        result = await publish_batch(payloads)
+        logger.info("publish_batch finished, result=%s", result)
+    except Exception:
+        logger.exception("publish_batch failed (delayed)")
+
+async def _delayed_publish_all_match(delay=5):
+    await asyncio.sleep(delay)  # не блокирует цикл
+    try:
+        result = await publish_all_matches_state()
+        logger.info("publish_batch finished, result=%s", result)
+    except Exception:
+        logger.exception("publish_batch failed (delayed)")

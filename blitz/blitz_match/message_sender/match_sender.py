@@ -243,7 +243,7 @@ class BlitzMatchSender:
             self.match_data.blitz_match_id,
             BlitzStateData(state=BlitzState.PING, message=text),
         )
-        await publish_match_state(self.match_data.blitz_match_id)
+        await publish_match_state(self.match_data.blitz_match_id, options={"goal_time": goal_time})
         message_photo = await self.sender.send_messages(
             users=self.match_data.all_users,
             text=text,

@@ -20,7 +20,7 @@ from database.models.user_bot import UserBot
 from logging_config import logger
 from services.user_service import UserService
 from webapp.fastapi.publisher import publish_match_state, publish_all_matches_state, make_payloads_for_users, \
-    publish_batch
+    publish_batch, _delayed_publish, _delayed_publish_all_match
 
 
 class StartBlitzs:
@@ -117,6 +117,17 @@ class StartBlitz:
             BlitzStateData(state=BlitzState.STARTED, message=text_init)
         )
         await publish_match_state(match_data.blitz_match_id)
+        payloads = make_payloads_for_users(
+            "show_alert",
+            teams[0].users + teams[1].users,
+            payload_factory=lambda u: {
+                "message": "Бліц турнір почався!"
+            }
+        )
+
+        # 2а) Лучший вариант — отправить пакетами через pipeline
+        results = await publish_batch(payloads, batch_size=32)
+        logger.info("publish_batch results: sent=%s total=%s", sum(1 for r in results if r), len(results))
 
         blitz_match = BlitzMatch(match_data, datetime.now())
         await asyncio.sleep(60)
@@ -171,10 +182,10 @@ class StartBlitz:
                 event_type="remove_user",
                 users=finalist_users,
                 payload_factory=lambda u: {
-                    "message": "Вітаємо!",
+                    "message": "Вітаємо. Енергія та рейтинг начисленно, лутбокси можете забрати у телеграмі!",
                 }
             )
-            await publish_batch(payloads)
+            asyncio.create_task(_delayed_publish(payloads))
 
         TeamBlitzMatchManager.clear_matches()
         logger.info("Состояние матчей очищено.")
@@ -226,7 +237,7 @@ class StartBlitz:
                     }
                 )
                 # Отправляем в фоне, чтобы не блокировать основной процесс
-                asyncio.create_task(publish_batch(payloads))
+                asyncio.create_task(_delayed_publish(payloads))
             # --- Конец нового блока ---
             asyncio.create_task(
                 BlitzAnnounceService.announce_round_results(winner_teams_stage, looser_teams_stage, reward_energy_garanted))
@@ -245,9 +256,9 @@ class StartBlitz:
         text = await BlitzAnnounceService.announce_end(users, final_winner, final_looser, reward_energy_garanted)
 
         TeamBlitzMatchManager.set_all_matches_state(
-            BlitzStateData(state=BlitzState.END_MATCH, message=text),
+            BlitzStateData(state=BlitzState.FINISHED, message=text),
         )
-        await publish_all_matches_state()
+        asyncio.create_task(_delayed_publish_all_match())
         await bz_reward(self.blitz_reward_pack.reward_winner, final_winner)
         await bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser)
         for semi_team in pure_semifinal_losers:

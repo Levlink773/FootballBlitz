@@ -9,7 +9,6 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 from blitz.blitz_match.constans import MIN_DONATE_ENERGY_TO_BONUS_KOEF
-from blitz.blitz_match.core.manager import TeamBlitzMatchManager
 from blitz.blitz_match.entities import BlitzMatchData
 from blitz.services.blitz_service import BlitzService
 from logging_config import logger
@@ -152,6 +151,7 @@ async def blitz_is_active():
     count = количество матчей
     match_ids = список blitz_match_id
     """
+    from blitz.blitz_match.core.manager import TeamBlitzMatchManager
     if TeamBlitzMatchManager is None:
         # Если менеджер не импортировался — логируем и возвращаем "неактивно"
         logger.warning("TeamBlitzMatchManager not available - cannot determine active blitz matches")
@@ -271,6 +271,7 @@ async def get_user_match_state(user_id: int):
     Находит первый матч в TeamBlitzMatchManager, где присутствует user_id,
     и возвращает его BlitzStateData: state и message.
     """
+    from blitz.blitz_match.core.manager import TeamBlitzMatchManager
     try:
         matches = getattr(TeamBlitzMatchManager, "all_matches", {}) or {}
     except Exception as e:
@@ -354,14 +355,11 @@ async def donate_energy_by_user(body: DonateEnergyRequest):
     if not match_data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Активний матч для цього користувача не знайдено")
-
-    # 3. Решта логіки, яка тепер працює зі знайденим `match_data`
-    end_time = getattr(match_data, "end_time", None)
-    if not end_time or int(time.time()) > end_time:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Час для цього голу вже закінчився"
-        )
+    # if not body.end_time or int(time.time()) > body.end_time:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="Час для цього голу вже закінчився"
+    #     )
 
     old_chance_team = match_data.get_chance_teams()
     old_first_club_chance = old_chance_team[0] * 100
