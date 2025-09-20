@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../css_files/main_css/UserProfile.module.css';
 import Config from "../../config.js";
+import {API_BASE_URL} from "../../api.js";
 
 // --- ИЗМЕНЕНИЕ 1: SVG иконка вынесена в отдельный React компонент ---
 // Это хорошая практика, так как делает код чище и позволяет легко переиспользовать иконку.
@@ -62,7 +63,7 @@ export const UserProfile = ({ user }) => {
 
         const fetchCharacter = async () => {
             try {
-                const response = await fetch(`http://localhost:8123/characters/by-user-main/${user.user_id}`);
+                const response = await fetch(`${API_BASE_URL}/characters/by-user-main/${user.user_id}`);
                 if (!response.ok) {
                     throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
                 }

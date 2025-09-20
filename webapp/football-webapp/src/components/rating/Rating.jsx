@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../css_files/rating/Rating.module.css';
 import Config from "../../config.js";
+import {API_BASE_URL} from "../../api.js";
 
 // Компонент RatingItem залишається без змін...
 const RatingItem = ({ rank, icon, name, score, index }) => (
@@ -28,7 +29,7 @@ const Rating = ({ onShowInfo }) => {
     useEffect(() => {
         const fetchRanking = async () => {
             try {
-                const response = await fetch('http://localhost:8123/users/ranking');
+                const response = await fetch(`${API_BASE_URL}/users/ranking`);
                 if (!response.ok) {
                     throw new Error(`Не вдалося завантажити дані: ${response.statusText}`);
                 }

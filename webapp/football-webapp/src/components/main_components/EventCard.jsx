@@ -6,6 +6,7 @@ import styled, { keyframes } from 'styled-components';
 import Config from "../../config.js";
 import {showAlert} from "../../alertService.jsx";
 import useWebSocket from "../../../useWebsocket.js";
+import {API_BASE_URL} from "../../api.js";
 
 // --- Анимации и стили (без изменений) ---
 
@@ -181,7 +182,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://localhost:8123/users/${user.user_id}`);
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (onUserUpdate) onUserUpdate(userData);
@@ -205,7 +206,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
         setNotificationShown(false);
         try {
-            const activeResponse = await fetch('http://localhost:8123/blitz/active');
+            const activeResponse = await fetch(`${API_BASE_URL}/blitz/active`);
             if (!activeResponse.ok) throw new Error('Failed to fetch active status');
             const activeData = await activeResponse.json();
 
@@ -217,7 +218,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 // Даже если блиц активен, нам нужно знать, зарегистрирован ли в нем юзер,
                 // чтобы показать правильную кнопку/сообщение
                 try {
-                    const regResponse = await fetch(`http://localhost:8123/blitz/user/${user.user_id}/match_state`);
+                    const regResponse = await fetch(`${API_BASE_URL}/blitz/user/${user.user_id}/match_state`);
                     if (regResponse.ok) {
                         const regData = await regResponse.json();
                         setIsRegistered(true);
@@ -232,7 +233,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
             // Если активного нет, ищем следующий
             setIsBlitzActive(false);
-            const nextResponse = await fetch('http://localhost:8123/blitz/next');
+            const nextResponse = await fetch(`${API_BASE_URL}/blitz/next`);
             if (!nextResponse.ok) throw new Error('Failed to fetch next blitz');
             const nextData = await nextResponse.json();
 
@@ -241,7 +242,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 setBlitzInfo(nextData);
 
                 try {
-                    const regResponse = await fetch(`http://localhost:8123/blitz/is_registered/${user.user_id}`);
+                    const regResponse = await fetch(`${API_BASE_URL}/blitz/is_registered/${user.user_id}`);
                     if (regResponse.ok) {
                         const regData = await regResponse.json();
                         setIsRegistered(regData.registered);
@@ -332,7 +333,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8123/blitz/${blitzInfo.blitz_id}/register`, {
+            const response = await fetch(`${API_BASE_URL}/blitz/${blitzInfo.blitz_id}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: user.user_id }),

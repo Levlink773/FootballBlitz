@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import EducationCentreView from './EducationCentreView'; // Імпортуємо компонент для відображення
 import Config from "../../config.js";
 import {showAlert} from "../../alertService.jsx";
+import {API_BASE_URL} from "../../api.js";
 
 // Допоміжна мапа для збагачення даних з бекенду (іконки, фон),
 // оскільки бекенд не повертає цю візуальну інформацію.
@@ -59,7 +60,7 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
     const [dailyReward, setDailyReward] = useState({ isClaimable: false, timeLeft: 0 });
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://localhost:8123/users/${userId}`);
+            const res = await fetch(`${API_BASE_URL}/users/${userId}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (onUserUpdate) onUserUpdate(userData);
@@ -73,8 +74,8 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
         setIsLoading(true);
         try {
             const [remainingRes, tasksRes] = await Promise.all([
-                fetch(`http://localhost:8123/education/remaining/${userId}`), // Перевірте шлях до API
-                fetch(`http://localhost:8123/education/tasks/${userId}`)      // Перевірте шлях до API
+                fetch(`${API_BASE_URL}/education/remaining/${userId}`), // Перевірте шлях до API
+                fetch(`${API_BASE_URL}/education/tasks/${userId}`)      // Перевірте шлях до API
             ]);
 
             const remainingData = await remainingRes.json();
@@ -117,7 +118,7 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
     // Обробник для отримання щоденної нагороди
     const handleClaimDaily = async () => {
         try {
-            const response = await fetch('http://localhost:8123/education/claim', {
+            const response = await fetch(`${API_BASE_URL}/education/claim`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: userId })
@@ -139,7 +140,7 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
     // Обробник для отримання нагороди за завдання
     const handleClaimTask = async (taskId) => {
         try {
-            const response = await fetch('http://localhost:8123/education/tasks/claim', {
+            const response = await fetch(`${API_BASE_URL}/education/tasks/claim`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: userId, stat_type: taskId })

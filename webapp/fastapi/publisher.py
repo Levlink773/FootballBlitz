@@ -4,9 +4,10 @@ import asyncio
 import os
 from datetime import datetime
 import redis.asyncio as redis
+from dotenv import load_dotenv
 
 from logging_config import logger
-
+load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 REDIS_CHANNEL = os.getenv("REDIS_CHANNEL", "events")
 

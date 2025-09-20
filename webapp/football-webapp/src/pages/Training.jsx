@@ -8,6 +8,7 @@ import TrainingOption from "../components/training/TrainingOption.jsx";
 import TrainingStatus from "../components/training/TrainingStatus.jsx";
 import {showAlert} from "../alertService.jsx";
 import useWebSocket from "../../useWebsocket.js";
+import {API_BASE_URL} from "../api.js";
 const TRAINING_OPTIONS = [
     { id: 1, bg: Config.IMAGES.train_line, chance: '~35%', duration: '30 хв.', cost: -10, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
     { id: 2, bg: Config.IMAGES.train_line, chance: '~45%', duration: '60 хв.', cost: -20, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
@@ -22,7 +23,7 @@ export default function TrainingRoomCard({ initialUserFromServer }) {
     useWebSocket(user?.user_id);
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://localhost:8123/users/${user.user_id}`);
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (setUser) setUser(userData);
@@ -37,7 +38,7 @@ export default function TrainingRoomCard({ initialUserFromServer }) {
 
         const checkTrainingStatus = async () => {
             try {
-                const response = await axios.get(`http://localhost:8123/training/status/${user.user_id}`);
+                const response = await axios.get(`${API_BASE_URL}/training/status/${user.user_id}`);
                 setIsTrainingActive(response.data.in_training);
             } catch (error) {
                 console.error("Error fetching training status:", error);
@@ -60,7 +61,7 @@ export default function TrainingRoomCard({ initialUserFromServer }) {
 
         try {
             // Call the backend API
-            await axios.post('http://localhost:8123/training/start', {
+            await axios.post(`${API_BASE_URL}/training/start`, {
                 user_id: user.user_id,
                 gym_time_seconds: durationInSeconds,
                 cost_energy: Math.abs(cost) // Cost is already a positive number

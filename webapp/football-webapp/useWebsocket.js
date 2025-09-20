@@ -1,7 +1,7 @@
 // src/hooks/useWebSocket.js
 import { useEffect, useRef } from 'react';
 import { showAlert } from "./src/alertService.jsx";
-
+const WS_BASE_URL = 'wss://football-blitz.online/api'
 /**
  * @param {string|null} userId
  * @param {{ onShowAlert?: (payload) => void }} options
@@ -18,7 +18,7 @@ const useWebSocket = (userId, options = {}) => {
     useEffect(() => {
         if (!userId) return;
 
-        const wsUrl = `ws://localhost:8123/ws?user_id=${userId}`;
+        const wsUrl = `${WS_BASE_URL}/ws?user_id=${userId}`;
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
@@ -87,7 +87,7 @@ export const useWebSocketPro = (userId, onMessageCallback) => {
             return;
         }
 
-        const wsUrl = `ws://localhost:8123/ws?user_id=${userId}`;
+        const wsUrl = `${WS_BASE_URL}/ws?user_id=${userId}`;
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import TrainingActivity from './TrainingActivity'; // Імпортуємо ваш компонент
 import styles from '../../css_files/training/TrainingActivity.module.css';
 import Config from "../../config.js";
+import {API_BASE_URL} from "../../api.js";
 
 // Створюємо JavaScript-аналог словника chance_add_point з бекенду
 // Ключі - тривалість тренування в секундах
@@ -56,12 +57,12 @@ function TrainingStatus({ user }) {
             setIsLoading(true);
             try {
                 // Запитуємо статус тренування
-                const statusRes = await fetch(`http://localhost:8123/training/status/${user.user_id}`); // Переконайтеся, що шлях правильний
+                const statusRes = await fetch(`${API_BASE_URL}/training/status/${user.user_id}`); // Переконайтеся, що шлях правильний
                 const statusData = await statusRes.json();
 
                 if (statusData.in_training) {
                     // Якщо тренування активне, запитуємо залишок часу та загальну тривалість
-                    const remainingRes = await fetch(`http://localhost:8123/training/remaining/${user.user_id}`);
+                    const remainingRes = await fetch(`${API_BASE_URL}/training/remaining/${user.user_id}`);
                     const remainingData = await remainingRes.json();
 
                     const { seconds_remaining, total_training_seconds } = remainingData;

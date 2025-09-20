@@ -28,7 +28,13 @@ import Img80 from '../../assets/public/img80.png';
 import Card from '../../assets/public/img_6.png';
 import styles from '../../css_files/trasfer/Transfer.module.css';
 import {ModalRoot, PlayerModal, SetPriceModal} from "../modal_components/ModalComponents.jsx";
-import {buyPlayerFromTransfer, instantSellPlayer, postPlayerToTransfer, removePlayerFromTransfer} from "../../api.js";
+import {
+    API_BASE_URL,
+    buyPlayerFromTransfer,
+    instantSellPlayer,
+    postPlayerToTransfer,
+    removePlayerFromTransfer
+} from "../../api.js";
 import {showAlert} from "../../alertService.jsx";
 
 /// --- Constants & Configuration ---
@@ -226,7 +232,7 @@ export default function TransferOption({ user, onUserUpdate }) {
     const userId = user?.user_id;
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://localhost:8123/users/${userId}`);
+            const res = await fetch(`${API_BASE_URL}/users/${userId}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (onUserUpdate) onUserUpdate(userData);
@@ -246,9 +252,9 @@ export default function TransferOption({ user, onUserUpdate }) {
 
         try {
             const [myTeamRes, transfersRes, freeAgentsRes] = await Promise.all([
-                fetch(`http://localhost:8123/characters/by-user/${userId}`),
-                fetch('http://localhost:8123/transfers'),
-                fetch('http://localhost:8123/transfers/free_agents')
+                fetch(`${API_BASE_URL}/characters/by-user/${userId}`),
+                fetch(`${API_BASE_URL}/transfers/`),
+                fetch(`${API_BASE_URL}/transfers/free_agents`)
             ]);
 
             if (!myTeamRes.ok || !transfersRes.ok || !freeAgentsRes.ok) {

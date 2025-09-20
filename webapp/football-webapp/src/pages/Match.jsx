@@ -7,7 +7,7 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import {ModalRoot, DonateEnergyModal, OutOfEnergyModal} from '../components/modal_components/ModalComponents.jsx';
 import styles from '../css_files/Main.module.css';
 import {showAlert, showTopChanceAlert} from "../alertService.jsx";
-import {api} from "../api.js";
+import {api, API_BASE_URL} from "../api.js";
 import {useWebSocketPro} from "../../useWebsocket.js";
 import DOMPurify from 'dompurify';
 
@@ -25,7 +25,7 @@ export default function MatchCard({initialUserFromServer}) {
 
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://localhost:8123/users/${user.user_id}`);
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (setUser) setUser(userData);
@@ -82,7 +82,7 @@ export default function MatchCard({initialUserFromServer}) {
             }
             setIsMatchStateLoading(true);
             try {
-                const res = await fetch(`http://localhost:8123/blitz/user/${user.user_id}/match_state`);
+                const res = await fetch(`${API_BASE_URL}/blitz/user/${user.user_id}/match_state`);
                 if (res.ok) {
                     const data = await res.json();
                     setMatchState(data);

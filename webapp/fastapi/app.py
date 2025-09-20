@@ -84,9 +84,12 @@ async def root():
 
 @app_fastapi.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket, user_id: int = Query(None)):
+    logger.info(f"websocket connected: {user_id}")
     # Validate token and find user_id. В вашем проекте лучше проверять токен JWT или сессии.
     user = await UserService.get_user(user_id)  # реализуйте или используйте user_id param
+    logger.info("User {} connected".format(user_id))
     if not user:
+        logger.error("User {} not connected".format(user_id))
         await ws.close(code=4401)
         return
     user_id = user.user_id
