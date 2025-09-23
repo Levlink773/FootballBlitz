@@ -191,15 +191,27 @@ const RegistrationStatus = styled.div`
 
 // Сообщение для незарегистрированных пользователей
 const NotRegisteredMessage = styled.div`
-    color: #f1c40f;
-    font-size: 13px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    text-align: center;
-    line-height: 1.4;
-    padding: 0 10px 0 80px;
-    z-index: 3;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  /* базовое количество символов (подберите под ваш дизайн) */
+  --max-chars-base: 20;        /* change this if you want another "base" length */
+  --max-chars: calc(var(--max-chars-base) * 2); /* в два раза больше символов */
+
+  color: #f1c40f;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+  padding: 0 10px 0 80px;
+  z-index: 3;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+
+  /* поведение переноса */
+  white-space: normal;            /* разрешаем переносы */
+  overflow-wrap: anywhere;        /* более агрессивный перенос слов при необходимости */
+  word-break: break-word;         /* запасная опция для кросс-браузерности */
+
+  /* ограничиваем ширину в символах (приблизительно) */
+  max-width: calc(var(--max-chars) * 1ch);
 `;
 
 
