@@ -1,14 +1,14 @@
 // RatingCard.jsx
 
-import React, { useState } from 'react'; // <-- Імпортуємо useState
-import { Header } from "../components/Header.jsx";
+import React, {useState} from 'react'; // <-- Імпортуємо useState
+import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
-import { NavigationBar } from "../components/NavigationBar.jsx";
+import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import Rating from '../components/rating/Rating.jsx';
 import RatingInfo from "../components/rating/RatingInfo.jsx";
 
-export default function RatingCard({ user }) {
+export default function RatingCard({user}) {
     // Стан для перемикання між екранами 'rating' та 'info'
     const [currentView, setCurrentView] = useState('rating');
 
@@ -17,28 +17,30 @@ export default function RatingCard({ user }) {
     const showRating = () => setCurrentView('rating');
 
     return (
-        <div className={styles.mainContainer} data-modal-root>
-            <Header user={user} />
+        <div className={styles.page}>
+            <div className={styles.mainContainer} data-modal-root>
+                <Header user={user}/>
 
-            {/* Background Image */}
-            <img
-                src={Config.IMAGES.rating_background}
-                alt="background"
-                className={styles.backgroundImage}
-            />
+                {/* Background Image */}
+                <img
+                    src={Config.IMAGES.rating_background}
+                    alt="background"
+                    className={styles.backgroundImage}
+                />
 
-            {/* Головний контент:
+                {/* Головний контент:
                 Рендеримо компонент в залежності від стану currentView.
                 Передаємо відповідні функції як пропси.
             */}
-            {currentView === 'rating' ? (
-                <Rating onShowInfo={showInfo} />
-            ) : (
-                <RatingInfo onBack={showRating} />
-            )}
+                {currentView === 'rating' ? (
+                    <Rating onShowInfo={showInfo}/>
+                ) : (
+                    <RatingInfo onBack={showRating}/>
+                )}
 
-            {/* Navigation Bar at the bottom */}
-            <NavigationBar />
+                {/* Navigation Bar at the bottom */}
+                <NavigationBar/>
+            </div>
         </div>
     );
 }

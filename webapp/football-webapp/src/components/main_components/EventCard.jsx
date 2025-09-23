@@ -5,9 +5,9 @@ import styled, { keyframes } from 'styled-components';
 // Убедитесь, что путь к вашему файлу конфигурации (с изображениями) указан верно
 import Config from "../../config.js";
 import {showAlert} from "../../alertService.jsx";
-import useWebSocket from "../../../useWebsocket.js";
+import useWebSocket, {useWebSocketPro} from "../../../useWebsocket.js";
 import {API_BASE_URL} from "../../api.js";
-
+import buttonBg from '../../assets/public/vip_emblem_large.png';
 // --- Анимации и стили (без изменений) ---
 
 const fadeIn = keyframes`
@@ -15,49 +15,34 @@ const fadeIn = keyframes`
     to { opacity: 1; transform: translateY(0); }
 `;
 
-const pulsate = keyframes`
-    0% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.02); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.9; }
-`;
+// Удаляем pulsate, так как в новом дизайне его нет
+// const pulsate = keyframes...
 
 const CardWrapper = styled.div`
     position: relative;
-    width: 329px;
-    height: 111px;
-    margin: 340px auto;
-    left: 40px;
-    border-radius: 15px;
-    overflow: visible;
+    width: 320px; // Увеличиваем ширину
+    height: 120px; // Увеличиваем высоту
+    top: 320px;
+    left: 67px;
+    margin: 20px auto; // Убираем абсолютное позиционирование для гибкости
+    border-radius: 16px;
+    overflow: visible; // Оставляем, чтобы кубок мог выходить за рамки
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #1f1f3a 0%, #2f2f55 100%);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(100, 100, 200, 0.3);
+    // Новый фон, как в дизайне
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
     transition: all 0.3s ease-in-out;
     cursor: pointer;
-    transform: translateZ(0);
     animation: ${fadeIn} 0.6s ease-out forwards;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: -2px; left: -2px; right: -2px; bottom: -2px;
-        border-radius: 17px;
-        background: linear-gradient(45deg, #8a2be2, #4169e1, #00ced1);
-        z-index: -1;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-        filter: blur(8px);
-    }
 
     &:hover {
         transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(100, 100, 255, 0.5);
-        &::before {
-            opacity: 0.7;
-        }
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        border-color: rgba(255, 255, 255, 0.3);
     }
+    // Удаляем псевдоэлемент ::before для свечения
 `;
 
 const CardBackground = styled.img`
@@ -66,25 +51,24 @@ const CardBackground = styled.img`
     height: 100%;
     object-fit: cover;
     border-radius: 15px;
-    opacity: 0.15;
-    filter: brightness(0.8);
+    opacity: 1; // Делаем фон менее заметным
+    filter: brightness(1);
     pointer-events: none;
 `;
 
 const CupIcon = styled.img`
     position: absolute;
-    width: 94px;
-    height: 115px;
-    left: 10px;
+    width: 105px; // Немного увеличиваем
+    height: auto;
+    left: -45px; // Подвигаем ближе к краю
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-    filter: drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.6));
-    transition: transform 0.3s ease-out, filter 0.3s ease;
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease-out;
 
-    .card-wrapper:hover & {
-        transform: translateY(-55%) translateX(-5px) rotate(-5deg) scale(1.05);
-        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
+    ${CardWrapper}:hover & { // Более простой hover-эффект
+        transform: translateY(-50%) scale(1.05);
     }
 `;
 
@@ -95,65 +79,117 @@ const ContentWrapper = styled.div`
     align-items: center;
     text-align: center;
     z-index: 3;
-    padding-left: 80px;
+    padding-left: 95px; // Увеличиваем отступ слева из-за кубка
+    height: 100%;
+    gap: 8px; // Добавляем отступ между элементами
+    position: relative;
+    left: -50px;
 `;
 
 const Title = styled.div`
     color: white;
-    font-size: 20px;
+    font-size: 18px; // Немного уменьшаем для нового формата
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
-    margin-bottom: 5px;
-`;
-
-const Countdown = styled.div`
-    color: #ffda79;
-    font-size: 11px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 800;
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
-    letter-spacing: 1px;
-    animation: ${pulsate} 2s infinite ease-in-out;
-`;
-
-const RegistrationStatus = styled.div`
-    color: #2ecc71;
-    font-size: 10px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    margin-top: 6px;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 5px rgba(46, 204, 113, 0.7);
-`;
-
-
-const EnterButton = styled.div`
-    position: absolute;
-    width: 200px;
-    height: 40px;
-    bottom: 25px; // Изменено для лучшего позиционирования
-    left: 55%;
-    transform: translateX(-50%);
-    border-radius: 8px;
-    background: linear-gradient(90deg, #16a085 0%, #27ae60 100%);
-    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+    // Для лучшего отображения составного заголовка
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    z-index: 4;
+    align-items: baseline;
+    gap: 8px;
 
-    &:hover {
-        transform: translateX(-50%) scale(1.05);
-        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+    span {
+      font-weight: 500;
+      font-size: 16px;
+      color: #ccc;
     }
 `;
 
+// Новый контейнер для таймера
+const CountdownWrapper = styled.div`
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 20px;
+    padding: 4px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const CountdownText = styled.div`
+    color: #FFC93E; // Золотой цвет
+    font-size: 9px;
+    position: relative;
+    top: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 0 0 5px rgba(255, 201, 62, 0.5);
+    letter-spacing: 0.5px;
+`;
+
+// Полностью переработанная кнопка
+const RegistrationButton = styled.button`
+    width: 230px;
+    height: 44px;
+    border-radius: 12px;
+    // Яркий желто-оранжевый градиент
+    background: url(${buttonBg}) no-repeat center center;
+    box-shadow: 0 4px 10px rgba(248, 165, 39, 0.3);
+    border: none;
+    // Добавляем "давленную" рамку для 3D эффекта
+    border-bottom: 3px solid #C47D0F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4D3300; // Темный текст для контраста
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 12px; // Расстояние между текстом и стоимостью
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(248, 165, 39, 0.5);
+    }
+
+    &:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 5px rgba(248, 165, 39, 0.4);
+        border-bottom-width: 2px;
+    }
+`;
+
+const CostWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: white; // Белый цвет для стоимости
+    font-weight: 700;
+    font-size: 12px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+`;
+
+const CurrencyIcon = styled.img`
+    width: 18px;
+    height: 18px;
+`;
+
+// Компонент для статуса регистрации, как в старом коде, но можно обновить
+const RegistrationStatus = styled.div`
+    color: #2ecc71;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background-color: rgba(46, 204, 113, 0.15);
+    padding: 3px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(46, 204, 113, 0.4);
+`;
+
+// Сообщение для незарегистрированных пользователей
 const NotRegisteredMessage = styled.div`
     color: #f1c40f;
     font-size: 13px;
@@ -265,7 +301,48 @@ export const EventCard = ({ user, onUserUpdate }) => {
             setIsLoading(false);
         }
     }, [user]);
-    useWebSocket(user.user_id, {onShowAlert: fetchBlitzStatus});
+    // --- ШАГ 2: Создаем универсальный обработчик для WebSocket ---
+    const handleWebSocketMessage = useCallback((data) => {
+        console.log("Получено WebSocket сообщение в компоненте:", data);
+
+        // Используем switch для обработки разных типов событий
+        switch (data.type) {
+            case 'show_alert':
+                // Сохраняем старую логику для алертов
+                if (data.payload) {
+                    showAlert(data.payload.message, { html: data.payload.html });
+                    // Также можно вызвать fetchBlitzStatus, если это необходимо
+                    fetchBlitzStatus();
+                }
+                break;
+
+            case 'update_max_participants':
+                // НОВОЕ: Обрабатываем обновление максимального количества участников
+                if (data.payload && typeof data.payload.max_participants === 'number') {
+                    console.log(`Обновляем participants_count на: ${data.payload.max_participants}`);
+
+                    // Обновляем состояние blitzInfo, сохраняя остальные данные
+                    setBlitzInfo(prevBlitzInfo => {
+                        // Проверка, что prevBlitzInfo и prevBlitzInfo.info существуют
+                        if (!prevBlitzInfo?.info) return prevBlitzInfo;
+
+                        return {
+                            ...prevBlitzInfo,
+                            info: {
+                                ...prevBlitzInfo.info,
+                                participants_count: data.payload.max_participants
+                            }
+                        };
+                    });
+                }
+                break;
+
+            default:
+                // Можно логировать неизвестные типы сообщений для отладки
+                console.warn(`Получен неизвестный тип WebSocket сообщения: ${data.type}`);
+        }
+    }, [fetchBlitzStatus]); // Добавляем fetchBlitzStatus в зависимости
+    useWebSocketPro(user.user_id, handleWebSocketMessage);
     useEffect(() => {
         fetchBlitzStatus();
     }, [fetchBlitzStatus]);
@@ -357,27 +434,56 @@ export const EventCard = ({ user, onUserUpdate }) => {
     if (isLoading || (!isBlitzActive && !secondsRemaining)) {
         return null;
     }
+    const blitzTime = blitzInfo?.info?.blitz_time || "15:00";
+    const playersRegistered = blitzInfo?.info?.participants_count;
+    console.log("pl reg: ", playersRegistered);
+    const maxPlayers = blitzInfo?.info?.max_participants || 16;
+    const registrationCost = blitzInfo?.info?.cost || 30;
 
     return (
-        <CardWrapper className="card-wrapper" onClick={handleRegisterClick}>
+        // Используем onClick на всей карточке, но кнопку делаем <button> для семантики
+        <CardWrapper onClick={handleRegisterClick}>
             <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
-            <CupIcon className="cup-icon" src={Config.IMAGES.cup} alt="tournament cup"/>
+            <CupIcon src={Config.IMAGES.cup} alt="tournament cup"/>
 
             {isBlitzActive ? (
-                isRegistered ? (
-                    <EnterButton>Увійти в матч</EnterButton>
-                ) : (
-                    <NotRegisteredMessage>
-                        Ви не зареєстровані на цей бліц. <br/>
-                        Чекайте на наступний.
-                    </NotRegisteredMessage>
-                )
+                <ContentWrapper> {/* <-- ДОДАНО ОБГОРТКУ */}
+                    {isRegistered ? (
+                        <RegistrationButton>
+                            Увійти в матч
+                        </RegistrationButton>
+                    ) : (
+                        <NotRegisteredMessage>
+                            Ви не зареєстровані. <br/>
+                            Чекайте на наступний.
+                        </NotRegisteredMessage>
+                    )}
+                </ContentWrapper>
             ) : (
+                // Логика для предстоящего блица
                 secondsRemaining > 0 && blitzInfo?.info && (
                     <ContentWrapper>
-                        <Title>{blitzInfo.info.title || 'БЛІЦ ТУРНІР'}</Title>
-                        <Countdown>ДО СТАРТУ: {formatTime(secondsRemaining)}</Countdown>
-                        {isRegistered && <RegistrationStatus>ВИ ЗАРЕЄСТРОВАНІ</RegistrationStatus>}
+                        <Title>
+                            БЛІЦ ({maxPlayers}) <span>{blitzTime} {playersRegistered}/{maxPlayers}</span>
+                        </Title>
+
+                        <CountdownWrapper>
+                            <CountdownText>
+                                ДО СТАРТУ {formatTime(secondsRemaining)}
+                            </CountdownText>
+                        </CountdownWrapper>
+
+                        {isRegistered ? (
+                            <RegistrationStatus>ВИ ЗАРЕЄСТРОВАНІ</RegistrationStatus>
+                        ) : (
+                            <RegistrationButton type="button">
+                                Зареєструватись
+                                <CostWrapper>
+                                    - {registrationCost}
+                                    <CurrencyIcon src={Config.IMAGES.energy} alt="cost"/>
+                                </CostWrapper>
+                            </RegistrationButton>
+                        )}
                     </ContentWrapper>
                 )
             )}

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { useNavigate } from 'react-router-dom'; // --- ШАГ 1: Импорт useNavigate
+import {useNavigate} from 'react-router-dom';
 import {motion, AnimatePresence} from 'framer-motion';
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
@@ -11,6 +11,49 @@ import {api, API_BASE_URL} from "../api.js";
 import {useWebSocketPro} from "../../useWebsocket.js";
 import DOMPurify from 'dompurify';
 
+// --- НОВЫЙ КОМПОНЕНТ SCOREBOARD ---
+const Scoreboard = ({matchState}) => {
+    // Не рендерим компонент, если данных о командах нет
+    if (!matchState?.name_first_team || !matchState?.name_second_team) {
+        return null;
+    }
+
+    const scoreVariants = {
+        initial: {opacity: 0, y: -10},
+        animate: {opacity: 1, y: 0},
+        exit: {opacity: 0, y: 10},
+    };
+
+    return (
+        <motion.div
+            className={styles.scoreboardContainer}
+            initial={{opacity: 0, y: -50}}
+            animate={{opacity: 1, y: 0}}
+            transition={{type: 'spring', stiffness: 100, damping: 15}}
+        >
+            <div className={styles.team}>
+                <span className={styles.teamName}>{matchState.name_first_team}</span>
+            </div>
+            <div className={styles.score}>
+                <AnimatePresence mode="wait">
+                    <motion.span key={`score_a_${matchState.goal_first_team}`} {...scoreVariants}>
+                        {matchState.goal_first_team}
+                    </motion.span>
+                </AnimatePresence>
+                <span className={styles.scoreSeparator}>:</span>
+                <AnimatePresence mode="wait">
+                    <motion.span key={`score_b_${matchState.goal_second_team}`} {...scoreVariants}>
+                        {matchState.goal_second_team}
+                    </motion.span>
+                </AnimatePresence>
+            </div>
+            <div className={`${styles.team} ${styles.teamRight}`}>
+                <span className={styles.teamName}>{matchState.name_second_team}</span>
+            </div>
+        </motion.div>
+    );
+};
+
 
 export default function MatchCard({initialUserFromServer}) {
     const [user, setUser] = useState(initialUserFromServer);
@@ -20,7 +63,6 @@ export default function MatchCard({initialUserFromServer}) {
     const [matchState, setMatchState] = useState(undefined);
     const [isMatchStateLoading, setIsMatchStateLoading] = useState(true);
 
-    // --- ШАГ 2: Инициализация хука для навигации ---
     const navigate = useNavigate();
 
     const fetchUser = async () => {
@@ -47,7 +89,7 @@ export default function MatchCard({initialUserFromServer}) {
 
             case 'show_alert':
                 if (data.payload && data.payload.message) {
-                    showAlert(data.payload.message, { html: data.payload.html });
+                    showAlert(data.payload.message, {html: data.payload.html});
                 }
                 break;
 
@@ -58,10 +100,8 @@ export default function MatchCard({initialUserFromServer}) {
                 }
                 break;
 
-            // --- ШАГ 3: Добавлен новый обработчик события 'remove_user' ---
             case 'remove_user':
                 console.log("User removed from match via WebSocket, redirecting...");
-                // Немедленно перенаправляем пользователя
                 showAlert(data.payload.message)
                 navigate('/blitz');
                 break;
@@ -69,7 +109,6 @@ export default function MatchCard({initialUserFromServer}) {
             default:
                 break;
         }
-        // `Maps` является стабильной функцией, но для чистоты кода добавим ее в зависимости
     }, [navigate]);
 
     useWebSocketPro(user?.user_id, handleWebSocketMessage);
@@ -87,8 +126,6 @@ export default function MatchCard({initialUserFromServer}) {
                     const data = await res.json();
                     setMatchState(data);
                 } else if (res.status === 404) {
-                    // Если сервер отвечает, что пользователь не в матче (404),
-                    // мы устанавливаем состояние в null.
                     setMatchState(null);
                 } else {
                     console.error("Failed to fetch match state:", res.statusText);
@@ -105,14 +142,7 @@ export default function MatchCard({initialUserFromServer}) {
         fetchMatchState();
     }, [user?.user_id]);
 
-    // --- ШАГ 4: Эффект для переадресации при возвращении на вкладку ---
-    // Этот useEffect будет следить за состоянием матча.
-    // Если загрузка завершена и состояние `null`, это значит, что пользователь
-    // больше не участвует в матче, и его нужно перенаправить.
     useEffect(() => {
-        // Условие срабатывания:
-        // 1. Загрузка данных о матче завершена.
-        // 2. Состояние матча - `null` (что мы установили при ошибке 404).
         if (!isMatchStateLoading && matchState === null) {
             console.log("Match state is null after check, redirecting to /blitz.");
             navigate('/blitz');
@@ -151,7 +181,7 @@ export default function MatchCard({initialUserFromServer}) {
         setIsLoading(true);
         setActiveModal(null);
         try {
-            const response = await api.createEnergyPayment({ userId: user.user_id, pack: item });
+            const response = await api.createEnergyPayment({userId: user.user_id, pack: item});
             if (response && response.page_url) {
                 window.location.href = response.page_url;
             } else {
@@ -165,55 +195,56 @@ export default function MatchCard({initialUserFromServer}) {
         }
     };
 
-    // Компонент `PromoCard` не может быть отрендерен, если происходит перенаправление,
-    // поэтому в основном рендере мы можем добавить проверку, чтобы избежать
-    // "моргания" контента перед редиректом.
     if (!isMatchStateLoading && matchState === null) {
-        // Можно вернуть простой лоадер или null, пока происходит перенаправление
         return <div style={{textAlign: 'center', marginTop: '50px'}}>Перенаправлення...</div>;
     }
 
     return (
-        <div className={styles.mainContainer} data-modal-root>
-            {isLoading && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
-                }}>
-                    <h2>Створення платежу...</h2>
-                </div>
-            )}
-            <Header user={user}/>
-            <img
-                src={Config.IMAGES.match_background}
-                alt="background"
-                className={styles.backgroundImage}
-            />
-            <PromoCard
-                onOpenDonate={() => setActiveModal('donate')}
-                onOpenBuy={() => setActiveModal('buy')}
-                matchState={matchState}
-                isMatchStateLoading={isMatchStateLoading}
-            />
-            <NavigationBar/>
-            <AnimatePresence>
-                {activeModal === 'donate' && (
-                    <ModalRoot>
-                        <DonateEnergyModal onClose={() => setActiveModal(null)} onConfirm={handleDonate}/>
-                    </ModalRoot>
+        <div className={styles.page}>
+            <div className={styles.mainContainer} data-modal-root>
+                {isLoading && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                        backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
+                    }}>
+                        <h2>Створення платежу...</h2>
+                    </div>
                 )}
-                {activeModal === 'buy' && (
-                    <ModalRoot>
-                        <OutOfEnergyModal onClose={() => setActiveModal(null)} onBuy={handlePurchaseEnergy}/>
-                    </ModalRoot>
-                )}
-            </AnimatePresence>
+                <Header user={user}/>
+
+                {/* --- ВСТАВЛЯЕМ ТАБЛО ЗДЕСЬ --- */}
+                <Scoreboard matchState={matchState}/>
+
+                <img
+                    src={Config.IMAGES.match_background}
+                    alt="background"
+                    className={styles.backgroundImage}
+                />
+                <PromoCard
+                    onOpenDonate={() => setActiveModal('donate')}
+                    onOpenBuy={() => setActiveModal('buy')}
+                    matchState={matchState}
+                    isMatchStateLoading={isMatchStateLoading}
+                />
+                <NavigationBar/>
+                <AnimatePresence>
+                    {activeModal === 'donate' && (
+                        <ModalRoot>
+                            <DonateEnergyModal onClose={() => setActiveModal(null)} onConfirm={handleDonate}/>
+                        </ModalRoot>
+                    )}
+                    {activeModal === 'buy' && (
+                        <ModalRoot>
+                            <OutOfEnergyModal onClose={() => setActiveModal(null)} onBuy={handlePurchaseEnergy}/>
+                        </ModalRoot>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 }
 
-// Компонент PromoCard остается БЕЗ ИЗМЕНЕНИЙ
 const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) => {
     const cardVariants = {
         hidden: {opacity: 0, y: 50, scale: 0.95},
@@ -230,7 +261,6 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
             return <p className={styles.promoText}>Завантаження стану матчу...</p>;
         }
 
-        // Эта проверка больше не нужна здесь для редиректа, но полезна для отображения
         if (!matchState) {
             return (
                 <div className={styles.promoText}>
@@ -263,9 +293,12 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                     whileHover={{scale: 1.05}}
                     transition={{type: 'spring', stiffness: 300}}
                 />
-                <div className={styles.promoText}>
+                <div
+                    className={styles.promoText}
+                    style={matchState.state === 'ping' ? {fontSize: '10px'} : {}}
+                >
                     {safeHtml ? (
-                        <div dangerouslySetInnerHTML={{ __html: safeHtml }} />
+                        <div dangerouslySetInnerHTML={{__html: safeHtml}}/>
                     ) : (
                         <p>{/* fallback */}Очікуємо на початок...</p>
                     )}
@@ -280,7 +313,8 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                                 whileTap={{scale: 0.95}}
                             >
                                 <span>ПІДСИЛИТИ</span>
-                                <img src={Config.IMAGES.energy} alt="Енергія" className={styles.energyIcon} style={{width: 28, height: 28}} />
+                                <img src={Config.IMAGES.energy} alt="Енергія" className={styles.energyIcon}
+                                     style={{width: 28, height: 28}}/>
                             </motion.button>
                             <motion.button
                                 className={`${styles.promoBtn} ${styles.buyBtn}`}
@@ -289,7 +323,8 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                                 whileTap={{scale: 0.95}}
                             >
                                 <span>КУПИТИ</span>
-                                <img src={Config.IMAGES.energy_energy} alt="Енергія" className={styles.energyIcon} style={{width: 18}}/>
+                                <img src={Config.IMAGES.energy_energy} alt="Енергія" className={styles.energyIcon}
+                                     style={{width: 18}}/>
                             </motion.button>
                         </div>
                         <div className={styles.promoText}>

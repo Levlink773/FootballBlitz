@@ -1,3 +1,4 @@
+// TournamentOption.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
@@ -9,17 +10,15 @@ const OptionWrapper = styled.div`
     width: 188px;
     height: 50px;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
+    top: -20px;
+    left: 5px;
     display: flex;
     align-items: center;
-    background: linear-gradient(90deg, #3a3a5a 0%, #2a2a40 100%);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     cursor: pointer;
-    // Плавный переход для всех анимируемых свойств
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-    // Псевдо-элемент для создания эффекта свечения при наведении
     &::before {
         content: '';
         position: absolute;
@@ -37,19 +36,17 @@ const OptionWrapper = styled.div`
         mask-composite: exclude;
         opacity: 0;
         transition: opacity 0.3s ease;
-        pointer-events: none; // Чтобы не мешал кликам
+        pointer-events: none;
     }
 
     &:hover {
-        transform: translateY(-4px) scale(1.05); // Эффект "приподнимания"
+        transform: translateY(-4px) scale(1.05);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         
-        // Показываем свечение при наведении
         &::before {
             opacity: 1;
         }
 
-        // Анимируем дочерние элементы при наведении
         .trophy-image {
             transform: rotate(-5deg) scale(1.1);
         }
@@ -63,7 +60,6 @@ const OptionWrapper = styled.div`
     }
     
     &:active {
-        // Эффект нажатия
         transform: translateY(-1px) scale(1.02);
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     }
@@ -73,37 +69,44 @@ const BackgroundImage = styled.img`
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.1;
+    width: 105%;
+    height: 120%;
+    opacity: 1;
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1;
 `;
 
 const TrophyImage = styled.img`
-    width: 49px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
+    left: -25px;
     flex-shrink: 0;
-    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); // Добавляем плавный переход
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative; /* <-- ДОБАВЛЕНО для z-index */
+    z-index: 2;       /* <-- ДОБАВЛЕНО */
 `;
 
 const ContentContainer = styled.div`
-    flex-grow: 1; // Занимает всё оставшееся место
+    flex-grow: 1;
     display: flex;
     align-items: center;
     padding: 0 12px 0 8px;
-    gap: 8px;
+    gap: 12px;
     color: white;
     font-family: 'Inter', sans-serif;
-    // Улучшаем рендеринг шрифтов
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative; /* <-- ДОБАВЛЕНО для z-index */
+    z-index: 2;       /* <-- ДОБАВЛЕНО */
 `;
 
 const TextBlock = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    position: relative;
+    left: -20px;
 `;
 
 const Text = styled.span`
@@ -111,12 +114,18 @@ const Text = styled.span`
     font-weight: 600;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
     transition: text-shadow 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const TimeText = styled(Text)`
     color: #a9a9d4;
     font-size: 13px;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const CostContainer = styled.div`
@@ -128,6 +137,8 @@ const CostContainer = styled.div`
     padding: 4px 8px;
     border-radius: 16px;
     transition: background-color 0.3s ease;
+    position: relative;
+    left: -20px;
 `;
 
 const CostText = styled.span`
@@ -144,10 +155,10 @@ const CostIcon = styled.img`
 
 // --- Component ---
 
-export default function BlitzOption({ title, time, cost, trophy, icon }) {
+export default function BlitzOption({ title, time, cost, trophy, icon, backgroundImage }) {
     return (
         <OptionWrapper>
-            <BackgroundImage className="background-image" src={Config.IMAGES.blitz_line} alt="card-bg" />
+            <BackgroundImage className="background-image" src={backgroundImage} alt="card-bg" />
             <TrophyImage className="trophy-image" src={trophy} alt="trophy" />
             <ContentContainer>
                 <TextBlock>
@@ -169,9 +180,11 @@ BlitzOption.propTypes = {
     cost: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     trophy: PropTypes.string,
     icon: PropTypes.string,
+    backgroundImage: PropTypes.string, // Add backgroundImage to propTypes
 };
 
 BlitzOption.defaultProps = {
     trophy: Config.IMAGES.trophy,
     icon: Config.IMAGES.energy,
+    backgroundImage: Config.IMAGES.blitz_line, // Set default to blitz_line
 };

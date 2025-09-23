@@ -15,18 +15,20 @@ export const Main = ({initialUserFromServer}) => {
     const vip_pass_status = user?.vip_pass_is_active;
     console.log(vip_pass_status);
     return (
-        <div className={styles.mainContainer} data-modal-root>
-            <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
+        <div className={styles.page}>
+            <div className={styles.mainContainer} data-modal-root>
+                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
 
-            <Header user={user}/>
-            <VipBanner isActive={vip_pass_status}/>
-            <UserProfile user={user}/>
-            <DailyTasks/>
-            <div className={styles.eventCardWrapperEventMain}>
-                <EventCard user={user} onUserUpdate={setUser} />
+                <Header user={user}/>
+                <VipBanner isActive={vip_pass_status}/>
+                <UserProfile user={user}/>
+                <DailyTasks/>
+                <div className={styles.eventCardWrapperEventMain}>
+                    <EventCard user={user} onUserUpdate={setUser}/>
+                </div>
+                <StatsPanel/>
+                <NavigationBar/>
             </div>
-            <StatsPanel/>
-            <NavigationBar/>
         </div>
     );
 };

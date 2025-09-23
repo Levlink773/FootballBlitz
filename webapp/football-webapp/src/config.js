@@ -86,6 +86,7 @@ import gold_button from "./assets/public/img_23.png";
 import energy_button from "./assets/public/img_24.png";
 import energy_energy from "./assets/public/img_25.png";
 import king from "./assets/public/img_26.png";
+import king_vip from "./assets/public/img_29.png";
 
 
 class Config {
@@ -173,6 +174,7 @@ class Config {
         goal3: goal3,
         energy_energy: energy_energy,
         king: king,
+        king_vip: king_vip,
     };
 
     // какие-то игровые настройки

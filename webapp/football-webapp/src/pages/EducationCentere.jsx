@@ -8,15 +8,17 @@ import EducationCentre from "../components/education_centre/EducationCentre.jsx"
 export default function EducationCard({initialUserFromServer}) {
     const [user, setUser] = useState(initialUserFromServer);
     return (
-        <div className={styles.mainContainer} data-modal-root>
-            <Header user={user} />
-            <img
-                src={Config.IMAGES.education_background}
-                alt="background"
-                className={styles.backgroundImage}
-            />
-            <EducationCentre userId={user.user_id} onUserUpdate={setUser}/>
-            <NavigationBar />
+        <div className={styles.page}>
+            <div className={styles.mainContainer} data-modal-root>
+                <Header user={user}/>
+                <img
+                    src={Config.IMAGES.education_background}
+                    alt="background"
+                    className={styles.backgroundImage}
+                />
+                <EducationCentre userId={user.user_id} onUserUpdate={setUser}/>
+                <NavigationBar/>
+            </div>
         </div>
     );
 }

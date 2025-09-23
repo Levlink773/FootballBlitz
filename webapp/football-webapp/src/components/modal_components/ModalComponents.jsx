@@ -660,8 +660,8 @@ export function AlertModal({
                                onClose = () => {
                                },
                                autoCloseMs = 3000,
-                               width = 350,
-                               height = 150,
+                               width = 300,
+                               height = 120,
                                maxFont = 22,
                                minFont = 10,
                            }) {
@@ -687,8 +687,8 @@ export function AlertModal({
     }, [message, maxFont, minFont, width, height, html]);
 
     const alertStyle = {
-        width,
-        height,
+        width: "100%", // Займати всю ширину батьківського контейнера
+        minHeight: height, // Використовуй min-height замість height для гнучкості
         background: `radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 70%), var(--surface-background)`,
         borderRadius: 16,
         boxShadow: "0 16px 40px var(--shadow-color), 0 0 0 1px var(--surface-border)",
@@ -697,9 +697,9 @@ export function AlertModal({
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        position: "relative",
-        overflow: 'hidden',
-        border: '1px solid transparent'
+        position: "relative", // `left: -10` прибрано
+        overflow: 'visible',
+        border: '1px solid transparent',
     };
 
     const gradientBorderStyle = {
@@ -718,7 +718,7 @@ export function AlertModal({
     const textContainerStyle = {
         width: "100%",
         height: "100%",
-        overflow: "hidden",
+        overflow: "visible",
         color: "var(--text-primary)",
         boxSizing: "border-box",
         fontWeight: 700,

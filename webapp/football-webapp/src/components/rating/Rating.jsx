@@ -64,7 +64,7 @@ const Rating = ({ onShowInfo }) => {
                     key={user.user_id || index}
                     rank={rank}
                     icon={getMedalIcon(rank)}
-                    name={user.user_name || 'Anonymous'}
+                    name={`${user.user_name || 'Anonymous'} (${user.team_name || 'Unknown'})`}
                     score={user.points || 0}
                     index={index}
                 />

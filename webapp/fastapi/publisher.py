@@ -6,7 +6,9 @@ from datetime import datetime
 import redis.asyncio as redis
 from dotenv import load_dotenv
 
+from blitz.blitz_match.entities import BlitzMatchData
 from logging_config import logger
+from blitz.blitz_match.core.manager import TeamBlitzMatchManager as TBMatchManager
 load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 REDIS_CHANNEL = os.getenv("REDIS_CHANNEL", "events")
@@ -153,6 +155,8 @@ async def publish_match_state(match_id: str, options: dict | None = None) -> lis
     match_data = await TeamBlitzMatchManager.get_match(match_id)
     state_data = await TeamBlitzMatchManager.get_match_state(match_id)
     await match_data.init_teams()
+    match_data_tbm: BlitzMatchData = TBMatchManager.get_match(match_id)
+
 
     # Получаем список user_id в матче
     try:
@@ -172,6 +176,10 @@ async def publish_match_state(match_id: str, options: dict | None = None) -> lis
             "message": getattr(state_data, "message", "") or "",
             "match_id": match_id,
             "user_id": u,
+            "goal_first_team": match_data_tbm.first_team.goals if hasattr(match_data_tbm, "first_team") else 0,
+            "name_first_team": match_data_tbm.first_team.team_name.split("(")[0] if hasattr(match_data_tbm, "first_team") else "Unknown",
+            "goal_second_team": match_data_tbm.second_team.goals if hasattr(match_data_tbm, "second_team") else 0,
+            "name_second_team": match_data_tbm.second_team.team_name.split("(")[0] if hasattr(match_data_tbm, "second_team") else "Unknown",
         }
         # options распаковываем позже, чтобы они могли переопределить базовые поля при необходимости
         return {**base, **options}
@@ -218,6 +226,7 @@ async def publish_all_matches_state() -> dict[str, list[bool]]:
 
         match_data = await TeamBlitzMatchManager.get_match(match_id)
         state_data = storage.state_data
+        match_data_tbm: BlitzMatchData = TBMatchManager.get_match(match_id)
 
         if not match_data:
             logger.warning("publish_all_matches_state: match not restored for match_id=%s", match_id)
@@ -240,7 +249,13 @@ async def publish_all_matches_state() -> dict[str, list[bool]]:
             return {
                 "state": state_data.state.value if hasattr(state_data.state, "value") else str(state_data.state),
                 "message": getattr(state_data, "message", "") or "",
-                "match_id": match_id
+                "match_id": match_id,
+                "goal_first_team": match_data_tbm.first_team.goals if hasattr(match_data_tbm, "first_team") else 0,
+                "name_first_team": match_data_tbm.first_team.team_name.split("(")[0] if hasattr(match_data_tbm,
+                                                                                  "first_team") else "Unknown",
+                "goal_second_team": match_data_tbm.second_team.goals if hasattr(match_data_tbm, "second_team") else 0,
+                "name_second_team": match_data_tbm.second_team.team_name.split("(")[0] if hasattr(match_data_tbm,
+                                                                                    "second_team") else "Unknown",
             }
 
         payloads = make_payloads_for_users(

@@ -24,7 +24,6 @@ const ScheduleGrid = styled.div`
     padding: 20px 0;
 `;
 
-// Анимация появления элемента
 const fadeInUp = keyframes`
     from {
         opacity: 0;
@@ -36,16 +35,9 @@ const fadeInUp = keyframes`
     }
 `;
 
-// Обёртка для каждого элемента, чтобы применить анимацию с задержкой
 const AnimatedItem = styled.div`
-    // Применяем анимацию fadeInUp
     animation: ${fadeInUp} 0.5s ease-out forwards;
-    // forwards - чтобы элемент остался видимым после анимации
-    
-    // Начальное состояние (до анимации)
     opacity: 0; 
-    
-    // Вычисляем задержку для каждой карточки на основе её индекса
     animation-delay: ${props => props.delay * 0.1}s; 
 `;
 
@@ -54,7 +46,6 @@ export default function BlitzSchedule({ items = defaultSchedule }) {
     return (
         <ScheduleGrid>
             {items.map((item, index) => (
-                // Оборачиваем BlitzOption в анимированный контейнер
                 <AnimatedItem key={item.id} delay={index}>
                     <BlitzOption
                         title={item.title}
@@ -62,6 +53,8 @@ export default function BlitzSchedule({ items = defaultSchedule }) {
                         cost={item.cost}
                         trophy={item.id === 6 ? Config.IMAGES.king : Config.IMAGES.trophy}
                         icon={Config.IMAGES.energy}
+                        // Conditionally set backgroundImage for the last item
+                        backgroundImage={index === items.length - 1 ? Config.IMAGES.king_vip : Config.IMAGES.blitz_line}
                     />
                 </AnimatedItem>
             ))}

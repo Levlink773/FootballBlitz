@@ -41,7 +41,7 @@ async def open_webapp(message: Message):
             [
                 KeyboardButton(
                     text="⚽ Открыть WebApp",
-                    web_app=WebAppInfo(url="https://9cf1ce01667f.ngrok-free.app/")
+                    web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={message.from_user.id}")
                 )
             ]
         ],

@@ -81,6 +81,7 @@ class BlitzService:
                     blitz_user = BlitzUser(user_id=user.user_id, blitz_id=blitz_id)
                     session.add(blitz_user)
                     await session.flush()
+
                     return blitz_user
                 except IntegrityError as e:
                     # второй уровень защиты от дубликата

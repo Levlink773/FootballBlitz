@@ -11,7 +11,7 @@ count_energys = [5, 10, 20, 50, 70]
 
 def select_time_to_gym():
     return (InlineKeyboardBuilder()
-            .button(text="🕑 2 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=2)))
+            # .button(text="🕑 2 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=2)))
             .button(text="🕑 30 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=30)))
             .button(text="🕒 60 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=60)))
             .button(text="🕓 90 хвилин", callback_data=SelectTimeGym(gym_time=timedelta(minutes=90)))

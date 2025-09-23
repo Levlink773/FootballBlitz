@@ -176,7 +176,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 500; /* Сделаем имя чуть менее жирным, чем очки */
+    font-size: clamp(8px, 2vw, 14px);
+    text-wrap: balance;
 }
 
 /* НОВОЕ: Контейнер для очков для лучшего выравнивания */

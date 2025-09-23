@@ -172,6 +172,12 @@ async def donate_epizode_energy(
         }
     )
     await publish_batch(payloads, batch_size=32)
+    text = f"""
+⚽️ <b>{user.main_character.name} додав {energy}🔋 до сил команді {my_team.team_name}!</b> ⚽️  
+🔥 <b>Зміни шансів на гол:</b>  
+- ⚽️ Команда: {match_data.first_team.team_name} - <b>{old_first_club_chance:.2f}%</b> → <b>{chance_first_team_after:.2f}%</b>  
+- ⚽️ Команда: {match_data.second_team.team_name} - <b>{old_second_club_chance:.2f}%</b> → <b>{chance_second_team_after:.2f}%</b>  
+"""
     await TeamBlitzMatchManager.set_match_state(
         match_data.blitz_match_id,
         BlitzStateData(state=BlitzState.PING, message=text),

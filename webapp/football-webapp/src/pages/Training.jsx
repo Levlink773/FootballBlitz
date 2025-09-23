@@ -9,14 +9,47 @@ import TrainingStatus from "../components/training/TrainingStatus.jsx";
 import {showAlert} from "../alertService.jsx";
 import useWebSocket from "../../useWebsocket.js";
 import {API_BASE_URL} from "../api.js";
+
 const TRAINING_OPTIONS = [
-    { id: 1, bg: Config.IMAGES.train_line, chance: '~35%', duration: '30 хв.', cost: -10, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-    { id: 2, bg: Config.IMAGES.train_line, chance: '~45%', duration: '60 хв.', cost: -20, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-    { id: 3, bg: Config.IMAGES.train_line, chance: '~55%', duration: '90 хв.', cost: -40, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-    { id: 4, bg: Config.IMAGES.train_line, chance: '~75%', duration: '120 хв.', cost: -60, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
+    {
+        id: 1,
+        bg: Config.IMAGES.train_line,
+        chance: '~35%',
+        duration: '30 хв.',
+        cost: -10,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+    {
+        id: 2,
+        bg: Config.IMAGES.train_line,
+        chance: '~45%',
+        duration: '60 хв.',
+        cost: -20,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+    {
+        id: 3,
+        bg: Config.IMAGES.train_line,
+        chance: '~55%',
+        duration: '90 хв.',
+        cost: -40,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+    {
+        id: 4,
+        bg: Config.IMAGES.train_line,
+        chance: '~75%',
+        duration: '120 хв.',
+        cost: -60,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
 ];
 
-export default function TrainingRoomCard({ initialUserFromServer }) {
+export default function TrainingRoomCard({initialUserFromServer}) {
     // 1. State to track if training is active
     const [isTrainingActive, setIsTrainingActive] = useState(false);
     const [user, setUser] = useState(initialUserFromServer);
@@ -81,47 +114,49 @@ export default function TrainingRoomCard({ initialUserFromServer }) {
 
 
     return (
-        <div className={styles.mainContainer} data-modal-root>
-            <Header user={user} />
-            <img
-                src={Config.IMAGES.training_background}
-                alt="background"
-                className={styles.backgroundImage}
-            />
+        <div className={styles.page}>
+            <div className={styles.mainContainer} data-modal-root>
+                <Header user={user}/>
+                <img
+                    src={Config.IMAGES.training_background}
+                    alt="background"
+                    className={styles.backgroundImage}
+                />
 
-            <TrainingStatus
-                user={user}
-            />
-            <div className={styles.trainingRoomTitle}>
-                ТРЕНУВАЛЬНА ЗАЛА
-            </div>
+                <TrainingStatus
+                    user={user}
+                />
+                <div className={styles.trainingRoomTitle}>
+                    ТРЕНУВАЛЬНА ЗАЛА
+                </div>
 
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 270,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                }}
-            >
-                {TRAINING_OPTIONS.map(option => (
-                    <TrainingOption
-                        key={option.id}
-                        bg={option.bg}
-                        chance={option.chance}
-                        duration={option.duration}
-                        cost={option.cost}
-                        actionImg={option.actionImg}
-                        actionIcon={option.actionIcon}
-                        // 4. Pass the handler function to the child component
-                        onStartTraining={() => handleStartTraining(option.duration, option.cost)}
-                    />
-                ))}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 270,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                    }}
+                >
+                    {TRAINING_OPTIONS.map(option => (
+                        <TrainingOption
+                            key={option.id}
+                            bg={option.bg}
+                            chance={option.chance}
+                            duration={option.duration}
+                            cost={option.cost}
+                            actionImg={option.actionImg}
+                            actionIcon={option.actionIcon}
+                            // 4. Pass the handler function to the child component
+                            onStartTraining={() => handleStartTraining(option.duration, option.cost)}
+                        />
+                    ))}
+                </div>
+                <NavigationBar/>
             </div>
-            <NavigationBar />
         </div>
     );
 }

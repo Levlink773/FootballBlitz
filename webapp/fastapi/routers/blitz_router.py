@@ -64,6 +64,10 @@ class MatchStateResponse(BaseModel):
     match_id: Optional[str] = None
     state: Optional[str] = None
     message: Optional[str] = None
+    name_first_team: Optional[str] = None
+    name_second_team: Optional[str] = None
+    goal_first_team: Optional[int] = None
+    goal_second_team: Optional[int] = None
 
 class ParticipantsResponse(BaseModel):
     blitz_id: Optional[int]
@@ -183,6 +187,8 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
     user = await UserService.get_user(user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    if (not user.main_character) or (not user.characters):
+        return RegisterResponse(ok=False, message="У вас немає головного персонажа!", blitz_id=None)
 
     # Проверки как в aiogram handler
     if (not getattr(user, "main_character", None)) or (not getattr(user, "characters", None)):
@@ -213,6 +219,17 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
     # Попытка добавить пользователя (BlitzService.add_users_to_blitz будет проверять дубликаты, VIP и лимит)
     try:
         await BlitzService.add_users_to_blitz(blitz_id, user, max_chars)
+        users = await BlitzService.get_users_from_blitz_users(blitz_id)
+        payloads = make_payloads_for_users(
+            "update_max_participants",
+            users,
+            payload_factory=lambda u: {
+                "max_participants": len(users),
+            }
+        )
+
+        # 2а) Лучший вариант — отправить пакетами через pipeline
+        await publish_batch(payloads, batch_size=32)
         # Списать энергию
         consumed = await UserService.consume_energy(user.user_id, cost)
         if not consumed:
@@ -297,10 +314,15 @@ async def get_user_match_state(user_id: int):
         if user_id in user_ids_in_match:
             # Нашли матч, возвращаем его состояние
             state_data = storage.state_data
+            tbm: BlitzMatchData = TBMatchManager.get_match(match_id)
             return MatchStateResponse(
                 match_id=match_id,
                 state=state_data.state,
-                message=state_data.message
+                message=state_data.message,
+                name_first_team=tbm.first_team.team_name.split("(")[0] if hasattr(tbm, "first_team") else "Unknown",
+                name_second_team=tbm.second_team.team_name.split("(")[0] if hasattr(tbm, "second_team") else "Unknown",
+                goal_first_team=tbm.first_team.goals if hasattr(tbm, "first_team") else 0,
+                goal_second_team=tbm.second_team.goals if hasattr(tbm, "second_team") else 0,
             )
 
     raise HTTPException(status_code=404, detail=f"Пользователь {user_id} не найден...")
@@ -413,6 +435,12 @@ async def donate_energy_by_user(body: DonateEnergyRequest):
         }
     )
     await publish_batch(payloads, batch_size=32)
+    text = f"""
+    ⚽️ <b>{user.main_character.name} додав {energy}🔋 до сил команді {my_team.team_name}!</b> ⚽️  
+    🔥 <b>Зміни шансів на гол:</b>  
+    - ⚽️ Команда: {match_data.first_team.team_name} - <b>{old_first_club_chance:.2f}%</b> → <b>{chance_first_team_after:.2f}%</b>  
+    - ⚽️ Команда: {match_data.second_team.team_name} - <b>{old_second_club_chance:.2f}%</b> → <b>{chance_second_team_after:.2f}%</b>  
+    """
     await TeamBlitzMatchManager.set_match_state(
         match_data.blitz_match_id,
         BlitzStateData(state=BlitzState.PING, message=text),
@@ -489,5 +517,6 @@ async def seconds_to_next_blitz():
             "title": BLITZ_TYPE_NAMES.get(next_blitz.blitz_type, str(next_blitz.blitz_type)),
             "participants_count": len(next_blitz.users),
             "max_participants": max_participants,
+            "blitz_time": next_blitz.start_at.strftime("%H:%M"),
         }
     )

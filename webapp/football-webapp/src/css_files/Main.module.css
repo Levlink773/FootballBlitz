@@ -1,3 +1,12 @@
+/* Основная обёртка — занимает всю доступную ширину */
+.page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center; /* по центру на больших экранах */
+    padding: 2px; /* чтобы не прилипало к краям */
+    box-sizing: border-box;
+}
 .mainContainer {
     width: 422px;
     height: 625px;
@@ -10,7 +19,7 @@
 /* --- Стили для заголовка страницы --- */
 .pageTitle {
     position: absolute;
-    top: 85px;
+    top: 75px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%; /* Используем проценты для гибкости */
@@ -24,7 +33,8 @@
 }
 .eventCardWrapperEvent {
     position: absolute;
-    top: 90px; /* регулируешь насколько ниже */
+    top: 20px; /* регулируешь насколько ниже */
+    left: -11px;
 }
 .eventCardWrapperEventMain {
     position: absolute;
@@ -32,7 +42,7 @@
 /* Обёртка для расписания — абсолютное позиционирование, центрирование */
 .eventCardWrapper {
     position: absolute;
-    top: 120px;           /* настройте по необходимости (чтобы располагалось под заголовком) */
+    top: 107px;           /* настройте по необходимости (чтобы располагалось под заголовком) */
     left: 50%;
     transform: translateX(-50%);
     width: 396px;         /* 188 + 20 + 188 = 396 (две карточки + gap) */
@@ -170,7 +180,7 @@
 }
 
 .pageTitle {
-    font-size: 26px; /* FIX: Збільшено розмір головного заголовка */
+    font-size: 18px; /* FIX: Збільшено розмір головного заголовка */
     letter-spacing: 1px;
 }
 
@@ -549,4 +559,65 @@
     width: 22px;
     height: 22px;
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+}
+
+/* --- Стили для табло --- */
+.scoreboardContainer {
+    position: absolute;
+    top: 90px; /* Располагаем ниже хедера, подберите значение по вашему дизайну */
+    left: 5%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-family: 'Roboto', sans-serif; /* Используйте ваш шрифт */
+    z-index: 10; /* Важно для расположения под alerts */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.team {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.teamRight {
+    text-align: right;
+}
+
+.teamName {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.score {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.scoreSeparator {
+    margin: 0 8px;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }

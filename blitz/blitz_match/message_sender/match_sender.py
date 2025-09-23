@@ -11,7 +11,7 @@ from loader import bot
 from logging_config import logger
 from utils.blitz_photo_utils import get_photo, save_photo_id
 from utils.rate_limitter import rate_limiter
-from webapp.fastapi.publisher import publish_match_state
+from webapp.fastapi.publisher import publish_match_state, make_payloads_for_users, publish_batch
 from .render_scene import SceneRenderer
 from .templates import (
     GetterTemplatesMatch,
@@ -240,9 +240,18 @@ class BlitzMatchSender:
                 "koef_donate_energy": KOEF_DONATE_ENERGY * 100
             }
         )
+        text_dizain = self.getter_templates.format_message(
+            template=TemplatesMatch.TEMPLATE_COMING_GOAL_DIZAIN,
+            extra_context={
+                "chance_first_team": chance_teams[0] * 100,
+                "chance_second_team": chance_teams[1] * 100,
+                "min_donate_energy_bonus": MIN_DONATE_ENERGY_TO_BONUS_KOEF,
+                "koef_donate_energy": KOEF_DONATE_ENERGY * 100
+            }
+        )
         await TeamBlitzMatchManager.set_match_state(
             self.match_data.blitz_match_id,
-            BlitzStateData(state=BlitzState.PING, message=text),
+            BlitzStateData(state=BlitzState.PING, message=text_dizain),
         )
         await publish_match_state(self.match_data.blitz_match_id, options={"goal_time": goal_time})
         message_photo = await self.sender.send_messages(

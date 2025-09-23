@@ -10,6 +10,7 @@ from bot.callbacks.blitz_callback import BlitzRegisterCallback
 from database.models.user_bot import UserBot
 from logging_config import logger
 from services.user_service import UserService
+from webapp.fastapi.publisher import make_payloads_for_users, publish_batch
 
 blitz_register_router = Router()
 
@@ -27,6 +28,17 @@ async def blitz_register_filter(query: CallbackQuery,
             raise UserNotEnoughEnergyError(f"Not enough energy {user.energy} < {callback_data.registration_cost}")
         await BlitzService.add_users_to_blitz(callback_data.blitz_id, user, callback_data.max_characters)
         await UserService.consume_energy(user.user_id, callback_data.registration_cost)
+        users = await BlitzService.get_users_from_blitz_users(callback_data.blitz_id)
+        payloads = make_payloads_for_users(
+            "update_max_participants",
+            users,
+            payload_factory=lambda u: {
+                "max_participants": len(users),
+            }
+        )
+
+        # 2а) Лучший вариант — отправить пакетами через pipeline
+        await publish_batch(payloads, batch_size=32)
         text = "🎉 Ви успішно зареєструвалися на бліц-турнір! Очікуйте на початок та готуйтеся до боротьби ⚽️"
         await query.answer(
             text,
