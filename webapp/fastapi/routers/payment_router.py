@@ -34,7 +34,7 @@ class EnergyRequest(BasePaymentRequest):
 
 
 class VipPassRequest(BasePaymentRequest):
-    type_vip_pass: Any = Field(default=VipPassTypes.month_pass, description="Identifier of VIP pass (string/int/enum)")
+    type_vip_pass: str = Field(default="standard", description="Identifier of VIP pass (string/int/enum)")
 
 
 def _prepare_result(url_resp: dict, created_payment) -> dict:
@@ -122,7 +122,9 @@ async def create_vip_payment(req: VipPassRequest):
     payment_obj = await PaymentServise.create_payment(price=req.price, user_id=req.user_id, order_id=order_id)
     if not payment_obj:
         raise HTTPException(status_code=500, detail="Не удалось сохранить запись платежа в БД")
-
-    await PaymentServise.create_vip_pass_payment(order_id=payment_obj.order_id, type_vip_pass=req.type_vip_pass)
+    type_vip_pass = VipPassTypes.seven_days_pass
+    if req.type_vip_pass == 'standard':
+        type_vip_pass = VipPassTypes.month_pass
+    await PaymentServise.create_vip_pass_payment(order_id=payment_obj.order_id, type_vip_pass=type_vip_pass)
 
     return _prepare_result(url_resp, payment_obj)

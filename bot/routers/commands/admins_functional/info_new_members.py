@@ -45,7 +45,7 @@ async def get_count_new_members_handler(
         )
         return
         
-    new_characters = await AdminFunctionalService.get_new_members_character(
+    new_users = await AdminFunctionalService.get_new_members_users(
         count_members=count_new_member
     )
     message_start_generate = await message.answer(
@@ -53,7 +53,7 @@ async def get_count_new_members_handler(
     )
     
     generator_xls = GenerateNewMemberXLS(
-        members=new_characters
+        members=new_users,
     )
     await generator_xls.generate_xls()
     xls_bytes = generator_xls.save_to_bytes()

@@ -28,13 +28,13 @@ class BlitzTextGetter:
 📣 Ласкаво просимо на найшвидший і найзапекліший турнір дня! Сьогодні о {self.start_time} {self.count_users} команди вийшли на поле, щоб вибороти звання чемпіона блиц-турніру.
 
 ⚙️ Механіка коротка, але яскрава:
-– 5 хвилин 7 вирішальних моментів  
-– 30 секунд на атаку  
-– Донат енергії X5  
+– 5 хвилин 7 вирішальних моментів
+– 30 секунд на атаку
+– Донат енергії X5
 
-Зараз формується список команд і незабаром ви дізнаєтеся своїх напарників.  
+Зараз формується список команд і незабаром ви дізнаєтеся своїх напарників.
 
-⏳ Через хвилину почнеться 1/{self.count_users} фіналу – будьте готові до блискавичної боротьби й точних ударів!  
+⏳ Через хвилину почнеться 1/{self.count_users} фіналу – будьте готові до блискавичної боротьби й точних ударів!
 Удачі всім і нехай сильніші здобудуть перемогу! 💥
             """
 
@@ -52,6 +52,20 @@ class BlitzTextGetter:
 ⏳ Залишилось 20 хвилин до старту.
 🎯 Натискай <b>«Зареєструватись 💪»</b> та готуйся до блискавичних поєдинків! ⚽️
 Запис відкритий!
+'''
+
+    def ten_minutes_left(self):
+        return '''
+⏳ <b>Залишилось 10 хвилин до старту бліц-турніру!</b> ⏳
+
+Реєструйся швидше, кількість місць обмежена! 🏆
+'''
+
+    def five_minutes_left(self):
+        return '''
+‼️ <b>ШВИДКО РЕЄСТРУЙСЯ!!!!</b> ‼️
+
+⏳ <b>Залишилось 5 хвилин до старту!</b> ⏳
 '''
 
 
@@ -74,41 +88,60 @@ class BlitzReminder:
         self.registration_cost = registration_cost
         self.register_photo_path = register_photo_path
 
-    async def __reminder_blitz_for_users(self, users: list[UserBot], required_vip: bool, blitz_id: int):
-        filtered_users = [
-            user for user in users
-            if user.vip_pass_is_active == required_vip
-        ]
-        if not filtered_users:
+    async def __reminder_blitz_for_users(self, users: list[UserBot], text: str, blitz_id: int):
+        if not users:
             return
-        text = self.blitz_text_getter.msg_vip_user() if required_vip else self.blitz_text_getter.msg_simple_user()
         callback_data = BlitzRegisterCallback(blitz_id=blitz_id, max_characters=self.necessary_count_users,
                                               registration_cost=self.registration_cost).pack()
         markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="Зареєструватись 💪", callback_data=callback_data)]
         ])
-        await send_message_all_users(filtered_users, text, reply_markup=markup, photo_path=self.register_photo_path)
+        await send_message_all_users(users, text, reply_markup=markup, photo_path=self.register_photo_path)
 
     async def remind(self) -> bool:
         now = datetime.now()
         today_start = self.blitz_start_at
         vip_remind_time = today_start - timedelta(minutes=self.remind_for_vip_users)
         simple_remind_time = today_start - timedelta(minutes=self.remind_for_simple_users)
-        users = await UserService.get_all_users_where_end_register()
+        remind_10_minutes = today_start - timedelta(minutes=10)
+        remind_5_minutes = today_start - timedelta(minutes=5)
+
+        all_users = await UserService.get_all_users_where_end_register()
+
         if self.remind_for_vip_users > 0:
             if now < vip_remind_time:
                 await asyncio.sleep((vip_remind_time - now).total_seconds())
-                await self.__reminder_blitz_for_users(users, True, self.blitz_id)
+                vip_users = [user for user in all_users if user.vip_pass_is_active]
+                await self.__reminder_blitz_for_users(vip_users, self.blitz_text_getter.msg_vip_user(), self.blitz_id)
             elif now < today_start:
-                await self.__reminder_blitz_for_users(users, True, self.blitz_id)
+                vip_users = [user for user in all_users if user.vip_pass_is_active]
+                await self.__reminder_blitz_for_users(vip_users, self.blitz_text_getter.msg_vip_user(), self.blitz_id)
 
         now = datetime.now()
         if self.remind_for_simple_users > 0:
             if now < simple_remind_time:
                 await asyncio.sleep((simple_remind_time - now).total_seconds())
-                await self.__reminder_blitz_for_users(users, False, self.blitz_id)
+                simple_users = [user for user in all_users if not user.vip_pass_is_active]
+                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
             elif now < today_start:
-                await self.__reminder_blitz_for_users(users, False, self.blitz_id)
+                simple_users = [user for user in all_users if not user.vip_pass_is_active]
+                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
+
+        now = datetime.now()
+        if now < remind_10_minutes:
+            await asyncio.sleep((remind_10_minutes - now).total_seconds())
+            registered_users = await BlitzService.get_users_from_blitz_users(self.blitz_id)
+            if len(registered_users) < self.necessary_count_users:
+                unregistered_users = [user for user in all_users if user not in registered_users]
+                await self.__reminder_blitz_for_users(unregistered_users, self.blitz_text_getter.ten_minutes_left(), self.blitz_id)
+
+        now = datetime.now()
+        if now < remind_5_minutes:
+            await asyncio.sleep((remind_5_minutes - now).total_seconds())
+            registered_users = await BlitzService.get_users_from_blitz_users(self.blitz_id)
+            if len(registered_users) < self.necessary_count_users:
+                unregistered_users = [user for user in all_users if user not in registered_users]
+                await self.__reminder_blitz_for_users(unregistered_users, self.blitz_text_getter.five_minutes_left(), self.blitz_id)
 
         now = datetime.now()
         if now < today_start:

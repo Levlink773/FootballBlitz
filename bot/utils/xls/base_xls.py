@@ -2,15 +2,14 @@ from abc import ABC, abstractmethod
 
 import openpyxl
 from openpyxl.styles import Alignment, Font
-
-from database.models.character import Character
+from database.models.user_bot import UserBot
 
 
 class BaseXLS(ABC):
     
     HEADERS: list[str]
     
-    def __init__(self, members: list[Character]):
+    def __init__(self, members: list[UserBot]):
         self.members = members
         
         self.workbook = openpyxl.Workbook()

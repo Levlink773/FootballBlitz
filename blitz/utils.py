@@ -47,7 +47,7 @@ blitz_pack_getter = {
         )
     ),
     BlitzType.BLITZ_V8: BlitzPack(
-        stages_of_final=2,
+        stages_of_final=3,
         blitz_type=BlitzType.BLITZ_V8,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50), RewardStatisticsBlitzTeam()],
@@ -124,7 +124,17 @@ blitz_scheduler = [
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
+        start_time=time(11, 0),
+        registration_cost=30,
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+    ),
+    BlitzData(
         start_time=time(12, 0),
+        registration_cost=30,
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+    ),
+    BlitzData(
+        start_time=time(13, 0),
         registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
@@ -139,12 +149,27 @@ blitz_scheduler = [
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
-        start_time=time(18, 34),
+        start_time=time(18, 0),
+        registration_cost=30,
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+    ),
+    BlitzData(
+        start_time=time(19, 0),
+        registration_cost=30,
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+    ),
+    BlitzData(
+        start_time=time(20, 0),
         registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),
     BlitzData(
         start_time=time(21, 0),
+        registration_cost=30,
+        blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
+    ),
+    BlitzData(
+        start_time=time(22, 0),
         registration_cost=30,
         blitz_pack=blitz_pack_getter.get(BlitzType.BLITZ_V8),
     ),

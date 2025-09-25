@@ -1019,152 +1019,151 @@ export function SetPriceModal({
     );
 }
 
-// ✨ --- VipPromoModal (Преміум версія) --- ✨
-export function VipPromoModal({
-                                  title = "VIP ПІДПИСКА",
-                                  price = "999,99 грн",
-                                  benefits = ["+100 ЕНЕРГІЇ ЩОДНЯ", "X2 НАГОРОДИ НАВЧАЛЬНОГО ЦЕНТРУ", "VIP ТУРНІРИ"],
-                                  assets = {},
-                                  onSubscribe = () => {
-                                  },
-                                  onClose = () => {
-                                  },
-                                  scale = 1,
-                              }) {
-    const background = assets.background || Config.IMAGES.vip_hero || Config.IMAGES.vipBackground;
-    const vipImage = assets.vip || Config.IMAGES.VIPImage || Config.IMAGES.vipShield;
-    const banner = assets.banner || Config.IMAGES.bannerImage || Config.IMAGES.greenBanner;
+// ✨ --- Визначаємо опції VIP прямо тут для зручності --- ✨
+const VIP_OPTIONS = [
+    {
+        title: "VIP на 7 днів",
+        price: "149.99 грн",
+        type: "week_standart", // Тип для API
+        benefits: ["+100 енергії щодня", "х2 нагороди", "VIP-турніри"],
+        popular: false,
+    },
+    {
+        title: "VIP на 30 днів",
+        price: "389.99 грн",
+        type: "standard", // Тип для API
+        benefits: ["+100 енергії щодня", "х2 нагороди", "VIP-турніри", "Ексклюзивні бонуси"],
+        popular: true,
+    }
+];
 
+// ✨ --- Оновлена версія VipPromoModal --- ✨
+export function VipPromoModal({
+                                  onSubscribe = () => {},
+                                  onClose = () => {},
+                                  scale = 0.9,
+                              }) {
+    // Ресурси для кнопки
+    const banner = Config.IMAGES.bannerImage || Config.IMAGES.greenBanner;
+
+    // Функція для масштабування
     const s = (v) => (typeof v === "number" ? Math.max(1, Math.round(v * scale)) + "px" : v);
+
     const base = {
-        boxMaxWidth: 360, containerMaxHeight: 460, titleFont: 24, vipMaxHeight: 180,
-        benefitsFont: 13, buttonHeight: 52, buttonRadius: 12, priceFont: 20, padding: 14,
+        buttonHeight: 52, buttonRadius: 12, priceFont: 18, padding: 16,
     };
 
     return (
-        <Box style={{padding: 0, maxWidth: s(base.boxMaxWidth), borderRadius: s(16)}} onClose={onClose}>
+        // Використовуємо ваш існуючий Box, але з іншим внутрішнім наповненням
+        <Box style={{maxWidth: s(640), borderRadius: s(16)}} onClose={onClose}>
             <div style={{
-                position: "relative", width: "100%", maxHeight: s(base.containerMaxHeight), overflow: "hidden",
-                borderRadius: s(16), display: "flex", flexDirection: "column",
+                padding: `${s(24)} ${s(base.padding)}`,
+                textAlign: 'center',
+                color: 'white'
             }}>
-                <motion.img src={background} alt="vip background"
+                {/* Загальний заголовок */}
+                <motion.h2
+                    style={{
+                        fontSize: s(24),
+                        fontWeight: 900,
+                        textShadow: "0 4px 12px rgba(0,0,0,0.7)",
+                        marginBottom: s(8),
+                    }}
+                    initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}}
+                >
+                    Оберіть ваш VIP-пасс
+                </motion.h2>
+                <motion.p
+                    style={{
+                        fontSize: s(15),
+                        color: '#c0c0d0',
+                        marginBottom: s(24)
+                    }}
+                    initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
+                >
+                    Отримайте максимум переваг у грі!
+                </motion.p>
+
+                {/* Контейнер для карток */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: s(base.padding),
+                    justifyContent: 'center',
+                }}>
+                    {VIP_OPTIONS.map((option, index) => (
+                        <motion.div
+                            key={option.type}
                             style={{
-                                position: "absolute",
-                                inset: 0,
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                pointerEvents: "none"
-                            }}
-                            initial={{scale: 1.2, opacity: 0.8}}
-                            animate={{scale: 1, opacity: 1}}
-                            transition={{duration: 0.5, ease: 'easeOut'}}
-                />
-                <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: 'radial-gradient(circle at 50% 30%, transparent 0%, rgba(0,0,0,0.8) 100%)'
-                }}/>
-
-                <div style={{
-                    position: "relative", zIndex: 1, padding: s(base.padding), boxSizing: "border-box",
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: s(8),
-                    flex: "1 1 auto", overflowY: "auto", textAlign: "center",
-                }}>
-                    <motion.div
-                        style={{
-                            color: "#FFFFFF",
-                            fontSize: s(base.titleFont),
-                            fontWeight: 900,
-                            textShadow: "0 4px 12px rgba(0,0,0,0.7)"
-                        }}
-                        initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.2}}
-                    >
-                        {title}
-                    </motion.div>
-
-                    <motion.div
-                        style={{
-                            marginTop: s(8),
-                            width: "80%",
-                            maxWidth: s(240),
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}
-                        initial={{opacity: 0, scale: 0.7}} animate={{opacity: 1, scale: 1}}
-                        transition={{delay: 0.3, type: 'spring', damping: 10}}
-                    >
-                        <motion.img src={vipImage} alt="VIP"
-                                    style={{
-                                        maxHeight: s(base.vipMaxHeight),
-                                        width: "auto",
-                                        objectFit: "contain",
-                                        filter: "drop-shadow(0 10px 25px rgba(0,0,0,0.6))"
-                                    }}
-                                    animate={{y: [0, -8, 0]}}
-                                    transition={{duration: 3, repeat: Infinity, ease: 'easeInOut'}}
-                        />
-                    </motion.div>
-
-                    <motion.div
-                        style={{
-                            marginTop: s(8),
-                            color: "#FDE400",
-                            fontWeight: 700,
-                            fontSize: s(base.benefitsFont),
-                            lineHeight: 1.4,
-                            textShadow: "0 2px 4px rgba(0,0,0,0.6)"
-                        }}
-                        initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.5}}
-                    >
-                        {benefits.map((b, i) => (
-                            <div key={i} style={{
-                                marginBottom: i === benefits.length - 1 ? 0 : s(6),
+                                flex: 1,
+                                background: 'rgba(40, 40, 60, 0.7)',
+                                borderRadius: s(12),
+                                border: `2px solid ${option.popular ? '#f0c45c' : '#4a4a6a'}`,
+                                padding: s(base.padding),
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 8
-                            }}>
-                                <span style={{color: '#37C35F'}}>✓</span><span>{b}</span>
-                            </div>
-                        ))}
-                    </motion.div>
-                </div>
+                                flexDirection: 'column',
+                                position: 'relative',
+                                boxShadow: '0 5px 20px rgba(0,0,0,0.3)'
+                            }}
+                            initial={{opacity: 0, y: 50}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{delay: 0.2 + index * 0.15}}
+                        >
+                            {/* Тег "Популярне" */}
+                            {option.popular && (
+                                <div style={{
+                                    position: 'absolute', top: s(-15), left: '50%', transform: 'translateX(-50%)',
+                                    backgroundColor: '#f0c45c', color: '#1a1a2a', padding: `${s(4)} ${s(12)}`,
+                                    borderRadius: s(20), fontSize: s(12), fontWeight: 'bold',
+                                }}>
+                                    ПОПУЛЯРНЕ
+                                </div>
+                            )}
 
-                <div style={{
-                    position: "relative", zIndex: 2, padding: `${s(12)} ${s(base.padding)}`, boxSizing: "border-box",
-                    background: "linear-gradient(0deg, rgba(0,0,0,0.4), transparent)",
-                }}>
-                    <motion.button
-                        onClick={onSubscribe}
-                        style={{
-                            width: "100%", maxWidth: s(300), height: s(base.buttonHeight),
-                            borderRadius: s(base.buttonRadius), border: "rgba(255,255,255,0.8)",
-                            cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            overflow: "hidden", outline: "none", WebkitTapHighlightColor: "transparent",
-                            backgroundImage: `url(${banner})`, backgroundSize: "cover", backgroundPosition: "center",
-                            boxShadow: "0 8px 25px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -3px 3px rgba(0,0,0,0.2)",
-                            backgroundColor: "#10783c",
-                        }}
-                        whileHover={{
-                            scale: 1.03,
-                            boxShadow: "0 12px 30px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.2), inset 0 -3px 3px rgba(0,0,0,0.2)",
-                            filter: 'brightness(1.1)'
-                        }}
-                        whileTap={{scale: 0.98, filter: 'brightness(0.95)'}}
-                        transition={{type: 'spring', stiffness: 300, damping: 15}}
-                    >
-                        <span style={{
-                            fontWeight: 900,
-                            fontSize: s(base.priceFont),
-                            color: "#fff",
-                            textShadow: "0 2px 5px rgba(0,0,0,0.7)",
-                            pointerEvents: "none"
-                        }}>
-                            {price}
-                        </span>
-                    </motion.button>
+                            <h3 style={{fontSize: s(18), fontWeight: 700, marginBottom: s(12)}}>{option.title}</h3>
+
+                            {/* Список переваг */}
+                            <div style={{
+                                margin: `${s(16)} 0`,
+                                color: "#c0c0d0",
+                                textAlign: 'left',
+                                fontSize: s(13),
+                                flexGrow: 1
+                            }}>
+                                {option.benefits.map((b, i) => (
+                                    <div key={i} style={{
+                                        display: 'flex', alignItems: 'center',
+                                        gap: s(8), marginBottom: s(8)
+                                    }}>
+                                        <span style={{color: '#37C35F'}}>✓</span>
+                                        <span>{b}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Кнопка покупки */}
+                            <motion.button
+                                onClick={() => onSubscribe(option)} // Передаємо всю інформацію про опцію
+                                style={{
+                                    width: "100%", height: s(base.buttonHeight),
+                                    borderRadius: s(base.buttonRadius), border: "none", cursor: "pointer",
+                                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                    backgroundImage: `url(${banner})`, backgroundSize: "cover", backgroundPosition: "center",
+                                    boxShadow: "0 8px 25px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.2)",
+                                    backgroundColor: "#10783c",
+                                }}
+                                whileHover={{scale: 1.05, filter: 'brightness(1.1)'}}
+                                whileTap={{scale: 0.97, filter: 'brightness(0.95)'}}
+                            >
+                                <span style={{
+                                    fontWeight: 900, fontSize: s(base.priceFont), color: "#fff",
+                                    textShadow: "0 2px 5px rgba(0,0,0,0.7)"
+                                }}>
+                                    {option.price}
+                                </span>
+                            </motion.button>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
         </Box>

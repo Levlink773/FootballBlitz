@@ -1,6 +1,6 @@
 /* Основная обёртка — занимает всю доступную ширину */
 .page {
-    width: 100%;
+    width: 95%;
     height: 100%;
     display: flex;
     justify-content: center; /* по центру на больших экранах */

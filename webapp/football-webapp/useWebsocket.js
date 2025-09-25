@@ -1,7 +1,7 @@
 // src/hooks/useWebSocket.js
 import { useEffect, useRef } from 'react';
 import { showAlert } from "./src/alertService.jsx";
-const WS_BASE_URL = 'ws://localhost:8123'; //'wss://football-blitz.online/api'
+const WS_BASE_URL = 'wss://football-blitz.online/api'
 /**
  * @param {string|null} userId
  * @param {{ onShowAlert?: (payload) => void }} options

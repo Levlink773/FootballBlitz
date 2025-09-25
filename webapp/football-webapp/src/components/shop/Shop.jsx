@@ -1,8 +1,9 @@
 import React, {useEffect} from 'react';
 import styles from '../../css_files/shop/Shop.module.css';
-import Config from '../../config.js'; // keep your existing Config and images
+import Config from '../../config.js';
 
 const BOX_ITEMS = [
+    // ... ваш масив BOX_ITEMS залишається без змін
     {
         id: 'mini',
         title: 'Міні-бокс',
@@ -33,7 +34,7 @@ const BOX_ITEMS = [
 ];
 
 const ShopBox = ({ title, originalPrice, discountedPrice, discount, image, imageStyle, index, onBuy }) => {
-    // using inline style var --i to stagger animations
+    // ... компонент ShopBox залишається без змін
     const style = {['--i']: index};
     return (
         <div className={styles.shopBox} style={style} role="group" aria-label={`${title} — ${discountedPrice}`}>
@@ -64,11 +65,10 @@ const Shop = ({ onOpenModal, onPurchase }) => {
     return (
         <div className={styles.shopContainer}>
             {/* Featured Item Section */}
-            {/* Add onClick to open the VIP modal */}
             <div
                 className={styles.featuredItem}
                 aria-hidden="false"
-                onClick={() => onOpenModal('vip')}
+                onClick={() => onOpenModal('vip')} // Логіка не змінюється
                 style={{ cursor: 'pointer' }}
             >
                 <img src={Config.IMAGES.bannerImage} alt="Featured background" className={styles.featuredBg}/>
@@ -77,17 +77,18 @@ const Shop = ({ onOpenModal, onPurchase }) => {
                     <img src={Config.IMAGES.VIPImage} alt="VIP" className={styles.featuredIcon}/>
                     <div className={styles.featuredText}>
                         <h3 className={styles.featuredTitle}>VIP-пасс</h3>
-                        <p className={styles.featuredDesc}>+100 енергії щодня · х2 нагороди · VIP-турніри</p>
+                        {/* ЗМІНА 1: Оновлюємо опис, щоб він був більш загальним */}
+                        <p className={styles.featuredDesc}>Оберіть свій ідеальний план: 7 або 30 днів!</p>
 
                         <div className={styles.featuredFooter}>
-                            <span className={styles.featuredPrice}>999,99 грн</span>
-                            {/* The button's onClick also triggers the modal and stops propagation */}
+                            {/* ЗМІНА 2: Замінюємо конкретну ціну на "від..." */}
+                            <span className={styles.featuredPrice}>від 149 грн</span>
                             <button
                                 className={styles.buyButton}
                                 style={{top: -5, right: -5}}
                                 aria-label="Купити VIP-пасс"
                                 onClick={(e) => {
-                                    e.stopPropagation(); // Prevent parent onClick from firing too
+                                    e.stopPropagation();
                                     onOpenModal('vip');
                                 }}
                             >
@@ -98,25 +99,23 @@ const Shop = ({ onOpenModal, onPurchase }) => {
                 </div>
             </div>
 
-            {/* Boxes Section (unchanged) */}
+            {/* Boxes Section (без змін) */}
             <div className={styles.boxesContainer}>
                 {BOX_ITEMS.map((item, idx) => (
                     <ShopBox
                         key={item.id}
-                        {...item} // Pass all item properties
+                        {...item}
                         index={idx}
-                        // Pass a function to handle the purchase for this specific item
                         onBuy={() => onPurchase('box', item)}
                     />
                 ))}
             </div>
 
 
-            {/* Currency Purchase Section */}
+            {/* Currency Purchase Section (без змін) */}
             <div className={styles.currencyContainer}>
                 <div
                     className={`${styles.currencyItem} ${styles.coinItem}`}
-                    // Add onClick to open the coin purchase modal
                     onClick={() => onOpenModal('coin')}
                 >
                     <img src={Config.IMAGES.big_coin} alt="Монети" className={styles.currencyBigImg} />
@@ -135,7 +134,6 @@ const Shop = ({ onOpenModal, onPurchase }) => {
                 </div>
                 <div
                     className={`${styles.currencyItem} ${styles.energyItem}`}
-                    // Add onClick to open the energy purchase modal
                     onClick={() => onOpenModal('energy')}
                 >
                     <img src={Config.IMAGES.big_energy} alt="Енергія" className={styles.currencyBigImg} />

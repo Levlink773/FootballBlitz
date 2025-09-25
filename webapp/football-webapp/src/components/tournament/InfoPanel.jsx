@@ -126,8 +126,8 @@ export const InfoPanel = () => {
         <InfoContainer>
             <InfoBlock delay="0.2s">
                 <InfoIcon src={Config.IMAGES.trophy} alt="trophy" />
-                <Text>
-                    Участь у бліц-турнірах дає енергію, монети та кубки.
+                <Text style={{ fontSize: 11 }}>
+                    Участь у турнірах дає бокси, енергію і рейтинг.
                 </Text>
             </InfoBlock>
 
