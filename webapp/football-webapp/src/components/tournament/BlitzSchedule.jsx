@@ -4,12 +4,12 @@ import Config from "../../config.js";
 import BlitzOption from "./TournamentOption.jsx";
 
 const defaultSchedule = [
-    { id: 1, title: "Бліц (8)", time: "09:00", cost: "-30" },
-    { id: 2, title: "Бліц (16)", time: "12:00", cost: "-30" },
-    { id: 3, title: "Бліц (16)", time: "18:00", cost: "-30" },
-    { id: 4, title: "Бліц (16)", time: "21:00", cost: "-30" },
-    { id: 5, title: "Бліц (8)", time: "00:00", cost: "-30" },
-    { id: 6, title: "Бліц (16)", time: "15:00", cost: "-30" },
+    { id: 1, title: "Бліц (8)", time: "09:00 & 11:00", cost: "-30" },
+    { id: 2, title: "Бліц (8)", time: "12:00 & 13:00", cost: "-30" },
+    { id: 3, title: "Бліц (8)", time: "15:00 & 16:00", cost: "-30" },
+    { id: 4, title: "Бліц (8)", time: "18:00 & 19:00", cost: "-30" },
+    { id: 5, title: "Бліц (8)", time: "20:00 & 21:00", cost: "-30" },
+    { id: 6, title: "Бліц (8)", time: "22:00 & 00:00", cost: "-30" },
 ];
 
 const ITEM_W = 188;

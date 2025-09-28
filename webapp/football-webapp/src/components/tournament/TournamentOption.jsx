@@ -126,6 +126,8 @@ const TimeText = styled(Text)`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
+    left: -15px;
 `;
 
 const CostContainer = styled.div`
@@ -138,7 +140,7 @@ const CostContainer = styled.div`
     border-radius: 16px;
     transition: background-color 0.3s ease;
     position: relative;
-    left: -20px;
+    left: -45px;
 `;
 
 const CostText = styled.span`

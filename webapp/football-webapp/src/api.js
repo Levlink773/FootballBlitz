@@ -1,6 +1,6 @@
 // src/api.js
 
-export const API_BASE_URL = 'https://football-blitz.online/api';
+export const API_BASE_URL = 'http://localhost:8123';// 'https://football-blitz.online/api';
 /**
  * Виставляє гравця на трансфер.
  * @param {number} characterId - ID персонажа.
@@ -148,7 +148,7 @@ export const api = {
     createVipPayment: (data) => {
         const payload = {
             user_id: data.userId,
-            price: parsePrice(data.price), // Convert "999,99 грн" to 99999
+            price: data.type === 'standard' ? 389 : 149, // Convert "999,99 грн" to 99999
             name_product: "VIP Підписка",
             webhook_url: `${WEBHOOK_URL}/mono-result-vip-pass-blitz`,
             type_vip_pass: data.type,

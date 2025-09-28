@@ -138,4 +138,33 @@ class BlitzService:
             )
             characters = result.scalars().all()
             return list(characters)
-    
+
+    @classmethod
+    async def get_unregistered_users(cls, blitz_id: int) -> list[UserBot]:
+        async for session in get_session():
+            # Получаем всех user_id, которые уже в блице
+            result = await session.execute(
+                select(BlitzUser.user_id).where(BlitzUser.blitz_id == blitz_id)
+            )
+            registered_user_ids = [row[0] for row in result.all()]
+
+            # Если блиц пустой → вернуть всех пользователей
+            if not registered_user_ids:
+                result = await session.execute(
+                    select(UserBot).options(
+                        selectinload(UserBot.characters),
+                        selectinload(UserBot.main_character)
+                    )
+                )
+                return list(result.scalars().all())
+
+            # Берём всех UserBot, которых нет в registered_user_ids
+            result = await session.execute(
+                select(UserBot)
+                .where(~UserBot.user_id.in_(registered_user_ids))
+                .options(
+                    selectinload(UserBot.characters),
+                    selectinload(UserBot.main_character)
+                )
+            )
+            return list(result.scalars().all())
