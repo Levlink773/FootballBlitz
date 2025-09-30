@@ -15,7 +15,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 
-
 class STATUS_USER_REGISTER(EnumBase):
     START_REGISTER = "START_REGISTER"
     CREATE_TEAM = "CREATE_TEAM"
@@ -27,17 +26,17 @@ class STATUS_USER_REGISTER(EnumBase):
 
 class UserBot(Base):
     __tablename__ = 'users'
-    
+
     id = Column(BigInteger, primary_key=True, index=True)
-    user_id = Column(BigInteger, unique=True, index=True)  
-    user_name = Column(String(255), index=True)  
-    user_full_name = Column(String(255)) 
+    user_id = Column(BigInteger, unique=True, index=True)
+    user_name = Column(String(255), index=True)
+    user_full_name = Column(String(255))
     user_time_register = Column(DateTime, default=datetime.datetime.now)
     money = Column(BigInteger, default=0)
     energy = Column(BigInteger, default=0)
     team_name = Column(String(255), nullable=True)
     points = Column(BigInteger, nullable=False, default=0)
-    
+
     characters = relationship(
         "Character",
         back_populates="owner",
@@ -76,6 +75,16 @@ class UserBot(Base):
     count_rich_final_winner_blitz = Column(BigInteger, default=0)
     count_go_to_gym = Column(BigInteger, default=0)
 
+    final_count_of_matches = Column(BigInteger, default=0)
+    final_winner_matches = Column(BigInteger, default=0)
+    final_count_of_blitz = Column(BigInteger, default=0)
+
+    @property
+    def precent_winner_matches(self) -> float:
+        if self.final_count_of_matches == 0:
+            return 0
+        return round((self.final_winner_matches / self.final_count_of_matches) * 100, 2)
+
     @property
     def team_name_user(self) -> str:
         text = self.team_name
@@ -89,16 +98,15 @@ class UserBot(Base):
         if not self.vip_pass_expiration_date:
             return False
         return self.vip_pass_expiration_date > datetime.datetime.now()
-    
+
     @property
     def end_register(self) -> bool:
         return self.status_register == STATUS_USER_REGISTER.END_REGISTER
-    
+
     @property
     def user_name_link(self):
-        return f"{'@' + self.user_name if self.user_name else self.user_full_name}" 
-    
-    
+        return f"{'@' + self.user_name if self.user_name else self.user_full_name}"
+
     @hybrid_property
     def link_to_user(self):
         return f"<a href='tg://user?id={self.user_id}'>{self.user_name_link}</a>"

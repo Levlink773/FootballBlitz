@@ -17,6 +17,7 @@ from blitz.services.blitz_team_service import BlitzTeamService
 from blitz.services.message_sender.blitz_sender import send_message
 from blitz.utils import BlitzData
 from database.models.blitz import Blitz
+from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from logging_config import logger
@@ -136,6 +137,11 @@ class StartBlitz:
         blitz_match = BlitzMatch(match_data, datetime.now())
         await asyncio.sleep(60)
         winner_team, looser_team = await blitz_match.start_match()
+        winner_user: BlitzUser = winner_team.users[0]
+        looser_user: BlitzUser = looser_team.users[0]
+        await UserService.add_final_count_matches_winner(winner_user.user_id)
+        await UserService.add_final_count_matches(winner_user.user_id)
+        await UserService.add_final_count_matches(looser_user.user_id)
         return winner_team, looser_team
 
     async def reward_rating(self, final_winner: BlitzTeam, final_looser: BlitzTeam, pure_semifinal_losers: list[BlitzTeam]):
@@ -201,6 +207,12 @@ class StartBlitz:
             blitz_id=blitz_id
         )
         all_teams = teams.copy()
+        for team in all_teams:
+            user = team.users[0]
+            if not user.user_id:
+                logger.error("WTF? user must be have attribute 'user_id'")
+                continue
+            await UserService.add_final_count_blitz(user_id=user.user_id)
         logger.info("Teams created")
         random.shuffle(teams)
         # await BlitzTeamSender.send_teams_message(teams)
@@ -274,10 +286,20 @@ class StartBlitz:
                 for team in all_teams
             ]
         )
+        # --- ИСПРАВЛЕННЫЙ КОД ---
         logger.info("Reward blitz match")
-        asyncio.create_task(self.reward_rating(final_winner, final_looser, pure_semifinal_losers))
-        # --- ШАГ 4: Передаем финалистов в метод finish_match ---
-        asyncio.create_task(self.finish_match(final_winner, final_looser))
+
+        # Создаем список всех финальных задач, которые должны быть выполнены до очистки
+        final_tasks = [
+            self.reward_rating(final_winner, final_looser, pure_semifinal_losers),
+            self.finish_match(final_winner, final_looser)
+            # Добавьте сюда другие асинхронные задачи, если они есть
+        ]
+
+        # Ждем завершения ВСЕХ финальных задач
+        await asyncio.gather(*final_tasks)
+
+        logger.info("All final tasks are completed. Finishing blitz.")
         return final_winner
 
     async def start(self) -> BlitzStatus:

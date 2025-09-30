@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
+// StatsPanel.js
+import React from 'react';
 import { useSpring, animated } from 'react-spring';
 import styles from '../../css_files/main_css/StatsPanel.module.css';
+import {API_BASE_URL} from "../../api.js";
 
-// Компоненты AnimatedNumber и StatBox остаются без изменений
-
-const statsData = [
-    { value: 903, label: 'гри' },
-    { value: 89.3, label: 'перемог', isPercent: true },
-    { value: 120, label: 'турнірів' },
-];
-
+// Компонент AnimatedNumber остается без изменений
 const AnimatedNumber = ({ n, isPercent }) => {
     const { number } = useSpring({
         from: { number: 0 },
@@ -29,28 +24,75 @@ const AnimatedNumber = ({ n, isPercent }) => {
     );
 };
 
-
-const StatBox = ({ value, label, isPercent }) => (
+// Компонент StatBox теперь умеет отображать и текст, и числа
+const StatBox = ({ value, label, isPercent, isLeague }) => (
     <div className={styles.statBox}>
-        <div className={styles.statValue}>
-            <AnimatedNumber n={value} isPercent={isPercent} />
+        <div className={styles.statValue} style={isLeague ? {fontSize: 16, position: "relative", top: -5} : {}}>
+            {typeof value === 'number' ? (
+                <AnimatedNumber n={value} isPercent={isPercent} />
+            ) : (
+                <span>{value}</span> // Просто отображаем текст, если это не число
+            )}
         </div>
-        <span className={styles.statLabel}>{label}</span>
+        <span className={styles.statLabel} style={isLeague ? {position: "relative", top: 3} : {}}>{label}</span>
     </div>
 );
 
-export const StatsPanel = () => {
-    const [isRatings, setIsRatings] = useState(false);
+
+export const StatsPanel = ({ user }) => {
+    const [isRatings, setIsRatings] = React.useState(false);
+    const [rankData, setRankData] = React.useState(null);
+    const [loadingRank, setLoadingRank] = React.useState(true);
 
     const handleToggle = () => {
         setIsRatings(!isRatings);
     };
 
+    // --- Получаем данные о рейтинге пользователя при загрузке компонента ---
+    React.useEffect(() => {
+        if (user && user.user_id) {
+            const fetchRank = async () => {
+                setLoadingRank(true);
+                try {
+                    // Укажите правильный URL вашего API
+                    const response = await fetch(`${API_BASE_URL}/users/ranking/position?user_id=${user.user_id}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch rank');
+                    }
+                    const data = await response.json();
+                    setRankData(data);
+                } catch (error) {
+                    console.error("Error fetching user rank:", error);
+                    setRankData(null); // Сбрасываем в случае ошибки
+                } finally {
+                    setLoadingRank(false);
+                }
+            };
+
+            fetchRank();
+        }
+    }, [user]); // Эффект перезапустится, если объект user изменится
+
+    // --- Готовим данные для отображения ---
+
+    // Данные для вкладки "Статистика"
+    const statsData = [
+        { value: user?.final_count_of_matches ?? 0, label: 'матчів' },
+        { value: user?.precent_winner_matches ?? 0, label: 'перемог', isPercent: true },
+        { value: user?.final_count_of_blitz ?? 0, label: 'турнірів' },
+    ];
+
+    // Данные для вкладки "Рейтинги"
+    const ratingsData = [
+        { value: loadingRank ? '...' : (rankData?.league ?? 'N/A'), label: 'Ліга', isLeague: true },
+        { value: loadingRank ? '...' : (rankData?.position ?? 'N/A'), label: 'Позиція' },
+    ];
+
+    // Выбираем, какой массив данных показывать
+    const currentData = isRatings ? ratingsData : statsData;
+
     return (
         <div className={styles.statsPanel}>
-            {/* === ДОБАВЛЕНА НАДПИСЬ "ТЕСТ" === */}
-            <div className={styles.testLabel}>ТЕСТ</div>
-
             {/* --- Верхний блок с переключателем --- */}
             <div className={styles.header}>
                 <div className={`${styles.title} ${!isRatings ? styles.activeTitle : ''}`}>
@@ -67,12 +109,12 @@ export const StatsPanel = () => {
                 </div>
             </div>
 
-            {/* --- Блок с тремя колонками статистики --- */}
+            {/* --- Блок с колонками, теперь рендерится динамически --- */}
             <div className={styles.statsContainer}>
-                {statsData.map((stat, index) => (
+                {currentData.map((stat, index) => (
                     <React.Fragment key={index}>
-                        <StatBox value={stat.value} label={stat.label} isPercent={stat.isPercent} />
-                        {index < statsData.length - 1 && <div className={styles.divider}></div>}
+                        <StatBox value={stat.value} label={stat.label} isPercent={stat.isPercent} isLeague={stat.isLeague} />
+                        {index < currentData.length - 1 && <div className={styles.divider}></div>}
                     </React.Fragment>
                 ))}
             </div>

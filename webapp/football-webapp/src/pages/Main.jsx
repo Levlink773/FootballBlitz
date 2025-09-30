@@ -26,7 +26,7 @@ export const Main = ({initialUserFromServer}) => {
                 <div className={styles.eventCardWrapperEventMain}>
                     <EventCard user={user} onUserUpdate={setUser}/>
                 </div>
-                <StatsPanel/>
+                <StatsPanel user={user}/>
                 <NavigationBar/>
             </div>
         </div>

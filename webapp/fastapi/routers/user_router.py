@@ -4,7 +4,7 @@ from __future__ import annotations
 import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
@@ -15,7 +15,7 @@ from services.user_service import UserService  # поправьте путь е�
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-# ДОБАВЬТЕ ЭТУ МОДЕЛЬ
+# ИЗМЕНИТЕ ЭТИ МОДЕЛИ
 class UserPublic(BaseModel):
     id: int
     user_id: int
@@ -28,11 +28,20 @@ class UserPublic(BaseModel):
     points: Optional[int] = None
     vip_pass_is_active: bool = False
     status_register: Optional[str] = None
+    league: str = "Вища ліга" # <-- ДОБАВЛЕНО ПОЛЕ ЛИГИ
 
-    # Эта настройка позволяет Pydantic создавать модель напрямую из объекта SQLAlchemy
     class Config:
-        from_attributes = True  # Для Pydantic v2
-        # orm_mode = True # Для Pydantic v1
+        from_attributes = True
+
+
+class UserRank(BaseModel):
+    user_id: int
+    user_name: Optional[str] = None # <-- изменено с username для консистентности
+    points: int
+    position: int
+    total_users: int
+    league: str = "Вища ліга" # <-- ДОБАВЛЕНО ПОЛЕ ЛИГИ
+
 
 # ----------------- Pydantic схемы -----------------
 class UserCreate(BaseModel):
@@ -73,7 +82,6 @@ class AddEnergyToUsersBody(BaseModel):
     user_ids: List[int]
     amount: int = Field(...)
 
-
 # ----------------- helper сериализатор -----------------
 def user_to_dict(u: UserBot) -> dict:
     if u is None:
@@ -83,17 +91,23 @@ def user_to_dict(u: UserBot) -> dict:
         "user_id": getattr(u, "user_id", None),
         "user_name": getattr(u, "user_name", None),
         "user_full_name": getattr(u, "user_full_name", None),
-        "user_time_register": getattr(u, "user_time_register").isoformat() if getattr(u, "user_time_register", None) else None,
+        "user_time_register": getattr(u, "user_time_register").isoformat() if getattr(u, "user_time_register",
+                                                                                      None) else None,
         "money": getattr(u, "money", None),
         "energy": getattr(u, "energy", None),
         "team_name": getattr(u, "team_name", None),
         "points": getattr(u, "points", None),
-        "vip_pass_expiration_date": getattr(u, "vip_pass_expiration_date").isoformat() if getattr(u, "vip_pass_expiration_date", None) else None,
+        "vip_pass_expiration_date": getattr(u, "vip_pass_expiration_date").isoformat() if getattr(u,
+                                                                                                  "vip_pass_expiration_date",
+                                                                                                  None) else None,
         "count_play_blitz": getattr(u, "count_play_blitz", 0),
         "count_rich_semi_final_blitz": getattr(u, "count_rich_semi_final_blitz", 0),
         "count_rich_final_looser_blitz": getattr(u, "count_rich_final_looser_blitz", 0),
         "count_rich_final_winner_blitz": getattr(u, "count_rich_final_winner_blitz", 0),
         "count_go_to_gym": getattr(u, "count_go_to_gym", 0),
+        "final_count_of_matches": getattr(u, "final_count_of_matches", 0),
+        "final_winner_matches": getattr(u, "final_winner_matches", 0),
+        "final_count_of_blitz": getattr(u, "final_count_of_blitz", 0),
         "main_character_id": getattr(u, "main_character_id", None),
         "status_register": getattr(u, "status_register").name if getattr(u, "status_register", None) else None,
     }
@@ -103,6 +117,10 @@ def user_to_dict(u: UserBot) -> dict:
         data["vip_pass_is_active"] = u.vip_pass_is_active
     except Exception:
         data["vip_pass_is_active"] = False
+    try:
+        data["precent_winner_matches"] = u.precent_winner_matches
+    except Exception:
+        data["precent_winner_matches"] = 0
 
     try:
         data["team_name_user"] = u.team_name_user
@@ -127,25 +145,73 @@ async def create_user(payload: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/ranking", response_model=List[UserPublic])  # <--- УБРАЛИ response_model
+
+# ЗАМЕНИТЕ ЭТОТ ENDPOINT
+@router.get("/ranking", response_model=List[UserPublic])
 async def users_ranking(limit: Optional[int] = 100, offset: int = 0):
     """
     Возвращает список пользователей, отсортированных по points (desc).
     """
     users = await UserService.get_all_users()
-    print("jjjjjj")
     if not users:
         return []
 
+    # Сортируем пользователей по очкам (points) в порядке убывания
     sorted_users = sorted(users, key=lambda u: (u.points or 0), reverse=True)
+
+    # Берем срез для пагинации
     sliced = sorted_users[offset: offset + limit]
 
-    # Преобразуем данные в dict
-    response_data = [user_to_dict(u) for u in sliced]
-    logger.info(f"response_data {response_data}")
+    # FastAPI автоматически преобразует список объектов SQLAlchemy (sliced)
+    # в список объектов UserPublic благодаря response_model и Config.from_attributes = True
+    return sliced
 
-    # Оборачиваем в JSONResponse
-    return response_data
+
+# ЗАМЕНИТЕ ЭТОТ ENDPOINT
+@router.get("/ranking/position", response_model=UserRank)
+async def user_position(user_id: Optional[int] = Query(None), username: Optional[str] = Query(None)):
+    """
+    Возвращает позицию пользователя в рейтинге (1 = первый).
+    Можно искать по user_id или по username (передайте хотя бы одно).
+    Алгоритм: сортируем по points desc, затем по id asc для детерминированного разрешения ничьих.
+    """
+    if user_id is None and username is None:
+        raise HTTPException(status_code=400, detail="Нужно передать user_id или username")
+
+    users = await UserService.get_all_users()
+    if not users:
+        raise HTTPException(status_code=404, detail="Пользователей нет")
+
+    # Сортируем: сначала по points (desc), затем по id (asc) чтобы одинаковые очки были детерминированно упорядочены
+    # Сразу используем объекты, без конвертации в dict
+    sorted_users = sorted(users, key=lambda u: (-(u.points or 0), u.id))
+
+    # Найдём целевого пользователя
+    target_user_obj = None
+    position = -1
+    for i, u in enumerate(sorted_users, start=1):
+        if user_id is not None and u.user_id == user_id:
+            target_user_obj = u
+            position = i
+            break
+        if username is not None and u.user_name == username:
+            target_user_obj = u
+            position = i
+            break
+
+    if target_user_obj is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    return UserRank(
+        user_id=target_user_obj.user_id,
+        user_name=target_user_obj.user_name,
+        points=target_user_obj.points or 0,
+        position=position,
+        total_users=len(sorted_users),
+        # league уже имеет значение по умолчанию, но можно и так:
+        # league="Вища ліга"
+    )
+
 @router.get("/", response_model=List[dict])
 async def get_all_users():
     users = await UserService.get_all_users()
@@ -338,7 +404,5 @@ async def get_users_how_update_energy():
         return []
     return [user_to_dict(u) for u in users]
 
-
 # ----------------- Доп. ручка: рейтинг (top by points) -----------------
 # ----------------- Доп. ручка: рейтинг (top by points) -----------------
-

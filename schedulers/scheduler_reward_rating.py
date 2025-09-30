@@ -111,4 +111,4 @@ class SchedulerRewardRating:
                 update(UserBot).values(points=0)
             )
             await session.commit()
-            logger.info("Рейтинг обнулён и награды выданы")
+            logger.error("Рейтинг обнулён и награды выданы")

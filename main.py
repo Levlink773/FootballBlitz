@@ -55,6 +55,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 """
+venv\Scripts\activate
 alembic revision --autogenerate -m "add new realship to Item"
 alembic upgrade head
 """

@@ -1023,7 +1023,7 @@ export function SetPriceModal({
 const VIP_OPTIONS = [
     {
         title: "VIP на 7 днів",
-        price: "149.99 грн",
+        price: "139.99 грн",
         type: "week_standart", // Тип для API
         benefits: ["+100 енергії щодня", "х2 нагороди", "VIP-турніри"],
         popular: false,

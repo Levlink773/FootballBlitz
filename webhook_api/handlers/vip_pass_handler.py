@@ -74,8 +74,7 @@ class MonoResultVipPass(EndPoint):
             )
         )
         await PaymentServise.change_payment_status(order_id=self.data.invoiceId)
-        update_character = await CharacterService.get_character(payment.payment.user_id)
-        vip_pass_reminder = VipPassScheduler(update_character)
+        vip_pass_reminder = VipPassScheduler(user)
         await vip_pass_reminder.start_taimer()
         return self.OK()
         

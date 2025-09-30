@@ -82,7 +82,7 @@ const Shop = ({ onOpenModal, onPurchase }) => {
 
                         <div className={styles.featuredFooter}>
                             {/* ЗМІНА 2: Замінюємо конкретну ціну на "від..." */}
-                            <span className={styles.featuredPrice}>від 149 грн</span>
+                            <span className={styles.featuredPrice}>від 139 грн</span>
                             <button
                                 className={styles.buyButton}
                                 style={{top: -5, right: -5}}

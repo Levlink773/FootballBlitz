@@ -148,7 +148,7 @@ export const api = {
     createVipPayment: (data) => {
         const payload = {
             user_id: data.userId,
-            price: data.type === 'standard' ? 389 : 149, // Convert "999,99 грн" to 99999
+            price: data.type === 'standard' ? 389 : 139, // Convert "999,99 грн" to 99999
             name_product: "VIP Підписка",
             webhook_url: `${WEBHOOK_URL}/mono-result-vip-pass-blitz`,
             type_vip_pass: data.type,

@@ -15,6 +15,12 @@ from logging_config import logger
 
 
 class UserService:
+    """
+    Сервис для работы с пользователями.
+    Все методы, изменяющие числовые значения (счетчики, деньги, энергия),
+    переписаны для использования атомарных SQL UPDATE операций.
+    Это предотвращает состояния гонки и проблему "потерянных обновлений".
+    """
 
     @classmethod
     async def create_user(cls, **kwargs) -> UserBot | None:
@@ -23,6 +29,8 @@ class UserService:
                 obj = UserBot(**kwargs)
                 session.add(obj)
                 return obj
+
+    # --- МЕТОДЫ ЧТЕНИЯ (ОСТАЛИСЬ БЕЗ ИЗМЕНЕНИЙ) ---
 
     @classmethod
     async def get_user(cls, user_id) -> UserBot | None:
@@ -79,189 +87,180 @@ class UserService:
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
 
+    # --- МЕТОДЫ ИЗМЕНЕНИЯ (ОТРЕФАКТОРЕНЫ) ---
+
     @classmethod
     async def edit_status_register(cls, user_id: int, status: STATUS_USER_REGISTER):
         async for session in get_session():
             async with session.begin():
-                try:
-                    stmt = (
-                        update(UserBot)
-                        .where(UserBot.user_id == user_id)
-                        .values(status_register=status)
-                    )
-                    await session.execute(stmt)
-                    await session.commit()
-                except Exception as e:
-                    raise e
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(status_register=status)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def assign_main_character_if_none(cls, user_id: int) -> "UserBot | None":
+        # Этот метод требует чтения перед записью, его логика остается, т.к. она не простаивает долго
         async for session in get_session():
             async with session.begin():
                 result = await session.execute(
                     select(UserBot)
                     .where(UserBot.user_id == user_id)
-                    .options(
-                        selectinload(UserBot.characters),
-                        selectinload(UserBot.main_character),
-                    )
+                    .options(selectinload(UserBot.characters), selectinload(UserBot.main_character))
                 )
                 user: UserBot = result.scalar_one_or_none()
                 if not user:
-                    return None  # Пользователь не найден
+                    return None
 
-                # Проверка: если нет main_character или он не принадлежит пользователю
                 if (user.main_character is None) or (user.main_character not in user.characters):
-                    if user.characters:  # есть хотя бы один игрок
-                        main_char_id = user.characters[0].id
-                        stmt = (
-                            update(UserBot)
-                            .where(UserBot.user_id == user_id)
-                            .values(main_character_id=main_char_id)
-                        )
-                        await session.execute(stmt)
-                        # обновляем локальный объект
-                        user.main_character_id = main_char_id
-                        user.main_character = user.characters[0]
-                        return user
-                    else:
-                        # если у юзера нет игроков → сбрасываем main_character
-                        stmt = (
-                            update(UserBot)
-                            .where(UserBot.user_id == user_id)
-                            .values(main_character_id=None)
-                        )
-                        await session.execute(stmt)
-                        user.main_character_id = None
-                        user.main_character = None
-                        return user
-
+                    char_id_to_set = user.characters[0].id if user.characters else None
+                    stmt = (
+                        update(UserBot)
+                        .where(UserBot.user_id == user_id)
+                        .values(main_character_id=char_id_to_set)
+                    )
+                    await session.execute(stmt)
+                    await session.refresh(user) # Обновляем объект после изменения
                 return user
+
     @classmethod
     async def edit_team_name(cls, user_id: int, team_name: str):
         async for session in get_session():
             async with session.begin():
-                try:
-                    stmt = (
-                        update(UserBot)
-                        .where(UserBot.user_id == user_id)
-                        .values(team_name=team_name)
-                    )
-                    await session.execute(stmt)
-                    await session.commit()
-                except Exception as e:
-                    raise e
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(team_name=team_name)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def anulate_statistics(cls, user_id: int):
+        # Исправлено: теперь обнуление происходит через атомарный UPDATE
         async for session in get_session():
             async with session.begin():
-                try:
-                    stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                    result = await session.execute(stmt_select)
-                    user: UserBot = result.scalar_one_or_none()
+                stmt_reset_stats = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(
+                        count_go_to_gym=0,
+                        count_play_blitz=0,
+                        count_rich_final_looser_blitz=0,
+                        count_rich_semi_final_blitz=0,
+                        count_rich_final_winner_blitz=0
+                    )
+                )
+                await session.execute(stmt_reset_stats)
 
-                    user.count_go_to_gym = 0
-                    user.count_play_blitz = 0
-                    user.count_rich_final_looser_blitz = 0
-                    user.count_rich_semi_final_blitz = 0
-                    user.count_rich_final_winner_blitz = 0
-
-                    stmt = delete(Statistics).where(Statistics.user_id == user_id)
-                    await session.execute(stmt)
-                except Exception as e:
-                    raise e
+                stmt_delete_stats = delete(Statistics).where(Statistics.user_id == user_id)
+                await session.execute(stmt_delete_stats)
 
     @classmethod
     async def add_energy_user(cls, user_id: int, amount_energy_add: int):
         async for session in get_session():
-            stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-            result = await session.execute(stmt_select)
-            user: UserBot = result.scalar_one_or_none()
-
-            if not user:
-                logger.warning(f"add_energy_user: user {user_id} не найден")
-                return None
-
-            old_energy = user.energy or 0
-            user.energy = old_energy + amount_energy_add
-
-            await session.commit()
-            await session.refresh(user)
-
-            logger.info(f"User {user.user_id}: energy {old_energy} -> {user.energy}")
-            return user
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(energy=UserBot.energy + amount_energy_add)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def add_count_play_blitz_user(cls, user_id: int, amount: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.count_play_blitz += amount
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_play_blitz=UserBot.count_play_blitz + amount)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def add_count_rich_semi_final_blitz_user(cls, user_id: int, amount: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.count_rich_semi_final_blitz += amount
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_rich_semi_final_blitz=UserBot.count_rich_semi_final_blitz + amount)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def add_count_rich_final_looser_blitz_user(cls, user_id: int, amount: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.count_rich_final_looser_blitz += amount
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_rich_final_looser_blitz=UserBot.count_rich_final_looser_blitz + amount)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def add_count_rich_final_winner_blitz_user(cls, user_id: int, amount: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.count_rich_final_winner_blitz += amount
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_rich_final_winner_blitz=UserBot.count_rich_final_winner_blitz + amount)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def add_count_go_to_gym_user(cls, user_id: int, amount: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.count_go_to_gym += amount
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_go_to_gym=UserBot.count_go_to_gym + amount)
+                )
+                await session.execute(stmt)
 
     @classmethod
-    async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> UserBot | None:
+    async def add_final_count_blitz(cls, user_id: int, amount: int = 1):
         async for session in get_session():
             async with session.begin():
-                # уменьшаем энергию
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(final_count_of_blitz=func.coalesce(UserBot.final_count_of_blitz, 0) + amount)
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def add_final_count_matches(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(final_count_of_matches=func.coalesce(UserBot.final_count_of_matches, 0) + amount)
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def add_final_count_matches_winner(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(final_winner_matches=func.coalesce(UserBot.final_winner_matches, 0) + amount)
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> bool:
+        # Этот метод был написан хорошо, возвращаемое значение изменено на bool для ясности
+        async for session in get_session():
+            async with session.begin():
                 stmt = (
                     update(UserBot)
                     .where(UserBot.user_id == user_id)
@@ -269,125 +268,115 @@ class UserService:
                     .values(energy=UserBot.energy - amount_energy_consume)
                 )
                 result = await session.execute(stmt)
-                # если ничего не обновилось → энергии не хватило
-                if result.rowcount == 0:
-                    return None
-
-                # теперь получаем свежие данные
-                query = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(query)
-                user = result.scalar_one_or_none()
-                return user
+                if result.rowcount > 0:
+                    logger.info(f"User {user_id} consumed {amount_energy_consume} energy.")
+                    return True
+                logger.warning(f"User {user_id} failed to consume {amount_energy_consume} energy (not enough).")
+                return False
 
     @classmethod
     async def add_money_user(cls, user_id: int, amount_money_add: int):
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.money += amount_money_add
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(money=UserBot.money + amount_money_add)
+                )
+                await session.execute(stmt)
 
     @classmethod
     async def update_main_character(cls, user_id: int, new_main_character_id: int):
         async for session in get_session():
             async with session.begin():
-                # Проверяем, что персонаж принадлежит пользователю
-                stmt_check = select(Character).where(
+                # Проверка остается, т.к. это бизнес-логика
+                stmt_check = select(Character.id).where(
                     Character.id == new_main_character_id,
                     Character.characters_user_id == user_id
                 )
                 result = await session.execute(stmt_check)
-                character = result.scalar_one_or_none()
-                if not character:
+                if result.scalar_one_or_none() is None:
                     raise ValueError("Персонаж не найден или не принадлежит пользователю")
 
-                # Обновляем главного персонажа
                 stmt_update = (
                     update(UserBot)
                     .where(UserBot.user_id == user_id)
                     .values(main_character_id=new_main_character_id)
-                    .execution_options(synchronize_session="fetch")
                 )
                 await session.execute(stmt_update)
-                await session.commit()
+
 
     @classmethod
-    async def consume_money(cls, user_id: int, amount_money_consume: int) -> UserBot | None:
+    async def consume_money(cls, user_id: int, amount_money_consume: int) -> bool:
+        # Переписан по аналогии с consume_energy для безопасности
         async for session in get_session():
             async with session.begin():
-                stmt_select = select(UserBot).where(UserBot.user_id == user_id)
-                result = await session.execute(stmt_select)
-                user: UserBot = result.scalar_one()
-
-                user.money -= amount_money_consume
-
-                session.add(user)
-                await session.commit()
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .where(UserBot.money >= amount_money_consume)
+                    .values(money=UserBot.money - amount_money_consume)
+                )
+                result = await session.execute(stmt)
+                if result.rowcount > 0:
+                    logger.info(f"User {user_id} consumed {amount_money_consume} money.")
+                    return True
+                logger.warning(f"User {user_id} failed to consume {amount_money_consume} money (not enough).")
+                return False
 
     @classmethod
     async def get_users_how_update_energy(cls) -> list[UserBot] | None:
         async for session in get_session():
             async with session.begin():
-                try:
-                    result = await session.execute(
-                        select(UserBot)
-                        .where(UserBot.energy <= CONST_ENERGY)
-                        .where(
-                            or_(
-                                UserBot.vip_pass_expiration_date <= datetime.now(),
-                                UserBot.vip_pass_expiration_date.is_(None)
-                            )
+                # В этом методе нет ошибки, он только для чтения
+                result = await session.execute(
+                    select(UserBot)
+                    .where(UserBot.energy <= CONST_ENERGY)
+                    .where(
+                        or_(
+                            UserBot.vip_pass_expiration_date <= datetime.now(),
+                            UserBot.vip_pass_expiration_date.is_(None)
                         )
                     )
-                    all_users_not_bot = result.unique().scalars().all()
-                    return list(all_users_not_bot)
-                except Exception as e:
-                    raise e
+                )
+                return list(result.unique().scalars().all())
 
     @classmethod
     async def update_energy_for_non_bots(cls):
+        # Этот метод был написан хорошо, использует атомарные UPDATE
         async for session in get_session():
             async with session.begin():
-                try:
-                    # апдейт VIP (ставим CONST_VIP_ENERGY, если меньше)
-                    stmt_vip = (
-                        update(UserBot)
-                        .where(UserBot.vip_pass_expiration_date > datetime.utcnow())
-                        .where(UserBot.energy < CONST_VIP_ENERGY)
-                        .values(energy=CONST_VIP_ENERGY)
+                stmt_vip = (
+                    update(UserBot)
+                    .where(UserBot.vip_pass_expiration_date > datetime.utcnow())
+                    .where(UserBot.energy < CONST_VIP_ENERGY)
+                    .values(energy=CONST_VIP_ENERGY)
+                )
+                await session.execute(stmt_vip)
+
+                stmt_regular = (
+                    update(UserBot)
+                    .where(
+                        or_(
+                            UserBot.vip_pass_expiration_date <= datetime.utcnow(),
+                            UserBot.vip_pass_expiration_date.is_(None)
+                        )
                     )
+                    .where(UserBot.energy < CONST_ENERGY)
+                    .values(energy=CONST_ENERGY)
+                )
+                await session.execute(stmt_regular)
 
-                    # апдейт обычных (ставим CONST_ENERGY, если меньше)
-                    stmt = (
-                        update(UserBot)
-                        .where(UserBot.energy < CONST_ENERGY)
-                        .values(energy=CONST_ENERGY)
-                    )
-
-                    # сначала VIP, потом обычные
-                    await session.execute(stmt_vip)
-                    await session.execute(stmt)
-
-                    # фиксируем изменения в базе
-                    await session.commit()
-
-                except Exception as e:
-                    raise e
 
     @classmethod
     async def add_rating(cls, user_id: int, rating_to_add: int, retries: int = 2) -> dict:
+        # Этот метод был эталоном, без изменений
         attempt = 0
         while True:
             attempt += 1
             try:
                 async for session in get_session():
                     async with session.begin():
-                        # 1) заблокировать строку
                         res = await session.execute(
                             select(UserBot.points)
                             .where(UserBot.user_id == user_id)
@@ -396,22 +385,18 @@ class UserService:
                         current = res.scalar_one_or_none()
 
                         if current is None:
-                            # нет пользователя — можно создать (upsert) или вернуть ошибку
-                            logger.warning("add_rating_mysql: user not found user_id=%s", user_id)
-                            # опция: создать запись
+                            logger.warning("add_rating_mysql: user not found user_id=%s, creating new one.", user_id)
                             session.add(UserBot(user_id=user_id, points=rating_to_add))
                             await session.flush()
                             return {"ok": True, "rows": 1, "new_points": rating_to_add}
 
                         new_points = int(current) + int(rating_to_add)
 
-                        # 2) применяем обновление
                         await session.execute(
                             update(UserBot)
                             .where(UserBot.user_id == user_id)
                             .values(points=new_points)
                         )
-                        # commit автоматически выполнится по выходу из session.begin()
 
                         logger.info("add_rating_mysql: user_id=%s added %s -> %s", user_id, rating_to_add, new_points)
                         return {"ok": True, "rows": 1, "new_points": new_points}
@@ -423,22 +408,16 @@ class UserService:
                 return {"ok": False, "rows": 0, "new_points": None}
 
     @classmethod
-    async def add_energy_to_users(clc, user_ids: list[int], amount: int = 10):
-        """
-        Начисляет энергию пользователям.
-        :param user_ids: список user_id (telegram id) пользователей
-        :param amount: сколько энергии добавить каждому
-        """
+    async def add_energy_to_users(cls, user_ids: list[int], amount: int = 10):
+        # Исправлено: заменено на один эффективный и безопасный UPDATE
         if not user_ids:
             return
-
         async for session in get_session():
-            users = (await session.execute(
-                select(UserBot).where(UserBot.user_id.in_(user_ids))
-            )).scalars().all()
-
-            for user in users:
-                user.energy += amount
-                session.add(user)
-
-            await session.commit()
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id.in_(user_ids))
+                    .values(energy=UserBot.energy + amount)
+                )
+                result = await session.execute(stmt)
+                logger.info(f"Added {amount} energy to {result.rowcount} users.")
