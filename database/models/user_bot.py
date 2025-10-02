@@ -81,9 +81,21 @@ class UserBot(Base):
 
     @property
     def precent_winner_matches(self) -> float:
-        if self.final_count_of_matches == 0:
-            return 0
-        return round((self.final_winner_matches / self.final_count_of_matches) * 100, 2)
+        """
+        Безпечно розраховує відсоток перемог.
+        Обробляє випадки, коли значення дорівнюють None або 0.
+        """
+        # ▼▼▼▼▼ ОСНОВНЕ ВИПРАВЛЕННЯ ТУТ ▼▼▼▼▼
+        # Якщо кількість матчів 0 або None, відсоток перемог 0.
+        if not self.final_count_of_matches or self.final_count_of_matches == 0:
+            return 0.0
+
+        # Якщо кількість перемог None, вважаємо, що це 0.
+        winner_matches = self.final_winner_matches or 0
+
+        # Виконуємо безпечне ділення
+        return round((winner_matches / self.final_count_of_matches) * 100, 2)
+        # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     @property
     def team_name_user(self) -> str:
