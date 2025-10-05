@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import {AlertModal, ModalRoot, TopChancesAlert} from "./components/modal_components/ModalComponents.jsx";
+import {AlertModal, InfoModal, ModalRoot, TopChancesAlert} from "./components/modal_components/ModalComponents.jsx";
 /**
  * Показує глобальний Alert, динамічно створюючи та знищуючи його в DOM.
  * @param {string | React.ReactNode} message - Повідомлення для показу.
@@ -96,3 +96,54 @@ export function showTopChanceAlert(payload, options = {}) {
         </ModalRoot>
     );
 }
+
+/* ---------- НОВА ФУНКЦІЯ для виклику InfoModal ---------- */
+/**
+ * Показує глобальне інформаційне вікно з картинкою та текстом.
+ * @param {object} options - Опції для модального вікна.
+ * @param {string} [options.title] - Необов'язковий заголовок.
+ * @param {string} options.image - URL картинки.
+ * @param {string | React.ReactNode} options.text - Текст повідомлення.
+ */
+export function showInfoModal(options = {}) {
+    // 1. Знаходимо головний контейнер
+    const targetContainer = document.querySelector('[data-modal-root]');
+    if (!targetContainer) {
+        console.error('Контейнер [data-modal-root] не знайдено в DOM.');
+        return;
+    }
+
+    // 2. Створюємо тимчасовий DOM-елемент
+    const modalHost = document.createElement('div');
+    targetContainer.appendChild(modalHost);
+
+    // 3. Створюємо React root
+    const root = createRoot(modalHost);
+
+    // 4. Функція очищення
+    const cleanup = () => {
+        root.unmount();
+        if (targetContainer.contains(modalHost)) {
+            targetContainer.removeChild(modalHost);
+        }
+    };
+
+    // 5. Збираємо пропси
+    const modalProps = {
+        onClose: cleanup,
+        ...options,
+    };
+
+    // 6. Рендеримо компонент
+    root.render(
+        <ModalRoot
+            onClose={cleanup}
+            variant="center"
+            backdrop={true}
+            animation={true}
+        >
+            <InfoModal {...modalProps} />
+        </ModalRoot>
+    );
+}
+

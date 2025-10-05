@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
 import {NavigationBar} from "../components/NavigationBar.jsx";
@@ -7,15 +7,59 @@ import Shop from "../components/shop/Shop.jsx";
 // Убедитесь, что импортируете обновленный VipPromoModal
 import {VipPromoModal, BuyModal, ModalRoot} from "../components/modal_components/ModalComponents.jsx";
 import useWebSocket from "../../useWebsocket.js";
-import {api} from "../api.js";
+import {api, API_BASE_URL} from "../api.js";
 import {showAlert} from "../alertService.jsx";
 
-export default function ShopCard({user}) {
+export default function ShopCard({user, setUser}) {
     const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const openModal = (modalType) => setActiveModal(modalType);
     const closeModal = () => setActiveModal(null);
+
+    useEffect(() => {
+        // Создаем асинхронную функцию внутри useEffect
+        const updateUserStatus = async () => {
+            // Проверяем, что у пользователя именно статус 'TRANSFER'
+            if (user?.status_register === 'SHOPPING') {
+                try {
+                    console.log('Updating user status from TRANSFER to SHOPPING...');
+
+                    // Отправляем PATCH-запрос на бэкенд для смены статуса
+                    const response = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        // В теле запроса передаем новый статус
+                        body: JSON.stringify({ status: 'EDUCATION_CENTER' }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    // Получаем обновленные данные пользователя от сервера
+                    const updatedUser = await response.json();
+
+                    // Обновляем состояние пользователя в компоненте
+                    setUser(updatedUser);
+
+                    console.log('User status successfully updated!');
+
+                } catch (error) {
+                    console.error("Failed to update user status:", error);
+                    showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
+                }
+            }
+        };
+
+        // Вызываем функцию
+        updateUserStatus();
+
+        // Хук будет срабатывать при изменении объекта user,
+        // но внутреннее условие if не даст ему зациклиться.
+    }, [user]);
 
     const handlePurchase = async (productType, item) => {
         if (!user || !user.id) {

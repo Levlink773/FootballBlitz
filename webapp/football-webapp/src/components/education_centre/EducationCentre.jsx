@@ -1,13 +1,12 @@
-// EducationCentre.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
-import EducationCentreView from './EducationCentreView'; // Імпортуємо компонент для відображення
+import EducationCentreView from './EducationCentreView';
 import Config from "../../config.js";
-import {showAlert} from "../../alertService.jsx";
-import {API_BASE_URL} from "../../api.js";
+import { showAlert } from "../../alertService.jsx";
+import { API_BASE_URL } from "../../api.js";
+import { Steps } from 'intro.js-react'; // Импортируем компонент для шагов
+import 'intro.js/introjs.css'; // Импортируем стили
 
-// Допоміжна мапа для збагачення даних з бекенду (іконки, фон),
-// оскільки бекенд не повертає цю візуальну інформацію.
+// ... (TASK_METADATA и transformApiTasks остаются без изменений)
 const TASK_METADATA = {
     CONDUCT_3_TRAINING: {
         id: 'CONDUCT_3_TRAINING',
@@ -29,7 +28,6 @@ const TASK_METADATA = {
     }
 };
 
-// Трансформує дані з API у формат, зрозумілий для TaskCard
 const transformApiTasks = (apiTasks) => {
     return apiTasks.map(task => {
         const metadata = TASK_METADATA[task.stat_type] || {};
@@ -40,7 +38,7 @@ const transformApiTasks = (apiTasks) => {
         };
         return {
             id: metadata.id || task.stat_type,
-            title: task.description.split('—')[0].trim(), // "Проведи 3 тренування"
+            title: task.description.split('—')[0].trim(),
             rewards: metadata.rewards || [],
             progress: {
                 current: task.progress_raw || 0,
@@ -50,17 +48,31 @@ const transformApiTasks = (apiTasks) => {
             statusText: task.status === 'done_and_ready' ? (task.extra?.ready_text || "Готово до отримання!") : task.progress,
             backgroundImage: metadata.backgroundImage
         };
-    }).filter(task => task.status !== 'claimed'); // Не показуємо вже отримані завдання
+    }).filter(task => task.status !== 'claimed');
 };
 
 
-const EducationCentre = ({ userId, onUserUpdate }) => {
+const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем всего пользователя
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [dailyReward, setDailyReward] = useState({ isClaimable: false, timeLeft: 0 });
+
+    // Состояние для управления подсветкой
+    const [isTutorialEnabled, setTutorialEnabled] = useState(false);
+
+    // Шаги для подсветки
+    const tutorialSteps = [
+        {
+            element: '[data-tutorial="daily-reward"]', // Селектор для кнопки ежедневной награды
+            intro: 'Вітаємо в Учбовому Центрі! Отримайте свою першу щоденну нагороду, щоб продовжити.',
+            position: 'bottom',
+        },
+    ];
+
     const fetchUser = async () => {
+        if (!user?.user_id) return;
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${userId}`);
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
             if (!res.ok) return;
             const userData = await res.json();
             if (onUserUpdate) onUserUpdate(userData);
@@ -68,14 +80,14 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
             console.error("fetchUser error", e);
         }
     };
-    // Функція для завантаження всіх даних
+
     const fetchData = useCallback(async () => {
-        if (!userId) return;
+        if (!user?.user_id) return;
         setIsLoading(true);
         try {
             const [remainingRes, tasksRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/education/remaining/${userId}`), // Перевірте шлях до API
-                fetch(`${API_BASE_URL}/education/tasks/${userId}`)      // Перевірте шлях до API
+                fetch(`${API_BASE_URL}/education/remaining/${user.user_id}`),
+                fetch(`${API_BASE_URL}/education/tasks/${user.user_id}`)
             ]);
 
             const remainingData = await remainingRes.json();
@@ -86,48 +98,94 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
             });
 
             setTasks(transformApiTasks(tasksData.tasks));
+            const i = user?.status_register === "EDUCATION_CENTER";
+            console.log("i : ", i);
+            // Проверяем статус пользователя и готовность награды для запуска подсветки
+            if (i && remainingData.ready) {
+                console.log("remainingData: ", remainingData.ready);
+                setTutorialEnabled(true);
+            }
 
         } catch (error) {
             console.error("Failed to fetch education centre data:", error);
         } finally {
             setIsLoading(false);
         }
-    }, [userId]);
+    }, [user]);
 
-    // Первинне завантаження даних
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    // Таймер для щоденної нагороди
     useEffect(() => {
+        // Условие выхода из эффекта остается тем же
         if (dailyReward.isClaimable || dailyReward.timeLeft <= 0) return;
 
         const timer = setInterval(() => {
-            setDailyReward(prev => ({ ...prev, timeLeft: prev.timeLeft - 1 }));
-            if (dailyReward.timeLeft <= 1) {
-                setDailyReward({ isClaimable: true, timeLeft: 0 });
-                clearInterval(timer);
-            }
+            // Используем функциональное обновление для всей логики
+            setDailyReward(prev => {
+                // Сначала проверяем, не пора ли остановить таймер
+                if (prev.timeLeft <= 1) {
+                    clearInterval(timer); // Останавливаем интервал
+
+                    // Если нужно, включаем подсказку
+                    if (user?.status_register === "EDUCATION_CENTER") {
+                        setTutorialEnabled(true);
+                    }
+
+                    // Возвращаем финальное состояние
+                    return { isClaimable: true, timeLeft: 0 };
+                }
+
+                // Если время еще есть, просто уменьшаем его на 1
+                return { ...prev, timeLeft: prev.timeLeft - 1 };
+            });
         }, 1000);
 
+        // Функция очистки для остановки таймера при размонтировании компонента
         return () => clearInterval(timer);
-    }, [dailyReward.isClaimable, dailyReward.timeLeft]);
+
+    }, [dailyReward.isClaimable, dailyReward.timeLeft, user?.status_register]);
 
 
-    // Обробник для отримання щоденної нагороди
+    // Функция для смены статуса пользователя
+    const updateUserStatus = async (newStatus) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update user status');
+            }
+            // Обновляем пользователя на фронтенде после успешного ответа
+            await fetchUser();
+        } catch (error) {
+            console.error(error.message);
+            showAlert("Не вдалося оновити статус користувача.");
+        }
+    };
+
     const handleClaimDaily = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/education/claim`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId })
+                body: JSON.stringify({ user_id: user.user_id })
             });
             const data = await response.json();
             if (data.ok) {
                 showAlert(`Нагорода отримана: ${data.message}`);
-                await fetchData(); // Оновлюємо дані після отримання
-                await fetchUser();
+
+                // Если это была обучающая награда, меняем статус
+                if (user?.status_register === "EDUCATION_CENTER") {
+                    await updateUserStatus('FIRST_BLITZ');
+                } else {
+                    await fetchUser(); // В обычном случае просто обновляем данные
+                }
+
+                await fetchData(); // Обновляем данные центра
             } else {
                 showAlert(`Помилка: ${data.message}`);
             }
@@ -137,18 +195,17 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
         }
     };
 
-    // Обробник для отримання нагороди за завдання
     const handleClaimTask = async (taskId) => {
         try {
             const response = await fetch(`${API_BASE_URL}/education/tasks/claim`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, stat_type: taskId })
+                body: JSON.stringify({ user_id: user.user_id, stat_type: taskId })
             });
             const data = await response.json();
             if (data.ok) {
                 showAlert(`Нагорода отримана: ${data.message}`);
-                await fetchData(); // Оновлюємо дані, щоб завдання зникло зі списку
+                await fetchData();
                 await fetchUser();
             } else {
                 showAlert(`Помилка: ${data.message}`);
@@ -162,14 +219,33 @@ const EducationCentre = ({ userId, onUserUpdate }) => {
     if (isLoading) {
         return <div>Завантаження учбового центру...</div>;
     }
+    console.log("Is rutor: ", isTutorialEnabled)
 
     return (
-        <EducationCentreView
-            dailyReward={dailyReward}
-            tasks={tasks}
-            onClaimDaily={handleClaimDaily}
-            onClaimTask={handleClaimTask}
-        />
+        <>
+            {/* Компонент Steps для управления подсветкой */}
+            <Steps
+                enabled={isTutorialEnabled}
+                steps={tutorialSteps}
+                initialStep={0}
+                onExit={() => setTutorialEnabled(false)}
+                options={{
+                    doneLabel: 'Зрозуміло',
+                    nextLabel: 'Далі',
+                    prevLabel: 'Назад',
+                    hidePrev: true,
+                    skipLabel: 'Пропустити',
+                    showBullets: false,
+                }}
+            />
+
+            <EducationCentreView
+                dailyReward={dailyReward}
+                tasks={tasks}
+                onClaimDaily={handleClaimDaily}
+                onClaimTask={handleClaimTask}
+            />
+        </>
     );
 };
 

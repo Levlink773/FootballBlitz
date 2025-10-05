@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import styles from '../css_files/Header.module.css';
 import Config from "../config.js";
 import { useNavigate } from "react-router-dom";
-// --- ИМПОРТЫ ДЛЯ МОДАЛЬНЫХ ОКОН И API ---
 import { api } from "../api.js";
 import { showAlert } from "../alertService.jsx";
-import {BuyModal, ModalRoot} from "./modal_components/ModalComponents.jsx";
+import { BuyModal, ModalRoot } from "./modal_components/ModalComponents.jsx";
+import {useGuide} from "./register/context/GuideContext.jsx";
 
-// --- Кастомная иконка Уведомлений (SVG) (без изменений) ---
 const NotificationIcon = ({ hasNotification }) => (
     <svg
         className={styles.notificationIcon}
@@ -26,14 +25,25 @@ const NotificationIcon = ({ hasNotification }) => (
     </svg>
 );
 
-// --- Золотая кнопка магазина (без изменений) ---
-const ShopButton = () => {
+
+// --- Золотая кнопка магазина (ОБНОВЛЕНО) ---
+const ShopButton = ({ isHighlighted, guideTarget }) => { // ✨ Принимаем guideTarget
     const navigate = useNavigate();
+
     const handleGoToShop = () => {
+        // ✨ Если активен гайд, и это НЕ гайд для магазина, блокируем переход
+        if (guideTarget && guideTarget !== 'shop') {
+            return;
+        }
         navigate('/shop');
     };
+
+    // ✨ Кнопка отключается, если активен другой гайд
+    const isDisabled = guideTarget && guideTarget !== 'shop';
+    const buttonClasses = `${styles.shopButton} ${isHighlighted ? styles.highlighted : ''} ${isDisabled ? styles.disabled : ''}`;
+
     return (
-        <button className={styles.shopButton} aria-label="Shop" onClick={handleGoToShop}>
+        <button className={buttonClasses} aria-label="Shop" onClick={handleGoToShop} disabled={isDisabled}>
             <svg className={styles.shopButtonSvg} viewBox="0 0 100 38" preserveAspectRatio="none">
                 <defs>
                     <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -60,12 +70,10 @@ const ShopButton = () => {
     );
 }
 
-// --- Компонент валюты (теперь с кнопкой "+") ---
 const CurrencyGroup = ({ icon, alt, amount, onAddClick }) => (
     <div className={styles.currencyGroup}>
         <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
         <span className={styles.currencyAmount}>{amount ?? 0}</span>
-        {/* Вот и наша новая кнопка! */}
         <button
             className={styles.addButton}
             onClick={onAddClick}
@@ -76,17 +84,15 @@ const CurrencyGroup = ({ icon, alt, amount, onAddClick }) => (
     </div>
 );
 
-// --- Основной компонент хедера (с логикой модальных окон) ---
-export const Header = ({ user }) => {
 
-    // --- ЛОГИКА УПРАВЛЕНИЯ МОДАЛЬНЫМИ ОКНАМИ ---
-    const [activeModal, setActiveModal] = useState(null); // 'coin', 'energy' или null
+export const Header = ({ user }) => {
+    const { guideTarget } = useGuide(); // ✨ Получаем цель подсветки из контекста
+    const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const openModal = (modalType) => setActiveModal(modalType);
     const closeModal = () => setActiveModal(null);
 
-    // Функция для обработки покупки, скопированная из вашего примера
     const handlePurchase = async (productType, item) => {
         if (!user || !user.user_id) {
             showAlert("Помилка: користувача не знайдено. Будь ласка, перезавантажте сторінку.");
@@ -123,14 +129,12 @@ export const Header = ({ user }) => {
             setIsLoading(false);
         }
     };
-    // --- КОНЕЦ ЛОГИКИ УПРАВЛЕНИЯ ---
-
     const avatarUrl = user?.avatar_url || Config.IMAGES.avatar;
 
-    // Оборачиваем все в React.Fragment (<>), чтобы рендерить и хедер, и модальные окна
+    const isShopHighlighted = guideTarget === 'shop';
+
     return (
         <>
-            {/* Оверлей загрузки при создании платежа */}
             {isLoading && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -140,9 +144,7 @@ export const Header = ({ user }) => {
                     <h2>Створення платежу...</h2>
                 </div>
             )}
-
             <header className={styles.headerContainer}>
-                {/* Левый блок (без изменений) */}
                 <div className={styles.leftSection}>
                     <button className={styles.iconButton} aria-label="Notifications">
                         <NotificationIcon hasNotification={false} />
@@ -153,7 +155,6 @@ export const Header = ({ user }) => {
                     </div>
                 </div>
 
-                {/* Средний блок (обновлен для передачи обработчика клика) */}
                 <div className={styles.middleSection}>
                     <CurrencyGroup
                         icon={Config.IMAGES.coin}
@@ -168,15 +169,12 @@ export const Header = ({ user }) => {
                         onAddClick={() => openModal('energy')}
                     />
                 </div>
-
-                {/* Правый блок (без изменений) */}
                 <div className={styles.rightSection}>
-                    <ShopButton />
+                    {/* ✨ Передаем guideTarget в кнопку магазина */}
+                    <ShopButton isHighlighted={isShopHighlighted} guideTarget={guideTarget} />
                 </div>
             </header>
 
-            {/* --- ЛОГИКА РЕНДЕРИНГА МОДАЛЬНЫХ ОКОН --- */}
-            {/* Рендерим одно общее окно, передавая ему тип ('coin' или 'energy') */}
             {activeModal && (
                 <ModalRoot>
                     <BuyModal

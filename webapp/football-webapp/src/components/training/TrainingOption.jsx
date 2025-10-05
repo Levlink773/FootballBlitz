@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import styles from '../../css_files/training/TrainingOption.module.css';
 
 // 1. Add 'onStartTraining' to the props
-export default function TrainingOption({ bg, chance, duration, cost, actionImg, actionIcon, onStartTraining }) {
+export default function TrainingOption({ bg, chance, duration, cost, actionImg, actionIcon, onStartTraining, isHighlighted }) {
+    const containerClasses = `${styles.container} ${isHighlighted ? styles.highlighted : ''}`;
     return (
-        <div className={styles.container}>
+        // ✨ 3. Применяем классы к контейнеру
+        <div className={containerClasses}>
             <img src={bg} alt="background" className={styles.background} />
 
             <div className={`${styles.separator} ${styles.separator1}`}></div>
@@ -20,14 +22,15 @@ export default function TrainingOption({ bg, chance, duration, cost, actionImg, 
                 {duration}
             </div>
 
-            {/* 2. Add the onClick event to the button */}
             <button
                 className={styles.actionButton}
                 style={{ backgroundImage: `url(${actionImg})` }}
                 onClick={onStartTraining}
             >
-                {/* Displaying cost with a minus sign for UI consistency */}
-                <span className={styles.actionButtonText}>Розпочати {cost}</span>
+                {/* Для бесплатной тренировки можно показать другой текст */}
+                <span className={styles.actionButtonText}>
+                    {cost === 0 ? "Почати" : `Розпочати ${cost}`}
+                </span>
                 <img src={actionIcon} alt="action icon" className={styles.actionButtonIcon} />
             </button>
         </div>
@@ -43,4 +46,8 @@ TrainingOption.propTypes = {
     actionIcon: PropTypes.string.isRequired,
     // 3. Define the new prop type
     onStartTraining: PropTypes.func.isRequired,
+};
+
+TrainingOption.defaultProps = {
+    isHighlighted: false,
 };

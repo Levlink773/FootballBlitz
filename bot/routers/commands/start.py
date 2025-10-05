@@ -34,7 +34,7 @@ async def start_command_handler(
             return await message.answer_photo(
                 caption=TEXT_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
                 photo=PHOTO_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
-                keyboard=create_team()
+            #    keyboard=create_team()
             )
         if user.status_register == STATUS_USER_REGISTER.SEND_NAME_TEAM:
             await message.answer_photo(

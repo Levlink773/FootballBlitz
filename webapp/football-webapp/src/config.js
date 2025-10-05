@@ -87,6 +87,8 @@ import energy_button from "./assets/public/img_24.png";
 import energy_energy from "./assets/public/img_25.png";
 import king from "./assets/public/img_26.png";
 import king_vip from "./assets/public/img_29.png";
+import training_info from "./assets/public/img_30.png";
+import transfer_info from "./assets/public/img_31.png";
 
 
 class Config {
@@ -175,6 +177,8 @@ class Config {
         energy_energy: energy_energy,
         king: king,
         king_vip: king_vip,
+        training_info: training_info,
+        transfer_info: transfer_info,
     };
 
     // какие-то игровые настройки

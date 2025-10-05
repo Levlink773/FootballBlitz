@@ -8,8 +8,7 @@ import EventCard from "../components/main_components/EventCard.jsx";
 import {InfoPanel} from "../components/tournament/InfoPanel.jsx";
 import BlitzRegistrationInfo from "../components/tournament/BlitzRegistrationInfo.jsx";
 
-export default function TournamentCard({initialUserFromServer}) {
-    const [user, setUser] = useState(initialUserFromServer);
+export default function TournamentCard({user, setUser}) {
     return (
         <div className={styles.page}>
             <div className={styles.mainContainer} data-modal-root>

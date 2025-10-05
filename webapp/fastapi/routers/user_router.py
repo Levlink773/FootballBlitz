@@ -8,11 +8,27 @@ from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
+from config import Country
+from database.models.character import Character
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from logging_config import logger
+from services.character_service import CharacterService
 from services.user_service import UserService  # поправьте путь если нужно
+from utils.generate_character import get_character, CharacterData
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+class CharacterPublic(BaseModel):
+    id: int
+    name: str
+    age: int
+    talent: int
+    power: int
+    country: Country
+    # ... other character fields you want to show
+
+    class Config:
+        from_attributes = True
 
 
 # ИЗМЕНИТЕ ЭТИ МОДЕЛИ
@@ -32,7 +48,8 @@ class UserPublic(BaseModel):
 
     class Config:
         from_attributes = True
-
+class UserPublicWithCharacter(UserPublic):
+    main_character: Optional[CharacterPublic] = None
 
 class UserRank(BaseModel):
     user_id: int
@@ -406,3 +423,38 @@ async def get_users_how_update_energy():
 
 # ----------------- Доп. ручка: рейтинг (top by points) -----------------
 # ----------------- Доп. ручка: рейтинг (top by points) -----------------
+@router.post("/{user_id}/claim-first-character", response_model=UserPublicWithCharacter, status_code=status.HTTP_200_OK)
+async def claim_first_character_endpoint(user_id: int):
+    """
+    Generates and assigns the first character to the user and ends registration.
+    """
+    user = await UserService.get_user(user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.main_character:
+        raise HTTPException(status_code=400, detail="User already has a character")
+
+    # This logic is copied from your aiogram handler
+    # 1. Create character
+    character_data: CharacterData = await get_character() # Assuming this function is available
+    character: Character = await CharacterService.create_character(character_data, user.user_id)
+    # await RemniderCharacterService.create_character_reminder(character_id=character.id) # Optional reminder logic
+
+    # 2. Assign as main character and update status
+    user = await UserService.assign_main_character_if_none(user.user_id)
+    await UserService.edit_status_register(user_id, STATUS_USER_REGISTER.FIRST_TRAINING)
+
+    # 3. Add energy bonus
+    await UserService.add_energy_user(user.user_id, 200)
+
+    # 4. Fetch the final user state with the character loaded for the response
+    final_user = await UserService.get_user(user_id=user.user_id) # Refetch to get populated relationships
+    if not final_user:
+        raise HTTPException(status_code=500, detail="Could not retrieve final user state")
+
+    # Manually serialize to include character details if your helper doesn't
+    # But using a proper Pydantic response model is better.
+    # To use UserPublicWithCharacter, ensure your UserService.get_user loads the relationship.
+    # The `lazy="selectin"` in your UserBot model should handle this.
+    return final_user

@@ -96,3 +96,49 @@
     filter: drop-shadow(0px 0px 10px rgba(0, 255, 255, 0.7))
     drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
 }
+/* Стиль для подсвеченной кнопки */
+.navItem.highlighted {
+    position: relative; /* Необходимо для позиционирования псевдо-элемента */
+    border-radius: 16px; /* Немного увеличим скругление для гармонии */
+
+    /* Более выразительное и мягкое свечение */
+    box-shadow: 0 0 10px rgba(20, 255, 236, 0.6),
+    0 0 20px rgba(20, 255, 236, 0.4);
+
+    transition: box-shadow 0.4s ease-in-out;
+}
+
+/* Создаем красивую и заметную стрелку с помощью псевдо-элемента ::before */
+.navItem.highlighted::before {
+    content: ''; /* Обязательное свойство для псевдо-элементов */
+    position: absolute;
+    top: -45px;      /* Располагаем выше над кнопкой */
+    left: 50%;
+
+    /* --- Внешний вид стрелки (SVG-шеврон) --- */
+    width: 28px;     /* Увеличиваем ширину */
+    height: 14px;    /* Увеличиваем высоту */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M2 2L12 10L22 2' stroke='%2300DDFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    /* Анимация движения */
+    animation: point-down 2s infinite ease-in-out;
+}
+
+/* Более плавная и понятная анимация для стрелки */
+@keyframes point-down {
+    0%, 100% {
+        transform: translate(-50%, 0);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translate(-50%, 10px); /* Движение вниз */
+        opacity: 1;
+    }
+}
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none; /* Helps prevent click events on complex elements */
+}

@@ -152,3 +152,91 @@
     width: 10px;
     height: 14px;
 }
+
+/* --- СТИЛИ ДЛЯ КРАСИВОЙ ПОДСКАЗКИ --- */
+
+/* Стиль для подсвеченного контейнера (без изменений) */
+.container.highlighted {
+    position: relative;
+    animation: cyan-pulse 2s infinite;
+    z-index: 10;
+}
+
+/* Анимация сияния (без изменений) */
+@keyframes cyan-pulse {
+    0% {
+        box-shadow: 0 0 5px 2px rgba(0, 255, 255, 0.6), 0 0 5px 2px rgba(0, 191, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(0, 255, 255, 0.8), 0 0 22px 12px rgba(0, 191, 255, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 5px 2px rgba(0, 255, 255, 0.6), 0 0 5px 2px rgba(0, 191, 255, 0.5);
+    }
+}
+
+/* ✨ НОВАЯ КРАСИВАЯ СТРЕЛКА ✨ */
+.container.highlighted::after {
+    content: ''; /* Убираем текст, так как рисуем фигуру */
+    position: absolute;
+    top: 50%;
+    right: -50px; /* Располагаем справа от элемента */
+    width: 15px;  /* Размер стрелки */
+    height: 15px;
+
+    /* Рисуем стрелку с помощью границ */
+    border-top: 4px solid #00ffff; /* Бирюзовый цвет */
+    border-right: 4px solid #00ffff;
+
+    /* Свечение, подходящее под основной эффект */
+    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.9));
+
+    /* Применяем новую, более плавную анимацию */
+    animation: gentle-poke 1.8s infinite ease-in-out;
+}
+
+/* ✨ ТЕКСТ ПОДСКАЗКИ (Опционально, но рекомендуется) ✨ */
+.container.highlighted::before {
+    content: 'Натисни сюди';
+    position: absolute;
+    top: 50%;
+    right: -200px; /* Располагаем правее стрелки */
+    transform: translateY(-50%);
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    /* Тень для лучшей читаемости и эффекта свечения */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8), 0 0 4px rgba(0, 0, 0, 0.5);
+
+    /* Анимация плавного появления и исчезновения */
+    animation: text-fade-in-out 1.8s infinite ease-in-out;
+}
+
+
+/* ✨ НОВЫЕ КЛЮЧЕВЫЕ КАДРЫ АНИМАЦИИ ✨ */
+
+/* Анимация для стрелки - плавное "подталкивание" */
+@keyframes gentle-poke {
+    0%, 100% {
+        /* Начальное положение и поворот на -135 градусов, чтобы стрелка указывала влево */
+        transform: translateY(-50%) rotate(-135deg) translateX(0);
+        opacity: 0.7;
+    }
+    50% {
+        /* В середине анимации стрелка сдвигается влево, становится ярче и больше */
+        transform: translateY(-50%) rotate(-135deg) translateX(-10px) scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* Анимация для текста */
+@keyframes text-fade-in-out {
+    0%, 100% {
+        opacity: 0.7;
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.05); /* Легкое увеличение для живости */
+    }
+}

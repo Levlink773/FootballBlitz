@@ -1,3 +1,5 @@
+/* В вашем главном CSS файле, например, index.css */
+@import 'intro.js/introjs.css';
 * { box-sizing: border-box; }
 img { display: block; }
 body {

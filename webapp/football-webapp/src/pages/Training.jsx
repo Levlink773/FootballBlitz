@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
 import axios from 'axios';
@@ -6,10 +6,41 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import TrainingOption from "../components/training/TrainingOption.jsx";
 import TrainingStatus from "../components/training/TrainingStatus.jsx";
-import {showAlert} from "../alertService.jsx";
+import {showAlert, showInfoModal} from "../alertService.jsx";
 import useWebSocket from "../../useWebsocket.js";
 import {API_BASE_URL} from "../api.js";
 
+const TRAINING_OPTIONS_F = [
+    // Обратите внимание: убрал id: 1, чтобы избежать дублирования с первой тренировкой
+    // Если id важны для чего-то еще, убедитесь в их уникальности
+    {
+        id: 2,
+        bg: Config.IMAGES.train_line,
+        chance: '~45%',
+        duration: '60 хв.',
+        cost: -20,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+    {
+        id: 3,
+        bg: Config.IMAGES.train_line,
+        chance: '~55%',
+        duration: '90 хв.',
+        cost: -40,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+    {
+        id: 4,
+        bg: Config.IMAGES.train_line,
+        chance: '~75%',
+        duration: '120 хв.',
+        cost: -60,
+        actionImg: Config.IMAGES.gold_line,
+        actionIcon: Config.IMAGES.energy
+    },
+];
 const TRAINING_OPTIONS = [
     {
         id: 1,
@@ -48,12 +79,21 @@ const TRAINING_OPTIONS = [
         actionIcon: Config.IMAGES.energy
     },
 ];
+const FIRST_TRAINING_OPTION = {
+    id: 'first_training', // Уникальный ID
+    bg: Config.IMAGES.train_line,
+    chance: '~100%',
+    duration: '5 хв.', // 5 минут
+    cost: 0, // Бесплатно для первого раза
+    actionImg: Config.IMAGES.gold_line,
+    actionIcon: Config.IMAGES.energy,
+    isFirstTraining: true, // Флаг для идентификации
+};
 
-export default function TrainingRoomCard({initialUserFromServer}) {
-    // 1. State to track if training is active
+export default function TrainingRoomCard({user, setUser}) {
     const [isTrainingActive, setIsTrainingActive] = useState(false);
-    const [user, setUser] = useState(initialUserFromServer);
     useWebSocket(user?.user_id);
+
     const fetchUser = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
@@ -65,10 +105,28 @@ export default function TrainingRoomCard({initialUserFromServer}) {
         }
     };
 
-    // 2. Fetch training status when the component mounts
+    // ✨ ИЗМЕНЕНИЕ 1: Обновленная логика для отображения опций
+    const displayedOptions = useMemo(() => {
+        if (user?.status_register === 'FIRST_TRAINING') {
+            // Показываем специальную первую опцию и остальные стандартные
+            const msg = `
+🔹 Тренер:
+— Вітаю! Я чекав саме на тебе. 🏟️
+Перший крок до великого футболу — перше тренування.
+Тисни Ок та «Почати» — і я підкажу, що робити далі.
+            `;
+            showInfoModal({
+                image: Config.IMAGES.training_info, // або просто "/assets/images/success_icon.png"
+                text: msg
+            })
+            return [FIRST_TRAINING_OPTION, ...TRAINING_OPTIONS_F];
+        }
+        // В противном случае, показываем стандартный список
+        return TRAINING_OPTIONS;
+    }, [user]);
+
     useEffect(() => {
         if (!user?.user_id) return;
-
         const checkTrainingStatus = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/training/status/${user.user_id}`);
@@ -77,41 +135,36 @@ export default function TrainingRoomCard({initialUserFromServer}) {
                 console.error("Error fetching training status:", error);
             }
         };
-
         checkTrainingStatus();
     }, [user?.user_id]);
 
-    // 3. Handler to start training
-    const handleStartTraining = async (duration, cost) => {
-        // First, check the state. If active, show an alert.
+    const handleStartTraining = async (duration, cost, isFirst = false) => {
         if (isTrainingActive) {
             showAlert('Тренування вже відбувається. Дочекайтесь його закінчення.');
             return;
         }
 
-        // Convert duration string ('30 хв.') to seconds
         const durationInSeconds = parseInt(duration, 10) * 60;
 
         try {
-            // Call the backend API
             await axios.post(`${API_BASE_URL}/training/start`, {
                 user_id: user.user_id,
                 gym_time_seconds: durationInSeconds,
-                cost_energy: Math.abs(cost) // Cost is already a positive number
+                cost_energy: Math.abs(cost),
+                is_first_training: isFirst,
             });
 
-            showAlert('Тренування успішно розпочато!');
-            // A simple way to refresh the component's state is to reload the page.
-            // This will update the TrainingStatus component as well.
-            await fetchUser()
+            showAlert('Перше тренування успішно розпочато!');
+            await fetchUser();
+            console.log("User status: ", user.status);
+            const response = await axios.get(`${API_BASE_URL}/training/status/${user.user_id}`);
+            setIsTrainingActive(response.data.in_training);
 
         } catch (error) {
-            // Display backend error message (e.g., "Not enough energy")
             const errorMessage = error.response?.data?.detail || 'Сталася помилка. Спробуйте знову.';
             showAlert(errorMessage);
         }
     };
-
 
     return (
         <div className={styles.page}>
@@ -123,9 +176,7 @@ export default function TrainingRoomCard({initialUserFromServer}) {
                     className={styles.backgroundImage}
                 />
 
-                <TrainingStatus
-                    user={user}
-                />
+                <TrainingStatus user={user} />
                 <div className={styles.trainingRoomTitle}>
                     ТРЕНУВАЛЬНА ЗАЛА
                 </div>
@@ -141,19 +192,34 @@ export default function TrainingRoomCard({initialUserFromServer}) {
                         gap: '10px',
                     }}
                 >
-                    {TRAINING_OPTIONS.map(option => (
-                        <TrainingOption
-                            key={option.id}
-                            bg={option.bg}
-                            chance={option.chance}
-                            duration={option.duration}
-                            cost={option.cost}
-                            actionImg={option.actionImg}
-                            actionIcon={option.actionIcon}
-                            // 4. Pass the handler function to the child component
-                            onStartTraining={() => handleStartTraining(option.duration, option.cost)}
-                        />
-                    ))}
+                    {displayedOptions.map(option => {
+                        // ✨ ИЗМЕНЕНИЕ 2: Определяем, нужно ли блокировать кнопку
+                        const isFirstTrainingPending = user?.status_register === 'FIRST_TRAINING';
+                        const isThisTheFirstOption = option.id === 'first_training';
+
+                        // ✨ ИЗМЕНЕНИЕ 3: Создаем обработчик клика в зависимости от статуса
+                        const clickHandler = () => {
+                            if (isFirstTrainingPending && !isThisTheFirstOption) {
+                                showAlert('Спочатку пройдіть перше тренування.');
+                            } else {
+                                handleStartTraining(option.duration, option.cost, !!option.isFirstTraining);
+                            }
+                        };
+
+                        return (
+                            <TrainingOption
+                                key={option.id}
+                                bg={option.bg}
+                                chance={option.chance}
+                                duration={option.duration}
+                                cost={option.cost}
+                                actionImg={option.actionImg}
+                                actionIcon={option.actionIcon}
+                                onStartTraining={clickHandler}
+                                isHighlighted={isFirstTrainingPending && isThisTheFirstOption}
+                            />
+                        );
+                    })}
                 </div>
                 <NavigationBar/>
             </div>

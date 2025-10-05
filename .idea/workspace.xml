@@ -4,10 +4,45 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 43">
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 44">
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/img_30.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/img_31.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/register/CharacterRevealCard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/register/CreateModalTeamName.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/register/GetFirstCharacterModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/register/context/GuideContext.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/register/CharacterRevealCard.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/register/CreateTeamModal.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/register/GetFirstCharacterModal.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/rating/rating_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/rating/rating_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/commands/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/commands/start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/models/user_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models/user_bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/fastapi/routers/blitz_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/fastapi/routers/blitz_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/fastapi/routers/training_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/fastapi/routers/training_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/alertService.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/alertService.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/NavigationBar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/NavigationBar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/education_centre/EducationCentre.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/education_centre/EducationCentre.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/education_centre/EducationCentreView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/education_centre/EducationCentreView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/EventCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/EventCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/modal_components/ModalComponents.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/modal_components/ModalComponents.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/training/TrainingOption.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/training/TrainingOption.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Header.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Header.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/NavigationBar.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/NavigationBar.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/training/TrainingOption.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/training/TrainingOption.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/EducationCentere.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/EducationCentere.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Rating.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Rating.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Shop.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Shop.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Tournament.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Tournament.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Training.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Training.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Transfer.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Transfer.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,14 +207,6 @@
       <workItem from="1755071398369" duration="109532000" />
       <workItem from="1755607196889" duration="17561000" />
       <workItem from="1755641855306" duration="19000" />
-    </task>
-    <task id="LOCAL-00010" summary="comi 10">
-      <option name="closed" value="true" />
-      <created>1755023699278</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1755023699278</updated>
     </task>
     <task id="LOCAL-00011" summary="comi 11">
       <option name="closed" value="true" />
@@ -565,14 +592,21 @@
       <option name="project" value="LOCAL" />
       <updated>1759259583826</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="comi 44">
+      <option name="closed" value="true" />
+      <created>1759428247708</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1759428247708</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="comi 21" />
     <MESSAGE value="comi 22" />
     <MESSAGE value="comi 23" />
     <MESSAGE value="comi 24" />
@@ -597,7 +631,8 @@
     <MESSAGE value="comi 41" />
     <MESSAGE value="comi 42" />
     <MESSAGE value="comi 43" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 43" />
+    <MESSAGE value="comi 44" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 44" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755631114696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

@@ -1,11 +1,9 @@
-// src/components/NavigationBar.jsx
-
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import hooks
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from '../css_files/NavigationBar.module.css';
 import Config from "../config.js";
+import {useGuide} from "./register/context/GuideContext.jsx";
 
-// Додаємо властивість 'path' до кожного елемента
 const navItems = [
     { id: 'training', label: 'Тренування', icon: Config.IMAGES.dumbbell_icon, path: '/trainings' },
     { id: 'home', label: 'Головна', icon: Config.IMAGES.home_icon, path: '/' },
@@ -15,43 +13,62 @@ const navItems = [
     { id: 'ratings', label: 'Рейтинги', icon: Config.IMAGES.rating_icon, path: '/rating' },
 ];
 
-const NavItem = ({ item, isActive, onClick }) => {
-    const itemClasses = `${styles.navItem} ${isActive ? styles.active : ''}`;
+// ✨ NavItem now accepts an `isDisabled` prop
+const NavItem = ({ item, isActive, onClick, isHighlighted, isDisabled }) => {
+    // ✨ A `disabled` class is added for styling, and the button is functionally disabled
+    const itemClasses = `${styles.navItem} ${isActive ? styles.active : ''} ${isHighlighted ? styles.highlighted : ''} ${isDisabled ? styles.disabled : ''}`;
 
-    // Передаємо item.path в обробник
     return (
-        <button className={itemClasses} onClick={() => onClick(item.path)} aria-label={item.label}>
-            <img
-                className={styles.navIcon}
-                src={item.icon}
-                alt=""
-            />
+        <button
+            className={itemClasses}
+            onClick={() => onClick(item.path)}
+            aria-label={item.label}
+            disabled={isDisabled} // ✨ The button is disabled if `isDisabled` is true
+        >
+            <img className={styles.navIcon} src={item.icon} alt=""/>
             <span className={styles.navLabel}>{item.label}</span>
         </button>
     );
 };
 
 export const NavigationBar = () => {
-    // Ініціалізуємо хуки
     const navigate = useNavigate();
     const location = useLocation();
+    const { guideTarget } = useGuide(); // Get the current guide target
 
-    // Функція для переходу за вказаним шляхом
+    // ✨ Updated navigation handler
     const handleNavigate = (path) => {
+        // If there's an active guide...
+        if (guideTarget) {
+            // ...find the item that the guide is pointing to.
+            const targetItem = navItems.find(item => item.id === guideTarget);
+            // If the user tries to click on a different item, block the navigation.
+            if (targetItem && targetItem.path !== path) {
+                return; // Exit without navigating
+            }
+        }
+        // Otherwise, allow navigation.
         navigate(path);
     };
 
     return (
         <nav className={styles.navigationBar}>
-            {navItems.map((item) => (
-                <NavItem
-                    key={item.id}
-                    item={item}
-                    // Активність визначається порівнянням шляху елемента з поточним URL
-                    isActive={location.pathname === item.path}
-                    onClick={handleNavigate}
-                />
-            ))}
+            {navItems.map((item) => {
+                const isHighlighted = item.id === guideTarget;
+                // ✨ An item is disabled if a guide is active, AND it's not the currently highlighted item.
+                const isDisabled = !!guideTarget && !isHighlighted;
+
+                return (
+                    <NavItem
+                        key={item.id}
+                        item={item}
+                        isActive={location.pathname === item.path}
+                        onClick={handleNavigate}
+                        isHighlighted={isHighlighted}
+                        isDisabled={isDisabled} // ✨ Pass the disabled state to the NavItem
+                    />
+                );
+            })}
         </nav>
     );
 };

@@ -1170,7 +1170,59 @@ export function VipPromoModal({
     );
 }
 
+/* ---------- НОВИЙ КОМПОНЕНТ InfoModal ---------- */
+/**
+ * Модальне вікно для відображення інформації з картинкою, текстом та кнопкою.
+ * @param {object} props
+ * @param {string} [props.title] - Необов'язковий заголовок вікна.
+ * @param {string} props.image - URL картинки для відображення.
+ * @param {string | React.ReactNode} props.text - Текст повідомлення.
+ * @param {function} props.onClose - Функція для закриття вікна.
+ */
+export function InfoModal({ title, image, text, onClose }) {
+    return (
+        <Box style={{ padding: '20px', textAlign: 'center' }} onClose={onClose}>
+            {/* Необов'язковий заголовок */}
+            {title && <HeaderBar title={title} />}
 
+            {/* Картинка */}
+            <motion.img
+                src={image}
+                alt={title || "information icon"}
+                style={{
+                    width: '100%',
+                    maxWidth: '120px', // Обмежуємо максимальний розмір
+                    height: 'auto',
+                    objectFit: 'contain',
+                    margin: '8px auto 16px', // Відступи зверху та знизу
+                    filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.4))'
+                }}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+            />
+
+            {/* Текст повідомлення */}
+            <div style={{
+                color: 'var(--text-primary)',
+                fontSize: '15px',
+                lineHeight: 1.6, // Покращуємо читабельність
+                marginBottom: '24px' // Відступ до кнопки
+            }}>
+                {text}
+            </div>
+
+            {/* Кнопка "ОК" */}
+            <GradientButton
+                onClick={onClose}
+                variant="alt" // Використовуємо жовтий градієнт
+                style={{ width: '100%', maxWidth: '200px', margin: '0 auto' }}
+            >
+                OK
+            </GradientButton>
+        </Box>
+    );
+}
 /* ---------- Экспорт по умолчанию ---------- */
 export default {
     ModalRoot,
@@ -1180,5 +1232,6 @@ export default {
     BuyModal,
     AlertModal,
     SetPriceModal,
-    DonateEnergyModal
+    DonateEnergyModal,
+    InfoModal
 };

@@ -41,16 +41,16 @@ class StartRegisterUser:
             text = TEXT_STAGE_REGISTER_USER[self._status],
             photo = PHOTO_STAGE_REGISTER_USER[self._status]
         )
-        await asyncio.sleep(TIME_SLEEP_REGISTER_MESSAGE)
+        # await asyncio.sleep(TIME_SLEEP_REGISTER_MESSAGE)
         
         await self._edit_status(
             new_status=STATUS_USER_REGISTER.CREATE_TEAM
         )
-        await self._send_message(
-            text = TEXT_STAGE_REGISTER_USER[self._status],
-            photo = PHOTO_STAGE_REGISTER_USER[self._status],
-            keyboard = create_team()
-        )
+        # await self._send_message(
+        #     text = TEXT_STAGE_REGISTER_USER[self._status],
+        #     photo = PHOTO_STAGE_REGISTER_USER[self._status],
+        #     keyboard = create_team()
+        # )
         
         
     async def _forgot_register(self) -> None:

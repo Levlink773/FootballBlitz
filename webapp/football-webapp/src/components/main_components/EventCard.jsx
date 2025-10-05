@@ -1,36 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// --- ШАГ 1: Импортируем useNavigate ---
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-// Убедитесь, что путь к вашему файлу конфигурации (с изображениями) указан верно
+import { Steps } from 'intro.js-react';
+import 'intro.js/introjs.css';
+
 import Config from "../../config.js";
-import {showAlert} from "../../alertService.jsx";
-import useWebSocket, {useWebSocketPro} from "../../../useWebsocket.js";
-import {API_BASE_URL} from "../../api.js";
+import { showAlert } from "../../alertService.jsx";
+import { useWebSocketPro } from "../../../useWebsocket.js";
+import { API_BASE_URL } from "../../api.js";
 import buttonBg from '../../assets/public/vip_emblem_large.png';
-// --- Анимации и стили (без изменений) ---
+
+// --- Стили (без изменений) ---
 
 const fadeIn = keyframes`
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 `;
 
-// Удаляем pulsate, так как в новом дизайне его нет
-// const pulsate = keyframes...
-
 const CardWrapper = styled.div`
     position: relative;
-    width: 320px; // Увеличиваем ширину
-    height: 120px; // Увеличиваем высоту
+    width: 320px;
+    height: 120px;
     top: 320px;
     left: 67px;
-    margin: 20px auto; // Убираем абсолютное позиционирование для гибкости
+    margin: 20px auto;
     border-radius: 16px;
-    overflow: visible; // Оставляем, чтобы кубок мог выходить за рамки
+    overflow: visible;
     display: flex;
     justify-content: center;
     align-items: center;
-    // Новый фон, как в дизайне
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
     transition: all 0.3s ease-in-out;
@@ -42,7 +40,6 @@ const CardWrapper = styled.div`
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         border-color: rgba(255, 255, 255, 0.3);
     }
-    // Удаляем псевдоэлемент ::before для свечения
 `;
 
 const CardBackground = styled.img`
@@ -51,23 +48,23 @@ const CardBackground = styled.img`
     height: 100%;
     object-fit: cover;
     border-radius: 15px;
-    opacity: 1; // Делаем фон менее заметным
+    opacity: 1;
     filter: brightness(1);
     pointer-events: none;
 `;
 
 const CupIcon = styled.img`
     position: absolute;
-    width: 105px; // Немного увеличиваем
+    width: 105px;
     height: auto;
-    left: -45px; // Подвигаем ближе к краю
+    left: -45px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
     filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5));
     transition: transform 0.3s ease-out;
 
-    ${CardWrapper}:hover & { // Более простой hover-эффект
+    ${CardWrapper}:hover & {
         transform: translateY(-50%) scale(1.05);
     }
 `;
@@ -79,20 +76,19 @@ const ContentWrapper = styled.div`
     align-items: center;
     text-align: center;
     z-index: 3;
-    padding-left: 95px; // Увеличиваем отступ слева из-за кубка
+    padding-left: 95px;
     height: 100%;
-    gap: 8px; // Добавляем отступ между элементами
+    gap: 8px;
     position: relative;
     left: -50px;
 `;
 
 const Title = styled.div`
     color: white;
-    font-size: 18px; // Немного уменьшаем для нового формата
+    font-size: 18px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
-    // Для лучшего отображения составного заголовка
     display: flex;
     align-items: baseline;
     gap: 8px;
@@ -104,7 +100,6 @@ const Title = styled.div`
     }
 `;
 
-// Новый контейнер для таймера
 const CountdownWrapper = styled.div`
     background-color: rgba(0, 0, 0, 0.04);
     border-radius: 20px;
@@ -113,7 +108,7 @@ const CountdownWrapper = styled.div`
 `;
 
 const CountdownText = styled.div`
-    color: #FFC93E; // Золотой цвет
+    color: #FFC93E;
     font-size: 9px;
     position: relative;
     top: 8px;
@@ -123,28 +118,25 @@ const CountdownText = styled.div`
     letter-spacing: 0.5px;
 `;
 
-// Полностью переработанная кнопка
 const RegistrationButton = styled.button`
     width: 230px;
     height: 44px;
     border-radius: 12px;
-    // Яркий желто-оранжевый градиент
     background: url(${buttonBg}) no-repeat center center;
     box-shadow: 0 4px 10px rgba(248, 165, 39, 0.3);
     border: none;
-    // Добавляем "давленную" рамку для 3D эффекта
     border-bottom: 3px solid #C47D0F;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4D3300; // Темный текст для контраста
+    color: #4D3300;
     font-size: 14px;
     font-family: 'Inter', sans-serif;
     font-weight: 800;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s ease;
-    gap: 12px; // Расстояние между текстом и стоимостью
+    gap: 12px;
 
     &:hover {
         transform: translateY(-2px);
@@ -165,7 +157,7 @@ const CostWrapper = styled.div`
     background: rgba(0, 0, 0, 0.1);
     padding: 2px 6px;
     border-radius: 6px;
-    color: white; // Белый цвет для стоимости
+    color: white;
     font-weight: 700;
     font-size: 12px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
@@ -176,7 +168,6 @@ const CurrencyIcon = styled.img`
     height: 18px;
 `;
 
-// Компонент для статуса регистрации, как в старом коде, но можно обновить
 const RegistrationStatus = styled.div`
     color: #2ecc71;
     font-size: 11px;
@@ -189,34 +180,26 @@ const RegistrationStatus = styled.div`
     border: 1px solid rgba(46, 204, 113, 0.4);
 `;
 
-// Сообщение для незарегистрированных пользователей
 const NotRegisteredMessage = styled.div`
-  /* базовое количество символов (подберите под ваш дизайн) */
-  --max-chars-base: 20;        /* change this if you want another "base" length */
-  --max-chars: calc(var(--max-chars-base) * 2); /* в два раза больше символов */
+    --max-chars-base: 20;
+    --max-chars: calc(var(--max-chars-base) * 2);
 
-  color: #f1c40f;
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.4;
-  padding: 0 10px 0 80px;
-  z-index: 3;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-
-  /* поведение переноса */
-  white-space: normal;            /* разрешаем переносы */
-  overflow-wrap: anywhere;        /* более агрессивный перенос слов при необходимости */
-  word-break: break-word;         /* запасная опция для кросс-браузерности */
-
-  /* ограничиваем ширину в символах (приблизительно) */
-  max-width: calc(var(--max-chars) * 1ch);
+    color: #f1c40f;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    padding: 0 10px 0 80px;
+    z-index: 3;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: calc(var(--max-chars) * 1ch);
 `;
 
-
 // --- Основной компонент EventCard ---
-
 export const EventCard = ({ user, onUserUpdate }) => {
     const [isBlitzActive, setIsBlitzActive] = useState(false);
     const [secondsRemaining, setSecondsRemaining] = useState(null);
@@ -224,9 +207,16 @@ export const EventCard = ({ user, onUserUpdate }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [notificationShown, setNotificationShown] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
-
-    // --- ШАГ 2: Инициализируем хук навигации ---
+    const [isTutorialEnabled, setTutorialEnabled] = useState(false);
     const navigate = useNavigate();
+
+    const tutorialSteps = [
+        {
+            element: '[data-tutorial="blitz-register"]',
+            intro: 'Чудово! Тепер час взяти участь у першому Бліц-турнірі. Натисніть, щоб зареєструватися!',
+            position: 'bottom',
+        },
+    ];
 
     const fetchUser = async () => {
         try {
@@ -250,8 +240,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
     const fetchBlitzStatus = useCallback(async () => {
         if (!user?.user_id) return;
-        console.log("fetch blitzStatus: ", user.user_id);
-
         setNotificationShown(false);
         try {
             const activeResponse = await fetch(`${API_BASE_URL}/blitz/active`);
@@ -262,24 +250,15 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 setIsBlitzActive(true);
                 setSecondsRemaining(null);
                 setBlitzInfo({ info: { title: 'БЛІЦ АКТИВНИЙ' } });
-
-                // Даже если блиц активен, нам нужно знать, зарегистрирован ли в нем юзер,
-                // чтобы показать правильную кнопку/сообщение
                 try {
                     const regResponse = await fetch(`${API_BASE_URL}/blitz/user/${user.user_id}/match_state`);
-                    if (regResponse.ok) {
-                        const regData = await regResponse.json();
-                        setIsRegistered(true);
-                    } else {
-                        setIsRegistered(false);
-                    }
+                    setIsRegistered(regResponse.ok);
                 } catch (e) {
                     setIsRegistered(false);
                 }
                 return;
             }
 
-            // Если активного нет, ищем следующий
             setIsBlitzActive(false);
             const nextResponse = await fetch(`${API_BASE_URL}/blitz/next`);
             if (!nextResponse.ok) throw new Error('Failed to fetch next blitz');
@@ -288,7 +267,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
             if (nextData && nextData.blitz_id && nextData.seconds_remaining > 0) {
                 setSecondsRemaining(nextData.seconds_remaining);
                 setBlitzInfo(nextData);
-
                 try {
                     const regResponse = await fetch(`${API_BASE_URL}/blitz/is_registered/${user.user_id}`);
                     if (regResponse.ok) {
@@ -298,7 +276,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
                         setIsRegistered(false);
                     }
                 } catch (e) {
-                    console.error("Failed to fetch registration status", e);
                     setIsRegistered(false);
                 }
             } else {
@@ -313,66 +290,46 @@ export const EventCard = ({ user, onUserUpdate }) => {
             setIsLoading(false);
         }
     }, [user]);
-    // --- ШАГ 2: Создаем универсальный обработчик для WebSocket ---
-    const handleWebSocketMessage = useCallback((data) => {
-        console.log("Получено WebSocket сообщение в компоненте:", data);
 
-        // Используем switch для обработки разных типов событий
+    const handleWebSocketMessage = useCallback((data) => {
         switch (data.type) {
             case 'show_alert':
-                // Сохраняем старую логику для алертов
                 if (data.payload) {
                     showAlert(data.payload.message, { html: data.payload.html });
-                    // Также можно вызвать fetchBlitzStatus, если это необходимо
                     fetchBlitzStatus();
                 }
                 break;
-
             case 'update_max_participants':
-                // НОВОЕ: Обрабатываем обновление максимального количества участников
                 if (data.payload && typeof data.payload.max_participants === 'number') {
-                    console.log(`Обновляем participants_count на: ${data.payload.max_participants}`);
-
-                    // Обновляем состояние blitzInfo, сохраняя остальные данные
-                    setBlitzInfo(prevBlitzInfo => {
-                        // Проверка, что prevBlitzInfo и prevBlitzInfo.info существуют
-                        if (!prevBlitzInfo?.info) return prevBlitzInfo;
-
-                        return {
-                            ...prevBlitzInfo,
-                            info: {
-                                ...prevBlitzInfo.info,
-                                participants_count: data.payload.max_participants
-                            }
-                        };
-                    });
+                    setBlitzInfo(prev => prev ? { ...prev, info: { ...prev.info, participants_count: data.payload.max_participants } } : prev);
                 }
                 break;
-
             default:
-                // Можно логировать неизвестные типы сообщений для отладки
                 console.warn(`Получен неизвестный тип WebSocket сообщения: ${data.type}`);
         }
-    }, [fetchBlitzStatus]); // Добавляем fetchBlitzStatus в зависимости
+    }, [fetchBlitzStatus]);
+
     useWebSocketPro(user.user_id, handleWebSocketMessage);
+
     useEffect(() => {
         fetchBlitzStatus();
     }, [fetchBlitzStatus]);
 
     useEffect(() => {
-        if (isLoading || !user || notificationShown || secondsRemaining === null || isBlitzActive || isRegistered) {
-            return;
+        if (!isLoading && blitzInfo && user?.status_register === 'FIRST_BLITZ' && !isRegistered) {
+            const timer = setTimeout(() => setTutorialEnabled(true), 500);
+            return () => clearTimeout(timer);
         }
+    }, [isLoading, blitzInfo, user, isRegistered]);
 
-        const isVip = user.vip_pass_is_active;
-        const registrationThreshold = isVip ? 30 * 60 : 20 * 60;
-
+    useEffect(() => {
+        if (isLoading || !user || notificationShown || secondsRemaining === null || isBlitzActive || isRegistered) return;
+        const registrationThreshold = user.vip_pass_is_active ? 30 * 60 : 20 * 60;
         if (secondsRemaining <= registrationThreshold) {
             showAlert('Реєстрація на бліц відкрита! Натисніть на картку, щоб приєднатися.');
             setNotificationShown(true);
         }
     }, [isLoading, secondsRemaining, user, notificationShown, isBlitzActive, isRegistered]);
-
 
     useEffect(() => {
         if (isBlitzActive || secondsRemaining === null || secondsRemaining <= 0) return;
@@ -389,20 +346,16 @@ export const EventCard = ({ user, onUserUpdate }) => {
         return () => clearInterval(timerId);
     }, [isBlitzActive, secondsRemaining, fetchBlitzStatus]);
 
-
-    // --- ШАГ 3: Обновляем логику обработчика клика ---
     const handleRegisterClick = async () => {
-        // Если блиц активен, основное действие - вход в матч (если зарегистрирован)
         if (isBlitzActive) {
             if (isRegistered) {
-                navigate('/match'); // <-- Перенаправление на страницу матча
+                navigate('/match');
             } else {
                 showAlert("Ви не зареєстровані на цей бліц. Дочекайтесь наступного.");
             }
-            return; // Прекращаем выполнение функции
+            return;
         }
 
-        // Если блиц еще не начался, работает логика регистрации
         if (isRegistered) {
             showAlert("Ви вже зареєстровані на цей бліц.");
             return;
@@ -413,12 +366,16 @@ export const EventCard = ({ user, onUserUpdate }) => {
             return;
         }
 
-        const isVip = user.vip_pass_is_active;
-        const registrationWindow = isVip ? 30 * 60 : 20 * 60;
-        if (secondsRemaining > registrationWindow) {
-            const minutesLeft = Math.ceil((secondsRemaining - registrationWindow) / 60);
-            showAlert(`Реєстрація ще не відкрита. Зачекайте приблизно ${minutesLeft} хв.`);
-            return;
+        const isTutorialUser = user?.status_register === 'FIRST_BLITZ';
+
+        if (!isTutorialUser) {
+            const isVip = user.vip_pass_is_active;
+            const registrationWindow = isVip ? 30 * 60 : 20 * 60;
+            if (secondsRemaining > registrationWindow) {
+                const minutesLeft = Math.ceil((secondsRemaining - registrationWindow) / 60);
+                showAlert(`Реєстрація ще не відкрита. Зачекайте приблизно ${minutesLeft} хв.`);
+                return;
+            }
         }
 
         try {
@@ -428,7 +385,6 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 body: JSON.stringify({ user_id: user.user_id }),
             });
             const result = await response.json();
-
             showAlert(result.message);
 
             if (response.ok && result.ok) {
@@ -442,64 +398,69 @@ export const EventCard = ({ user, onUserUpdate }) => {
         }
     };
 
-
     if (isLoading || (!isBlitzActive && !secondsRemaining)) {
         return null;
     }
+
     const blitzTime = blitzInfo?.info?.blitz_time || "15:00";
     const playersRegistered = blitzInfo?.info?.participants_count;
-    console.log("pl reg: ", playersRegistered);
     const maxPlayers = blitzInfo?.info?.max_participants || 16;
     const registrationCost = blitzInfo?.info?.cost || 30;
 
     return (
-        // Используем onClick на всей карточке, но кнопку делаем <button> для семантики
-        <CardWrapper onClick={handleRegisterClick}>
-            <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
-            <CupIcon src={Config.IMAGES.cup} alt="tournament cup"/>
-
-            {isBlitzActive ? (
-                <ContentWrapper> {/* <-- ДОДАНО ОБГОРТКУ */}
-                    {isRegistered ? (
-                        <RegistrationButton>
-                            Увійти в матч
-                        </RegistrationButton>
-                    ) : (
-                        <NotRegisteredMessage>
-                            Ви не зареєстровані. <br/>
-                            Чекайте на наступний.
-                        </NotRegisteredMessage>
-                    )}
-                </ContentWrapper>
-            ) : (
-                // Логика для предстоящего блица
-                secondsRemaining > 0 && blitzInfo?.info && (
+        <>
+            <Steps
+                enabled={isTutorialEnabled}
+                steps={tutorialSteps}
+                initialStep={0}
+                onExit={() => setTutorialEnabled(false)}
+                options={{
+                    doneLabel: 'Зрозуміло',
+                    nextLabel: 'Далі',
+                    prevLabel: 'Назад',
+                    hidePrev: true,
+                    skipLabel: 'Пропустити',
+                    showBullets: false,
+                }}
+            />
+            <CardWrapper onClick={handleRegisterClick} data-tutorial="blitz-register">
+                <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
+                <CupIcon src={Config.IMAGES.cup} alt="tournament cup"/>
+                {isBlitzActive ? (
                     <ContentWrapper>
-                        <Title>
-                            БЛІЦ ({maxPlayers}) <span>{blitzTime} {playersRegistered}/{maxPlayers}</span>
-                        </Title>
-
-                        <CountdownWrapper>
-                            <CountdownText>
-                                ДО СТАРТУ {formatTime(secondsRemaining)}
-                            </CountdownText>
-                        </CountdownWrapper>
-
                         {isRegistered ? (
-                            <RegistrationStatus>ВИ ЗАРЕЄСТРОВАНІ</RegistrationStatus>
+                            <RegistrationButton>Увійти в матч</RegistrationButton>
                         ) : (
-                            <RegistrationButton type="button">
-                                Зареєструватись
-                                <CostWrapper>
-                                    - {registrationCost}
-                                    <CurrencyIcon src={Config.IMAGES.energy} alt="cost"/>
-                                </CostWrapper>
-                            </RegistrationButton>
+                            <NotRegisteredMessage>
+                                Ви не зареєстровані. <br/> Чекайте на наступний.
+                            </NotRegisteredMessage>
                         )}
                     </ContentWrapper>
-                )
-            )}
-        </CardWrapper>
+                ) : (
+                    secondsRemaining > 0 && blitzInfo?.info && (
+                        <ContentWrapper>
+                            <Title>
+                                БЛІЦ ({maxPlayers}) <span>{blitzTime} {playersRegistered}/{maxPlayers}</span>
+                            </Title>
+                            <CountdownWrapper>
+                                <CountdownText>ДО СТАРТУ {formatTime(secondsRemaining)}</CountdownText>
+                            </CountdownWrapper>
+                            {isRegistered ? (
+                                <RegistrationStatus>ВИ ЗАРЕЄСТРОВАНІ</RegistrationStatus>
+                            ) : (
+                                <RegistrationButton type="button">
+                                    Зареєструватись
+                                    <CostWrapper>
+                                        - {registrationCost}
+                                        <CurrencyIcon src={Config.IMAGES.energy} alt="cost"/>
+                                    </CostWrapper>
+                                </RegistrationButton>
+                            )}
+                        </ContentWrapper>
+                    )
+                )}
+            </CardWrapper>
+        </>
     );
 };
 

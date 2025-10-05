@@ -1,5 +1,3 @@
-// EducationCentreView.jsx
-
 import React from 'react';
 import styles from '../../css_files/education_centre/EducationCentre.module.css';
 import Config from "../../config.js";
@@ -45,14 +43,17 @@ const DailyReward = ({ dailyReward, onClaim }) => {
         return `${h}:${m}:${s}`;
     };
 
-    const dailyRewards = [{ type: 'coin', amount: 100, icon: Config.IMAGES.coin }]; // Можна теж передавати через пропси
+    const dailyRewards = [{ type: 'coin', amount: 100, icon: Config.IMAGES.coin }];
 
     return (
         <div className={styles.dailyReward}>
             <img src={Config.IMAGES.calendar_icon} alt="Calendar" className={styles.dailyRewardIcon} />
             <span className={styles.dailyRewardTitle}>ЩОДЕННА НАГОРОДА</span>
             {dailyReward.isClaimable ? (
-                <ButtonReward rewards={dailyRewards} onClick={onClaim} daily={true} />
+                // ✅ ATTRIBUTE ADDED: Wrapper for the tutorial to target
+                <div data-tutorial="daily-reward">
+                    <ButtonReward rewards={dailyRewards} onClick={onClaim} daily={true} />
+                </div>
             ) : (
                 <ButtonUnactiveReward time={formatTime(dailyReward.timeLeft)} />
             )}

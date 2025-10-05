@@ -26,6 +26,25 @@ export const postPlayerToTransfer = async (characterId, price) => {
 
     return response.json();
 };
+export const claimFirstCharacter = async (userId) => {
+    // We assume you will create a POST endpoint for this action.
+    // A POST request is appropriate because it changes the state on the server (creates a character).
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/claim-first-character`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to claim character");
+    }
+
+    // The backend should return the full, updated user object,
+    // which now includes the main_character and the status 'END_REGISTER'.
+    return response.json();
+};
 
 /**
  * Знімає гравця з трансферу.

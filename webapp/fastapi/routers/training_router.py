@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
+from database.models.user_bot import STATUS_USER_REGISTER
 from gym_character.core.gym import Gym
 from gym_character.core.manager import GymCharacterManager
 from services.reminder_character_service import RemniderCharacterService
@@ -19,6 +20,7 @@ class StartTrainingBody(BaseModel):
     user_id: int
     gym_time_seconds: int = Field(..., gt=0, description="Длительность тренировки в секундах")
     cost_energy: int = Field(..., ge=0, description="Стоимость тренировки в энергии")
+    is_first_training: bool = False
 
 
 # --- вспомогательный сериализатор reminder ---
@@ -63,6 +65,8 @@ async def start_training(body: StartTrainingBody):
 
     # обновляем время тренировки в БД
     now = datetime.now()
+    if body.is_first_training:
+        await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.TRANSFER)
     try:
         await RemniderCharacterService.update_training_info(
             character_id=main_char.id,

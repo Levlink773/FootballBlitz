@@ -1,0 +1,238 @@
+:root {
+    --glow-color: hsl(193, 95%, 68%);
+    --card-bg: linear-gradient(160deg, #1e1e2f 0%, #10101a 100%);
+}
+
+.revealContainer {
+    position: absolute;
+    top: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Orbitron', sans-serif; /* Применяем футуристичный шрифт */
+    perspective: 1000px; /* Важно для 3D эффекта! */
+}
+
+.congratsTitle {
+    font-size: 2.5rem;
+    color: #ffd700;
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px #ffd700;
+}
+
+/* Обертка для 3D-трансформаций */
+.cardWrapper {
+    width: 300px;
+    cursor: grab;
+    transform-style: preserve-3d;
+}
+
+.card {
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 221, 0.2) inset;
+    transform-style: preserve-3d;
+}
+
+/* Улучшенный эффект сияния */
+.cardShine {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+    animation: holo-shine 5s infinite linear;
+    opacity: 0;
+}
+
+.cardWrapper:hover .cardShine {
+    opacity: 1;
+}
+
+@keyframes holo-shine {
+    0% { transform: translateX(-50%) translateY(-25%) rotate(30deg); }
+    100% { transform: translateX(25%) translateY(50%) rotate(30deg); }
+}
+
+.characterImage {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: -3px;
+    border-radius: 50%;
+    border: 4px solid var(--glow-color);
+    box-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color) inset;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.characterName {
+    position: relative;
+    left: 80px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 25px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+.statItem {
+    background-color: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 12px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: background-color 0.3s ease;
+}
+
+.statItem:hover {
+    background-color: rgba(0, 255, 221, 0.1);
+}
+
+.statLabel {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.statValue {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+}
+/* Улучшенная, динамичная кнопка */
+.continueButton {
+    /* Общие стили */
+    position: relative; /* Необходимо для псевдоэлемента */
+    margin-top: 40px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Orbitron', sans-serif; /* Наследуем стиль */
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #ffffff;
+    cursor: pointer;
+    outline: none;
+
+    /* Магия начинается здесь */
+    background: linear-gradient(90deg, #0f4c75, #3282b8, #00b7c2, var(--glow-color));
+    background-size: 400% 400%; /* Увеличиваем размер фона для анимации */
+
+    /* Основное свечение (многослойное) */
+    box-shadow:
+            0 0 5px var(--glow-color),
+            0 0 15px var(--glow-color),
+            0 0 30px var(--glow-color),
+            inset 0 0 10px hsla(193, 95%, 68%, 0.5);
+
+    /* Тень для текста, чтобы он лучше читался */
+    text-shadow: 0 0 5px hsla(0, 0%, 100%, 0.5), 0 0 10px var(--glow-color);
+
+    /* Плавные переходы для всех эффектов */
+    transition: all 0.3s ease-in-out;
+
+    /* Анимация в состоянии покоя */
+    animation:
+            gradient-flow 5s ease infinite, /* Анимация градиента */
+            pulse-glow 2s infinite ease-in-out; /* Анимация пульсации */
+}
+
+/* Псевдоэлемент для создания "подсветки" под кнопкой */
+.continueButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1; /* Размещаем под основным слоем кнопки */
+
+    background: inherit; /* Наследуем фон родителя */
+    background-size: inherit; /* Наследуем размер фона */
+
+    border-radius: inherit; /* Наследуем скругление */
+
+    /* Создаем размытое свечение */
+    filter: blur(20px);
+    opacity: 0.8;
+
+    /* Анимация будет синхронизирована с основной */
+    animation: gradient-flow 5s ease infinite;
+}
+
+/* Эффект при наведении курсора */
+.continueButton:hover {
+    color: #fff;
+    transform: translateY(-5px) scale(1.05); /* Кнопка "приподнимается" */
+
+    /* Усиливаем свечение */
+    box-shadow:
+            0 0 10px var(--glow-color),
+            0 0 40px var(--glow-color),
+            0 0 80px var(--glow-color),
+            inset 0 0 12px hsla(193, 95%, 68%, 0.7);
+
+    /* При наведении останавливаем пульсацию, чтобы эффект был стабильным */
+    animation-play-state: paused, running;
+}
+
+/* Эффект при нажатии */
+.continueButton:active {
+    transform: translateY(-2px) scale(1.02); /* Легкое "вдавливание" */
+    box-shadow:
+            0 0 5px var(--glow-color),
+            0 0 20px var(--glow-color),
+            0 0 40px var(--glow-color),
+            inset 0 0 15px hsla(193, 95%, 68%, 1);
+}
+
+/* Анимация движения градиента */
+@keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Анимация "дыхания" свечения */
+@keyframes pulse-glow {
+    0% {
+        box-shadow:
+                0 0 5px var(--glow-color),
+                0 0 15px var(--glow-color),
+                0 0 30px var(--glow-color),
+                inset 0 0 10px hsla(193, 95%, 68%, 0.5);
+    }
+    50% {
+        box-shadow:
+                0 0 10px var(--glow-color),
+                0 0 30px var(--glow-color),
+                0 0 60px var(--glow-color),
+                inset 0 0 12px hsla(193, 95%, 68%, 0.7);
+    }
+    100% {
+        box-shadow:
+                0 0 5px var(--glow-color),
+                0 0 15px var(--glow-color),
+                0 0 30px var(--glow-color),
+                inset 0 0 10px hsla(193, 95%, 68%, 0.5);
+    }
+}

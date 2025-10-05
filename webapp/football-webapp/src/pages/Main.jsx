@@ -1,24 +1,51 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import styles from '../css_files/Main.module.css';
-import {Header} from "../components/Header.jsx";
-import {VipBanner} from "../components/main_components/VipBanner.jsx";
-import {UserProfile} from "../components/main_components/UserProfile.jsx";
-import {DailyTasks} from "../components/main_components/DailyTasks.jsx";
-import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
-import {NavigationBar} from "../components/NavigationBar.jsx";
+import { Header } from "../components/Header.jsx";
+import { VipBanner } from "../components/main_components/VipBanner.jsx";
+import { UserProfile } from "../components/main_components/UserProfile.jsx";
+import { DailyTasks } from "../components/main_components/DailyTasks.jsx";
+import { StatsPanel } from "../components/main_components/StatsPanel.jsx";
+import { NavigationBar } from "../components/NavigationBar.jsx";
 import Config from "../config.js";
 import EventCard from "../components/main_components/EventCard.jsx";
-import useWebSocket from "../../useWebsocket.js";
+import { CreateTeamModal } from "../components/register/CreateModalTeamName.jsx";
+// ✨ Import the new modal
+import { GetFirstCharacterModal } from "../components/register/GetFirstCharacterModal.jsx";
 
-export const Main = ({initialUserFromServer}) => {
-    const [user, setUser] = useState(initialUserFromServer);
+export const Main = ({ user, setUser }) => {
+    console.log("USer: ", user);
     const vip_pass_status = user?.vip_pass_is_active;
-    console.log(vip_pass_status);
+
+    // Callback for when the team name is successfully created
+    const handleTeamCreated = (updatedUser) => {
+        setUser(updatedUser); // ✨ Обновляем состояние в App.jsx
+    };
+
+    // Callback for when the character is claimed
+    const handleCharacterClaimed = (updatedUserWithNewStatus) => {
+        // Сервер вернул пользователя со статусом FIRST_TRAINING
+        // Мы обновляем состояние на уровне всего приложения
+        setUser(updatedUserWithNewStatus);
+    };
+
+    const showCreateTeamModal = user && user.status_register === "CREATE_TEAM";
+    const showGetCharacterModal = user && user.status_register === "GET_FIRST_CHARACTER";
+
     return (
         <div className={styles.page}>
             <div className={styles.mainContainer} data-modal-root>
-                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
+                {/* --- REGISTRATION MODALS --- */}
+                {showCreateTeamModal && (
+                    <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />
+                )}
+                {showGetCharacterModal && (
+                    <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />
+                )}
+                {/* --- END REGISTRATION MODALS --- */}
 
+
+                {/* Main page content */}
+                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
                 <Header user={user}/>
                 <VipBanner isActive={vip_pass_status}/>
                 <UserProfile user={user}/>
