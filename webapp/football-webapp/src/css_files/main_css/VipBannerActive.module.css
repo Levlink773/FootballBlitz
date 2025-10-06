@@ -1,12 +1,4 @@
-/* --- Анімації --- */
-@keyframes pulseGlow {
-    0%, 100% {
-        box-shadow: 0 0 8px rgba(255, 223, 0, 0.6), 0 0 12px rgba(255, 223, 0, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 16px rgba(255, 223, 0, 0.8), 0 0 24px rgba(255, 223, 0, 0.6);
-    }
-}
+
 
 @keyframes characterFloat {
     0%, 100% {
@@ -19,10 +11,10 @@
 
 @keyframes shimmer {
     0% {
-        transform: translateX(-100%) skewX(-20deg);
+        transform: translateX(-10%) skewX(-20deg);
     }
     100% {
-        transform: translateX(200%) skewX(-20deg);
+        transform: translateX(20%) skewX(-20deg);
     }
 }
 
@@ -31,8 +23,8 @@
 .container {
     /* Позиціонування не змінено */
     position: absolute;
-    top: 90px;
-    left: 45px;
+    top: 75px;
+    left: 35px;
     width: 360px;
     height: 90px;
     z-index: 10;
@@ -63,8 +55,8 @@
     position: absolute;
     top: 0;
     left: 31px; /* Починаємо звідки й фон */
-    width: 50%;
-    height: 100%;
+    width: 30px;
+    height: 10px;
     background: linear-gradient(
             90deg,
             rgba(255, 255, 255, 0) 0%,

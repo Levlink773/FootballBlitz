@@ -16,17 +16,28 @@ const fadeIn = keyframes`
     to { opacity: 1; transform: translateY(0); }
 `;
 
+// сильнее подсветка — keyframes
 const pulseHighlight = keyframes`
   0%, 100% {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37), 0 0 5px rgba(255, 201, 62, 0.5);
-    transform: scale(1.0);
-  }
-  50% {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 201, 62, 1);
+    box-shadow:
+      0 18px 56px rgba(0, 0, 0, 0.55),          /* глубокая тень */
+      0 0 12px rgba(255, 201, 62, 0.75),        /* цветной glow (ближний) */
+      0 0 48px rgba(255, 201, 62, 0.35);        /* цветной glow (дальний) */
     transform: scale(1.03);
+    filter: drop-shadow(0 0 10px rgba(255,201,62,0.85));
+  }
+
+  50% {
+    box-shadow:
+      0 26px 80px rgba(0, 0, 0, 0.65),
+      0 0 30px rgba(255, 201, 62, 1),
+      0 0 110px rgba(255, 201, 62, 0.6);
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 22px rgba(255,201,62,1));
   }
 `;
 
+// CardWrapper с дополнительным ::after ореолом и will-change
 const CardWrapper = styled.div`
     position: relative;
     width: 320px;
@@ -41,17 +52,47 @@ const CardWrapper = styled.div`
     align-items: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.25s ease-in-out;
     cursor: pointer;
+    will-change: transform, box-shadow, filter, opacity;
+
+    /* анимация (если подсвечено — двужды: pulse + fadeIn) */
     animation: ${props =>
     props.isHighlighted
-        ? css`${pulseHighlight} 2.5s infinite ease-in-out, ${fadeIn} 0.6s ease-out forwards`
-        : css`${fadeIn} 0.6s ease-out forwards`};
+        ? css`${pulseHighlight} 2s infinite ease-in-out, ${fadeIn} 0.45s ease-out forwards`
+        : css`${fadeIn} 0.45s ease-out forwards`};
 
     &:hover {
-        transform: ${props => props.isHighlighted ? 'scale(1.03)' : 'translateY(-5px) scale(1.02)'};
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-        border-color: rgba(255, 255, 255, 0.3);
+        transform: ${props => props.isHighlighted ? 'scale(1.08)' : 'translateY(-6px) scale(1.03)'};
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+        border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* сильный размытый ореол через псевдо-элемент */
+    &::after {
+        content: "";
+        position: absolute;
+        inset: -6px; /* расширяет ореол за границы карточки */
+        border-radius: 18px;
+        pointer-events: none;
+        opacity: ${props => props.isHighlighted ? 1 : 0};
+        transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+        transform: scale(${props => props.isHighlighted ? 1 : 0.95});
+        background: radial-gradient(
+            circle at center,
+            rgba(255,201,62,0.45) 0%,
+            rgba(255,201,62,0.18) 20%,
+            rgba(255,201,62,0.06) 45%,
+            transparent 60%
+        );
+        filter: blur(14px);
+        z-index: 0;
+    }
+
+    /* содержимое карточки над ::after */
+    & > * {
+        position: relative;
+        z-index: 1;
     }
 `;
 

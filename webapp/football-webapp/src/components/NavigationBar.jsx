@@ -47,15 +47,22 @@ export const NavigationBar = () => {
     return (
         <nav className={styles.navigationBar}>
             {navItems.map((item) => {
-                const isHighlighted = item.id === guideTarget;
-                // An item is disabled if a guide is active, AND it's not the currently highlighted item.
-                const isDisabled = !!guideTarget && !isHighlighted;
+                const isActive = location.pathname === item.path;
+                // Highlight only if this item is the guide target AND user is not already on that page
+                const isHighlighted = item.id === guideTarget && !isActive;
+
+                // Disabled when a guide target exists AND:
+                // - This item is not the current active page
+                // - AND this item is not the guide target (so the guide target remains enabled)
+                // This ensures: when user is already on the guide target page, it won't be highlighted,
+                // and all other tabs remain inactive/disabled.
+                const isDisabled = !!guideTarget && !isActive && item.id !== guideTarget;
 
                 return (
                     <NavItem
                         key={item.id}
                         item={item}
-                        isActive={location.pathname === item.path}
+                        isActive={isActive}
                         onClick={handleNavigate}
                         isHighlighted={isHighlighted}
                         isDisabled={isDisabled}

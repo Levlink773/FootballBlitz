@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import styles from '../css_files/Header.module.css';
+
 import Config from "../config.js";
-import { useNavigate } from "react-router-dom";
+
 import { api } from "../api.js";
+
 import { showAlert } from "../alertService.jsx";
+
 import { BuyModal, ModalRoot } from "./modal_components/ModalComponents.jsx";
+
 import {useGuide} from "./register/context/GuideContext.jsx";
 
 const NotificationIcon = ({ hasNotification }) => (
@@ -82,6 +88,8 @@ const CurrencyGroup = ({ icon, alt, amount, onAddClick }) => (
 
 export const Header = ({ user }) => {
     const { guideTarget } = useGuide();
+    const location = useLocation();
+
     const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -126,10 +134,12 @@ export const Header = ({ user }) => {
     };
     const avatarUrl = user?.avatar_url || Config.IMAGES.avatar;
 
-    const isShopHighlighted = guideTarget === 'shop';
+    // Highlight shop only if guideTarget === 'shop' AND user is NOT already on /shop
+    const isShopHighlighted = guideTarget === 'shop' && location.pathname !== '/shop';
 
     return (
         <>
+
             {isLoading && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, Field
@@ -45,12 +45,27 @@ class UserPublic(BaseModel):
     vip_pass_is_active: bool = False
     status_register: Optional[str] = None
     league: str = "Вища ліга" # <-- ДОБАВЛЕНО ПОЛЕ ЛИГИ
+    # Додані поля для рейтингу за перемогами
+    precent_winner_matches: Optional[float] = 0.0
+    final_winner_matches: Optional[int] = 0
+    final_count_of_matches: Optional[int] = 0
 
     class Config:
         from_attributes = True
 class UserPublicWithCharacter(UserPublic):
     main_character: Optional[CharacterPublic] = None
 
+class UserPositionResponse(BaseModel):
+    """
+    Модель для відповіді про позицію користувача в рейтингу.
+    """
+    user_id: int
+    user_name: Optional[str] = None
+    position: int
+    total_users: int
+    # Поля для відображення статистики
+    points: Optional[int] = 0
+    precent_winner_matches: Optional[float] = 0.0
 class UserRank(BaseModel):
     user_id: int
     user_name: Optional[str] = None # <-- изменено с username для консистентности
@@ -162,6 +177,89 @@ async def create_user(payload: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+# --- НОВІ ЕНДПОІНТИ ДЛЯ РЕЙТИНГІВ ---
+
+@router.get("/ranking/seasonal", response_model=List[UserPublic])
+async def get_seasonal_ranking(limit: int = 100, offset: int = 0):
+    """
+    Повертає список користувачів, відсортованих за очками (рейтинг сезону).
+    Сортування: за `points` (спадання), для однакових значень - за `id` (зростання).
+    """
+    users = await UserService.get_all_users()
+    if not users:
+        return []
+
+    # Сортуємо в пам'яті. Для великих баз даних краще використовувати сортування на рівні запиту до БД.
+    sorted_users = sorted(users, key=lambda u: (-(u.points or 0), u.id))
+
+    return sorted_users[offset: offset + limit]
+
+
+@router.get("/ranking/win-rate", response_model=List[UserPublic])
+async def get_win_rate_ranking(limit: int = 100, offset: int = 0):
+    """
+    Повертає список користувачів, відсортованих за відсотком перемог.
+    Сортування: за `precent_winner_matches` (спадання),
+                 потім за `final_count_of_matches` (спадання),
+                 для однакових значень - за `id` (зростання).
+    """
+    users = await UserService.get_all_users()
+    if not users:
+        return []
+
+    # Використовуємо @property `precent_winner_matches` для сортування
+    sorted_users = sorted(
+        users,
+        key=lambda u: (
+            -u.precent_winner_matches,
+            -(u.final_count_of_matches or 0),
+            u.id
+        ),
+    )
+
+    return sorted_users[offset: offset + limit]
+
+
+# Цей ендпоінт замінює старий /ranking/position. Він більш гнучкий.
+@router.get("/ranking/my-position", response_model=UserPositionResponse)
+async def get_my_position_in_ranking(user_id: int, rating_type: Literal['seasonal', 'win_rate']):
+    """
+    Знаходить та повертає позицію конкретного користувача у вказаному типі рейтингу.
+    """
+    users = await UserService.get_all_users()
+    if not users:
+        raise HTTPException(status_code=404, detail="В системі ще немає користувачів")
+
+    if rating_type == 'seasonal':
+        sorted_users = sorted(users, key=lambda u: (-(u.points or 0), u.id))
+    elif rating_type == 'win_rate':
+        sorted_users = sorted(
+            users,
+            key=lambda u: (-u.precent_winner_matches, -(u.final_count_of_matches or 0), u.id),
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Невірний тип рейтингу. Використовуйте 'seasonal' або 'win_rate'")
+
+    position = -1
+    target_user = None
+    for i, u in enumerate(sorted_users, start=1):
+        if u.user_id == user_id:
+            position = i
+            target_user = u
+            break
+
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Користувача не знайдено в рейтингу")
+
+    return UserPositionResponse(
+        user_id=target_user.user_id,
+        user_name=target_user.user_name,
+        position=position,
+        total_users=len(sorted_users),
+        points=target_user.points,
+        precent_winner_matches=target_user.precent_winner_matches
+    )
 
 # ЗАМЕНИТЕ ЭТОТ ENDPOINT
 @router.get("/ranking", response_model=List[UserPublic])

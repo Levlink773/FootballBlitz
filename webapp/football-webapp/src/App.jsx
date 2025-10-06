@@ -88,7 +88,6 @@ function AppContent() {
         const needsECHint = user.status_register === "EDUCATION_CENTER";
         const needsRatingHint = user.status_register === "RATING";
 
-
         if (needsTrainingHint) {
             setGuideTarget('training');
         } else if (needsTransferHint) {

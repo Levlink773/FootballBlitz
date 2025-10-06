@@ -244,3 +244,18 @@
 .howToContainer:hover .arrowIcon {
     animation: pulseArrow 1s infinite ease-in-out;
 }
+.hubButton {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #ffc107;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 80%;
+    text-align: center;
+}
+
+.hubButton:hover {
+    background-color: rgba(255, 193, 7, 0.3);
+}

@@ -62,8 +62,9 @@ class Gym:
             await RemniderCharacterService.anulate_training_character(self.character.id)
             
     async def _run_training(self) -> None:
-        cost_gym = const_energy_by_time[self.time_training]
+        cost_gym = 0
         try:
+            cost_gym = const_energy_by_time[self.time_training]
             chance = chance_add_point[self.time_training]
             if not await RemniderCharacterService.character_in_training(
                 character_id=self.character.id

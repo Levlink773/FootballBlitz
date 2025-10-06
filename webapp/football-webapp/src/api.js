@@ -15,7 +15,7 @@ export const postPlayerToTransfer = async (characterId, price) => {
         },
         body: JSON.stringify({
             characters_id: characterId,
-            price: price,
+            price: Number(price),
         }),
     });
 
