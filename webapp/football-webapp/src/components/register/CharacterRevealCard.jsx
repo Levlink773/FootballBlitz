@@ -66,7 +66,7 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
     // === NEW: compute dynamic font size for the name ===
     // Base size (rem), decrement per char after 5, min size (rem)
     const baseSizeRem = 1.8;
-    const decrementPerCharRem = 0.05;
+    const decrementPerCharRem = 0.07;
     const minSizeRem = 0.5;
 
     // Use useMemo so we don't recalc on unrelated renders

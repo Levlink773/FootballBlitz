@@ -1,20 +1,30 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled, {css, keyframes} from 'styled-components';
 import { Steps } from 'intro.js-react';
 import 'intro.js/introjs.css';
 
 import Config from "../../config.js";
-import { showAlert } from "../../alertService.jsx";
+import {showAlert, showInfoModal} from "../../alertService.jsx";
 import { useWebSocketPro } from "../../../useWebsocket.js";
 import { API_BASE_URL } from "../../api.js";
 import buttonBg from '../../assets/public/vip_emblem_large.png';
 
 // --- Стили (без изменений) ---
-
 const fadeIn = keyframes`
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulseHighlight = keyframes`
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37), 0 0 5px rgba(255, 201, 62, 0.5);
+    transform: scale(1.0);
+  }
+  50% {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 201, 62, 1);
+    transform: scale(1.03);
+  }
 `;
 
 const CardWrapper = styled.div`
@@ -33,10 +43,13 @@ const CardWrapper = styled.div`
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
     transition: all 0.3s ease-in-out;
     cursor: pointer;
-    animation: ${fadeIn} 0.6s ease-out forwards;
+    animation: ${props =>
+    props.isHighlighted
+        ? css`${pulseHighlight} 2.5s infinite ease-in-out, ${fadeIn} 0.6s ease-out forwards`
+        : css`${fadeIn} 0.6s ease-out forwards`};
 
     &:hover {
-        transform: translateY(-5px) scale(1.02);
+        transform: ${props => props.isHighlighted ? 'scale(1.03)' : 'translateY(-5px) scale(1.02)'};
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         border-color: rgba(255, 255, 255, 0.3);
     }
@@ -208,6 +221,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
     const [notificationShown, setNotificationShown] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [isTutorialEnabled, setTutorialEnabled] = useState(false);
+    const [isHighlighted, setIsHighlighted] = useState(false);
     const navigate = useNavigate();
 
     const tutorialSteps = [
@@ -316,20 +330,42 @@ export const EventCard = ({ user, onUserUpdate }) => {
     }, [fetchBlitzStatus]);
 
     useEffect(() => {
-        if (!isLoading && blitzInfo && user?.status_register === 'FIRST_BLITZ' && !isRegistered) {
+        const shouldShowTutorial = !isLoading &&
+            blitzInfo &&
+            !isBlitzActive &&
+            secondsRemaining > 5 &&
+            user?.status_register === 'FIRST_BLITZ' &&
+            !isRegistered;
+
+        setIsHighlighted(shouldShowTutorial);
+
+        if (shouldShowTutorial) {
             const timer = setTimeout(() => setTutorialEnabled(true), 500);
             return () => clearTimeout(timer);
+        } else {
+            setTutorialEnabled(false);
         }
-    }, [isLoading, blitzInfo, user, isRegistered]);
+    }, [isLoading, blitzInfo, user, isRegistered, isBlitzActive, secondsRemaining]);
 
+    // --- 👇 ИЗМЕНЕННЫЙ БЛОК ---
     useEffect(() => {
-        if (isLoading || !user || notificationShown || secondsRemaining === null || isBlitzActive || isRegistered) return;
+        // Выходим, если условия для показа уведомления не выполнены
+        if (isLoading || !user || notificationShown || secondsRemaining === null || isBlitzActive || isRegistered) {
+            return;
+        }
+
+        // ✨ ГЛАВНОЕ ИЗМЕНЕНИЕ: Показываем уведомление только пользователям со статусом 'END_REGISTER'
+        if (user.status_register !== 'END_REGISTER') {
+            return;
+        }
+
         const registrationThreshold = user.vip_pass_is_active ? 30 * 60 : 20 * 60;
         if (secondsRemaining <= registrationThreshold) {
             showAlert('Реєстрація на бліц відкрита! Натисніть на картку, щоб приєднатися.');
             setNotificationShown(true);
         }
     }, [isLoading, secondsRemaining, user, notificationShown, isBlitzActive, isRegistered]);
+    // --- 👆 КОНЕЦ ИЗМЕНЕННОГО БЛОКА ---
 
     useEffect(() => {
         if (isBlitzActive || secondsRemaining === null || secondsRemaining <= 0) return;
@@ -358,6 +394,12 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
         if (isRegistered) {
             showAlert("Ви вже зареєстровані на цей бліц.");
+            return;
+        }
+
+        const allowedStatuses = ['FIRST_BLITZ', 'END_REGISTER'];
+        if (!user?.status_register || !allowedStatuses.includes(user.status_register)) {
+            showAlert("Реєстрація на бліц-турнір наразі недоступна. Пройдіть навчання!");
             return;
         }
 
@@ -423,7 +465,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                     showBullets: false,
                 }}
             />
-            <CardWrapper onClick={handleRegisterClick} data-tutorial="blitz-register">
+            <CardWrapper onClick={handleRegisterClick} data-tutorial="blitz-register" isHighlighted={isHighlighted}>
                 <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
                 <CupIcon src={Config.IMAGES.cup} alt="tournament cup"/>
                 {isBlitzActive ? (

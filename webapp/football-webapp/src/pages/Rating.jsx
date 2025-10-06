@@ -7,7 +7,7 @@ import {NavigationBar} from "../components/NavigationBar.jsx";
 import styles from '../css_files/Main.module.css';
 import Rating from '../components/rating/Rating.jsx';
 import RatingInfo from "../components/rating/RatingInfo.jsx";
-import {showAlert} from "../alertService.jsx";
+import {showAlert, showInfoModal} from "../alertService.jsx";
 import {API_BASE_URL} from "../api.js";
 
 export default function RatingCard({user, setUser}) {
@@ -44,6 +44,24 @@ export default function RatingCard({user, setUser}) {
 
                     // Обновляем состояние пользователя в компоненте
                     setUser(updatedUser);
+                    const msg1 = `
+                    🔹 Тренер:
+Вітаю! 🎉 Ти успішно завершив навчання — відмінна робота!
+Бери нагороди, повертайся на поле і показуй, чого навчився. ⚽🔥
+                    `;
+                    showInfoModal({
+                        image: Config.IMAGES.end_info, // або просто "/assets/images/success_icon.png"
+                        text: msg1
+                    });
+                    const msg = `
+                    🔹 Тренер:
+Грай у турнірах — отримуй очки й піднімайся в рейтингу! В кінці сезону найсильніші отримують цінні винагороди.
+Є також окремий рейтинг за кількістю перемог — стань лідером!
+                    `;
+                    showInfoModal({
+                        image: Config.IMAGES.rating_info, // або просто "/assets/images/success_icon.png"
+                        text: msg
+                    });
 
                     console.log('User status successfully updated!');
 

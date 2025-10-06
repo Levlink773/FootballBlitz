@@ -8,7 +8,7 @@ import Shop from "../components/shop/Shop.jsx";
 import {VipPromoModal, BuyModal, ModalRoot} from "../components/modal_components/ModalComponents.jsx";
 import useWebSocket from "../../useWebsocket.js";
 import {api, API_BASE_URL} from "../api.js";
-import {showAlert} from "../alertService.jsx";
+import {showAlert, showInfoModal} from "../alertService.jsx";
 
 export default function ShopCard({user, setUser}) {
     const [activeModal, setActiveModal] = useState(null);
@@ -44,6 +44,16 @@ export default function ShopCard({user, setUser}) {
 
                     // Обновляем состояние пользователя в компоненте
                     setUser(updatedUser);
+                    const msg = `
+                    🔹 Тренер:
+У магазині ти можеш купити енергію та монети, лутбокси з випадковими наградами, а також VIP-пас — щоб отримувати бонуси й пріоритет.
+Купуй у «Магазині» і підсилюй свою команду!
+Тепер йдемо до учбовового центру капітане!
+                    `;
+                    showInfoModal({
+                        image: Config.IMAGES.shop_info, // або просто "/assets/images/success_icon.png"
+                        text: msg
+                    })
 
                     console.log('User status successfully updated!');
 

@@ -25,20 +25,16 @@ const NotificationIcon = ({ hasNotification }) => (
     </svg>
 );
 
-
-// --- Золотая кнопка магазина (ОБНОВЛЕНО) ---
-const ShopButton = ({ isHighlighted, guideTarget }) => { // ✨ Принимаем guideTarget
+const ShopButton = ({ isHighlighted, guideTarget }) => {
     const navigate = useNavigate();
 
     const handleGoToShop = () => {
-        // ✨ Если активен гайд, и это НЕ гайд для магазина, блокируем переход
         if (guideTarget && guideTarget !== 'shop') {
             return;
         }
         navigate('/shop');
     };
 
-    // ✨ Кнопка отключается, если активен другой гайд
     const isDisabled = guideTarget && guideTarget !== 'shop';
     const buttonClasses = `${styles.shopButton} ${isHighlighted ? styles.highlighted : ''} ${isDisabled ? styles.disabled : ''}`;
 
@@ -84,9 +80,8 @@ const CurrencyGroup = ({ icon, alt, amount, onAddClick }) => (
     </div>
 );
 
-
 export const Header = ({ user }) => {
-    const { guideTarget } = useGuide(); // ✨ Получаем цель подсветки из контекста
+    const { guideTarget } = useGuide();
     const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -170,7 +165,6 @@ export const Header = ({ user }) => {
                     />
                 </div>
                 <div className={styles.rightSection}>
-                    {/* ✨ Передаем guideTarget в кнопку магазина */}
                     <ShopButton isHighlighted={isShopHighlighted} guideTarget={guideTarget} />
                 </div>
             </header>

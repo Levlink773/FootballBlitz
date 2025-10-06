@@ -55,8 +55,7 @@ const Scoreboard = ({matchState}) => {
 };
 
 
-export default function MatchCard({initialUserFromServer}) {
-    const [user, setUser] = useState(initialUserFromServer);
+export default function MatchCard({user, setUser}) {
     const [isLoading, setIsLoading] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
 

@@ -89,6 +89,12 @@ import king from "./assets/public/img_26.png";
 import king_vip from "./assets/public/img_29.png";
 import training_info from "./assets/public/img_30.png";
 import transfer_info from "./assets/public/img_31.png";
+import shop_info from "./assets/public/img_32.png";
+import learning_info from "./assets/public/img_33.png";
+import rating_info from "./assets/public/img_34.png";
+import end_info from "./assets/public/img_35.png";
+import blitz_info from "./assets/public/img_36.png";
+import main_info from "./assets/public/img_37.png";
 
 
 class Config {
@@ -179,6 +185,12 @@ class Config {
         king_vip: king_vip,
         training_info: training_info,
         transfer_info: transfer_info,
+        shop_info: shop_info,
+        learning_info: learning_info,
+        rating_info: rating_info,
+        end_info: end_info,
+        blitz_info: blitz_info,
+        main_info: shop_info,
     };
 
     // какие-то игровые настройки

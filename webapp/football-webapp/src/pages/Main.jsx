@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import styles from '../css_files/Main.module.css';
 import { Header } from "../components/Header.jsx";
 import { VipBanner } from "../components/main_components/VipBanner.jsx";
@@ -11,6 +11,7 @@ import EventCard from "../components/main_components/EventCard.jsx";
 import { CreateTeamModal } from "../components/register/CreateModalTeamName.jsx";
 // ✨ Import the new modal
 import { GetFirstCharacterModal } from "../components/register/GetFirstCharacterModal.jsx";
+import {showAlert, showInfoModal} from "../alertService.jsx";
 
 export const Main = ({ user, setUser }) => {
     console.log("USer: ", user);
@@ -30,6 +31,35 @@ export const Main = ({ user, setUser }) => {
 
     const showCreateTeamModal = user && user.status_register === "CREATE_TEAM";
     const showGetCharacterModal = user && user.status_register === "GET_FIRST_CHARACTER";
+    useEffect(() => {
+        // Создаем асинхронную функцию внутри useEffect
+        const updateUserStatus = async () => {
+            // Проверяем, что у пользователя именно статус 'TRANSFER'
+            if (user?.status_register === 'FIRST_TRAINING') {
+                try {
+                    const msg = `
+🔹 Тренер:
+Ти в Головному меню. Тут видно характеристики гравця, VIP-статус, статистику та інші важливі дані.
+А зараз — час на перше тренування. Тисни Ок -> «Тренування» і починаємо!
+                    `;
+                    showInfoModal({
+                        image: Config.IMAGES.main_info, // або просто "/assets/images/success_icon.png"
+                        text: msg
+                    });
+
+                } catch (error) {
+                    console.error("Failed to update user status:", error);
+                    showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
+                }
+            }
+        };
+
+        // Вызываем функцию
+        updateUserStatus();
+
+        // Хук будет срабатывать при изменении объекта user,
+        // но внутреннее условие if не даст ему зациклиться.
+    }, [user]);
 
     return (
         <div className={styles.page}>
