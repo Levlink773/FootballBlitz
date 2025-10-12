@@ -85,6 +85,10 @@ class UserBot(Base):
     final_winner_matches = Column(BigInteger, default=0)
     final_count_of_blitz = Column(BigInteger, default=0)
 
+    count_of_big_box = Column(BigInteger, default=0)
+    count_of_medium_box = Column(BigInteger, default=0)
+    count_of_small_box = Column(BigInteger, default=0)
+
     @property
     def precent_winner_matches(self) -> float:
         """

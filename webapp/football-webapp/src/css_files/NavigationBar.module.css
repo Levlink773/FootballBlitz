@@ -96,45 +96,56 @@
     filter: drop-shadow(0px 0px 10px rgba(0, 255, 255, 0.7))
     drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
 }
+/* --- СТИЛИ ДЛЯ ПОДСВЕТКИ И СТРЕЛКИ (ОБНОВЛЕНО) --- */
+
 /* Стиль для подсвеченной кнопки */
 .navItem.highlighted {
-    position: relative; /* Необходимо для позиционирования псевдо-элемента */
-    border-radius: 16px; /* Немного увеличим скругление для гармонии */
+    position: relative;
+    border-radius: 16px;
 
-    /* Более выразительное и мягкое свечение */
-    box-shadow: 0 0 10px rgba(20, 255, 236, 0.6),
-    0 0 20px rgba(20, 255, 236, 0.4);
+    /* --- ИЗМЕНЕНИЕ: Более мощное и объемное свечение --- */
+    /* Добавлен 4-й параметр (spread-radius) и увеличен blur-radius */
+    box-shadow: 0 0 18px 4px rgba(20, 255, 236, 0.7),
+    0 0 30px 6px rgba(20, 255, 236, 0.5);
 
     transition: box-shadow 0.4s ease-in-out;
 }
 
 /* Создаем красивую и заметную стрелку с помощью псевдо-элемента ::before */
 .navItem.highlighted::before {
-    content: ''; /* Обязательное свойство для псевдо-элементов */
+    content: '';
     position: absolute;
-    top: -45px;      /* Располагаем выше над кнопкой */
+    top: -45px;
     left: 50%;
 
-    /* --- Внешний вид стрелки (SVG-шеврон) --- */
-    width: 28px;     /* Увеличиваем ширину */
-    height: 14px;    /* Увеличиваем высоту */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M2 2L12 10L22 2' stroke='%2300DDFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+    width: 28px;
+    height: 14px;
+
+    /* --- ИЗМЕНЕНИЕ: Стрелка стала "жирнее" (stroke-width изменен с 3.5 на 5) --- */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M2 2L12 10L22 2' stroke='%2300DDFF' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
+
+    /* --- ДОБАВЛЕНО: Яркое свечение для самой стрелки --- */
+    filter: drop-shadow(0px 4px 6px rgba(0, 221, 255, 0.7));
 
     /* Анимация движения */
     animation: point-down 2s infinite ease-in-out;
 }
 
-/* Более плавная и понятная анимация для стрелки */
+/* Более плавная и заметная анимация для стрелки */
 @keyframes point-down {
     0%, 100% {
         transform: translate(-50%, 0);
         opacity: 0.8;
+        /* --- ДОБАВЛЕНО: Базовое состояние свечения в анимации --- */
+        filter: drop-shadow(0px 4px 6px rgba(0, 221, 255, 0.7));
     }
     50% {
         transform: translate(-50%, 10px); /* Движение вниз */
         opacity: 1;
+        /* --- ИЗМЕНЕНИЕ: Усиление свечения в пиковой точке анимации --- */
+        filter: drop-shadow(0px 6px 12px rgba(0, 221, 255, 0.9));
     }
 }
 .disabled {

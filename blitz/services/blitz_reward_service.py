@@ -36,6 +36,9 @@ class RewardMediumBoxBlitzTeam(RewardBlitzTeam):
     def box_type(self):
         return "середній", "medium", MEDIUM_BOX_BLITZ_PHOTO
 
+    async def reward_box_counter(self, user: UserBot):
+        await UserService.add_count_of_medium_box(user.user_id, 1)
+
     async def reward_blitz_user(self, user: UserBot):
         name_box, callback_name_box, photo_path = self.box_type()
         callback_data = BoxRewardCallback(box_type=callback_name_box).pack()
@@ -45,6 +48,7 @@ class RewardMediumBoxBlitzTeam(RewardBlitzTeam):
 
         # Новий український, драйвовий текст з HTML-підсвіткою
         is_save, photo = await get_photo(photo_path)
+        await self.reward_box_counter(user)
         msg = await bot.send_photo(
             user.user_id,
             photo=photo,
@@ -66,11 +70,16 @@ class RewardSmallBoxBlitzTeam(RewardMediumBoxBlitzTeam):
     def box_type(self):
         return "меленький", "small", SMALL_BOX_BLITZ_PHOTO
 
+    async def reward_box_counter(self, user: UserBot):
+        await UserService.add_count_of_small_box(user.user_id, 1)
+
 
 class RewardLargeBoxBlitzTeam(RewardMediumBoxBlitzTeam):
 
     def box_type(self):
         return "великий", "large", LARGE_BOX_BLITZ_PHOTO
+    async def reward_box_counter(self, user: UserBot):
+        await UserService.add_count_of_big_box(user.user_id, 1)
 
 
 class RewardEnergyBlitzTeam(RewardBlitzTeam):
@@ -109,6 +118,8 @@ class RewardMoneyBlitzTeam(RewardBlitzTeam):
             text=f"💰 <b>+{self.reward_money} монет</b> за результат у турнірі Football Bliz! "
                  "Використайте їх для придбання нових футболістів та посилення своєї команди! ⚽"
         )
+
+
 class RewardRatingBlitzTeam(RewardBlitzTeam):
 
     def __init__(self, reward_rating: int):
@@ -127,6 +138,8 @@ class RewardRatingBlitzTeam(RewardBlitzTeam):
                  "Ваші досягнення вже враховано у загальному рейтингу гравців. "
                  "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
         )
+
+
 class RewardStatisticsBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
@@ -135,6 +148,8 @@ class RewardStatisticsBlitzTeam(RewardBlitzTeam):
             user.user_id,
             1,
         )
+
+
 class RewardStatisticsSemiFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
@@ -143,6 +158,8 @@ class RewardStatisticsSemiFinalBlitzTeam(RewardBlitzTeam):
             user.user_id,
             1,
         )
+
+
 class RewardStatisticFinalLooserFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
@@ -151,6 +168,8 @@ class RewardStatisticFinalLooserFinalBlitzTeam(RewardBlitzTeam):
             user.user_id,
             1,
         )
+
+
 class RewardStatisticFinalWinnerFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
@@ -159,6 +178,8 @@ class RewardStatisticFinalWinnerFinalBlitzTeam(RewardBlitzTeam):
             user.user_id,
             1,
         )
+
+
 class BlitzRewardService:
     @staticmethod
     async def reward_blitz_team(reward_blitz_team_executors: list[RewardBlitzTeam], reward_blitz_team: BlitzTeam):

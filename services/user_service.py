@@ -246,6 +246,54 @@ class UserService:
                 await session.execute(stmt)
 
     @classmethod
+    async def add_count_of_big_box(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(
+                        count_of_big_box=func.greatest(
+                            func.coalesce(UserBot.count_of_big_box, 0) + amount,
+                            0
+                        )
+                    )
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def add_count_of_medium_box(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(
+                        count_of_medium_box=func.greatest(
+                            func.coalesce(UserBot.count_of_medium_box, 0) + amount,
+                            0
+                        )
+                    )
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def add_count_of_small_box(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(
+                        count_of_small_box=func.greatest(
+                            func.coalesce(UserBot.count_of_small_box, 0) + amount,
+                            0
+                        )
+                    )
+                )
+                await session.execute(stmt)
+
+    @classmethod
     async def add_final_count_matches_winner(cls, user_id: int, amount: int = 1):
         async for session in get_session():
             async with session.begin():

@@ -72,20 +72,28 @@ const ShopButton = ({ isHighlighted, guideTarget }) => {
     );
 }
 
-const CurrencyGroup = ({ icon, alt, amount, onAddClick }) => (
-    <div className={styles.currencyGroup}>
-        <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
-        <span className={styles.currencyAmount}>{amount ?? 0}</span>
-        <button
-            className={styles.addButton}
-            onClick={onAddClick}
-            aria-label={`Add ${alt}`}
-        >
-            +
-        </button>
-    </div>
-);
+// Змінений компонент CurrencyGroup
+const CurrencyGroup = ({ icon, alt, amount, onAddClick, isDisabled = false }) => {
+    // Створюємо динамічний список класів для кнопки
+    const addButtonClasses = `${styles.addButton} ${isDisabled ? styles.disabled : ''}`;
 
+    return (
+        <div className={styles.currencyGroup}>
+            <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
+            <span className={styles.currencyAmount}>{amount ?? 0}</span>
+            <button
+                className={addButtonClasses} // Використовуємо динамічні класи
+                onClick={onAddClick}
+                aria-label={`Add ${alt}`}
+                disabled={isDisabled} // Додаємо атрибут disabled
+            >
+                +
+            </button>
+        </div>
+    );
+};
+
+// Змінений компонент Header
 export const Header = ({ user }) => {
     const { guideTarget } = useGuide();
     const location = useLocation();
@@ -93,10 +101,21 @@ export const Header = ({ user }) => {
     const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const openModal = (modalType) => setActiveModal(modalType);
+    // --- НОВИЙ КОД: Визначаємо, чи потрібно блокувати кнопки ---
+    // Кнопки заблоковані, якщо у користувача НЕМАЄ статусу 'END_REGISTER'
+    const isRegistrationIncomplete = user?.status_register !== 'END_REGISTER';
+    // --- КІНЕЦЬ НОВОГО КОДУ ---
+
+    const openModal = (modalType) => {
+        // Додаткова перевірка, хоча кнопка і так буде заблокована
+        if (isRegistrationIncomplete) return;
+        setActiveModal(modalType);
+    };
+
     const closeModal = () => setActiveModal(null);
 
     const handlePurchase = async (productType, item) => {
+        // ... (решта логіки без змін)
         if (!user || !user.user_id) {
             showAlert("Помилка: користувача не знайдено. Будь ласка, перезавантажте сторінку.");
             return;
@@ -133,8 +152,6 @@ export const Header = ({ user }) => {
         }
     };
     const avatarUrl = user?.avatar_url || Config.IMAGES.avatar;
-
-    // Highlight shop only if guideTarget === 'shop' AND user is NOT already on /shop
     const isShopHighlighted = guideTarget === 'shop' && location.pathname !== '/shop';
 
     return (
@@ -166,12 +183,14 @@ export const Header = ({ user }) => {
                         alt="Coins"
                         amount={user?.money}
                         onAddClick={() => openModal('coin')}
+                        isDisabled={isRegistrationIncomplete} // <-- ПЕРЕДАЄМО СТАН БЛОКУВАННЯ
                     />
                     <CurrencyGroup
                         icon={Config.IMAGES.energy}
                         alt="Energy"
                         amount={user?.energy}
                         onAddClick={() => openModal('energy')}
+                        isDisabled={isRegistrationIncomplete} // <-- ПЕРЕДАЄМО СТАН БЛОКУВАННЯ
                     />
                 </div>
                 <div className={styles.rightSection}>

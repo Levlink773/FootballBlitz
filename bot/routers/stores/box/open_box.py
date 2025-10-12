@@ -87,6 +87,13 @@ class OpenBoxService:
 
 Вітаємо! 🚀        
         """
+        if self.type_box == TypeBox.LARGE_BOX:
+            await UserService.add_count_of_big_box(self.user.user_id, -1)
+        elif self.type_box == TypeBox.MEDIUM_BOX:
+            await UserService.add_count_of_medium_box(self.user.user_id, -1)
+        elif self.type_box == TypeBox.SMALL_BOX:
+            await UserService.add_count_of_small_box(self.user.user_id, -1)
+
 
         await self.bot.send_message(
             chat_id=self.user.user_id,
