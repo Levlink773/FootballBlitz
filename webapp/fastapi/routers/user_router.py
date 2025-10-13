@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime
+import random
 from typing import List, Optional, Literal
 
 from fastapi import APIRouter, HTTPException, status, Query
@@ -9,7 +10,9 @@ from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
 from config import Country
+from constants import lootboxes
 from database.models.character import Character
+from database.models.types import TypeBox
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from logging_config import logger
 from services.character_service import CharacterService
@@ -23,7 +26,7 @@ class CharacterPublic(BaseModel):
     name: str
     age: int
     talent: int
-    power: int
+    power: float
     country: Country
     # ... other character fields you want to show
 
@@ -136,6 +139,9 @@ def user_to_dict(u: UserBot) -> dict:
         "count_rich_semi_final_blitz": getattr(u, "count_rich_semi_final_blitz", 0),
         "count_rich_final_looser_blitz": getattr(u, "count_rich_final_looser_blitz", 0),
         "count_rich_final_winner_blitz": getattr(u, "count_rich_final_winner_blitz", 0),
+        "count_of_small_box": getattr(u, "count_of_small_box", 0),
+        "count_of_medium_box": getattr(u, "count_of_medium_box", 0),
+        "count_of_big_box": getattr(u, "count_of_big_box", 0),
         "count_go_to_gym": getattr(u, "count_go_to_gym", 0),
         "final_count_of_matches": getattr(u, "final_count_of_matches", 0),
         "final_winner_matches": getattr(u, "final_winner_matches", 0),
@@ -556,3 +562,92 @@ async def claim_first_character_endpoint(user_id: int):
     # To use UserPublicWithCharacter, ensure your UserService.get_user loads the relationship.
     # The `lazy="selectin"` in your UserBot model should handle this.
     return final_user
+
+
+class OpenBoxRequest(BaseModel):
+    box_type: str  # e.g., "SMALL_BOX", "MEDIUM_BOX", "LARGE_BOX"
+
+
+# In a separate service file (e.g., services/box_service.py)
+async def open_box_for_webapp(user_id: int, box_type_str: str):
+    # 1. Get user and validate box type
+    user = await UserService.get_user(user_id=user_id)
+    try:
+        box_type_enum = TypeBox[box_type_str]
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid box type")
+
+    # 2. Check if user has the box
+    if box_type_enum == TypeBox.SMALL_BOX and (user.count_of_small_box or 0) <= 0:
+        raise HTTPException(status_code=400, detail="No small boxes left")
+    elif box_type_enum == TypeBox.MEDIUM_BOX and (user.count_of_medium_box or 0) <= 0:
+        raise HTTPException(status_code=400, detail="No medium boxes left")
+    elif box_type_enum == TypeBox.LARGE_BOX and (user.count_of_big_box or 0) <= 0:
+        raise HTTPException(status_code=400, detail="No large boxes left")
+
+    # 3. Calculate rewards (using your existing logic)
+    info_lootbox = lootboxes.get(box_type_enum)
+    energy_reward = random.randint(info_lootbox["min_energy"], info_lootbox["max_energy"])
+    money_reward = random.randint(info_lootbox["min_money"], info_lootbox["max_money"])
+
+    await UserService.add_money_user(
+        user_id=user.user_id,
+        amount_money_add=money_reward,
+    )
+    await UserService.add_energy_user(
+        user_id=user.user_id,
+        amount_energy_add=energy_reward,
+    )
+    if box_type_enum == TypeBox.LARGE_BOX:
+        await UserService.add_count_of_big_box(user.user_id, -1)
+    elif box_type_enum == TypeBox.MEDIUM_BOX:
+        await UserService.add_count_of_medium_box(user.user_id, -1)
+    elif box_type_enum == TypeBox.SMALL_BOX:
+        await UserService.add_count_of_small_box(user.user_id, -1)
+
+    # 5. Return the fully updated user object
+    return user
+
+
+# --- Define API Route ---
+@router.post("/{user_id}/open-box", response_model=dict)  # Assuming you have a Pydantic schema for the user
+async def handle_open_box(user_id: int, request: OpenBoxRequest):
+    updated_user = await open_box_for_webapp(user_id, request.box_type)
+    return user_to_dict(updated_user)
+
+
+# ✨ НОВИЙ ЕНДПОІНТ: Отримати всіх персонажів користувача
+@router.get("/{user_id}/all", response_model=List[CharacterPublic])
+async def get_all_characters_for_user(user_id: int):
+    """
+    Повертає список усіх персонажів, що належать вказаному користувачеві.
+    """
+    user = await UserService.get_user(user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Користувача не знайдено")
+
+    # SQLAlchemy relationship 'characters' автоматично завантажить їх
+    return user.characters
+
+class SetMainCharacterRequest(BaseModel):
+    character_id: int
+# ✨ НОВИЙ ЕНДПОІНТ: Встановити головного персонажа
+@router.post("/{user_id}/set-main", response_model=dict)
+async def set_main_character(user_id: int, body: SetMainCharacterRequest):
+    """
+    Встановлює нового головного персонажа для користувача.
+    """
+    user = await UserService.get_user(user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Користувача не знайдено")
+
+    # Перевірка, чи належить персонаж цьому користувачу
+    character_ids = [c.id for c in user.characters]
+    if body.character_id not in character_ids:
+        raise HTTPException(status_code=403, detail="Цей персонаж не належить вам")
+
+    user.main_character_id = body.character_id
+    await UserService.update_main_character(user.user_id, body.character_id)
+
+    # Повертаємо оновлений об'єкт користувача
+    return user_to_dict(user)  # Використовуємо ваш існуючий серіалізатор

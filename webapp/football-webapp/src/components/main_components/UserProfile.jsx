@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from '../../css_files/main_css/UserProfile.module.css';
 import Config from "../../config.js";
 import {API_BASE_URL} from "../../api.js";
+import {InventoryModal} from "./InventoryModal.jsx";
 
 // --- ИЗМЕНЕНИЕ 1: SVG иконка вынесена в отдельный React компонент ---
 // Это хорошая практика, так как делает код чище и позволяет легко переиспользовать иконку.
@@ -49,29 +50,27 @@ const StatItem = ({ icon, value }) => (
 );
 
 
-export const UserProfile = ({ user }) => {
+export const UserProfile = ({ user, onUserUpdate }) => { // ✨ Added onUserUpdate prop
     const [character, setCharacter] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false); // ✨ State for modal visibility
 
     useEffect(() => {
         if (!user || !user.user_id) {
             setIsLoading(false);
-            setError("Пользователь не найден.");
             return;
         }
 
         const fetchCharacter = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/characters/by-user-main/${user.user_id}`);
-                if (!response.ok) {
-                    throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`Network response was not ok`);
                 const data = await response.json();
                 setCharacter(data);
             } catch (err) {
                 setError(err.message);
-                console.error("Не удалось загрузить персонажа:", err);
+                console.error("Failed to load character:", err);
             } finally {
                 setIsLoading(false);
             }
@@ -79,70 +78,40 @@ export const UserProfile = ({ user }) => {
 
         fetchCharacter();
     }, [user]);
-    console.log("user: ", user);
 
-    // --- ИЗМЕНЕНИЕ 3: Массив statsData теперь передает готовые JSX-элементы ---
-    // Для иконки возраста мы используем наш новый SVG-компонент <AgeIcon />,
-    // а для остальных - стандартные теги <img>.
-    // Я добавил общий класс 'styles.statIcon' для统一 стилизации всех иконок.
     const statsData = [
-        {
-            alt: 'Age',
-            value: character?.age ?? 0,
-            icon: <AgeIcon className={styles.statIcon} aria-label="Age icon" />
-        },
-        {
-            alt: 'Talent',
-            value: character?.talent ?? 0,
-            icon: <img src={Config.IMAGES.target} alt="Talent" className={styles.statIcon} />
-        },
-        {
-            alt: 'Strength',
-            value: Math.round(character?.power ?? 0),
-            icon: <img src={Config.IMAGES.arm} alt="Strength" className={styles.statIcon} />
-        },
+        { alt: 'Age', value: character?.age ?? 'N/A', icon: <AgeIcon className={styles.statIcon} /> },
+        { alt: 'Talent', value: character?.talent ?? 'N/A', icon: <img src={Config.IMAGES.target} alt="Talent" className={styles.statIcon} /> },
+        { alt: 'Strength', value: Math.round(character?.power ?? 0), icon: <img src={Config.IMAGES.arm} alt="Strength" className={styles.statIcon} /> },
     ];
 
-    if (isLoading) {
-        return <div className={styles.userProfile}>Загрузка профиля...</div>;
-    }
-
-    if (error) {
-        return <div className={styles.userProfile}>Ошибка загрузки: {error}</div>;
-    }
-
-    if (!character) {
-        return <div className={styles.userProfile}>Главный персонаж не найден.</div>;
-    }
+    if (isLoading) return <div className={styles.userProfile}>Завантаження...</div>;
+    if (error) return <div className={styles.userProfile}>Помилка завантаження профілю.</div>;
+    if (!character) return <div className={styles.userProfile}>Головний персонаж не знайдений.</div>;
 
     return (
-        <div className={styles.userProfile}>
-            <img
-                className={styles.playerImage}
-                src={Config.IMAGES.face_character}
-                alt={`${character.name}'s avatar`}
-            />
-            <div className={styles.infoBox}>
-                <div className={styles.leftSection}>
-                    <div className={styles.nameAge}>
-                        <span className={styles.name}>{character.name}</span>
-                        <span className={styles.age}>, {character.age}</span>
+        <>
+            {/* ✨ The modal is rendered here but shown conditionally */}
+            {isModalOpen && (
+                <InventoryModal
+                    user={user}
+                    character={character}
+                    onClose={() => setIsModalOpen(false)}
+                    onUserUpdate={onUserUpdate} // ✨ Pass the update function down
+                />
+            )}
+
+            {/* ✨ Made the entire component clickable */}
+            <div style={{position: "relative", bottom: 10}} onClick={() => setIsModalOpen(true)} title="Відкрити інвентар">
+                <img className={styles.playerImage} src={Config.IMAGES.face_character} alt={`${character.name}'s avatar`} />
+                <div className={styles.infoBox}>
+                    <div className={styles.leftSection}>
+                        <div className={styles.nameAge}><span className={styles.name}>{character.name}</span><span className={styles.age}>, {character.age}</span></div>
+                        <div className={styles.locationGroup}><img className={styles.locationIcon} src={Config.IMAGES.country} alt={`${character.country} flag`} /><span className={styles.location}>{character.country}</span></div>
                     </div>
-                    <div className={styles.locationGroup}>
-                        <img
-                            className={styles.locationIcon}
-                            src={Config.IMAGES.country}
-                            alt={`${character.country} flag`}
-                        />
-                        <span className={styles.location}>{character.country}</span>
-                    </div>
-                </div>
-                <div className={styles.stats}>
-                    {statsData.map((stat) => (
-                        <StatItem key={stat.alt} icon={stat.icon} value={stat.value} />
-                    ))}
+                    <div className={styles.stats}>{statsData.map((stat) => <StatItem key={stat.alt} icon={stat.icon} value={stat.value} />)}</div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };

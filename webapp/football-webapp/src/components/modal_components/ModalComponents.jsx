@@ -188,7 +188,7 @@ export function ModalRoot({
 
 
 // ✨ --- Box (Значно перероблений для кращого візуалу) --- ✨
-function Box({children, style = {}, className = "", onClose}) {
+export function Box({children, style = {}, className = "", onClose}) {
     const baseStyle = {
         position: "relative",
         // ✨ Ефект "Аврора" - напівпрозорий фон з градієнтом та шумом
@@ -211,7 +211,7 @@ function Box({children, style = {}, className = "", onClose}) {
         width: "100%",
         maxWidth: "440px",
         boxSizing: "border-box",
-        overflow: "hidden", // Потрібно для градієнтної обводки
+        overflow: "visible", // Потрібно для градієнтної обводки
         ...style,
     };
 

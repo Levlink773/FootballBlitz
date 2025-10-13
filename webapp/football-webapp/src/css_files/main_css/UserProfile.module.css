@@ -147,3 +147,19 @@
     height: 24px;
     object-fit: contain; /* Для <img>, чтобы картинка не искажалась */
 }
+.userProfileClickable {
+    /* Copy existing styles from .userProfile and add the following */
+    display: flex;
+    align-items: center;
+    background-color: rgba(26, 26, 33, 0.7);
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.userProfileClickable:hover {
+    background-color: rgba(36, 36, 43, 0.85);
+    transform: translateY(-2px);
+}

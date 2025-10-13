@@ -89,7 +89,7 @@ export const Main = ({user, setUser}) => {
                     <VipBanner/>
                 )
                 }
-                <UserProfile user={user}/>
+                <UserProfile user={user} onUserUpdate={setUser} />
                 <DailyTasks/>
                 <div className={styles.eventCardWrapperEventMain}>
                     <EventCard user={user} onUserUpdate={setUser}/>

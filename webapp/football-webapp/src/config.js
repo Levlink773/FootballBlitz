@@ -95,6 +95,10 @@ import rating_info from "./assets/public/img_34.png";
 import end_info from "./assets/public/img_35.png";
 import blitz_info from "./assets/public/img_36.png";
 import main_info from "./assets/public/img_37.png";
+import tshirt from "./assets/public/img_40.png";
+import gaiters from "./assets/public/img_41.png";
+import boots from "./assets/public/img_42.png";
+import shorts from "./assets/public/img_39.png";
 
 
 class Config {
@@ -191,6 +195,10 @@ class Config {
         end_info: end_info,
         blitz_info: blitz_info,
         main_info: shop_info,
+        tshirt: tshirt,
+        shorts: shorts,
+        gaiters: gaiters,
+        boots: boots,
     };
 
     // какие-то игровые настройки

@@ -39,7 +39,19 @@ class EducationTimeUpdate(BaseModel):
     # Accept either seconds or minutes (seconds preferred).
     seconds: Optional[int] = None
     minutes: Optional[int] = None
+class CharacterPublic(BaseModel):
+    id: int
+    name: str
+    age: int
+    talent: int
+    power: float # Змінено на float для відповідності моделі
+    country: str # Enum може бути строкою
+    # ... інші поля
+    class Config:
+        from_attributes = True
 
+class SetMainCharacterRequest(BaseModel):
+    character_id: int
 
 # ---------- Helper serializer ----------
 def character_to_dict(ch: Character) -> dict:
