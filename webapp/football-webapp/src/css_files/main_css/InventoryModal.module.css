@@ -1,42 +1,49 @@
-/* --- ОСНОВНИЙ КОНТЕЙНЕР --- */
+/* --- ✨ 1. DESIGN SYSTEM (CSS VARIABLES) --- */
 .inventoryContainer {
+    /* Core palette */
+    --glow-color: rgba(100, 180, 255, 0.7);
+    --brand-gradient: linear-gradient(45deg, #4f46e5, #c026d3);
+    --gold-gradient: linear-gradient(45deg, #FFD700, #FFA500);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --surface-light: rgba(255, 255, 255, 0.1);
+    --surface-dark: rgba(0, 0, 0, 0.2);
+    --border-color: rgba(255, 255, 255, 0.15);
+
+    /* Animation & Layout variables */
+    --compact-vertical-shift: -40px; /* Controls the upward shift */
+    --transition-speed: 0.3s;
+
+    /* General styles */
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 12px;
     max-height: 90vh;
     overflow-y: auto;
-    --compact-vertical-shift: 0px;
-    /* Плавный переход для transform (scale и translate) */
-    transition: transform 0.4s ease-in-out;
+    transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .scaledDown {
-    /* Предполагаем, что у вас было что-то вроде transform: scale(0.95);
-      Теперь мы комбинируем scale и translateY.
-      Порядок важен!
-    */
-    transform: scale(0.92) translateY(var(--compact-vertical-shift));
-}
-.inventoryContainer.scaledDown {
-    transform: scale(0.97);
-    transform-origin: top center;
+    /* The transform now correctly combines scale and the variable-driven translate */
+    transform: scale(1) translateY(var(--compact-vertical-shift));
+    transform-origin: top center; /* Ensures scaling happens from the top */
 }
 
-/* --- ВЕРХНЯ ПАНЕЛЬ РЕСУРСІВ --- */
+/* --- 2. TOP RESOURCES BAR (Subtle Polish) --- */
 .resourcesBar {
-    width: 85%;
-    position: relative;
-    left: 25px;
+    width: 90%;
+    margin: 0 auto;
     display: flex;
     justify-content: space-around;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--surface-dark);
     padding: 8px;
     border-radius: 12px;
+    border: 1px solid var(--border-color);
     flex-shrink: 0;
 }
 
-/* --- ГОЛОВНИЙ БЛОК: ПЕРСОНАЖ, ЕКІПІРУВАННЯ, СТАТИСТИКА --- */
+/* --- ✨ 3. CHARACTER HUB (Major Overhaul) --- */
 .characterHub {
     display: flex;
     flex-direction: column;
@@ -44,7 +51,6 @@
     gap: 12px;
 }
 
-/* Секція перемикання персонажа (кнопки + зображення) */
 .characterSwitcher {
     display: flex;
     justify-content: space-between;
@@ -53,51 +59,52 @@
 }
 
 .switchButton {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background-color: var(--surface-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     width: 36px;
     height: 36px;
     border-radius: 50%;
     font-size: 1.5rem;
     cursor: pointer;
-    transition: background-color 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
+    transition: all var(--transition-speed) ease;
 }
-.switchButton:hover:not(:disabled) { background-color: rgba(255, 255, 255, 0.2); }
+.switchButton:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px var(--glow-color);
+}
 .switchButton:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Обгортка для аватара та слотів екіпірування */
-.characterDisplayWrapper {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.equipmentColumn {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+.characterDisplayWrapper { display: flex; align-items: center; gap: 16px; }
+.equipmentColumn { display: flex; flex-direction: column; gap: 8px; }
 
 .equipmentSlot {
     width: 48px;
     height: 48px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-dark);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all var(--transition-speed) ease;
 }
-.equipmentSlot:hover { background-color: rgba(0, 0, 0, 0.4); }
-.equipmentImage { width: 60%; height: 60%; object-fit: contain; }
+/* ✨ Added inner glow on hover for equipment */
+.equipmentSlot:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 8px var(--glow-color);
+}
+.equipmentImage { width: 60%; height: 60%; object-fit: contain; filter: brightness(0.9); }
 
 .characterDisplay {
+    position: relative; /* Needed for the glowing aura */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -111,152 +118,168 @@
     border: 3px solid #4a4e69;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     object-fit: cover;
+    z-index: 2; /* Image is on top of the aura */
+    transition: all var(--transition-speed) ease;
 }
-.characterName { font-size: 1.1rem; font-weight: 600; margin: 0; text-align: center; }
-.characterTeam { font-size: 0.8rem; color: #a0a0b0; margin: 0; text-align: center; }
 
-/* Сітка статистики персонажа */
+/* ✨ AURA effect for the main character */
+.characterImage.isMain::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: -5px; right: -5px; bottom: -5px;
+    border-radius: 50%;
+    background: var(--brand-gradient);
+    filter: blur(10px);
+    opacity: 0.8;
+    z-index: 1;
+    animation: pulseAura 4s infinite ease-in-out;
+}
+
+@keyframes pulseAura {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 0.6; }
+}
+
+.characterName { font-size: 1.1rem; font-weight: 600; margin: 0; text-align: center; color: var(--text-primary); }
+.characterTeam { font-size: 0.8rem; color: var(--text-secondary); margin: 0; text-align: center; }
+
 .characterStatsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    width: 100%;
-    padding: 0 10px;
-    box-sizing: border-box;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;
 }
-
 .statItem {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 6px 10px;
-    border-radius: 8px;
+    display: flex; align-items: center; gap: 8px;
+    background-color: rgba(255, 255, 255, 0.05); padding: 6px 10px; border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all var(--transition-speed) ease;
+}
+.statItem:hover {
+    border-color: var(--border-color);
+    background-color: var(--surface-light);
 }
 .statIcon { width: 24px; height: 24px; }
 .statInfo { display: flex; flex-direction: column; }
-.statValue { font-size: 1rem; font-weight: 600; color: #ffffff; }
-.statLabel { font-size: 0.7rem; color: #a0a0b0; text-transform: uppercase; }
+.statValue { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.statLabel { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
 
-/* Кнопка "Зробити основним" */
 .makeMainButton {
-    width: 100%;
-    padding: 10px;
-    margin-top: 4px;
-    border-radius: 10px;
-    border: none;
-    background: linear-gradient(45deg, #FFD700, #FFA500);
+    width: 100%; padding: 12px; margin-top: 4px; border-radius: 10px; border: none;
+    background: var(--gold-gradient);
     color: #1a1a1a;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
     box-shadow: 0 2px 8px rgba(255, 200, 0, 0.4);
+    transition: all var(--transition-speed) ease;
+    animation: pulseButton 2.5s infinite ease-in-out; /* ✨ Pulsing animation to draw attention */
 }
-.makeMainButton:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 200, 0, 0.6); }
-.makeMainButton:disabled { opacity: 0.6; cursor: wait; }
 
+@keyframes pulseButton {
+    0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(255, 200, 0, 0.4); }
+    50% { transform: scale(1.03); box-shadow: 0 4px 15px rgba(255, 200, 0, 0.6); }
+}
 
-/* --- ОНОВЛЕНА СЕКЦІЯ ІНВЕНТАРЮ --- */
+.makeMainButton:hover:not(:disabled) {
+    transform: scale(1.05) !important; /* Override animation scale */
+    box-shadow: 0 4px 12px rgba(255, 200, 0, 0.6);
+    animation-play-state: paused;
+}
+.makeMainButton:disabled { opacity: 0.6; cursor: wait; animation: none; }
 
+/* --- ✨ 4. INVENTORY (Irresistible Loot Boxes) --- */
 .inventorySection {
-    position: relative;
-    top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px; /* Відступ між заголовком та сіткою */
+    position: relative; top: 10px;
+    left: 9px;
+    width: 93%;
+    display: flex; flex-direction: column; gap: 8px;
 }
-
-.sectionTitle {
-    text-align: left;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #c0c0d0;
-    margin: 0;
-    padding-left: 4px;
-}
-
-/* Єдина сітка для всіх предметів */
 .inventoryGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 8px;
 }
-
-/* Загальний стиль для слота (і для предметів, і для лутбоксів) */
 .inventorySlot {
-    position: relative;
+    position: relative; /* Needed for pseudo-elements */
     width: 100%;
     aspect-ratio: 1 / 1;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--surface-dark);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.2s ease;
-}
-
-/* Стилі для клікабельних слотів (лутбоксів) */
-.inventorySlot.clickable {
-    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    overflow: hidden; /* Crucial for the shimmer effect */
 }
 .inventorySlot.clickable:hover {
-    transform: scale(1.05);
-    border-color: #fff;
-    box-shadow: 0 0 15px rgba(100, 150, 255, 0.5);
+    transform: scale(1.08);
+    border-color: var(--glow-color);
+    box-shadow: 0 0 15px var(--glow-color);
     background-color: rgba(0, 0, 0, 0.4);
 }
-.inventorySlot.disabled {
-    filter: grayscale(80%);
-    cursor: not-allowed;
+.inventorySlot.disabled { filter: grayscale(80%); cursor: not-allowed; }
+
+/* ✨ THE SHIMMER/GLINT EFFECT ✨ */
+.inventorySlot.clickable::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(25deg);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.inventorySlot.clickable:hover::after {
+    opacity: 1;
+    animation: shimmer 1.5s ease-in-out forwards;
 }
 
-/* Зображення всередині слота */
-.itemImage {
-    width: 85%;
-    height: 85%;
-    object-fit: contain;
+@keyframes shimmer {
+    0% { left: -75%; }
+    100% { left: 125%; }
 }
 
-/* Лічильник кількості (для лутбоксів) */
+.itemImage { width: 85%; height: 85%; object-fit: contain; z-index: 1; }
 .itemCount {
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
-    background-color: #1a8cff;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: bold;
-    padding: 1px 5px;
-    border-radius: 10px;
-    border: 1.5px solid white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    position: absolute; bottom: 2px; right: 4px;
+    background: var(--brand-gradient);
+    color: white; font-size: 0.7rem; font-weight: bold;
+    padding: 1px 5px; border-radius: 10px; border: 1.5px solid white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5); z-index: 2;
 }
 
-
-/* --- АНІМАЦІЇ І ОВЕРЛЕЇ --- */
+/* --- ✨ 5. ANIMATIONS & OVERLAYS (The "WOW" Moment) --- */
 .animationOverlay {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background-color: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    border-radius: 16px;
-    overflow: hidden;
-    color: white;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10; border-radius: 16px; overflow: hidden; color: white;
 }
 .openingBox { width: 150px; height: 150px; }
 .rewardContainer {
-    display: flex; flex-direction: column; gap: 12px;
-    text-align: center;
+    display: flex; flex-direction: column; gap: 12px; text-align: center;
     background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
-    padding: 24px 32px;
-    border-radius: 16px;
+    padding: 24px 32px; border-radius: 16px;
 }
-.rewardTitle { font-size: 1.8rem; margin: 0; color: #ffdd40; text-shadow: 0 0 10px #ffc107; }
-.rewardItem { font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 500;}
-.rewardItem img { width: 28px; height: 28px; }
+.rewardTitle {
+    font-size: 2rem; margin: 0; color: #ffdd40;
+    text-shadow: 0 0 15px #ffc107;
+    animation: fadeInDown 0.5s ease both;
+}
+.rewardItem {
+    font-size: 1.4rem; margin: 0; display: flex; align-items: center;
+    gap: 10px; font-weight: 500;
+    animation: fadeInUp 0.5s ease both;
+}
+.rewardItem:nth-child(2) { animation-delay: 0.2s; } /* Staggered appearance */
+.rewardItem:nth-child(3) { animation-delay: 0.4s; }
+.rewardItem img { width: 32px; height: 32px; }
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }
+}

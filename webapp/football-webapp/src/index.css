@@ -1,5 +1,6 @@
 /* В вашем главном CSS файле, например, index.css */
 @import 'intro.js/introjs.css';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; }
 img { display: block; }
 body {

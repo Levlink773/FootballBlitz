@@ -1,6 +1,6 @@
 /* Основная обёртка — занимает всю доступную ширину */
 .page {
-    width: 95%;
+    width: 100%;
     height: 100%;
     display: flex;
     justify-content: center; /* по центру на больших экранах */
@@ -620,4 +620,115 @@
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+}
+/* --- ✨ Оновлені стилі для стрілки-підказки --- */
+.highlightOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Розтягуємо на весь екран для кращого керування */
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.0); /* Залишаємо фон прозорим */
+    z-index: 100;
+    pointer-events: none; /* Дозволяє клікам проходити крізь оверлей */
+}
+
+.arrowContainer {
+    position: absolute;
+    /* Нове позиціонування: зліва від картки гравця, спрямовуючи на неї */
+    top: 180px;
+    left: 80px;
+    display: flex;
+    /* Змінюємо напрямок на горизонтальний */
+    flex-direction: row;
+    align-items: center; /* Вирівнюємо стрілку і текст по центру */
+    z-index: 101;
+    /* Анімацію переносимо на саму стрілку, щоб текст не стрибав */
+}
+
+.arrowText {
+    /* --- Типографика и читаемость --- */
+    position: relative;
+    left: -90px;
+    color: white;
+    width: 140px;
+    height: 55px;
+    font-size: 10px; /* Увеличим для лучшей читаемости */
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.1; /* Больше воздуха между строками */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Более мягкая тень текста */
+    letter-spacing: 0.5px; /* Добавим "воздуха" между буквами */
+
+    /* --- Форма и фон --- */
+    background: linear-gradient(145deg, #007BFF, #0056b3); /* Глубокий градиент */
+    padding: 12px 22px; /* Увеличим отступы для солидности */
+    border-radius: 50px; /* Идеально круглая форма "пилюли" */
+    border: 2px solid rgba(255, 255, 255, 0.7); /* Полупрозрачная белая рамка */
+
+    /* --- Глубина и объем --- */
+    box-shadow:
+            0 8px 25px rgba(0, 86, 179, 0.4), /* Основная цветная тень для "свечения" */
+            0 4px 10px rgba(0, 0, 0, 0.3),   /* Вторая, более темная тень для контраста */
+            inset 0 1px 1px rgba(255, 255, 255, 0.2); /* Внутренний блик для эффекта 3D */
+
+    /* --- Размеры и позиционирование --- */
+    max-width: 250px; /* Ограничим максимальную ширину */
+    margin-left: 10px; /* Отступ от стрелки */
+
+    /* --- Анимация --- */
+    opacity: 0; /* Начальное состояние для анимации */
+    transform: scale(0.95) translateY(10px); /* Начальное состояние для анимации */
+    animation: fadeInScaleUp 0.5s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    /* --- Обработка текста (ваш код был хорош) --- */
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* Анимация плавного появления */
+@keyframes fadeInScaleUp {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+
+.arrowSvg {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+    position: relative;
+    left: -100px;
+    top: 20px;
+    width: 60px;
+    height: 60px;
+    /* ✨ Повертаємо стрілку на -45 градусів, щоб вона вказувала праворуч-вниз */
+    transform: rotate(-60deg);
+    /* ✨ Додаємо нову, більш доречну анімацію */
+    animation: pointAnimation 1.5s infinite;
+}
+
+/* ✨ Нова, більш плавна анімація "вказівки" */
+@keyframes pointAnimation {
+    0%, 100% {
+        /* Скидаємо трансформацію до початкового повороту */
+        transform: rotate(-60deg) translateX(0);
+    }
+    50% {
+        /* Трохи зміщуємо стрілку по її осі для ефекту "тикання" */
+        transform: rotate(-60deg) translateX(8px);
+    }
+}
+
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translate(-50%, 0);
+    }
+    40% {
+        transform: translate(-50%, -25px);
+    }
+    60% {
+        transform: translate(-50%, -15px);
+    }
 }

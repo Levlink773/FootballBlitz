@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Optional
 
 from aiogram import Bot
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from constants import (
     chance_add_point,
@@ -55,6 +55,7 @@ class Gym:
         
     async def _wait_training(self, time_sleep: int) -> None:
         try:
+            await UserService.update_training_time(self.character.characters_user_id)
             await asyncio.sleep(time_sleep)
             await self._run_training()
         except asyncio.CancelledError:
@@ -110,7 +111,18 @@ class Gym:
             await bot.send_photo(
                 chat_id=self.character.characters_user_id,
                 photo=photo,
-                caption=message_text
+                caption=message_text,
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="⚽ Тренуватись у WebApp",
+                                web_app=WebAppInfo(
+                                    url=f"https://football-blitz.online/trainings?user_id={self.character.characters_user_id}")
+                            )
+                        ]
+                    ]
+                )
             )
             event_payload = make_payload(
                 event_type="show_alert",

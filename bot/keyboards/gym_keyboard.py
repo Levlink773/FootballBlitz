@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from aiogram.types import WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from constants import CONST_PRICE_ENERGY
@@ -43,11 +44,12 @@ def no_energy_keyboard():
     )
 
 
-def menu_education_cernter():
+def menu_education_cernter(user_id: int):
     return (
         InlineKeyboardBuilder()
         .button(text="🏆 Забрати нагороду з навчального центру", callback_data="get_rewards_education_center")
         .button(text="🏅 Завдання навчального центру", callback_data="get_tasks_education_center")
+        .button(text="🔥 WebApp версія", web_app=WebAppInfo(url=f"https://football-blitz.online/education_centre?user_id={user_id}"))
         .adjust(1)
         .as_markup()
     )

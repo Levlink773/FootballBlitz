@@ -1,3 +1,4 @@
+from aiogram.types import InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database.models.user_bot import (
@@ -40,7 +41,15 @@ def menu_stores(user: UserBot):
 
         builder.button(text=final_text, callback_data=callback_data)
 
-    return builder.adjust(2).as_markup(resize_keyboard=True)
+    builder.adjust(2)
+    builder.row(
+        InlineKeyboardButton(
+            text="⚽ Купити у WebApp",
+            web_app=WebAppInfo(
+                url=f"https://football-blitz.online/shop?user_id={user.user_id}")
+        )
+    )
+    return builder.as_markup(resize_keyboard=True)
 
 #===================BOXES
 def select_box():

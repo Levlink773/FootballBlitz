@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from constants import RATING
@@ -48,11 +48,16 @@ def get_medal_emoji(rank: int) -> str:
 
 # --- БУДІВНИКИ КЛАВІАТУР ТА ТЕКСТУ ---
 
-def build_rating_hub_keyboard() -> InlineKeyboardMarkup:
+def build_rating_hub_keyboard(user_id: int) -> InlineKeyboardMarkup:
     """Створює клавіатуру для вибору типу рейтингу."""
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="🏆 Рейтинг сезону", callback_data="show_rating:seasonal"))
     builder.row(InlineKeyboardButton(text="🎯 За відсотком перемог", callback_data="show_rating:win_rate"))
+    builder.row(InlineKeyboardButton(
+                        text="⚽ Дивитись рейтинги у WebApp",
+                        web_app=WebAppInfo(
+                            url=f"https://football-blitz.online/rating?user_id={user_id}")
+                    ))
     return builder.as_markup()
 
 
@@ -123,7 +128,7 @@ def build_win_rate_pagination_keyboard(page: int, total_pages: int) -> InlineKey
 async def show_rating_hub(message: Message):
     """Показує головне меню вибору рейтингів."""
     text = "📊 <b>Рейтинги гравців</b>\n\nОберіть тип рейтингу, який вас цікавить:"
-    keyboard = build_rating_hub_keyboard()
+    keyboard = build_rating_hub_keyboard(message.from_user.id)
     await message.answer_photo(photo=RATING, caption=text, reply_markup=keyboard)
 
 
@@ -131,7 +136,7 @@ async def show_rating_hub(message: Message):
 async def back_to_rating_hub_handler(callback: CallbackQuery):
     """Повертає користувача до меню вибору рейтингів."""
     text = "📊 <b>Рейтинги гравців</b>\n\nОберіть тип рейтингу, який вас цікавить:"
-    keyboard = build_rating_hub_keyboard()
+    keyboard = build_rating_hub_keyboard(callback.from_user.id)
     await callback.message.edit_caption(caption=text, reply_markup=keyboard)
     await callback.answer()
 

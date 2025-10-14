@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import styles from '../../css_files/main_css/InventoryModal.module.css';
 import Config from '../../config.js';
 import {motion, AnimatePresence} from 'framer-motion';
@@ -6,7 +6,9 @@ import {showAlert} from '../../alertService.jsx';
 import {API_BASE_URL} from '../../api.js';
 import {ModalRoot} from "../modal_components/ModalComponents.jsx";
 import {Box as ModalBox} from '../modal_components/ModalComponents.jsx';
-import Img77 from '../../assets/public/img78.png';
+import Img77 from '../../assets/public/img65.png';
+import ReactCanvasConfetti from 'react-canvas-confetti';
+import boxOpenSound from '../../assets/public/sounds/lootbox.mp3';
 
 // --- SVG ІКОНКА ---
 const AgeIcon = ({className}) => (
@@ -187,7 +189,9 @@ const CharacterHub = ({
                             <motion.div key={currentIndex} initial={{opacity: 0, scale: 0.9}}
                                         animate={{opacity: 1, scale: 1}} exit={{opacity: 0, scale: 0.9}}
                                         transition={{duration: 0.2}}>
-                                <img src={isMainCharacter ? Config.IMAGES.avatar_uk : Img77}
+                                {/* ✨ Use the new dynamic class */}
+                                <img src={isMainCharacter ? Img77 : Config.IMAGES.avatar_uk}
+
                                      alt={displayedCharacter.name} className={styles.characterImage}/>
                             </motion.div>
                         </AnimatePresence>
@@ -241,6 +245,26 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isSettingMain, setIsSettingMain] = useState(false);
+    // ✨ --- Confetti Hook and Logic --- ✨
+    const refAnimationInstance = useRef(null);
+    const getInstance = useCallback((instance) => {
+        refAnimationInstance.current = instance;
+    }, []);
+    const makeShot = useCallback((particleRatio, opts) => {
+        refAnimationInstance.current && refAnimationInstance.current({
+            ...opts,
+            origin: {y: 0.6},
+            particleCount: Math.floor(200 * particleRatio),
+        });
+    }, []);
+    const fireConfetti = useCallback(() => {
+        makeShot(0.25, {spread: 26, startVelocity: 55});
+        makeShot(0.2, {spread: 60});
+        makeShot(0.35, {spread: 100, decay: 0.91, scalar: 0.8});
+        makeShot(0.1, {spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2});
+        makeShot(0.1, {spread: 120, startVelocity: 45});
+    }, [makeShot]);
+    // ✨ --- End of Confetti Logic --- ✨
 
     useEffect(() => {
         const loadCharacters = async () => {
@@ -288,6 +312,9 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     };
 
     const handleOpenBox = async (boxType, boxImage) => {
+        const audio = new Audio(boxOpenSound);
+        audio.volume = 0.7; // громкость (0.0–1.0)
+        audio.play().catch(() => {});
         setIsOpening(true);
         setRewards(null);
         setOpenedBoxImage(boxImage);
@@ -297,14 +324,20 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
             const updatedUser = await openLootBoxAPI(user.user_id, boxType);
             const moneyReward = (updatedUser.money ?? 0) - (oldMoney ?? 0);
             const energyReward = (updatedUser.energy ?? 0) - (oldEnergy ?? 0);
+
+            // Wait for the box animation, then show rewards and fire confetti
             setTimeout(() => {
                 setRewards({money: moneyReward, energy: energyReward});
-            }, 1500);
+                console.log("FIRE");
+                fireConfetti(); // ✨ FIRE!
+            }, 1800); // Increased delay for a more dramatic effect
+
+            // Wait a bit longer before closing the reward view
             setTimeout(() => {
                 onUserUpdate(updatedUser);
                 setIsOpening(false);
                 setRewards(null);
-            }, 4000);
+            }, 5000); // Increased delay
         } catch (error) {
             showAlert(error.message);
             setIsOpening(false);
@@ -332,13 +365,26 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     }
     // ✅ 1. ПЕРЕМЕННАЯ ДЛЯ РЕГУЛИРОВКИ ВЕРТИКАЛЬНОГО СДВИГА
     // Вы можете легко изменить это значение. Отрицательное - сдвиг вверх.
-    const COMPACT_VERTICAL_SHIFT = '-40px';
+    const COMPACT_VERTICAL_SHIFT = '-10px';
     const containerStyle = !isMainCharacter
         ? {'--compact-vertical-shift': COMPACT_VERTICAL_SHIFT}
         : {};
     return (
         <ModalRoot onClose={onClose}>
             <ModalBox onClose={onClose}>
+                {/* ✨ Confetti canvas is placed here, behind everything */}
+                <ReactCanvasConfetti
+                    refConfetti={getInstance}
+                    style={{
+                        position: 'absolute',
+                        pointerEvents: 'none',
+                        width: '100%',
+                        height: '100%',
+                        top: 0,
+                        left: 0,
+                        zIndex: 9999
+                    }}
+                />
                 <div
                     className={`${styles.inventoryContainer} ${!isMainCharacter ? styles.scaledDown : ''}`}
                     style={containerStyle}
@@ -367,18 +413,24 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
                         <motion.div className={styles.animationOverlay} initial={{opacity: 0}} animate={{opacity: 1}}
                                     exit={{opacity: 0}}>
                             {!rewards ? (
-                                <motion.img src={openedBoxImage} alt="Opening box..." className={styles.openingBox}
-                                            initial={{scale: 0.5, y: 100}}
-                                            animate={{scale: 1, y: 0, rotate: [0, -15, 15, -15, 15, 0]}}
-                                            transition={{type: "spring", stiffness: 200, damping: 10}}
+                                <motion.img
+                                    src={openedBoxImage}
+                                    alt="Opening box..."
+                                    className={styles.openingBox}
+                                    initial={{scale: 0.5, y: 100}}
+                                    animate={{scale: 1, y: 0, rotate: [0, -15, 15, -15, 15, 0]}}
+                                    transition={{
+                                        duration: 0.8,
+                                        ease: "easeInOut", // можно "easeInOut", "linear", "circInOut" и т.д.
+                                    }}
                                 />
                             ) : (
                                 <motion.div className={styles.rewardContainer} initial={{scale: 0.8, opacity: 0}}
                                             animate={{scale: 1, opacity: 1}}>
                                     <h2 className={styles.rewardTitle}>Отримано!</h2>
-                                    <p className={styles.rewardItem}><img src={Config.IMAGES.money_icon}
+                                    <p className={styles.rewardItem}><img src={Config.IMAGES.coin}
                                                                           alt="Money"/> +{rewards.money}</p>
-                                    <p className={styles.rewardItem}><img src={Config.IMAGES.energy_icon}
+                                    <p className={styles.rewardItem}><img src={Config.IMAGES.energy}
                                                                           alt="Energy"/> +{rewards.energy}</p>
                                 </motion.div>
                             )}

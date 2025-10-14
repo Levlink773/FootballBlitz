@@ -604,7 +604,7 @@ async def open_box_for_webapp(user_id: int, box_type_str: str):
         await UserService.add_count_of_medium_box(user.user_id, -1)
     elif box_type_enum == TypeBox.SMALL_BOX:
         await UserService.add_count_of_small_box(user.user_id, -1)
-
+    user = await UserService.get_user(user_id=user_id)
     # 5. Return the fully updated user object
     return user
 

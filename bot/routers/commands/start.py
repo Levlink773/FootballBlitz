@@ -2,8 +2,9 @@ from aiogram import F
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
+from bot.callbacks.blitz_callback import BoxRewardCallback
 from bot.keyboards.menu_keyboard import main_menu
 from bot.routers.register_user.config import TEXT_STAGE_REGISTER_USER, PHOTO_STAGE_REGISTER_USER
 from bot.routers.register_user.keyboard.get_character import get_first_character_keyboard
@@ -34,7 +35,7 @@ async def start_command_handler(
             return await message.answer_photo(
                 caption=TEXT_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
                 photo=PHOTO_STAGE_REGISTER_USER[STATUS_USER_REGISTER.CREATE_TEAM],
-            #    keyboard=create_team()
+                #    keyboard=create_team()
             )
         if user.status_register == STATUS_USER_REGISTER.SEND_NAME_TEAM:
             await message.answer_photo(
@@ -77,8 +78,19 @@ async def start_command_handler(
     msg = await message.answer_photo(
         photo=video_start,
         caption=text,
-        reply_markup=main_menu(user)
+        reply_markup=main_menu(user),
     )
+    await message.answer("Натискай кнопку <b>Open</b> або кнопку нижче зоб увійти в повноцінний додаток 🔥", reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="⚽ Увійти у WebApp",
+                        web_app=WebAppInfo(
+                            url=f"https://football-blitz.online/?user_id={user.user_id}")
+                    )
+                ]
+            ]
+        ))
     logger.info(f"START_COMMAND FILE ID: {msg.photo[0].file_id}")
     return None
 
@@ -97,6 +109,8 @@ async def plosha(message: Message, user: UserBot):
                             
                                """,
                                reply_markup=main_menu(user))
+
+
 @start_router.message(Command("energy"))
 async def start(message: Message, user: UserBot):
     _, energy = message.text.split(" ")
@@ -105,3 +119,18 @@ async def start(message: Message, user: UserBot):
         return
     await UserService.add_energy_user(user.user_id, int(energy))
     await message.answer(f"+{energy} to {user.user_name}")
+
+
+@start_router.message(Command("free_box"))
+async def start(message: Message, user: UserBot):
+    _, box_type = message.text.split(" ")
+    if box_type == "small":
+        await UserService.add_count_of_small_box(user.user_id, 1)
+    elif box_type == "medium":
+        await UserService.add_count_of_medium_box(user.user_id, 1)
+    elif box_type == "large":
+        await UserService.add_count_of_big_box(user.user_id, 1)
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Відкрити 🗝️", callback_data=BoxRewardCallback(box_type=box_type).pack())]
+    ])
+    await message.answer(f"BOX {box_type}: ", reply_markup=markup)

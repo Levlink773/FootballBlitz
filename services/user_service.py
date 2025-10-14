@@ -262,6 +262,42 @@ class UserService:
                 await session.execute(stmt)
 
     @classmethod
+    async def update_training_time(cls, user_id: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(
+                        last_training=datetime.now(),
+                        notified_3h=False,
+                        notified_6h=False,
+                        notified_12h=False,
+                        notified_24h=False,
+                    )
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def set_notified(cls, user_id: int, field: str, status: bool = True):
+        """
+        Универсальный метод обновления флагов уведомлений.
+        Пример: await UserService.set_notified(user_id, "notified_6h")
+        """
+        valid_fields = {"notified_3h", "notified_6h", "notified_12h", "notified_24h"}
+        if field not in valid_fields:
+            raise ValueError(f"Invalid field: {field}")
+
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values({field: status})
+                )
+                await session.execute(stmt)
+
+    @classmethod
     async def add_count_of_medium_box(cls, user_id: int, amount: int = 1):
         async for session in get_session():
             async with session.begin():

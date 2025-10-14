@@ -3,7 +3,7 @@ import asyncio
 from typing import Optional
 
 from aiogram import Bot
-from aiogram.types import InlineKeyboardMarkup, FSInputFile
+from aiogram.types import InlineKeyboardMarkup, FSInputFile, InlineKeyboardButton, WebAppInfo
 
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 
@@ -39,7 +39,13 @@ class StartRegisterUser:
     async def start_register_user(self) -> None:
         await self._send_message(
             text = TEXT_STAGE_REGISTER_USER[self._status],
-            photo = PHOTO_STAGE_REGISTER_USER[self._status]
+            photo = PHOTO_STAGE_REGISTER_USER[self._status],
+            keyboard=InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(
+                    text="⚽ Відкрити WebApp",
+                    web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={self.user.user_id}")
+                )]]
+            )
         )
         
         await self._edit_status(
@@ -55,6 +61,12 @@ class StartRegisterUser:
 Твій шлях у Football Bliz починається просто зараз 💪🔥
             ''',
             photo=FSInputFile("bot/routers/register_user/open_app.jpg"),
+            keyboard=InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(
+                    text="⚽ Відкрити WebApp",
+                    web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={self.user.user_id}")
+                )]]
+            )
         )
         
         

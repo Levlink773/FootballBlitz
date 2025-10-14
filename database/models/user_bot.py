@@ -9,7 +9,7 @@ from sqlalchemy import (
     DateTime,
     String,
     Enum,
-    text, ForeignKey
+    text, ForeignKey, Boolean
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -88,6 +88,11 @@ class UserBot(Base):
     count_of_big_box = Column(BigInteger, default=0)
     count_of_medium_box = Column(BigInteger, default=0)
     count_of_small_box = Column(BigInteger, default=0)
+    notified_3h = Column(Boolean, default=False)
+    notified_6h = Column(Boolean, default=False)
+    notified_12h = Column(Boolean, default=False)
+    notified_24h = Column(Boolean, default=False)
+    last_training = Column(DateTime, default=datetime.datetime.now)
 
     @property
     def precent_winner_matches(self) -> float:

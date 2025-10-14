@@ -1,7 +1,7 @@
 # bot/routers/blitz/blitz_menu.py
 import datetime
 from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from blitz.services.blitz_service import BlitzService
 from bot.callbacks.blitz_callback import BlitzRegisterCallback
@@ -51,7 +51,6 @@ FIXED_SCHEDULE_TEXT = """📋 <b>Розклад бліц-турнірів</b>
 • за 30 хв до VIP-турніру  
 • за 20 хв до звичайних турнірів
 """
-
 
 
 def human_delta(td: datetime.timedelta) -> str:
@@ -106,7 +105,15 @@ async def blitz_menu_handler(message: Message, user: UserBot):
         f"📜 {registration_rules}"
     )
 
-    reply_markup = None
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text="⚽ Увійти у WebApp",
+                web_app=WebAppInfo(
+                    url=f"https://football-blitz.online/blitz?user_id={user.user_id}")
+            )]
+        ]
+    )
     already_registered = any(bu.user_id == user.user_id for bu in next_blitz.users)
     participants_count = len(next_blitz.users)
     max_participants = BLITZ_LIMITS[next_blitz.blitz_type]
@@ -127,7 +134,12 @@ async def blitz_menu_handler(message: Message, user: UserBot):
             ).pack()
             button_text = f"🚀 Зареєструватись"
             reply_markup = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text=button_text, callback_data=cb)]
+                [InlineKeyboardButton(text=button_text, callback_data=cb)],
+                [InlineKeyboardButton(
+                    text="⚽ Увійти у WebApp",
+                    web_app=WebAppInfo(
+                        url=f"https://football-blitz.online/blitz?user_id={user.user_id}")
+                )]
             ])
 
     await message.answer_photo(

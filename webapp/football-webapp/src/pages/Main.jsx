@@ -14,29 +14,50 @@ import {GetFirstCharacterModal} from "../components/register/GetFirstCharacterMo
 import {showAlert, showInfoModal} from "../alertService.jsx";
 import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
 
-export const Main = ({user, setUser}) => {
-    console.log("USer: ", user);
+const HighlightArrow = () => {
+    return (
+        // Этот оверлей затемняет фон, чтобы выделить подсказку
+        <div className={styles.highlightOverlay}>
+            <div className={styles.arrowContainer}>
+                <span className={styles.arrowText}>Тисни на гравця для відкриття інвентаря</span>
+                <svg
+                    className={styles.arrowSvg}
+                    width="100"
+                    height="100"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path d="M12 17.5V4.5M12 17.5L8 13.5M12 17.5L16 13.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </div>
+        </div>
+    );
+};
+
+export const Main = ({ user, setUser }) => {
+    console.log("User: ", user);
     const vip_pass_status = user?.vip_pass_is_active;
     console.log("VIP status: ", vip_pass_status);
 
+    // ✨ Определяем, нужно ли показывать стрелку
+    const showHighlightArrow = user && user.status_register === "END_REGISTER";
+
     // Callback for when the team name is successfully created
     const handleTeamCreated = (updatedUser) => {
-        setUser(updatedUser); // ✨ Обновляем состояние в App.jsx
+        setUser(updatedUser);
     };
 
     // Callback for when the character is claimed
     const handleCharacterClaimed = (updatedUserWithNewStatus) => {
-        // Сервер вернул пользователя со статусом FIRST_TRAINING
-        // Мы обновляем состояние на уровне всего приложения
         setUser(updatedUserWithNewStatus);
     };
 
     const showCreateTeamModal = user && user.status_register === "CREATE_TEAM";
     const showGetCharacterModal = user && user.status_register === "GET_FIRST_CHARACTER";
+
     useEffect(() => {
-        // Создаем асинхронную функцию внутри useEffect
         const updateUserStatus = async () => {
-            // Проверяем, что у пользователя именно статус 'TRANSFER'
             if (user?.status_register === 'FIRST_TRAINING') {
                 try {
                     const msg = `
@@ -45,10 +66,9 @@ export const Main = ({user, setUser}) => {
 А зараз — час на перше тренування. Тисни Ок -> «Тренування» і починаємо!
                     `;
                     showInfoModal({
-                        image: Config.IMAGES.main_info, // або просто "/assets/images/success_icon.png"
+                        image: Config.IMAGES.main_info,
                         text: msg
                     });
-
                 } catch (error) {
                     console.error("Failed to update user status:", error);
                     showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
@@ -56,46 +76,44 @@ export const Main = ({user, setUser}) => {
             }
         };
 
-        // Вызываем функцию
         updateUserStatus();
-
-        // Хук будет срабатывать при изменении объекта user,
-        // но внутреннее условие if не даст ему зациклиться.
     }, [user]);
+
     const date = new Date(user.vip_pass_expiration_date);
     const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
-    console.log(formattedDate); // например: "2025.10.05"
+    console.log(formattedDate);
+
     return (
         <div className={styles.page}>
             <div className={styles.mainContainer} data-modal-root>
                 {/* --- REGISTRATION MODALS --- */}
                 {showCreateTeamModal && (
-                    <CreateTeamModal user={user} onTeamCreated={handleTeamCreated}/>
+                    <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />
                 )}
                 {showGetCharacterModal && (
-                    <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed}/>
+                    <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />
                 )}
                 {/* --- END REGISTRATION MODALS --- */}
 
+                {/* --- ✨ НОВЫЙ КОМПОНЕНТ-ПОДСКАЗКА --- */}
+                {showHighlightArrow && <HighlightArrow />}
 
                 {/* Main page content */}
-                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background"/>
-                <Header user={user}/>
+                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background" />
+                <Header user={user} />
                 {vip_pass_status ? (
-                    <VipBannerActive expiryDate={formattedDate}/>
+                    <VipBannerActive expiryDate={formattedDate} />
                 ) : (
-
-                    <VipBanner/>
-                )
-                }
+                    <VipBanner />
+                )}
                 <UserProfile user={user} onUserUpdate={setUser} />
-                <DailyTasks/>
+                <DailyTasks />
                 <div className={styles.eventCardWrapperEventMain}>
-                    <EventCard user={user} onUserUpdate={setUser}/>
+                    <EventCard user={user} onUserUpdate={setUser} />
                 </div>
-                <StatsPanel user={user}/>
-                <NavigationBar/>
+                <StatsPanel user={user} />
+                <NavigationBar />
             </div>
         </div>
     );

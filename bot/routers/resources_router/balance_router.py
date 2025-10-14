@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from constants import BALANCE
 from database.models.user_bot import UserBot
@@ -23,4 +23,14 @@ async def start_command_handler(
         "📌 Додатково енергію можна заробити у турнірах або "
         "виконуючи завдання в Учбовому центрі."
     )
-    await message.answer_photo(photo=BALANCE, caption=text, parse_mode="HTML")
+    await message.answer_photo(photo=BALANCE, caption=text, reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="⚽ Увійти у WebApp",
+                        web_app=WebAppInfo(
+                            url=f"https://football-blitz.online/?user_id={user.user_id}")
+                    )
+                ]
+            ]
+        ), parse_mode="HTML")

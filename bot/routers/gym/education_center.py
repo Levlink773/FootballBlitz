@@ -27,7 +27,7 @@ EDUCATION_TEXT = "Ласкаво просимо до навчального це
 async def go_to_gym(message: Message):
     await message.answer_photo(photo=EDUCATION_CENTER,
                                caption=EDUCATION_TEXT,
-                               reply_markup=menu_education_cernter()
+                               reply_markup=menu_education_cernter(message.from_user.id)
                                )
 
 
@@ -38,13 +38,13 @@ async def go_to_gym(query: CallbackQuery):
     try:
         await query.message.edit_media(
             media=InputMediaPhoto(media=EDUCATION_CENTER, caption=EDUCATION_TEXT),
-            reply_markup=menu_education_cernter()
+            reply_markup=menu_education_cernter(query.from_user.id)
         )
     except Exception as e:
         await query.message.answer_photo(
             photo=EDUCATION_CENTER,
             caption=EDUCATION_TEXT,
-            reply_markup=menu_education_cernter()
+            reply_markup=menu_education_cernter(query.from_user.id)
         )
 
 

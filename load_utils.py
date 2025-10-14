@@ -15,6 +15,7 @@ from schedulers.scheduler_education import EducationRewardReminderScheduler
 from schedulers.scheduler_energy import EnergyResetScheduler
 from schedulers.scheduler_reward_rating import SchedulerRewardRating
 from schedulers.scheduler_training import ReminderTraning
+from schedulers.scheduler_training_reminder import TrainingReminder
 from schedulers.transfer_scheduler import FreeAgentsScheduler
 
 
@@ -33,6 +34,7 @@ async def start_utils():
     await reminder_go_to_training.start()
     await anulate_statics.start()
     await reward_rating.start()
+    await train_reminder_scheduler.start()
     # await reminder_vip_pass.start_timers()
     # await scheduler_reset_training_key.start()
     # await scheduler_training.start()
@@ -48,6 +50,7 @@ reminder_go_to_training   = ReminderTraning()
 anulate_statics = AnulateStatisticsScheduler()
 reward_rating = SchedulerRewardRating()
 free_agent_scheduler = FreeAgentsScheduler()
+train_reminder_scheduler = TrainingReminder()
 # reminder_vip_pass         = VipPassSchedulerService()
 # scheduler_reset_training_key = ResetTrainingKeyScheduler()
 
