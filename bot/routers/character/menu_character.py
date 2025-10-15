@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InputMediaPhoto
+from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InputMediaPhoto, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from constants import MENU_TEAM, get_photo_character
@@ -44,6 +44,10 @@ async def show_team(
             name_button = f"{c.name} 🌟 (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     kb.adjust(1)
+    kb.row(
+        InlineKeyboardButton(text="⚽ Дивитись гравців у Додатку",
+                             web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={message.from_user.id}"))
+    )
     await message.answer_photo(
         photo=MENU_TEAM,
         caption=text,
@@ -88,6 +92,11 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
                 )
             )
         kb.row(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
+        kb.row(
+            InlineKeyboardButton(text="⚽ Дивитись гравців у Додатку",
+                                 web_app=WebAppInfo(
+                                     url=f"https://football-blitz.online/?user_id={callback.from_user.id}"))
+        )
         await callback.message.edit_media(
             media=InputMediaPhoto(media=get_photo_character(character), caption=text),
             reply_markup=kb.as_markup()
@@ -116,6 +125,11 @@ async def handle_character_callback(callback: CallbackQuery, user: UserBot):
         )
         kb = InlineKeyboardBuilder()
         kb.add(InlineKeyboardButton(text="⬅ Назад", callback_data="back_to_team"))
+        kb.row(
+            InlineKeyboardButton(text="⚽ Дивитись гравців у Додатку",
+                                 web_app=WebAppInfo(
+                                     url=f"https://football-blitz.online/?user_id={callback.from_user.id}"))
+        )
 
         await callback.message.edit_media(
             media=InputMediaPhoto(media=get_photo_character(character), caption=text),
@@ -142,6 +156,10 @@ async def back_to_team_handler(callback: CallbackQuery, user: UserBot):
             name_button += " ⭐ (головний)"
         kb.add(InlineKeyboardButton(text=name_button, callback_data=make_character_cb(c.id)))
     kb.adjust(1)
+    kb.row(
+        InlineKeyboardButton(text="⚽ Дивитись гравців у Додатку",
+                             web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={callback.from_user.id}"))
+    )
     await callback.message.edit_media(
         media=InputMediaPhoto(media=MENU_TEAM, caption=text),
         reply_markup=kb.as_markup()

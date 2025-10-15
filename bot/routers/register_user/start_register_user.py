@@ -42,7 +42,7 @@ class StartRegisterUser:
             photo = PHOTO_STAGE_REGISTER_USER[self._status],
             keyboard=InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(
-                    text="⚽ Відкрити WebApp",
+                    text="⚽ Відкрити Додаток",
                     web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={self.user.user_id}")
                 )]]
             )
@@ -63,7 +63,7 @@ class StartRegisterUser:
             photo=FSInputFile("bot/routers/register_user/open_app.jpg"),
             keyboard=InlineKeyboardMarkup(inline_keyboard=[[
                 InlineKeyboardButton(
-                    text="⚽ Відкрити WebApp",
+                    text="⚽ Відкрити Додаток",
                     web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={self.user.user_id}")
                 )]]
             )

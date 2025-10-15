@@ -41,7 +41,7 @@ async def go_to_gym(
 <b>120 хвилин</b>, шанс підвищення навички <b>75%</b>
 💰 Вартість: <b>60⚡ енергії</b>
 """,
-        reply_markup=select_time_to_gym()
+        reply_markup=select_time_to_gym(message.from_user.id)
     )
 
 

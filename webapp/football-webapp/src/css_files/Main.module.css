@@ -3,10 +3,20 @@
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center; /* по центру на больших экранах */
-    padding: 2px; /* чтобы не прилипало к краям */
+    justify-content: center;
+    padding: 2px;
     box-sizing: border-box;
 }
+
+
+/* срабатывает при экранах меньше 400px */
+@media (max-width: 399px) {
+    .page {
+        /* увеличение на 0.5% относительно 100% с ограничением сверху 200% */
+        width: clamp(100%, calc(100% + 0.5%), 200%);
+    }
+}
+
 .mainContainer {
     width: 422px;
     height: 625px;

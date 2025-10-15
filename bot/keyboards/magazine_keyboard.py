@@ -44,7 +44,7 @@ def menu_stores(user: UserBot):
     builder.adjust(2)
     builder.row(
         InlineKeyboardButton(
-            text="⚽ Купити у WebApp",
+            text="⚽ Купити у Додатку",
             web_app=WebAppInfo(
                 url=f"https://football-blitz.online/shop?user_id={user.user_id}")
         )

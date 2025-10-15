@@ -1,5 +1,5 @@
 from aiogram import Router, F, types
-from aiogram.types import InputMediaPhoto, InlineKeyboardButton
+from aiogram.types import InputMediaPhoto, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -38,6 +38,11 @@ async def show_free_agents(message: types.Message):
                 text=f"{char.name} | {agent.price} 💰",
                 callback_data=f"info_free:{agent.id}"
             ))
+        kb.row(
+            InlineKeyboardButton(text="⚽ Дивитись вільних агентів у Додатку",
+                                 web_app=WebAppInfo(
+                                     url=f"https://football-blitz.online/transfer?user_id={message.from_user.id}"))
+        )
         await message.answer_photo(photo=FREE_AGENTS, caption=text, reply_markup=kb.as_markup())
 
 

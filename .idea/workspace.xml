@@ -4,30 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 49">
-      <change afterPath="$PROJECT_DIR$/schedulers/scheduler_training_reminder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/sounds/lootbox.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/particleConfig.js" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 50">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/gym_keyboard.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/keyboards/magazine_keyboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/magazine_keyboard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/blitz/blitz_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/blitz/blitz_menu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/character/menu_character.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/character/menu_character.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/commands/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/commands/start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/routers/gym/education_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/education_center.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/gym/gym_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/rating/rating_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/rating/rating_router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/register_user/start_register_user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/routers/resources_router/balance_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/resources_router/balance_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/models/user_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models/user_bot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_character/core/gym.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_character/core/gym.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/load_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/InventoryModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/InventoryModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/transfer/transfer_character_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/transfer/transfer_character_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/routers/transfer/transfer_free_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/routers/transfer/transfer_free_agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schedulers/scheduler_training_reminder.py" beforeDir="false" afterPath="$PROJECT_DIR$/schedulers/scheduler_training_reminder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/main_css/InventoryModal.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/main_css/InventoryModal.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -192,14 +182,6 @@
       <workItem from="1755071398369" duration="109532000" />
       <workItem from="1755607196889" duration="17561000" />
       <workItem from="1755641855306" duration="19000" />
-    </task>
-    <task id="LOCAL-00016" summary="comi 14 blitz testing success">
-      <option name="closed" value="true" />
-      <created>1755122292640</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1755122292640</updated>
     </task>
     <task id="LOCAL-00017" summary="comi 14.1">
       <option name="closed" value="true" />
@@ -585,14 +567,21 @@
       <option name="project" value="LOCAL" />
       <updated>1760384719725</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="comi 50">
+      <option name="closed" value="true" />
+      <created>1760474969280</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1760474969280</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="comi 27" />
     <MESSAGE value="comi 28" />
     <MESSAGE value="comi 29" />
     <MESSAGE value="comi 30" />
@@ -617,7 +606,8 @@
     <MESSAGE value="comi 47" />
     <MESSAGE value="comi 48" />
     <MESSAGE value="comi 49" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 49" />
+    <MESSAGE value="comi 50" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 50" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755631114696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

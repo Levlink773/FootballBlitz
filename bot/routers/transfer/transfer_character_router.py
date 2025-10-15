@@ -1,7 +1,9 @@
+from typing import Union
+
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import InputMediaPhoto, InlineKeyboardButton
+from aiogram.types import InputMediaPhoto, InlineKeyboardButton, WebAppInfo, Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
@@ -32,7 +34,7 @@ async def show_transfer_market(message: types.Message, state: FSMContext):
     await send_transfer_page(message, state)
 
 
-async def send_transfer_page(message_or_callback, state: FSMContext):
+async def send_transfer_page(message_or_callback: Union[Message, CallbackQuery], state: FSMContext):
     data = await state.get_data()
     sort = data.get("sort", "price_asc")
     page = data.get("page", 1)
@@ -106,6 +108,10 @@ async def send_transfer_page(message_or_callback, state: FSMContext):
         nav_row.append(types.InlineKeyboardButton(text="➡️", callback_data=f"page:{page + 1}"))
     if nav_row:
         kb.row(*nav_row)
+    kb.row(
+        InlineKeyboardButton(text="⚽ Дивитись трансферів у Додатку",
+                             web_app=WebAppInfo(url=f"https://football-blitz.online/transfer?user_id={message_or_callback.from_user.id}"))
+    )
 
     if isinstance(message_or_callback, types.Message):
         await message_or_callback.answer_photo(

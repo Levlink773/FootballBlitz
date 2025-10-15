@@ -54,7 +54,7 @@ def build_rating_hub_keyboard(user_id: int) -> InlineKeyboardMarkup:
     builder.row(InlineKeyboardButton(text="🏆 Рейтинг сезону", callback_data="show_rating:seasonal"))
     builder.row(InlineKeyboardButton(text="🎯 За відсотком перемог", callback_data="show_rating:win_rate"))
     builder.row(InlineKeyboardButton(
-                        text="⚽ Дивитись рейтинги у WebApp",
+                        text="⚽ Дивитись рейтинги у Додатку",
                         web_app=WebAppInfo(
                             url=f"https://football-blitz.online/rating?user_id={user_id}")
                     ))

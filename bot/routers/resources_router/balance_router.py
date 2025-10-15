@@ -27,7 +27,7 @@ async def start_command_handler(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="⚽ Увійти у WebApp",
+                        text="⚽ Увійти у Додаток",
                         web_app=WebAppInfo(
                             url=f"https://football-blitz.online/?user_id={user.user_id}")
                     )
