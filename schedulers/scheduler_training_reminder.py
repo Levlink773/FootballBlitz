@@ -5,6 +5,7 @@ from datetime import datetime
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from blitz.blitz_match.constans import MEDIUM_BOX_BLITZ_PHOTO
 from bot.callbacks.blitz_callback import BoxRewardCallback
 from loader import bot
 from services.character_service import CharacterService
@@ -128,7 +129,7 @@ class TrainingReminder:
             # 2) уведомляем игрока о подарке
             text = random.choice(self.MESSAGES[24]).format(name=character.name)
             text += f"\n\n🎁 Твій подарунок:"
-            await bot.send_message(chat_id=user.user_id, text=text,
+            await bot.send_photo(chat_id=user.user_id, photo=MEDIUM_BOX_BLITZ_PHOTO, caption=text,
                                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[
                                        [InlineKeyboardButton(text="Відкрити 🗝️",
                                                              callback_data=BoxRewardCallback(box_type="medium").pack())],

@@ -48,8 +48,8 @@ import right_arrow from "./assets/public/img_8.png";
 import trophy_gold from "./assets/public/img142.png";
 import trophy_bronze from "./assets/public/img143.png";
 import trophy_silver from "./assets/public/img144.png";
-import box_mini from "./assets/public/img149.png";
-import box_medium from "./assets/public/img150.png";
+import box_mini from "./assets/public/box2.png";
+import box_medium from "./assets/public/box1.png";
 import box_premium from "./assets/public/img151.png";
 import energy_shop from "./assets/public/img145.png";
 import coin_shop from "./assets/public/img146.png";
@@ -99,6 +99,8 @@ import tshirt from "./assets/public/img_40.png";
 import gaiters from "./assets/public/img_41.png";
 import boots from "./assets/public/img_42.png";
 import shorts from "./assets/public/img_39.png";
+import face_2 from "./assets/public/face_2.png";
+import toucher from "./assets/public/img_44.png";
 
 
 class Config {
@@ -199,6 +201,8 @@ class Config {
         shorts: shorts,
         gaiters: gaiters,
         boots: boots,
+        face_2: face_2,
+        toucher: toucher,
     };
 
     // какие-то игровые настройки

@@ -19,7 +19,7 @@ export const VipBanner = () => {
                     <div className={styles.description}>
                         +100 ЕНЕРГІЇ ЩОДНЯ<br/>
                         Х2 НАГОРОДИ НАВЧАЛЬНОГО ЦЕНТРУ<br/>
-                        VIP ТУРНІРИ
+                        VIP БЛІЦИ
                     </div>
                 </div>
             </div>

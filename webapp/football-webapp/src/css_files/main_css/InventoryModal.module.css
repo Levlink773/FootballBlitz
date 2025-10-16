@@ -1,6 +1,5 @@
 /* --- ✨ 1. DESIGN SYSTEM (CSS VARIABLES) --- */
 .inventoryContainer {
-    /* Core palette */
     --glow-color: rgba(100, 180, 255, 0.7);
     --brand-gradient: linear-gradient(45deg, #4f46e5, #c026d3);
     --gold-gradient: linear-gradient(45deg, #FFD700, #FFA500);
@@ -9,12 +8,8 @@
     --surface-light: rgba(255, 255, 255, 0.1);
     --surface-dark: rgba(0, 0, 0, 0.2);
     --border-color: rgba(255, 255, 255, 0.15);
-
-    /* Animation & Layout variables */
-    --compact-vertical-shift: -40px; /* Controls the upward shift */
+    --compact-vertical-shift: -40px;
     --transition-speed: 0.3s;
-
-    /* General styles */
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -25,9 +20,8 @@
 }
 
 .scaledDown {
-    /* The transform now correctly combines scale and the variable-driven translate */
     transform: scale(1) translateY(var(--compact-vertical-shift));
-    transform-origin: top center; /* Ensures scaling happens from the top */
+    transform-origin: top center;
 }
 
 /* --- 2. TOP RESOURCES BAR (Subtle Polish) --- */
@@ -50,14 +44,12 @@
     align-items: center;
     gap: 12px;
 }
-
 .characterSwitcher {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
 }
-
 .switchButton {
     background-color: var(--surface-light);
     border: 1px solid var(--border-color);
@@ -95,7 +87,6 @@
     cursor: pointer;
     transition: all var(--transition-speed) ease;
 }
-/* ✨ Added inner glow on hover for equipment */
 .equipmentSlot:hover {
     background-color: rgba(0, 0, 0, 0.4);
     transform: translateY(-2px);
@@ -104,7 +95,7 @@
 .equipmentImage { width: 60%; height: 60%; object-fit: contain; filter: brightness(0.9); }
 
 .characterDisplay {
-    position: relative; /* Needed for the glowing aura */
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -118,26 +109,8 @@
     border: 3px solid #4a4e69;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     object-fit: cover;
-    z-index: 2; /* Image is on top of the aura */
+    z-index: 2;
     transition: all var(--transition-speed) ease;
-}
-
-/* ✨ AURA effect for the main character */
-.characterImage.isMain::before {
-    content: '';
-    position: absolute;
-    top: -5px; left: -5px; right: -5px; bottom: -5px;
-    border-radius: 50%;
-    background: var(--brand-gradient);
-    filter: blur(10px);
-    opacity: 0.8;
-    z-index: 1;
-    animation: pulseAura 4s infinite ease-in-out;
-}
-
-@keyframes pulseAura {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.05); opacity: 0.6; }
 }
 
 .characterName { font-size: 1.1rem; font-weight: 600; margin: 0; text-align: center; color: var(--text-primary); }
@@ -169,7 +142,7 @@
     font-size: 1rem; font-weight: bold; cursor: pointer;
     box-shadow: 0 2px 8px rgba(255, 200, 0, 0.4);
     transition: all var(--transition-speed) ease;
-    animation: pulseButton 2.5s infinite ease-in-out; /* ✨ Pulsing animation to draw attention */
+    animation: pulseButton 2.5s infinite ease-in-out;
 }
 
 @keyframes pulseButton {
@@ -178,7 +151,7 @@
 }
 
 .makeMainButton:hover:not(:disabled) {
-    transform: scale(1.05) !important; /* Override animation scale */
+    transform: scale(1.05) !important;
     box-shadow: 0 4px 12px rgba(255, 200, 0, 0.6);
     animation-play-state: paused;
 }
@@ -197,7 +170,7 @@
     gap: 8px;
 }
 .inventorySlot {
-    position: relative; /* Needed for pseudo-elements */
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
     background-color: var(--surface-dark);
@@ -207,7 +180,7 @@
     justify-content: center;
     align-items: center;
     transition: all var(--transition-speed) ease;
-    overflow: hidden; /* Crucial for the shimmer effect */
+    overflow: hidden;
 }
 .inventorySlot.clickable:hover {
     transform: scale(1.08);
@@ -215,9 +188,8 @@
     box-shadow: 0 0 15px var(--glow-color);
     background-color: rgba(0, 0, 0, 0.4);
 }
-.inventorySlot.disabled { filter: grayscale(80%); cursor: not-allowed; }
+.inventorySlot.disabled { filter: grayscale(80%) brightness(0.7); cursor: not-allowed; }
 
-/* ✨ THE SHIMMER/GLINT EFFECT ✨ */
 .inventorySlot.clickable::after {
     content: '';
     position: absolute;
@@ -257,29 +229,38 @@
     display: flex; justify-content: center; align-items: center;
     z-index: 10; border-radius: 16px; overflow: hidden; color: white;
 }
-.openingBox { width: 150px; height: 150px; }
+
+/* НОВЫЙ СТИЛЬ: Вспышка */
+.flashEffect {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 233, 159, 0.9);
+    z-index: 12;
+}
+
+/* ОБНОВЛЕННЫЙ СТИЛЬ: Бокс с эффектом свечения */
+.openingBox {
+    width: 180px;
+    height: 180px;
+    z-index: 11;
+    /* ✨ Важная часть: создаем свечение с помощью drop-shadow */
+    filter: drop-shadow(0 0 15px rgba(255, 220, 120, 0.6))
+    drop-shadow(0 0 40px rgba(255, 180, 50, 0.4));
+}
+
 .rewardContainer {
-    display: flex; flex-direction: column; gap: 12px; text-align: center;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
-    padding: 24px 32px; border-radius: 16px;
+    display: flex; flex-direction: column; gap: 16px; text-align: center;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(0,0,0,0) 70%);
+    padding: 32px 48px; border-radius: 20px;
+    z-index: 11;
 }
 .rewardTitle {
-    font-size: 2rem; margin: 0; color: #ffdd40;
-    text-shadow: 0 0 15px #ffc107;
-    animation: fadeInDown 0.5s ease both;
+    font-size: 2.5rem; margin: 0; color: #ffdd40;
+    text-shadow: 0 0 10px #ffc107, 0 0 25px #ffc107;
 }
 .rewardItem {
-    font-size: 1.4rem; margin: 0; display: flex; align-items: center;
-    gap: 10px; font-weight: 500;
-    animation: fadeInUp 0.5s ease both;
+    font-size: 1.8rem; margin: 0; display: flex; align-items: center;
+    justify-content: center;
+    gap: 12px; font-weight: 500;
 }
-.rewardItem:nth-child(2) { animation-delay: 0.2s; } /* Staggered appearance */
-.rewardItem:nth-child(3) { animation-delay: 0.4s; }
-.rewardItem img { width: 32px; height: 32px; }
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }
-}
+.rewardItem img { width: 40px; height: 40px; }

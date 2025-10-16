@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion'; // ✨ Импортируем для анимаций
 import styles from '../../css_files/main_css/UserProfile.module.css';
 import Config from "../../config.js";
-import {API_BASE_URL} from "../../api.js";
-import {InventoryModal} from "./InventoryModal.jsx";
+import { API_BASE_URL } from "../../api.js";
+import { InventoryModal } from "./InventoryModal.jsx";
+import { showAlert } from '../../alertService'; // ✨ Предполагаем, что у вас есть такой сервис
 
-// --- ИЗМЕНЕНИЕ 1: SVG иконка вынесена в отдельный React компонент ---
-// Это хорошая практика, так как делает код чище и позволяет легко переиспользовать иконку.
-// Свойство 'className' добавлено для возможности стилизации через CSS модули.
 const AgeIcon = ({ className }) => (
     <svg
         className={className}
@@ -38,10 +37,7 @@ const AgeIcon = ({ className }) => (
     </svg>
 );
 
-
-// --- ИЗМЕНЕНИЕ 2: Компонент StatItem упрощен ---
-// Теперь он может принимать и отображать любой JSX-элемент в качестве иконки (<img>, <svg> и т.д.),
-// а не только путь к картинке.
+// --- Компонент StatItem (без изменений) ---
 const StatItem = ({ icon, value }) => (
     <div className={styles.stat}>
         {icon}
@@ -49,67 +45,198 @@ const StatItem = ({ icon, value }) => (
     </div>
 );
 
+// ✨ --- Новые API-хелперы для чистоты кода ---
+const fetchAllCharactersAPI = (userId) => {
+    return fetch(`${API_BASE_URL}/users/${userId}/all`);
+};
 
-export const UserProfile = ({ user, onUserUpdate }) => { // ✨ Added onUserUpdate prop
-    const [character, setCharacter] = useState(null);
+const setMainCharacterAPI = (userId, characterId) => {
+    return fetch(`${API_BASE_URL}/users/${userId}/set-main`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ character_id: characterId }),
+    });
+};
+
+
+export const UserProfile = ({ user, onUserUpdate }) => {
+    // ✨ --- Обновленные стейты ---
+    const [allCharacters, setAllCharacters] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isSwitching, setIsSwitching] = useState(false); // Для блокировки кнопки во время запроса
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false); // ✨ State for modal visibility
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // ✨ --- Обновленный useEffect для загрузки ВСЕХ персонажей ---
     useEffect(() => {
         if (!user || !user.user_id) {
             setIsLoading(false);
             return;
         }
 
-        const fetchCharacter = async () => {
+        const loadCharacters = async () => {
+            setIsLoading(true);
             try {
-                const response = await fetch(`${API_BASE_URL}/characters/by-user-main/${user.user_id}`);
+                const response = await fetchAllCharactersAPI(user.user_id);
                 if (!response.ok) throw new Error(`Network response was not ok`);
                 const data = await response.json();
-                setCharacter(data);
+
+                if (data && data.length > 0) {
+                    setAllCharacters(data);
+                    // Находим индекс текущего главного персонажа, чтобы отобразить его первым
+                    const mainCharIndex = data.findIndex(c => c.id === user.main_character_id);
+                    setCurrentIndex(mainCharIndex >= 0 ? mainCharIndex : 0);
+                } else {
+                    setAllCharacters([]);
+                }
             } catch (err) {
                 setError(err.message);
-                console.error("Failed to load character:", err);
+                console.error("Failed to load characters:", err);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchCharacter();
-    }, [user]);
+        loadCharacters();
+    }, [user]); // Перезагружаем при смене пользователя
 
-    const statsData = [
-        { alt: 'Age', value: character?.age ?? 'N/A', icon: <AgeIcon className={styles.statIcon} /> },
-        { alt: 'Talent', value: character?.talent ?? 'N/A', icon: <img src={Config.IMAGES.target} alt="Talent" className={styles.statIcon} /> },
-        { alt: 'Strength', value: Math.round(character?.power ?? 0), icon: <img src={Config.IMAGES.arm} alt="Strength" className={styles.statIcon} /> },
-    ];
+    // ✨ --- Новая функция для смены персонажа ---
+    const handleSwitchCharacter = async (e) => {
+        e.stopPropagation(); // Останавливаем всплытие, чтобы не открылось модальное окно
+        if (allCharacters.length <= 1 || isSwitching) return;
+
+        setIsSwitching(true);
+
+        const nextIndex = (currentIndex + 1) % allCharacters.length;
+        const nextCharacter = allCharacters[nextIndex];
+
+        try {
+            const response = await setMainCharacterAPI(user.user_id, nextCharacter.id);
+            if (!response.ok) throw new Error('Не вдалося змінити персонажа.');
+
+            const updatedUserData = await response.json();
+            onUserUpdate(updatedUserData); // Обновляем данные пользователя в родительском компоненте
+            setCurrentIndex(nextIndex); // Меняем отображаемого персонажа локально
+            showAlert('Головного персонажа успішно змінено!', 'success');
+        } catch (error) {
+            showAlert(error.message, 'error');
+            console.error(error);
+        } finally {
+            setIsSwitching(false);
+        }
+    };
 
     if (isLoading) return <div className={styles.userProfile}>Завантаження...</div>;
     if (error) return <div className={styles.userProfile}>Помилка завантаження профілю.</div>;
-    if (!character) return <div className={styles.userProfile}>Головний персонаж не знайдений.</div>;
+    if (allCharacters.length === 0) return <div className={styles.userProfile}>Персонажі не знайдені.</div>;
+
+    const currentCharacter = allCharacters[currentIndex];
+    const nextCharacter = allCharacters.length > 1 ? allCharacters[(currentIndex + 1) % allCharacters.length] : null;
+
+    const statsData = [
+        { alt: 'Age', value: currentCharacter?.age ?? 'N/A', icon: <AgeIcon className={styles.statIcon} /> },
+        { alt: 'Talent', value: currentCharacter?.talent ?? 'N/A', icon: <img src={Config.IMAGES.target} alt="Talent" className={styles.statIcon} /> },
+        { alt: 'Strength', value: Math.round(currentCharacter?.power ?? 0), icon: <img src={Config.IMAGES.arm} alt="Strength" className={styles.statIcon} /> },
+    ];
 
     return (
         <>
-            {/* ✨ The modal is rendered here but shown conditionally */}
             {isModalOpen && (
                 <InventoryModal
                     user={user}
-                    character={character}
                     onClose={() => setIsModalOpen(false)}
-                    onUserUpdate={onUserUpdate} // ✨ Pass the update function down
+                    onUserUpdate={onUserUpdate}
                 />
             )}
 
-            {/* ✨ Made the entire component clickable */}
-            <div style={{position: "relative", bottom: 10}} onClick={() => setIsModalOpen(true)} title="Відкрити інвентар">
-                <img className={styles.playerImage} src={Config.IMAGES.face_character} alt={`${character.name}'s avatar`} />
+            <div className={styles.userProfile} onClick={() => setIsModalOpen(true)} title="Відкрити інвентар">
+                {/* ✨ --- Контейнер для персонажей и кнопки --- */}
+                <div className={styles.characterSwitcher}>
+                    <AnimatePresence>
+                        {/* Задний персонаж (если есть) */}
+                        {nextCharacter && (
+                            <motion.img
+                                key={nextCharacter.id + '_back'}
+                                className={styles.playerImageBack}
+                                src={Config.IMAGES.face_2}
+                                alt="Next character"
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 50 }}
+                                transition={{ duration: 0.4 }}
+                            />
+                        )}
+
+                        {/* Главный персонаж */}
+                        <motion.img
+                            key={currentCharacter.id}
+                            className={styles.playerImage}
+                            src={Config.IMAGES.face_character}
+                            alt={`${currentCharacter.name}'s avatar`}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, type: 'spring' }}
+                        />
+                    </AnimatePresence>
+
+                    {/* Кнопка переключения (если есть кого переключать) */}
+                    {allCharacters.length > 1 && (
+                        <button
+                            className={styles.switchButton}
+                            onClick={handleSwitchCharacter}
+                            disabled={isSwitching}
+                            title="Змінити персонажа"
+                        >
+                            {isSwitching ? '...' : (
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#B59A52"/>
+                                            <stop offset="100%" stopColor="#8B6A2A"/>
+                                        </linearGradient>
+                                        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.15)"/>
+                                        </filter>
+                                    </defs>
+                                    <circle cx="24" cy="24" r="22" fill="url(#goldGradient)" filter="url(#shadow)"/>
+                                    <circle cx="24" cy="24" r="20" stroke="#9C8140" strokeWidth="2" fill="none"/>
+                                    <path
+                                        d="M32 17a10 10 0 0 0-17.32 5.66M16 31a10 10 0 0 0 17.32-5.66"
+                                        stroke="#2C2C2C"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        fill="none"
+                                    />
+                                    <path
+                                        d="M32 12v6h-6M16 36v-6h6"
+                                        stroke="#2C2C2C"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        fill="none"
+                                    />
+                                </svg>
+                            )}
+                        </button>
+                    )}
+                </div>
+
                 <div className={styles.infoBox}>
                     <div className={styles.leftSection}>
-                        <div className={styles.nameAge}><span className={styles.name}>{character.name}</span><span className={styles.age}>, {character.age}</span></div>
-                        <div className={styles.locationGroup}><img className={styles.locationIcon} src={Config.IMAGES.country} alt={`${character.country} flag`} /><span className={styles.location}>{character.country}</span></div>
+                        <div className={styles.nameAge}>
+                            <span className={styles.name}>{currentCharacter.name}</span>
+                            <span className={styles.age}>, {currentCharacter.age}</span>
+                        </div>
+                        <div className={styles.locationGroup}>
+                            <img className={styles.locationIcon} src={Config.IMAGES.country} alt={`${currentCharacter.country} flag`} />
+                            <span className={styles.location}>{currentCharacter.country}</span>
+                        </div>
                     </div>
-                    <div className={styles.stats}>{statsData.map((stat) => <StatItem key={stat.alt} icon={stat.icon} value={stat.value} />)}</div>
+                    <div className={styles.stats}>
+                        {statsData.map((stat) => <StatItem key={stat.alt} icon={stat.icon} value={stat.value} />)}
+                    </div>
                 </div>
             </div>
         </>

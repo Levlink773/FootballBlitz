@@ -19,7 +19,6 @@ const HighlightArrow = () => {
         // Этот оверлей затемняет фон, чтобы выделить подсказку
         <div className={styles.highlightOverlay}>
             <div className={styles.arrowContainer}>
-                <span className={styles.arrowText}>Тисни на гравця для відкриття інвентаря</span>
                 <svg
                     className={styles.arrowSvg}
                     width="100"

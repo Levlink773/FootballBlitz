@@ -312,3 +312,20 @@
     cursor: not-allowed;
     pointer-events: none; /* Helps prevent click events on complex elements */
 }
+@media (max-width: 410px) {
+    .avatarContainer {
+        display: none;
+    }
+}
+
+
+/*
+ * Этап 2: На очень маленьких экранах шириной 380px и меньше.
+ * Если места все еще не хватает, убираем и иконку уведомлений (колокольчик).
+ * Остаются только самые важные элементы: баланс валют и кнопка магазина.
+*/
+@media (max-width: 365px) {
+    .iconButton {
+        display: none;
+    }
+}
