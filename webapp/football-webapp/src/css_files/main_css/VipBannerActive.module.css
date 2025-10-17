@@ -1,5 +1,7 @@
-/* --- Импорт новых элегантных шрифтов --- */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Raleway:wght@500;700&display=swap');
+/* --- Импорт необходимых шрифтов --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Raleway:wght@500;700&display=swap');
+
+/* Keyframes and other styles remain unchanged */
 
 @keyframes characterFloat {
     0%, 100% {
@@ -19,7 +21,6 @@
     }
 }
 
-/* --- Основной контейнер (без изменений) --- */
 .container {
     position: absolute;
     top: 75px;
@@ -33,7 +34,6 @@
     border-radius: 8px;
 }
 
-/* --- Фон банера (без изменений) --- */
 .bannerBackground {
     width: 329px;
     height: 65px;
@@ -46,7 +46,6 @@
     overflow: hidden;
 }
 
-/* --- Эффект мерехтіння (без изменений) --- */
 .shimmerEffect {
     position: absolute;
     top: 0;
@@ -65,7 +64,6 @@
     animation-delay: 2s;
 }
 
-/* --- Персонаж (без изменений) --- */
 .characterImage {
     width: 62px;
     height: 89px;
@@ -75,7 +73,6 @@
     animation: characterFloat 4s infinite ease-in-out;
 }
 
-/* --- Контейнер з текстом (удален общий font-family) --- */
 .textContainer {
     position: relative;
     z-index: 2;
@@ -90,25 +87,25 @@
 
 /* --- Заголовок VIP (ИЗМЕНЕНО) --- */
 .vipTitle {
-    font-family: 'Cinzel', serif; /* Новый роскошный шрифт */
-    font-size: 24px; /* Немного увеличен для лучшего эффекта */
-    font-weight: 700;
-    color: #FFD700;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85); /* Тень сделана чуть глубже */
-    letter-spacing: 2px; /* Увеличено расстояние между буквами для эпичности */
-    text-transform: uppercase; /* Все буквы заглавные, как в римских надписях */
+    font-family: 'Inter', sans-serif; /* Как на кнопке */
+    font-size: 18px;                 /* Как на кнопке */
+    font-weight: 800;                /* Как на кнопке */
+    color: #FFD700;                  /* Яркий золотой цвет для читаемости */
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); /* Тень для контраста */
+    letter-spacing: 0.5px;
+    text-transform: uppercase;       /* Как на кнопке */
 }
 
-/* --- Текст з датою (ИЗМЕНЕНО) --- */
+/* --- Текст з датою (без изменений) --- */
 .expiryText {
     position: relative;
     top: -6px;
-    font-family: 'Raleway', sans-serif; /* Новый элегантный шрифт */
+    font-family: 'Raleway', sans-serif;
     font-size: 10px;
-    font-weight: 500; /* Более тонкое начертание для контраста */
+    font-weight: 500;
     color: #FFFFFF;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-    margin-top: 6px; /* Немного увеличено расстояние от заголовка */
+    margin-top: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.5px; /* Слегка добавлено расстояние между буквами */
+    letter-spacing: 0.5px;
 }

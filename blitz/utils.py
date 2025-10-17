@@ -47,7 +47,7 @@ blitz_pack_getter = {
         )
     ),
     BlitzType.BLITZ_V8: BlitzPack(
-        stages_of_final=2,
+        stages_of_final=3,
         blitz_type=BlitzType.BLITZ_V8,
         blitz_reward_pack=BlitzRewardPack(
             reward_guaranteed=[RewardEnergyBlitzTeam(50), RewardStatisticsBlitzTeam()],

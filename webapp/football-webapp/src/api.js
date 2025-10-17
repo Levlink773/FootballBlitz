@@ -1,6 +1,6 @@
 // src/api.js
 
-export const API_BASE_URL = 'http://localhost:8123'; // 'https://football-blitz.online/api';
+export const API_BASE_URL = 'https://football-blitz.online/api';
 /**
  * Виставляє гравця на трансфер.
  * @param {number} characterId - ID персонажа.
@@ -8,7 +8,7 @@ export const API_BASE_URL = 'http://localhost:8123'; // 'https://football-blitz.
  * @returns {Promise<object>} - Дані про створений трансфер.
  */
 export const postPlayerToTransfer = async (characterId, price) => {
-    const response = await fetch(`${API_BASE_URL}/transfers`, {
+    const response = await fetch(`${API_BASE_URL}/transfers/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

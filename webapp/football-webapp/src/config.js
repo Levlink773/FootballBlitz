@@ -101,6 +101,7 @@ import boots from "./assets/public/img_42.png";
 import shorts from "./assets/public/img_39.png";
 import face_2 from "./assets/public/face_2.png";
 import toucher from "./assets/public/img_44.png";
+import face_dark from "./assets/public/face_dark.png";
 
 
 class Config {
@@ -203,6 +204,7 @@ class Config {
         boots: boots,
         face_2: face_2,
         toucher: toucher,
+        face_dark: face_dark,
     };
 
     // какие-то игровые настройки
