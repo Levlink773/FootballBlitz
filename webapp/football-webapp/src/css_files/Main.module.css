@@ -635,24 +635,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%; /* Розтягуємо на весь екран для кращого керування */
+    width: 100%; /* Розтягуємо на весь екран */
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.0); /* Залишаємо фон прозорим */
     z-index: 100;
     pointer-events: none; /* Дозволяє клікам проходити крізь оверлей */
 }
 
 .arrowContainer {
     position: absolute;
-    /* Нове позиціонування: зліва від картки гравця, спрямовуючи на неї */
+    /* Зберігаємо оригінальне позиціонування від стрілки,
+       оскільки воно, мабуть, було підібрано правильно.
+    */
     top: 180px;
     left: 80px;
-    display: flex;
-    /* Змінюємо напрямок на горизонтальний */
-    flex-direction: row;
-    align-items: center; /* Вирівнюємо стрілку і текст по центру */
     z-index: 101;
-    /* Анімацію переносимо на саму стрілку, щоб текст не стрибав */
 }
 
 .arrowText {
@@ -741,3 +737,46 @@
         transform: translate(-50%, -15px);
     }
 }
+/* Новий клас для іконки скрині */
+.inventoryHintIcon {
+    position: relative;
+    left: 170px; /* Зберігаємо зсув від .arrowSvg */
+    top: 5px;
+
+    width: 60px;  /* Розмір від .arrowSvg */
+    height: 60px;
+
+    /* Світіння від .arrowSvg */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+
+    /* Нова анімація підстрибування */
+    animation: simpleBounce 1.5s infinite;
+}
+
+/* Нова, проста анімація "підстрибування" */
+@keyframes simpleBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* Ви можете залишити стару анімацію @keyframes bounce,
+   якщо вона використовується десь ще, або видалити її.
+   Цей код її не використовує.
+*/
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translate(-50%, 0);
+    }
+    40% {
+        transform: translate(-50%, -15px);
+    }
+    60% {
+        transform: translate(-50%, -8px);
+    }
+}
+
+/* КІНЕЦЬ БЛОКУ ДЛЯ ЗАМІНИ */

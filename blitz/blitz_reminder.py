@@ -126,24 +126,25 @@ class BlitzReminder:
         remind_5_minutes = today_start - timedelta(minutes=5)
 
         all_users = await UserService.get_all_users_where_end_register()
+        all_users = [u for u in all_users if not u.disable_spam]
 
         if self.remind_for_vip_users > 0:
             if now < vip_remind_time:
                 await asyncio.sleep((vip_remind_time - now).total_seconds())
-                vip_users = [user for user in all_users if user.vip_pass_is_active]
+                vip_users = [user for user in all_users if user.vip_pass_is_active if not user.disable_spam]
                 await self.__reminder_blitz_for_users(vip_users, self.blitz_text_getter.msg_vip_user(), self.blitz_id)
             elif now < today_start:
-                vip_users = [user for user in all_users if user.vip_pass_is_active]
+                vip_users = [user for user in all_users if user.vip_pass_is_active if not user.disable_spam]
                 await self.__reminder_blitz_for_users(vip_users, self.blitz_text_getter.msg_vip_user(), self.blitz_id)
 
         now = datetime.now()
         if self.remind_for_simple_users > 0:
             if now < simple_remind_time:
                 await asyncio.sleep((simple_remind_time - now).total_seconds())
-                simple_users = [user for user in all_users if not user.vip_pass_is_active]
+                simple_users = [user for user in all_users if not user.vip_pass_is_active if not user.disable_spam]
                 await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
             elif now < today_start:
-                simple_users = [user for user in all_users if not user.vip_pass_is_active]
+                simple_users = [user for user in all_users if not user.vip_pass_is_active if not user.disable_spam]
                 await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
 
         # Напоминание за 10 минут

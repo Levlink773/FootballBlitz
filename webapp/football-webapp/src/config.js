@@ -102,6 +102,7 @@ import shorts from "./assets/public/img_39.png";
 import face_2 from "./assets/public/face_2.png";
 import toucher from "./assets/public/img_44.png";
 import face_dark from "./assets/public/face_dark.png";
+import chest_inventory from "./assets/public/chest.png";
 
 
 class Config {
@@ -205,6 +206,7 @@ class Config {
         face_2: face_2,
         toucher: toucher,
         face_dark: face_dark,
+        chest_inventory: chest_inventory,
     };
 
     // какие-то игровые настройки

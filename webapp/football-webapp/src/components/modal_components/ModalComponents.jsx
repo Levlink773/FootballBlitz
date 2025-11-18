@@ -5,6 +5,7 @@ import {motion, AnimatePresence} from "framer-motion";
 import default_sound from "../../assets/public/sounds/notification.mp3"
 import {useSpring, animated} from 'react-spring';
 import {showAlert} from "../../alertService.jsx";
+import {API_BASE_URL} from "../../api.js";
 
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)
@@ -1220,6 +1221,194 @@ export function InfoModal({ title, image, text, onClose }) {
             >
                 OK
             </GradientButton>
+        </Box>
+    );
+}
+
+export function ReferralModal({
+                                  user, // Потрібен об'єкт user з полем `id`
+                                  onClose = () => {
+                                  },
+                              }) {
+    // --- State ---
+    const [referralCount, setReferralCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCopied, setIsCopied] = useState(false);
+
+    // --- Конфігурація ---
+    // Ви можете винести це в пропси або конфіг
+    const REFERAL_EXP = 1000;
+    const referralLink = `https://t.me/football_blitz_bot?start=ref_${user?.user_id}`;
+
+    // --- Завантаження даних ---
+    useEffect(() => {
+        if (!user?.user_id) {
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
+        // Використовуємо fetch для запиту до API
+        fetch(`${API_BASE_URL}/users/${user.user_id}/count_of_ref`)
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                // Припускаємо, що API повертає об'єкт типу { count: 10 }
+                setReferralCount(data.count || 0);
+            })
+            .catch(err => {
+                console.error("Failed to fetch referral count:", err);
+                setReferralCount(0); // Встановлюємо 0 у разі помилки
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+
+    }, [user?.user_id]); // Перезавантажуємо, якщо змінився user.id
+
+    // --- Обробник копіювання ---
+    function handleCopy() {
+        if (!navigator.clipboard) {
+            // Резервний варіант для старих браузерів (можна розширити)
+            console.error("Clipboard API not available");
+            showAlert("Не вдалося скопіювати. Будь ласка, скопіюйте вручну.");
+            return;
+        }
+
+        navigator.clipboard.writeText(referralLink).then(() => {
+            setIsCopied(true);
+            showAlert("Посилання скопійовано!", "success"); // Використовуємо ваш `showAlert`
+            setTimeout(() => setIsCopied(false), 2000); // Скидаємо стан кнопки
+        }).catch(err => {
+            console.error("Failed to copy text: ", err);
+            showAlert("Помилка копіювання.", "error");
+        });
+    }
+
+    // --- Стилі (адаптовані з ваших компонентів) ---
+    const bonusBoxStyle = {
+        background: 'var(--surface-highlight)',
+        border: '1px solid var(--surface-border)',
+        borderRadius: 12,
+        padding: "16px 20px",
+        margin: "16px 0",
+        fontSize: 18,
+        fontWeight: 700,
+        lineHeight: 1.4,
+        textAlign: 'center',
+        // Тінь, схожа на ту, що в `Box`, але легша
+        boxShadow: "0 4px 12px var(--shadow-color)",
+    };
+
+    const linkDisplayStyle = {
+        padding: "12px 16px",
+        borderRadius: 10,
+        border: "1px solid var(--surface-border)",
+        background: "rgba(0,0,0,0.2)",
+        color: "var(--text-primary)",
+        width: "100%",
+        boxSizing: "border-box",
+        fontSize: 15,
+        fontWeight: 500,
+        textAlign: 'center',
+        wordBreak: 'break-all', // Для переносу довгих посилань
+        fontFamily: "'Inter', sans-serif",
+        marginBottom: 12,
+    };
+
+    const statsStyle = {
+        fontSize: 16,
+        color: "var(--text-secondary)",
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '8px 0',
+    };
+
+    return (
+        <Box style={{padding: 16, maxWidth: 460}} onClose={onClose}>
+            {/* 1. Заголовок */}
+            <HeaderBar title="🌀 Реферальна система"/>
+
+            <div style={{padding: "8px 8px 0"}}>
+                <p style={{
+                    textAlign: 'center',
+                    fontSize: 16,
+                    margin: '0 0 16px',
+                    color: 'var(--text-primary)'
+                }}>
+                    Запрошуй друзів та отримуй цінні бонуси! 🎉
+                </p>
+
+                {/* 2. Блок з бонусами (анімований) */}
+                <motion.div
+                    style={bonusBoxStyle}
+                    initial={{opacity: 0, scale: 0.9}}
+                    animate={{opacity: 1, scale: 1}}
+                    transition={{delay: 0.1, type: 'spring', stiffness: 200}}
+                >
+                    🔋 <strong>150 енергії</strong> та 💰 <strong>20 монет</strong>
+                    <div style={{fontSize: 13, marginTop: 8, fontWeight: 500, color: 'var(--text-secondary)'}}>
+                        за кожного друга, який набере <strong>{REFERAL_EXP}</strong> очок досвіду! 🎮
+                    </div>
+                </motion.div>
+
+                {/* 3. Статистика */}
+                <div style={{marginTop: 20, marginBottom: 20}}>
+                    <div style={statsStyle}>
+                        <span>👥 Твої реферали:</span>
+                        <span style={{
+                            color: 'var(--text-primary)',
+                            fontWeight: 700,
+                            fontSize: 18
+                        }}>
+                            {isLoading ? "..." : referralCount}
+                        </span>
+                    </div>
+                </div>
+
+                {/* 4. Посилання */}
+                <div>
+                    <div style={{
+                        fontSize: 14,
+                        color: "var(--text-secondary)",
+                        marginBottom: 10,
+                        textAlign: 'center'
+                    }}>
+                        🎯 Твоє реферальне посилання:
+                    </div>
+                    <div style={linkDisplayStyle}>
+                        {referralLink}
+                    </div>
+                </div>
+
+                {/* 5. Заключний текст */}
+                <p style={{
+                    textAlign: 'center',
+                    fontSize: 14,
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.5,
+                    marginTop: 16
+                }}>
+                    Чим більше друзів - тим більше нагород! Не прогав свій шанс прокачати свого персонажа швидше! 💪
+                </p>
+
+                {/* 6. Кнопки дій (як у DonateEnergyModal) */}
+                <div style={{
+                    display: "flex",
+                    gap: 10,
+                    justifyContent: "flex-end",
+                    alignItems: 'center',
+                    marginTop: 24
+                }}>
+                    <SecondaryButton onClick={onClose}>Закрити</SecondaryButton>
+                    <GradientButton onClick={handleCopy} style={{minWidth: 160}}>
+                        {isCopied ? "Скопійовано!" : "Копіювати"}
+                    </GradientButton>
+                </div>
+            </div>
         </Box>
     );
 }

@@ -42,6 +42,9 @@ class UserBot(Base):
     energy = Column(BigInteger, default=0)
     team_name = Column(String(255), nullable=True)
     points = Column(BigInteger, nullable=False, default=0)
+    referal_user_id = Column(BigInteger, nullable=True)
+    is_tg_mode = Column(Boolean, default=False)
+    disable_spam = Column(Boolean, default=False)
 
     characters = relationship(
         "Character",

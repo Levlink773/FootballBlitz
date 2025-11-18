@@ -16,6 +16,7 @@ from bot.routers.register_user.router import register_user_router
 from .commands.block_users import block_uses_router
 from .rating.router import rating_characters_router
 from .resources_router.routers import user_balance_router
+from .settings_router import settings_router
 from .stores.router import magazine_main_router
 from .transfer.router import transfer_router
 from .webapp.webapp_router import webapp_router
@@ -41,4 +42,5 @@ main_router.include_routers(
     transfer_router,
     magazine_main_router,
     webapp_router,
+    settings_router,
 )

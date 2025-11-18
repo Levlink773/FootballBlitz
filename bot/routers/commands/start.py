@@ -1,3 +1,5 @@
+import traceback
+
 from aiogram import F
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
@@ -13,18 +15,53 @@ from bot.routers.register_user.start_register_user import StartRegisterUser
 from bot.routers.register_user.state.register_user_state import RegisterUserState
 from constants import PLOSHA_PEREMOGU
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
+from loader import bot
 from logging_config import logger
 from services.user_service import UserService
+from webapp.fastapi.publisher import make_payload, publish_event
 
 start_router = Router()
 
+async def register_referal(user: UserBot, referal: str):
+    if not "ref_" in referal:
+        return
+    referal_user_id = referal.split("ref_")[1]
+    await UserService.add_referal_user_id(
+        my_user_id=user.user_id,
+        referal_user_id=int(referal_user_id)
+    )
+    try:
+        text = (f"🎉 <b>У вас з'явився новий реферал!</b>\n\n{user.link_to_user} \n"
+                f"Ви отрумуєте +300 монет та +300 енергії! ")
+
+        await bot.send_message(
+            chat_id=referal_user_id,
+            text=text)
+        event_payload = make_payload(
+            event_type="show_alert",
+            user_id=int(referal_user_id),
+            payload={
+                "message": text
+            }
+        )
+
+        # Публікуємо подію в Redis
+        await publish_event(event_payload)
+        await UserService.add_money_user(int(referal_user_id), 300)
+        await UserService.add_energy_user(int(referal_user_id), 300)
+    except Exception as e:
+        print(f"err ref: {e}")
+        traceback.print_exc()
 
 @start_router.message(CommandStart())
 async def start_command_handler(
         message: Message,
         state: FSMContext,
         user: UserBot,
+        command: Command,
 ):
+    if command.args:
+        await register_referal(user=user, referal=command.args)
     if not user.end_register:
         if user.status_register == STATUS_USER_REGISTER.START_REGISTER:
             start_register = StartRegisterUser(

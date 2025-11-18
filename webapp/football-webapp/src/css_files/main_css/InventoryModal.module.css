@@ -29,7 +29,8 @@
     width: 90%;
     margin: 0 auto;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    align-items: center; /* Важно для вертикального выравнивания! */
     background-color: var(--surface-dark);
     padding: 8px;
     border-radius: 12px;
@@ -264,3 +265,48 @@
     gap: 12px; font-weight: 500;
 }
 .rewardItem img { width: 40px; height: 40px; }
+
+/* ... (всі ваші існуючі стилі) ... */
+
+/* ✨ СТИЛІ ДЛЯ НОВОЇ КНОПКИ РЕФЕРАЛІВ ✨ */
+.referralButton {
+    display: flex;
+    align-items: center; /* Центрирует вертикально */
+    justify-content: center; /* Центрирует горизонтально */
+
+    /* Розміри */
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+
+    /* Вигляд */
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+
+    /* "Скляний" ефект */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    /* Тінь для глибини */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+    /* Стиль тексту "+" */
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 300; /* Тонкий плюс */
+    line-height: 1;
+    padding: 0;
+    padding-bottom: 2px; /* Легке центрування */
+
+    /* Анімація */
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    transform: translateY(2px);
+}
+
+.referralButton:hover {
+    /* Робимо яскравіше при наведенні */
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}

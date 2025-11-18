@@ -13,7 +13,8 @@ ALL_MAIN_BUTTONS = [
     "🏟 Ринок трансферів",
     "👥 Вільні агенти",
     "🏬 Магазин",
-    'WebApp'
+    '🌐 WebApp',
+    '⚙️ Налаштування'
 ]
 
 AVAILABLE_BUTTONS_BY_STATUS = {
@@ -25,6 +26,8 @@ def main_menu(user: UserBot):
     keyboard = ReplyKeyboardBuilder()
     available_buttons = AVAILABLE_BUTTONS_BY_STATUS.get(user.status_register, [])
     for button_text in ALL_MAIN_BUTTONS:
+        if (button_text != '⚙️ Налаштування') and (not user.is_tg_mode):
+            continue
         if button_text in available_buttons:
             final_text = button_text
         else:

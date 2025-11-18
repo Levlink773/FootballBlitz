@@ -14,21 +14,20 @@ import {GetFirstCharacterModal} from "../components/register/GetFirstCharacterMo
 import {showAlert, showInfoModal} from "../alertService.jsx";
 import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
 
+// ✨ 2. ОНОВЛЕНИЙ КОМПОНЕНТ ПІДКАЗКИ
 const HighlightArrow = () => {
     return (
-        // Этот оверлей затемняет фон, чтобы выделить подсказку
+        // Оверлей залишається для позиціонування
         <div className={styles.highlightOverlay}>
             <div className={styles.arrowContainer}>
-                <svg
-                    className={styles.arrowSvg}
-                    width="100"
-                    height="100"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path d="M12 17.5V4.5M12 17.5L8 13.5M12 17.5L16 13.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                {/* ЗАМІНА: Замість <svg> тепер <img> з іконкою інвентаря.
+                  Новий клас .inventoryHintIcon буде керувати стилем та анімацією.
+                */}
+                <img
+                    src={Config.IMAGES.chest_inventory}
+                    alt="Inventory"
+                    className={styles.inventoryHintIcon}
+                />
             </div>
         </div>
     );

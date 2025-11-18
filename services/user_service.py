@@ -505,3 +505,81 @@ class UserService:
                 )
                 result = await session.execute(stmt)
                 logger.info(f"Added {amount} energy to {result.rowcount} users.")
+
+    @classmethod
+    async def get_my_referals(cls, user_id: int):
+        async for session in get_session():
+            async with session.begin():
+                try:
+                    result = await session.execute(
+                        select(UserBot)
+                        .where(UserBot.referal_user_id == user_id))
+                    all_users_not_bot = result.unique().scalars().all()
+                    return all_users_not_bot
+                except Exception as e:
+                    raise e
+
+    @classmethod
+    async def get_my_referals_count(cls, user_id: int) -> int:
+        """
+        Возвращает ТОЛЬКО КОЛИЧЕСТВО рефералов для пользователя.
+        Это намного эффективнее, чем get_my_referals().
+        """
+        async for session in get_session():
+            async with session.begin():
+                try:
+                    # Создаем запрос, который просит БД посчитать (COUNT)
+                    # строки, где referal_user_id совпадает
+                    stmt = (
+                        select(func.count(UserBot.user_id))
+                        .where(UserBot.referal_user_id == user_id)
+                    )
+
+                    result = await session.execute(stmt)
+
+                    # .scalar_one() вернет нам одно значение (наш подсчет)
+                    count = result.scalar_one()
+
+                    return count if count is not None else 0
+
+                except Exception as e:
+                    # В идеале здесь нужно логировать ошибку
+                    print(f"Error in get_my_referals_count for user {user_id}: {e}")
+                    raise e  # Передаем ошибку выше, чтобы FastAPI ее обработал
+
+    @classmethod
+    async def add_referal_user_id(cls, my_user_id: int, referal_user_id: int):
+        async for session in get_session():
+            async with session.begin():
+                try:
+                    stmt = (
+                        update(UserBot)
+                        .where(UserBot.user_id == my_user_id)
+                        .values(referal_user_id=referal_user_id)
+                    )
+                    await session.execute(stmt)
+                    await session.commit()
+                except Exception as e:
+                    raise e
+
+    @classmethod
+    async def set_disable_spam(cls, user_id: int, status: bool):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(disable_spam=status)
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def set_tg_mode(cls, user_id: int, status: bool):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(is_tg_mode=status)
+                )
+                await session.execute(stmt)

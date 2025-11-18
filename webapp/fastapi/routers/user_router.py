@@ -116,6 +116,8 @@ class AddRatingBody(BaseModel):
 class AddEnergyToUsersBody(BaseModel):
     user_ids: List[int]
     amount: int = Field(...)
+class ReferralCountResponse(BaseModel):
+    count: int
 
 # ----------------- helper сериализатор -----------------
 def user_to_dict(u: UserBot) -> dict:
@@ -130,6 +132,7 @@ def user_to_dict(u: UserBot) -> dict:
                                                                                       None) else None,
         "money": getattr(u, "money", None),
         "energy": getattr(u, "energy", None),
+        "referal_user_id": getattr(u, "referal_user_id", None),
         "team_name": getattr(u, "team_name", None),
         "points": getattr(u, "points", None),
         "vip_pass_expiration_date": getattr(u, "vip_pass_expiration_date").isoformat() if getattr(u,
@@ -651,3 +654,29 @@ async def set_main_character(user_id: int, body: SetMainCharacterRequest):
 
     # Повертаємо оновлений об'єкт користувача
     return user_to_dict(user)  # Використовуємо ваш існуючий серіалізатор
+
+
+@router.get(
+    "/{user_id}/count_of_ref",  # Используем путь из твоего React-кода (с опечаткой "coutn")
+    response_model=ReferralCountResponse,
+    summary="Get referral count for a user"
+)
+async def get_user_referral_count(user_id: int):
+    """
+    Получает общее количество рефералов для указанного user_id.
+    """
+    try:
+        # Вызываем новый, эффективный метод сервиса
+        count = await UserService.get_my_referals_count(user_id)
+
+        # Возвращаем ответ в формате {"count": <число>}
+        return ReferralCountResponse(count=count)
+
+    except Exception as e:
+        # Если в методе сервиса произошла ошибка, ловим ее
+        # и возвращаем клиенту стандартную ошибку 500
+        print(f"Failed to get referral count for user {user_id}: {e}")  # Логирование
+        raise HTTPException(
+            status_code=500,
+            detail="Could not fetch referral count."
+        )
