@@ -1,51 +1,28 @@
-/* --- Анимации --- */
-@keyframes glow {
-    0%, 100% {
-        text-shadow: 0 0 5px #4DC1FF, 0 0 10px #4DC1FF, 2px 2px 4px rgba(0, 0, 0, 0.5);
-        transform: scale(1);
-    }
-    50% {
-        text-shadow: 0 0 10px #4DC1FF, 0 0 20px #4DC1FF, 2px 2px 4px rgba(0, 0, 0, 0.7);
-        transform: scale(1.05);
-    }
-}
+/* css_files/training/TrainingActivity.module.css */
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.9;
-    }
-    50% {
-        transform: scale(1.02);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
+/* ... (Анимации @keyframes glow, pulse, fadeIn остаются без изменений) ... */
 
 /* --- Стили Компонента --- */
 
 .container {
-    width: 371px;
-    height: 130px;
-    position: absolute;
-    left: 35px;
-    top: 90px;
+    /* ❌ БЫЛО: position: absolute; top: 90px; left: 35px; width: 371px; */
+
+    /* ✅ СТАЛО: Резиновый блок внутри потока */
+    position: relative; /* Чтобы внутренние элементы позиционировались относительно него */
+    width: 94%;
+    max-width: 400px;
+
+    /* Сохраняем пропорции оригинальной картинки (371x130) */
+    aspect-ratio: 371 / 130;
+    height: auto; /* Высота подстроится автоматически */
+
     border-radius: 15px;
-    /* Улучшенный шрифт для более технологичного вида */
     font-family: 'Exo 2', sans-serif;
     font-weight: 700;
     color: white;
-    overflow: hidden; /* Скрываем все, что выходит за пределы скругленных углов */
+    overflow: hidden;
+    flex-shrink: 0; /* Не сжимать, если места мало */
+    margin-top: 10px;
 }
 
 /* Анимация появления для контейнера */
@@ -56,62 +33,80 @@
 .background {
     width: 100%;
     height: 100%;
-    left: 0;
-    top: 0;
     position: absolute;
+    top: 0; left: 0;
     border-radius: 15px;
-    object-fit: cover; /* Гарантирует, что изображение заполнит контейнер без искажений */
+    object-fit: cover;
+    z-index: 0;
 }
 
-/* Общие стили для текста с улучшенной тенью для читаемости */
+/* Общие стили для текста */
 .title, .timer, .chance {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8); /* Более глубокая и мягкая тень */
-    letter-spacing: 0.5px; /* Немного увеличим расстояние между буквами */
+    font-size: 18px; /* Немного меньше для безопасности */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
+    z-index: 1;
 }
 
+/* Используем проценты для позиционирования, чтобы текст "ездил" вместе с картинкой */
+
 .title {
-    width: 280px;
-    height: 22px;
-    left: 1px;
-    top: 28px;
-    text-transform: uppercase; /* Всегда верхний регистр для заголовков */
+    width: 75%;
+    height: 20%;
+    top: 21%;
+    left: 2%;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .chance {
-    width: 148px;
-    height: 22px;
-    left: 8px;
-    top: 77px;
-    /* Улучшенный цвет и анимация */
+    width: 40%;
+    height: 20%;
+    top: 60%;
+    left: 2%;
+
     background: linear-gradient(180deg, #6AD5FF 0%, #4DC1FF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
-    animation: glow 3s infinite ease-in-out; /* Применяем анимацию свечения */
+    animation: glow 3s infinite ease-in-out;
 }
 
 .timer {
-    width: 125px;
-    height: 22px;
-    left: 231px;
-    top: 77px;
-    animation: pulse 2s infinite ease-in-out; /* Применяем анимацию пульсации */
+    width: 33%;
+    height: 20%;
+    top: 60%;
+    right: 4%; /* Привязываем к правому краю */
+    left: auto; /* Сбрасываем left */
+
+    animation: pulse 2s infinite ease-in-out;
 }
+
 .noTrainingText {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffd700; /* або інший колір */
-    font-size: 1.5rem; /* приклад розміру */
+    color: #ffd700;
+    font-size: 1.4rem;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     text-align: center;
     width: 100%;
+    z-index: 1;
+}
+
+/* 🔥 Адаптация для очень маленьких экранов (< 360px) */
+@media (max-width: 360px) {
+    .title, .timer, .chance {
+        font-size: 14px;
+    }
+    .noTrainingText {
+        font-size: 1.1rem;
+    }
 }

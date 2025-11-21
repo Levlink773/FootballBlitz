@@ -1,47 +1,14 @@
-.myTeamFooter {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
+/* css_files/trasfer/Transfer.module.css */
 
-.myTeamButton {
-    height: 30px;
-    border-radius: 15px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-}
-
-.myTeamButton:first-child {
-    width: 100px;
-    background: linear-gradient(180deg, #FBF21B 0%, #F8BA19 100%);
-    color: #333;
-}
-
-.myTeamButton:last-child {
-    width: 150px;
-    background: linear-gradient(180deg, rgba(82, 79, 137, 0.85) 0%, rgba(47, 44, 90, 0.95) 100%);
-    color: white;
-    border: 1.5px solid rgba(190, 188, 255, 0.5);
-}
-/* --- Global Animations --- */
+/* --- Global Animations (Unchanged) --- */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
-
 
 /* --- Page Layout & Headers --- */
 .pageWrapper {
@@ -51,7 +18,8 @@
     align-items: center;
     gap: 18px;
     font-family: 'Inter', sans-serif;
-    padding: 20px 0 80px; /* Add padding for spacing */
+    padding: 20px 0 80px;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .pageTitle {
@@ -61,6 +29,7 @@
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
     letter-spacing: 1px;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .sectionTitle {
@@ -69,9 +38,10 @@
     color: white;
     text-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
     margin: 20px 0 5px 0;
+    text-align: center;
 }
 
-/* --- Status Indicators (Loading/Error) --- */
+/* --- Status Indicators --- */
 .statusContainer {
     display: flex;
     flex-direction: column;
@@ -97,31 +67,34 @@
     text-shadow: 0 2px 4px #000;
 }
 
-.errorText {
-    color: #ff8a8a;
-}
+.errorText { color: #ff8a8a; }
 
-
-/* --- Grids --- */
+/* --- Grids (Adaptive) --- */
 .myTeamGrid, .marketGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: calc(188px * 2 + 20px);
+    /* Two columns that share space equally */
+    grid-template-columns: 1fr 1fr;
+    gap: 15px; /* Standard gap */
+
+    /* Responsive Width Logic */
+    width: 94%;
+    max-width: 400px;
+
+    /* Center the grid */
+    margin: 0 auto;
 }
 
 .noPlayersText {
-    grid-column: 1 / -1; /* Span across all columns */
+    grid-column: 1 / -1;
     text-align: center;
     color: #a0a0a0;
     font-size: 14px;
     padding: 20px;
 }
 
-
-/* --- Add Player Card --- */
+/* --- Add Player Card (Adaptive) --- */
 .addPlayerCard {
-    width: 188px;
+    width: 100%; /* Fills the grid cell */
     height: 120px;
     border-radius: 15px;
     display: flex;
@@ -133,13 +106,13 @@
     border: 2px dashed rgba(255, 255, 255, 0.2);
     color: #e0e0e0;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .addPlayerCard:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.03);
+    transform: scale(1.02);
 }
 
 .addPlayerPlus {
@@ -154,10 +127,9 @@
     text-transform: uppercase;
 }
 
-
-/* --- Mini Player Card (My Team) --- */
+/* --- Mini Player Card (My Team - Adaptive) --- */
 .miniCard {
-    width: 188px;
+    width: 100%; /* Fluid width */
     height: 120px;
     position: relative;
     border-radius: 15px;
@@ -169,7 +141,7 @@
 }
 
 .miniCard:hover {
-    transform: scale(1.04);
+    transform: scale(1.02);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
 }
 
@@ -185,16 +157,18 @@
     width: 54px;
     height: 58px;
     position: absolute;
-    left: 12px;
+    left: 8px;
     top: 12px;
     border-radius: 10px;
     border: 2px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
 }
 
 .miniInfo {
     position: absolute;
-    left: 80px;
+    left: 70px; /* Adjusted for flexibility */
     top: 14px;
+    right: 5px; /* Prevents text overflow */
     text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
@@ -202,6 +176,9 @@
     font-size: 14px;
     font-weight: 800;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .miniPosition {
@@ -213,55 +190,49 @@
 
 .miniStats {
     position: absolute;
-    left: 80px;
+    left: 70px;
     top: 48px;
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 .miniStats div {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 12px;
+    gap: 4px;
+    font-size: 11px;
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0,0,0,0.7);
 }
-.miniStats img {
-    width: 18px;
-    height: 18px;
-}
+.miniStats img { width: 16px; height: 16px; }
 
 .miniPrice {
     position: absolute;
-    left: 12px;
+    left: 10px;
     bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     font-weight: 800;
-    font-size: 14px;
+    font-size: 12px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
-.miniPrice img {
-    width: 18px;
-    height: 18px;
-}
+.miniPrice img { width: 16px; height: 16px; }
 
 .miniSellButton {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 74px;
-    height: 30px;
-    border-radius: 10px;
+    right: 8px;
+    bottom: 10px;
+    width: 70px;
+    height: 28px;
+    border-radius: 8px;
     background: linear-gradient(180deg, #fbf21b 0%, #f8ba19 100%);
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     color: #1a1a1a;
     font-weight: 800;
-    font-size: 12px;
+    font-size: 11px;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, filter 0.2s ease;
+    transition: transform 0.2s ease;
 }
 
 .miniSellButton:hover {
@@ -270,9 +241,9 @@
 }
 
 
-/* --- Full Player Card (Market) --- */
+/* --- Full Player Card (Market - Adaptive) --- */
 .playerCard {
-    width: 180px;
+    width: 100%; /* Fluid width */
     height: 120px;
     position: relative;
     border-radius: 15px;
@@ -280,13 +251,13 @@
     color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     cursor: pointer;
-    opacity: 0; /* For animation */
+    opacity: 0;
     animation: fadeIn 0.5s ease-out forwards;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .playerCard:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
@@ -302,9 +273,10 @@
     width: 43px;
     height: 47px;
     position: absolute;
-    left: 11px;
+    left: 8px;
     top: 11px;
     border-radius: 8px;
+    object-fit: cover;
 }
 
 .cardFlag {
@@ -312,27 +284,36 @@
     height: 10px;
     position: absolute;
     top: 11px;
-    right: 11px;
+    right: 8px;
     border-radius: 2px;
     border: 1px solid rgba(0,0,0,0.2);
 }
 
 .cardInfo, .cardStats, .cardSeller, .cardFooter {
     position: absolute;
-    left: 62px;
+    left: 58px; /* Reduced left padding */
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
 }
 
-
-.cardInfo { top: 11px; }
-.cardName { font-size: 12px; font-weight: 700; margin: 0; }
+.cardInfo {
+    top: 11px;
+    right: 25px; /* Prevent overlap with flag */
+}
+.cardName {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .cardPosition { font-size: 9px; color: #b0b0b0; font-weight: 600; margin: 2px 0 0; }
 
-.cardStats { top: 48px; display: flex; gap: 10px; }
-.cardStats div { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; }
+.cardStats { top: 48px; display: flex; gap: 8px; }
+.cardStats div { display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; }
 .cardStats img { width: 14px; height: 14px; }
 
-.cardSeller { top: 60px; font-size: 9px; font-weight: 600; color: #c0c0c0; }
+.cardSeller { top: 62px; font-size: 9px; font-weight: 600; color: #c0c0c0; }
 .cardSeller span { color: #5eff6a; font-weight: 700; }
 
 .cardFooter { bottom: 9px; display: flex; align-items: center; gap: 8px; }
@@ -351,10 +332,47 @@
     border: none;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-    transition: transform 0.2s ease, filter 0.2s ease;
+    transition: transform 0.2s ease;
 }
 
 .cardBuyButton:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     filter: brightness(1.1);
+}
+
+
+/* 🔥🔥🔥 MOBILE ADAPTATION (< 360px) 🔥🔥🔥 */
+@media (max-width: 360px) {
+    /* Grid becomes tighter */
+    .myTeamGrid, .marketGrid {
+        gap: 10px;
+        width: 96%;
+    }
+
+    /* Add Player Card */
+    .addPlayerCard { height: 110px; }
+    .addPlayerPlus { font-size: 30px; }
+    .addPlayerText { font-size: 12px; }
+
+    /* Mini Card */
+    .miniCard { height: 110px; }
+    .miniAvatar { width: 45px; height: 50px; top: 10px; left: 6px; }
+    .miniInfo { left: 60px; top: 10px; }
+    .miniName { font-size: 12px; }
+    .miniStats { left: 60px; top: 42px; gap: 6px; }
+    .miniStats div { font-size: 10px; }
+    .miniStats img { width: 14px; height: 14px; }
+    .miniPrice { left: 6px; bottom: 10px; font-size: 11px; }
+    .miniSellButton { width: 60px; height: 24px; font-size: 10px; bottom: 8px; right: 6px; }
+
+    /* Market Card */
+    .playerCard { height: 110px; }
+    .cardAvatar { width: 38px; height: 42px; left: 6px; top: 10px; }
+    .cardInfo, .cardStats, .cardSeller, .cardFooter { left: 50px; }
+    .cardName { font-size: 11px; }
+    .cardStats { top: 44px; }
+    .cardSeller { top: 58px; font-size: 8px; }
+    .cardFooter { bottom: 8px; gap: 5px; }
+    .cardPrice { font-size: 11px; }
+    .cardBuyButton { width: 55px; height: 22px; font-size: 9px; }
 }

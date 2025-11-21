@@ -1,31 +1,35 @@
-/* --- Импорт необходимых шрифтов --- */
+/* --- Импорт шрифтов --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Raleway:wght@500;700&display=swap');
 
-/* Keyframes and other styles remain unchanged */
-
+/* --- Keyframes (без изменений) --- */
 @keyframes characterFloat {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-4px);
-    }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
 
 @keyframes shimmer {
-    0% {
-        transform: translateX(-10%) skewX(-20deg);
-    }
-    100% {
-        transform: translateX(20%) skewX(-20deg);
-    }
+    0% { transform: translateX(-20%) skewX(-20deg); }
+    100% { transform: translateX(120%) skewX(-20deg); }
 }
 
+@keyframes pulseGlow {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.3)); }
+    50% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); }
+}
+
+/* --- Основной контейнер --- */
 .container {
     position: absolute;
-    top: 75px;
-    left: 35px;
-    width: 360px;
+    /* АДАПТИВНОСТЬ ПО ВЕРТИКАЛИ: */
+    top: 80px; /* Можно использовать calc(10vh + 10px) для гибкости */
+
+    /* АДАПТИВНОСТЬ ПО ГОРИЗОНТАЛИ: */
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 92%;       /* Занимает 92% ширины экрана */
+    max-width: 360px; /* Но не шире 360px */
+
     height: 90px;
     z-index: 10;
     display: flex;
@@ -34,78 +38,105 @@
     border-radius: 8px;
 }
 
+/* --- Фон баннера --- */
 .bannerBackground {
-    width: 329px;
+    /* Фон занимает всю ширину минус место под персонажа слева */
+    width: 90%;
     height: 65px;
     position: absolute;
-    left: 31px;
+    right: 0; /* Прижимаем вправо */
     top: 50%;
     transform: translateY(-50%);
     border-radius: 8px;
     z-index: 1;
     overflow: hidden;
+    /* Чтобы картинка фона не растягивалась уродливо */
+    object-fit: cover;
 }
 
+/* --- Эффект блеска --- */
 .shimmerEffect {
     position: absolute;
-    top: 0;
-    left: 31px;
-    width: 30px;
-    height: 10px;
+    top: 50%;
+    left: 10%; /* Начинается там, где начинается фон */
+    width: 90%;
+    height: 65px;
+    transform: translateY(-50%);
     background: linear-gradient(
             90deg,
             rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0.3) 50%,
             rgba(255, 255, 255, 0) 100%
     );
     z-index: 4;
     pointer-events: none;
-    animation: shimmer 4s infinite linear;
+    /* Обрезка по форме родителя, чтобы блеск не вылезал */
+    clip-path: inset(0 0 0 0 round 8px);
+    animation: shimmer 3s infinite linear;
     animation-delay: 2s;
 }
 
+/* --- Персонаж --- */
 .characterImage {
-    width: 62px;
-    height: 89px;
-    position: relative;
+    width: auto;
+    height: 100%; /* Высота подстраивается под контейнер (90px) */
+    max-height: 89px;
+    position: absolute;
+    left: 0; /* Прижат к левому краю контейнера */
+    bottom: 0;
     z-index: 3;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
     animation: characterFloat 4s infinite ease-in-out;
 }
 
+/* --- Контейнер текста --- */
 .textContainer {
-    position: relative;
+    position: absolute;
     z-index: 2;
+    right: 0;
+    width: 85%; /* Текст внутри области фона */
+    height: 65px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    left: -6%;
     color: white;
 }
 
-/* --- Заголовок VIP (ИЗМЕНЕНО) --- */
+/* --- Тексты --- */
 .vipTitle {
-    font-family: 'Inter', sans-serif; /* Как на кнопке */
-    font-size: 18px;                 /* Как на кнопке */
-    font-weight: 800;                /* Как на кнопке */
-    color: #FFD700;                  /* Яркий золотой цвет для читаемости */
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); /* Тень для контраста */
+    font-family: 'Inter', sans-serif;
+    /* Адаптивный шрифт: 16px минимум, 18px максимум */
+    font-size: clamp(16px, 5vw, 18px);
+    font-weight: 800;
+    color: #FFD700;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     letter-spacing: 0.5px;
-    text-transform: uppercase;       /* Как на кнопке */
+    text-transform: uppercase;
+    margin-bottom: 2px;
 }
 
-/* --- Текст з датою (без изменений) --- */
 .expiryText {
-    position: relative;
-    top: -6px;
     font-family: 'Raleway', sans-serif;
-    font-size: 10px;
-    font-weight: 500;
+    /* Адаптивный шрифт: 9px минимум, 10px максимум */
+    font-size: clamp(9px, 3vw, 10px);
+    font-weight: 700; /* Чуть жирнее для мелкого текста */
     color: #FFFFFF;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-    margin-top: 6px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-align: center;
+}
+
+/* Медиа-запрос для очень маленьких экранов (iPhone 5/SE) */
+@media (max-width: 350px) {
+    .container {
+        width: 96%; /* Расширяем контейнер почти на весь экран */
+    }
+    .bannerBackground {
+        width: 85%; /* Чуть уменьшаем фон, чтобы влез персонаж */
+    }
+    .textContainer {
+        width: 80%;
+    }
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
 import {NavigationBar} from "../components/NavigationBar.jsx";
@@ -11,9 +11,7 @@ import {showAlert, showInfoModal} from "../alertService.jsx";
 
 export default function TournamentCard({user, setUser}) {
     useEffect(() => {
-        // Создаем асинхронную функцию внутри useEffect
         const updateUserStatus = async () => {
-            // Проверяем, что у пользователя именно статус 'TRANSFER'
             if (user?.status_register === 'FIRST_BLITZ') {
                 try {
                     const msg = `
@@ -25,22 +23,18 @@ export default function TournamentCard({user, setUser}) {
                         image: Config.IMAGES.blitz_info,
                         text: msg
                     });
-
                 } catch (error) {
                     console.error("Failed to update user status:", error);
                     showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
                 }
             }
         };
-
-        // Вызываем функцию
         updateUserStatus();
-
-        // Хук будет срабатывать при изменении объекта user,
-        // но внутреннее условие if не даст ему зациклиться.
     }, [user]);
+
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.blitz_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 <Header user={user}/>
                 <img
@@ -49,19 +43,31 @@ export default function TournamentCard({user, setUser}) {
                     className={styles.backgroundImage}
                 />
 
-                <h3 className={styles.pageTitle}>
-                    РОЗКЛАД БЛІЦ ТУРНІРІВ
-                </h3>
+                {/* КОНТЕЙНЕР */}
+                <div className={styles.tournamentFlexContent}>
 
-                <div className={styles.eventCardWrapper}>
-                    <BlitzSchedule/>
+                    {/* 1. Розклад */}
+                    <div className={styles.scheduleBox}>
+                        <BlitzSchedule/>
+                    </div>
+
+                    {/* 2. InfoPanel (Трохи вище картки) */}
+                    <div className={styles.infoTextUpper}>
+                        <InfoPanel/>
+                    </div>
+
+                    {/* 3. EventCard (Центр) */}
+                    <div className={styles.cardBox}>
+                        <EventCard user={user} onUserUpdate={setUser}/>
+                    </div>
+
+                    {/* 4. RegistrationInfo (Трохи нижче картки) */}
+                    <div className={styles.infoTextLower}>
+                        <BlitzRegistrationInfo/>
+                    </div>
+
                 </div>
 
-                <InfoPanel/>
-                <div className={styles.eventCardWrapperEvent}>
-                    <EventCard user={user} onUserUpdate={setUser}/>
-                </div>
-                <BlitzRegistrationInfo/>
                 <NavigationBar/>
             </div>
         </div>

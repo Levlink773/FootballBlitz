@@ -8,3 +8,7 @@ body {
     background-color: #1a1a2e; /* Темный фон для лучшего контраста */
     overflow: hidden;
 }
+html {
+    /* Це змушує браузер зарезервувати місце під скролбар, щоб контент не стрибав */
+    scrollbar-gutter: stable;
+}

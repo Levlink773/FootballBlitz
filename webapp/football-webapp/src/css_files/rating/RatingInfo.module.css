@@ -1,49 +1,13 @@
-/* --- Анимации --- */
-@keyframes fadeInContainer {
-    from {
-        opacity: 0;
-        transform: translateY(20px) translateX(-50%);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) translateX(-50%);
-    }
-}
-
-@keyframes fadeInChild {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulseGlow {
-    0%, 100% {
-        box-shadow: 10px 10px 15px rgba(166, 36, 222, 0.4);
-    }
-    50% {
-        box-shadow: 10px 10px 25px rgba(166, 36, 222, 0.6);
-    }
-}
+/* css_files/rating/RatingInfo.module.css */
 
 /* --- Основные стили --- */
 .container {
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 383px;
-    /* Убрана фиксированная высота, чтобы контент определял ее сам */
+    /* Позиціювання керується батьківським Rating.module.css, але на всяк випадок */
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    /* НОВОЕ: Анимация появления */
-    animation: fadeInContainer 0.6s ease-out forwards;
 }
 
 .title {
@@ -51,65 +15,54 @@
     font-size: 20px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     text-align: center;
-    letter-spacing: 0.5px;
-
-    /* УЛУЧШЕНО: Более надежный способ "наложить" заголовок на блок */
     position: relative;
     z-index: 2;
-    margin-bottom: -15px; /* "Поднимаем" нижний блок под заголовок */
+    margin-bottom: -15px;
+    padding: 0 10px;
 }
 
 .infoBox {
     width: 100%;
+    /* 🔥 АДАПТАЦІЯ */
+    height: auto;
+    max-height: 65vh;
+
     background: linear-gradient(180deg, rgba(45, 25, 65, 0.9) 0%, rgba(30, 30, 30, 0.95) 100%);
     border-radius: 15px;
     border: 1px #A624DE solid;
-    /* ИЗМЕНЕНО: уменьшаем нижний отступ */
-    padding: 8px 10px 8px 10px;
+    padding: 20px 15px 10px 15px; /* Більший відступ зверху для заголовка */
     box-sizing: border-box;
     position: relative;
     color: white;
     font-family: 'Inter', sans-serif;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+
+    /* Імітація зовнішнього світіння */
+    box-shadow: 0 0 15px rgba(166, 36, 222, 0.3);
+}
+
+.scrollableContent {
+    overflow-y: auto;
+    padding-right: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* ИЗМЕНЕНО: главный отступ между элементами стал меньше */
     gap: 10px;
-    text-align: center;
-    top: 30px;
 }
 
-/* НОВОЕ: Последовательная анимация для дочерних элементов */
-.infoBox > * {
-    opacity: 0;
-    animation: fadeInChild 0.5s ease-out forwards;
-    /* Задержка на основе CSS переменной из JSX */
-    animation-delay: calc(var(--animation-order, 0) * 150ms + 0.3s);
-}
+.scrollableContent::-webkit-scrollbar { width: 5px; }
+.scrollableContent::-webkit-scrollbar-thumb { background: #A624DE; border-radius: 3px; }
 
-
-.infoBox::before {
-    content: '';
-    position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px;
-    border-radius: 17px;
-    outline: 4px solid #A624DE;
-    filter: blur(8px);
-    z-index: -1;
-    /* НОВОЕ: Пульсирующее свечение */
-    animation: pulseGlow 5s infinite ease-in-out;
-}
-
-/* Найдите этот блок и замените его */
 .introText, .resetInfo, .footerText {
     font-size: 13px;
     font-weight: 500;
-    /* ИЗМЕНЕНО: текст станет немного плотнее по вертикали */
     line-height: 1.4;
-    max-width: 300px;
+    width: 100%;
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -118,42 +71,37 @@
     justify-content: space-around;
     align-items: flex-end;
     width: 100%;
-    /* ИЗМЕНЕНО: уменьшаем вертикальный отступ */
     margin: 5px 0;
+    gap: 5px;
 }
 
 .pointItem {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    gap: 5px;
+    font-size: 11px;
     font-weight: 700;
-    transition: transform 0.2s ease-in-out; /* Плавный переход для ховера */
-}
-
-/* НОВОЕ: Эффект при наведении */
-.pointItem:hover {
-    transform: scale(1.1);
+    flex: 1;
 }
 
 .pointItem img {
-    width: 31px;
-    height: 38px;
-    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5)); /* Добавлена тень */
+    width: 30px; /* Трохи менше */
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
 }
 
-/* НОВОЕ: Стиль для выделенного текста */
 .highlightText {
     color: #F700FF;
     font-weight: 700;
-    text-shadow: 0 0 5px rgba(247, 0, 255, 0.7);
 }
 
 .rewardsGrid {
     display: grid;
+    /* 🔥 АДАПТАЦІЯ: Дві колонки, але якщо дуже тісно - зменшуємо gap */
     grid-template-columns: 1fr 1fr;
-    gap: 6px 20px;
+    gap: 8px;
     width: 100%;
     margin-top: 5px;
 }
@@ -162,60 +110,68 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 11px; /* Трохи менший шрифт для таблиці */
     font-weight: 700;
-    padding: 4px 8px;
+    padding: 6px 8px;
+    background-color: rgba(255, 255, 255, 0.05);
     border-radius: 6px;
-    transition: background-color 0.2s ease; /* Плавный переход для ховера */
-}
-
-.rewardRow:hover {
-    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .rewardPlace {
-    flex-basis: 35%;
-    text-align: left;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .rewardValues {
-    flex-basis: 65%;
     display: flex;
-    justify-content: space-around;
+    gap: 8px;
 }
 
 .rewardItem {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
 }
 
 .rewardItem img {
-    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.4));
+    width: 12px;
+    height: 12px;
 }
 
-.rewardItem img[alt*="coin"] { width: 12px; }
-.rewardItem img[alt*="energy"] { width: 8px; }
+.rewardAmountCoin { color: #FFF2A8; }
+.rewardAmountEnergy { color: #bdfcff; }
 
-/* НОВОЕ: Разные стили для разных наград */
-.rewardAmountCoin {
-    font-size: 14px;
-    font-weight: 800;
-    color: #FFF2A8; /* Золотистый цвет для монет */
+.formulaBox {
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px dashed #A624DE;
+    margin: 10px 0;
 }
 
-.rewardAmountEnergy {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.footerText {
-    /* ИЗМЕНЕНО: уменьшаем верхний отступ */
+.formulaBox code {
+    display: block;
     margin-top: 5px;
+    color: #F700FF;
     font-weight: 700;
     font-size: 12px;
-    color: #f0f0f0;
+}
+
+/* 🔥 MEDIA QUERY ДЛЯ МАЛИХ ЕКРАНІВ (< 360px) */
+@media (max-width: 360px) {
+    .title { font-size: 18px; }
+
+    .introText, .resetInfo, .footerText { font-size: 12px; }
+
+    .rewardsGrid {
+        /* На дуже вузьких екранах можна зробити 1 колонку, або просто зменшити шрифт */
+        gap: 5px;
+    }
+
+    .rewardRow {
+        padding: 4px 5px;
+        font-size: 10px;
+    }
+
+    .pointItem img { width: 24px; }
+    .pointItem { font-size: 10px; }
 }

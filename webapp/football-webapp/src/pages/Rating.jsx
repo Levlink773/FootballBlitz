@@ -98,6 +98,7 @@ export default function RatingCard({ user, setUser }) {
 
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.rating_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 <Header user={user} />
                 <img

@@ -1,25 +1,85 @@
+/* --- Обгортка для всього блоку --- */
+.dailyTasksWrapper {
+    /* Фіксуємо позицію по вертикалі, але "плаваючу" по горизонталі */
+    position: absolute;
+    top: 176px;
+    right: 45px; /* 422px (ширина) - 306px (old left) - 70px (width) ≈ 45px */
+
+    /* Flexbox для центрування іконки та тексту всередині блоку */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px; /* Відступ між іконкою та текстом */
+
+    /* Важливі властивості для інтерактивності */
+    z-index: 10;
+    cursor: pointer;
+
+    /* Плавна анімація при наведенні */
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* Щоб блок не був надто широким */
+    width: 80px;
+}
+
+/* Ефект натискання/наведення */
+.dailyTasksWrapper:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.dailyTasksWrapper:active {
+    transform: scale(0.95);
+}
+
+/* --- Іконка --- */
 .tasksIcon {
     width: 70px;
     height: 63px;
-    left: 306px;
-    top: 176px;
-    position: absolute;
+    object-fit: contain;
+    /* Прибираємо absolute, бо тепер за це відповідає wrapper */
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.25));
 }
 
+/* --- Текст --- */
 .tasksLabel {
-    width: 76px;
-    height: 22px;
-    left: 307px;
-    top: 247px;
-    position: absolute;
+    width: 100%; /* Займає всю ширину обгортки */
+    height: auto;
     text-align: center;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
     color: white;
     font-size: 11px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    word-wrap: break-word;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    line-height: 1.1; /* Покращує вигляд двох рядків */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+
+    /* Прибираємо absolute */
+    margin-top: 4px;
+}
+
+/* --- 📱 Адаптивність для вузьких телефонів (< 400px) --- */
+@media (max-width: 390px) {
+    .dailyTasksWrapper {
+        /* Зменшуємо відступ справа, щоб вміститись на вузькому екрані */
+        right: 15px;
+
+        /* Трохи зменшуємо сам блок */
+        transform-origin: top right;
+        transform: scale(0.9);
+    }
+
+    /* Коригуємо hover для мобілок, щоб не стрибало */
+    .dailyTasksWrapper:hover {
+        transform: scale(0.95);
+    }
+}
+
+/* Для дуже маленьких екранів (iPhone SE 1st gen тощо) */
+@media (max-width: 340px) {
+    .dailyTasksWrapper {
+        right: 10px;
+        top: 170px; /* Трохи піднімаємо, щоб не заважало іншим елементам */
+        transform: scale(0.85);
+    }
 }

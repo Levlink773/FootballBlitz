@@ -1,94 +1,179 @@
-/* Основная обёртка — занимает всю доступную ширину */
+/* Main.module.css */
+
+/* =========================================
+   🔥🔥🔥 ЧАСТИНА 1: НОВІ СТИЛІ (АКТУАЛЬНІ)
+   ========================================= */
+
+/* --- 1. Обгортка всієї сторінки --- */
 .page {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+
+    /* ❌ БУЛО: background-color: #050505; */
+    /* ✅ СТАЛО: Прозорий або прибираємо колір, щоб було видно розмиту картинку */
+    background-color: transparent;
+
     display: flex;
     justify-content: center;
-    padding: 2px;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* --- 2. Розмитий фон (Зовнішній) --- */
+.pageBackgroundBlur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    object-fit: cover;
+
+    /* 👇 ЗМІНЮЄМО ТУТ */
+    /* Було: filter: blur(25px) brightness(0.4) saturate(1.2); */
+
+    /* Варіант 1: Помірно яскравий (рекомендую) */
+    filter: blur(25px) brightness(0.6) saturate(1.2);
+
+    /* Варіант 2: Повністю світлий (як оригінал) */
+    /* filter: blur(25px) brightness(1.0) saturate(1.2); */
+
+    transform: scale(1.1);
+    pointer-events: none;
+}
+
+/* ... решта стилів ... */
+
+/* --- 6. Внутрішній фон (ЧІТКИЙ) --- */
+.backgroundImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    /* 🔥 ВАЖЛИВО: Гарантуємо, що він розтягується на всю висоту контейнера */
+    height: 100%;
+    min-height: 100%;
+
+    object-fit: cover;
+    object-position: center center; /* Центруємо картинку */
+    z-index: -1;
+    pointer-events: none;
+}
+/* --- 3. Головний контейнер ("Телефон") --- */
+.mainContainer {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+
+    width: 100%;
+    max-width: 422px;
+
+    /* 🔥 ЖОРСТКА ФІКСАЦІЯ ВИСОТИ */
+    height: 650px;
+    min-height: 650px;
+    max-height: 650px;
+
+    /* ❌ БУЛО: overflow-y: auto; (Це викликало тремтіння) */
+    /* ✅ СТАЛО: Забороняємо скрол самого телефону. Скролимо тільки нутрощі. */
+    overflow: hidden;
+
+    background: transparent;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+
+    display: flex;
+    flex-direction: column;
+
+    /* Гарантуємо, що рамка не змінюватиметься від контенту */
     box-sizing: border-box;
 }
 
-
-/* срабатывает при экранах меньше 400px */
-@media (max-width: 399px) {
-    .page {
-        /* увеличение на 0.5% относительно 100% с ограничением сверху 200% */
-        width: clamp(100%, calc(100% + 0.5%), 200%);
-    }
-}
-
-.mainContainer {
-    width: 422px;
-    height: 625px;
-    position: relative;
-    background: rgba(255, 255, 255, 0); /* Можна видалити, якщо фон завжди зображення */
-    border-radius: 15px;
-    display: flex;
-}
-/* --- Стили для заголовка страницы --- */
-.pageTitle {
-    position: absolute;
-    top: 75px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%; /* Используем проценты для гибкости */
-    text-align: center;
-    color: white;
-    font-size: 26px; /* Немного увеличим для акцента */
-    font-weight: 700; /* Bold */
-    /* Более мягкая и современная тень */
-    text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.6);
-    z-index: 2;
-}
-.eventCardWrapperEvent {
-    position: absolute;
-    top: 20px; /* регулируешь насколько ниже */
-    left: -11px;
-}
-.eventCardWrapperEventMain {
-    position: absolute;
-}
-/* Обёртка для расписания — абсолютное позиционирование, центрирование */
-.eventCardWrapper {
-    position: absolute;
-    top: 107px;           /* настройте по необходимости (чтобы располагалось под заголовком) */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 396px;         /* 188 + 20 + 188 = 396 (две карточки + gap) */
+/* --- 4. Внутрішній скрол-контент --- */
+.scrollableContent {
+    flex: 1;
+    width: 100%; /* Обов'язково на всю ширину */
     display: flex;
     flex-direction: column;
     align-items: center;
-    pointer-events: auto;
-    z-index: 2;           /* поверх фона */
-    /* overflow: hidden;  — если нужен отсек для обрезки */
+
+    /* Відступи */
+    padding-top: 345px;
+    padding-bottom: 120px;
+
+    /* 🔥 Тільки тут дозволений скрол */
+    overflow-y: auto;
+    overflow-x: hidden; /* Забороняємо горизонтальні рухи */
+
+    /* Стабілізує скролбар, щоб він не зсував контент */
+    scrollbar-gutter: stable both-edges;
+    scrollbar-width: none;
 }
 
-/* Если захотите управлять переносом/растяжением карточек внутри */
-.eventCardWrapper > div {
+.scrollableContent::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- 5. Контейнер для картки --- */
+.cardContainer {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    pointer-events: none;
+
+    /* Додаємо, щоб картка точно не вилазила за ширину */
+    box-sizing: border-box;
+}
+.cardContainer > * {
+    pointer-events: auto;
 }
 
-.backgroundImage {
-    width: 422px;
-    height: 633px;
+/* --- 6. Внутрішній фон (ЧІТКИЙ) --- */
+
+/* --- 7. Решта елементів (Без змін) --- */
+.eventCardWrapperEventMain {
+    position: absolute;
+    top: 0;
     left: 0;
-    top: -6px;
-    position: absolute;
-    box-shadow: 3px 3px 3px;
-    filter: blur(1.50px);
-    z-index: -1; /* Поміщаємо фон позаду всіх елементів */
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
 }
-.trainingActivityPosition {
-    position: absolute;
-    top: 90px; /* Можете підібрати ідеальну висоту */
+.eventCardWrapperEventMain > * {
+    pointer-events: auto;
+}
 
-    /* Ця комбінація ідеально центрує блок по горизонталі */
+.pageTitle {
+    position: absolute;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.6);
+    z-index: 20;
+    pointer-events: none;
 }
-/* НОВІ СТИЛІ ДЛЯ ЗАГОЛОВКА */
+
+.trainingActivityPosition {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 15;
+}
+
 .trainingRoomTitle {
-    /* Стилі з вашого div */
     width: 354px;
     height: 22px;
     text-align: center;
@@ -101,57 +186,12 @@
     font-weight: 700;
     word-wrap: break-word;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
-
-    /* Позиціонування (розміщуємо його нижче TrainingActivity) */
     position: absolute;
-    top: 240px; /* 180px (верхня точка TrainingActivity) + 130px (висота TrainingActivity) + 10px (відступ) = 320px */
+    top: 240px;
     left: 50%;
     transform: translateX(-50%);
 }
-/* --- ГЛАВНЫЙ КОНТЕЙНЕР ДЛЯ ИНФО-БЛОКОВ --- */
-.infoContainer {
-    position: absolute;
-    top: 340px; /* Настройте эту высоту, если нужно */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%; /* Ограничиваем ширину для отступов по бокам */
-    z-index: 2;
 
-    /* --- Ключевые свойства для расположения --- */
-    display: flex;
-    flex-direction: column; /* <-- Ставит дочерние блоки (.infoBlock) один под другим */
-    gap: 0px; /* <-- Расстояние МЕЖДУ блоком с кубком и блоком с короной */
-}
-
-/* --- СТИЛЬ ДЛЯ КАЖДОЙ ОТДЕЛЬНОЙ СТРОКИ (иконка + текст) --- */
-.infoBlock {
-    display: flex;
-    flex-direction: row; /* <-- Ставит иконку и текст в один ряд */
-    align-items: flex-start; /* <-- Выравнивание по верхнему краю, идеально для многострочного текста */
-    gap: 12px; /* Расстояние между иконкой и текстом */
-    color: #f5f5f5;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.45; /* Слегка улучшаем межстрочный интервал */
-    text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-.infoIcon {
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0; /* Запрещает иконке сжиматься */
-}
-
-/* --- СТИЛЬ ДЛЯ ТЕКСТА ВНУТРИ БЛОКА --- */
-.infoBlock p {
-    margin: 0;
-    /* Это гарантирует, что текст будет переноситься, если не помещается */
-    word-break: break-word;
-}
-/* --- Контейнер для контенту --- */
-/* --- Контейнер для контенту --- */
-
-/* --- Контейнер для контенту --- */
 .contentWrapper {
     position: relative;
     z-index: 2;
@@ -160,15 +200,176 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    padding-left: 15px;
-    padding-right: 15px;
-
-    /* --- ОСНОВНІ ЗМІНИ ТУТ --- */
-    flex: 1; /* SCROLL FIX: Дозволяє цьому блоку розтягуватися і заповнювати весь вільний простір по вертикалі. */
-    overflow-y: auto; /* SCROLL FIX: Додає вертикальний скрол, тільки якщо контент не вміщується. */
-    padding-bottom: 25px; /* SCROLL FIX: Додаємо відступ знизу, щоб останні картки не прилипали до navbar. */
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 25px;
 }
-/* --- Кастомізація скролбару (опціонально, але виглядає краще) --- */
+
+.highlightOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+
+.arrowContainer {
+    position: absolute;
+    /* Ставимо на ту ж висоту, де приблизно кнопка завдань, але трохи нижче/вище за потреби */
+    top: 193px;
+
+    /* 🔥 КЛЮЧОВЕ ЗМІНИ: Прив'язка до центру */
+    left: 53%;
+
+    /* Зсуваємо вправо від центру, але МЕНШЕ, ніж кнопку завдань.
+       Кнопка завдань має margin-left: 110px.
+       Даємо скрині margin-left: 40px.
+       Різниця 70px гарантує, що вони не злипнуться.
+       І скриня буде висіти акуратно на плечі персонажа. */
+    margin-left: 40px;
+
+    z-index: 101;
+}
+
+.inventoryHintIcon {
+    position: relative;
+    /* Прибираємо старі дивні зміщення */
+    left: auto;
+    top: 0;
+
+    width: 45px;
+    height: 45px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+    animation: simpleBounce 1.5s infinite;
+}
+
+@keyframes simpleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* 🔥 ЄДИНА ОБГОРТКА (БЕЗ СКРОЛУ) */
+.tournamentFlexContent {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* 👇 ВІДСТУП ВІД ВЕРХУ */
+    /* 90px - це ідеально, щоб почати відразу під заголовком "РОЗКЛАД..." */
+    /* Якщо поставити більше (напр. 140px), нижні елементи зникнуть */
+    padding-top: 90px;
+
+    /* Це гарантує, що елементи будуть поверх фону */
+    position: relative;
+    z-index: 10;
+}
+
+/* 1. Розклад (Кубки) */
+.scheduleBox {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    /* Відступ знизу до тексту InfoPanel */
+    margin-bottom: 10px;
+}
+
+/* 2. Верхній текст (InfoPanel) */
+.infoTextUpper {
+    width: 95%; /* Трохи вужче, щоб текст не лип до країв */
+    display: flex;
+    justify-content: center;
+
+    /* Відступ до картки */
+    margin-bottom: 5px;
+}
+
+/* 3. Картка (EventCard) */
+.cardBox {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    /* Відступ до нижнього тексту */
+    margin-bottom: 10px;
+}
+
+/* 4. Нижній текст (RegistrationInfo) */
+.infoTextLower {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    /* Якщо треба опустити ще нижче - додай margin-top тут */
+    margin-top: 90px;
+}
+
+
+/* ==========================================================
+   🔥🔥🔥 ЧАСТИНА 2: ПОВЕРНУТІ СТИЛІ ЗІ СТАРОГО ФАЙЛУ 🔥🔥🔥
+   (Все, що було втрачено, додано нижче)
+   ========================================================== */
+
+.eventCardWrapperEvent {
+    position: absolute;
+    top: 20px; /* регулируешь насколько ниже */
+    left: -11px;
+}
+
+/* Обёртка для расписания — абсолютное позиционирование, центрирование */
+.eventCardWrapper {
+    position: absolute;
+    top: 107px;           /* настройте по необходимости (чтобы располагалось под заголовком) */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 396px;         /* 188 + 20 + 188 = 396 (две карточки + gap) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    z-index: 2;            /* поверх фона */
+}
+
+/* Если захотите управлять переносом/растяжением карточек внутри */
+.eventCardWrapper > div {
+    width: 100%;
+}
+
+/* --- ГЛАВНЫЙ КОНТЕЙНЕР ДЛЯ ИНФО-БЛОКОВ (HUD) --- */
+.infoContainer {
+    position: absolute;
+    top: 340px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+/* --- СТИЛЬ ДЛЯ КАЖДОЙ ОТДЕЛЬНОЙ СТРОКИ (иконка + текст) --- */
+.infoBlock {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    color: #f5f5f5;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.45;
+    text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.infoIcon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.infoBlock p {
+    margin: 0;
+    word-break: break-word;
+}
+
+/* --- Кастомізація скролбару для contentWrapper (якщо використовується в інших місцях) --- */
 .contentWrapper::-webkit-scrollbar {
     width: 5px;
 }
@@ -179,38 +380,29 @@
     background-color: rgba(190, 188, 255, 0.4);
     border-radius: 10px;
 }
-/* --- Заголовки --- */
-.pageTitle, .sectionTitle {
+
+.sectionTitle {
     color: white;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.75); /* FIX: Посилена тінь для тексту */
+    text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.75);
     margin: 0;
-}
-
-.pageTitle {
-    font-size: 18px; /* FIX: Збільшено розмір головного заголовка */
-    letter-spacing: 1px;
-}
-
-.sectionTitle {
-    font-size: 18px; /* FIX: Збільшено розмір підзаголовка */
+    font-size: 18px;
 }
 
 /* --- Кнопка "ДОДАТИ ГРАВЦЯ" --- */
 .addPlayerButton {
-    width: 350px; /* FIX: Змінено ширину */
-    height: 50px; /* FIX: Змінено висоту */
-    background: linear-gradient(180deg, rgba(82, 79, 137, 0.85) 0%, rgba(47, 44, 90, 0.95) 100%); /* FIX: Оновлений градієнт */
-    border: 1.5px solid rgba(190, 188, 255, 0.5); /* FIX: Більш помітний контур */
+    width: 350px;
+    height: 50px;
+    background: linear-gradient(180deg, rgba(82, 79, 137, 0.85) 0%, rgba(47, 44, 90, 0.95) 100%);
+    border: 1.5px solid rgba(190, 188, 255, 0.5);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* FIX: Посилена тінь */
-
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 16px;
-    font-weight: 700; /* FIX: Зроблено жирнішим */
-    text-transform: uppercase; /* FIX: Великі літери як на макеті */
-    letter-spacing: 1px; /* FIX: Збільшена відстань між літерами */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
@@ -334,23 +526,23 @@
     color: white;
     border: 1.5px solid rgba(190, 188, 255, 0.5);
 }
-/* Wrapper for the promo card, ensures proper centering */
+
+/* --- PROMO CARDS (VIP/SHOP) --- */
 .promoCardWrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     position: absolute;
     top: 80px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(400px, 90vw); /* Responsive width */
+    width: min(400px, 90vw);
     z-index: 3;
     pointer-events: auto;
 }
 
-/* The card itself, now with a premium "glassmorphism" effect */
 .promoCardContainer {
-    position: relative; /* Required for pseudo-elements like the border */
+    position: relative;
     width: 100%;
-    background: rgba(28, 28, 30, 0.75); /* Dark, semi-transparent background */
+    background: rgba(28, 28, 30, 0.75);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     border-radius: 20px;
@@ -362,45 +554,41 @@
     flex-direction: column;
     gap: 16px;
     align-items: center;
-    overflow: hidden; /* Important for the border effect */
+    overflow: hidden;
     height: calc(70vh - 1px);
     max-height: calc(70vh - 1px);
-    min-height: 200px; /* при необходимости подберите порог */
+    min-height: 200px;
     overflow-y: auto;
 }
+
 .promoCardContainer::after {
     content: "";
     display: block;
     height: 1px;
     width: 100%;
-    pointer-events: none; /* псевдоэлемент не мешает кликам */
+    pointer-events: none;
 }
-/* ✨ Бонус: Сделаем скроллбар красивым и минималистичным */
+
 .promoCardContainer::-webkit-scrollbar {
     width: 5px;
 }
-
 .promoCardContainer::-webkit-scrollbar-track {
     background: transparent;
 }
-
 .promoCardContainer::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     border: 3px solid transparent;
 }
 
-/* Subtle gradient border to add depth and a premium feel */
 .gradientBorder {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    padding: 1px; /* Border thickness */
+    padding: 1px;
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
-    -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
@@ -430,7 +618,7 @@
 .promoText {
     text-align: center;
     width: 100%;
-    color: #e0e0e0; /* Softer white for better readability */
+    color: #e0e0e0;
     font-size: 15px;
     line-height: 1.5;
     text-shadow: 0 2px 4px rgba(0,0,0,0.7);
@@ -440,7 +628,6 @@
     white-space: pre-wrap;
 }
 
-/* Highlighted text for the main call-to-action */
 .promoHighlight {
     font-weight: 700;
     font-size: 16px;
@@ -457,7 +644,6 @@
     justify-content: center;
     width: 100%;
     margin-top: 8px;
-    /* Добавляем перспективу для 3D эффекта при наведении */
     perspective: 800px;
 }
 
@@ -468,7 +654,7 @@
     justify-content: center;
     gap: 8px;
     padding: 14px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15); /* Тонкая рамка для четкости */
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 14px;
     font-size: 16px;
     font-weight: 800;
@@ -476,32 +662,16 @@
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-
-    /* ✨ Магия начинается здесь */
-    position: relative; /* Необходимо для псевдо-элементов */
-    overflow: hidden; /* Скрываем все, что выходит за рамки */
+    position: relative;
+    overflow: hidden;
     z-index: 1;
-
-    /* Плавные переходы для всех эффектов */
-    transition:
-            transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-            box-shadow 0.4s ease-out,
-            background-position 0.8s ease;
-
-    /* Улучшенная тень для глубины */
-    box-shadow:
-            0 4px 15px rgba(0, 0, 0, 0.4),
-            inset 0 1px 1px rgba(255, 255, 255, 0.25),
-            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
-
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease-out, background-position 0.8s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-
-    /* Настройка для анимированного градиента */
     background-size: 250% auto;
     background-position: left center;
 }
 
-/* Эффект блика при наведении */
 .promoBtn::before {
     content: '';
     position: absolute;
@@ -515,53 +685,35 @@
     z-index: -1;
 }
 
-/* Состояние при наведении курсора */
 .promoBtn:hover {
-    /* Легкий 3D-поворот и подъем */
     transform: rotateX(-5deg) rotateY(5deg) translateY(-4px) scale(1.05);
-
-    /* Анимация градиента */
     background-position: right center;
 }
 
 .promoBtn:hover::before {
-    /* Движение блика */
     left: 125%;
 }
 
-/* Состояние при нажатии */
 .promoBtn:active {
-    transform: translateY(1px) scale(0.98); /* Эффект "нажатия" */
+    transform: translateY(1px) scale(0.98);
     box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.3);
     transition-duration: 0.1s;
 }
 
-/* === Стили для конкретных кнопок === */
-
 .boostBtn {
-    /* Более сочный и сложный градиент */
     background-image: linear-gradient(115deg, #FFD700, #FFB800, #FF8C00);
 }
 
 .boostBtn:hover {
-    /* Сияние в цвет кнопки */
-    box-shadow:
-            0 8px 30px rgba(255, 200, 0, 0.5),
-            inset 0 1px 1px rgba(255, 255, 255, 0.25),
-            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgba(255, 200, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .buyBtn {
-    /* Глубокий и насыщенный фиолетовый градиент */
     background-image: linear-gradient(115deg, #8A2BE2, #9932CC, #6A0DAD);
 }
 
 .buyBtn:hover {
-    /* Магическое фиолетовое свечение */
-    box-shadow:
-            0 8px 30px rgba(138, 43, 226, 0.6),
-            inset 0 1px 1px rgba(255, 255, 255, 0.25),
-            inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgba(138, 43, 226, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .energyIcon {
@@ -570,10 +722,10 @@
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
 }
 
-/* --- Стили для табло --- */
+/* --- ТАБЛО (Scoreboard) --- */
 .scoreboardContainer {
     position: absolute;
-    top: 90px; /* Располагаем ниже хедера, подберите значение по вашему дизайну */
+    top: 90px;
     left: 5%;
     transform: translateX(-50%);
     width: 90%;
@@ -587,8 +739,8 @@
     justify-content: space-between;
     align-items: center;
     color: #fff;
-    font-family: 'Roboto', sans-serif; /* Используйте ваш шрифт */
-    z-index: 10; /* Важно для расположения под alerts */
+    font-family: 'Roboto', sans-serif;
+    z-index: 10;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
@@ -630,75 +782,44 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
-/* --- ✨ Оновлені стилі для стрілки-підказки --- */
-.highlightOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%; /* Розтягуємо на весь екран */
-    height: 100%;
-    z-index: 100;
-    pointer-events: none; /* Дозволяє клікам проходити крізь оверлей */
-}
 
-.arrowContainer {
-    position: absolute;
-    /* Зберігаємо оригінальне позиціонування від стрілки,
-       оскільки воно, мабуть, було підібрано правильно.
-    */
-    top: 180px;
-    left: 80px;
-    z-index: 101;
-}
-
+/* --- ТЕКСТ ПІДКАЗКИ (ArrowText) --- */
 .arrowText {
-    /* --- Типографика и читаемость --- */
     position: relative;
     left: -90px;
     color: white;
     width: 140px;
     height: 55px;
-    font-size: 10px; /* Увеличим для лучшей читаемости */
+    font-size: 10px;
     font-weight: 600;
     text-align: center;
-    line-height: 1.1; /* Больше воздуха между строками */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Более мягкая тень текста */
-    letter-spacing: 0.5px; /* Добавим "воздуха" между буквами */
+    line-height: 1.1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
 
-    /* --- Форма и фон --- */
-    background: linear-gradient(145deg, #007BFF, #0056b3); /* Глубокий градиент */
-    padding: 12px 22px; /* Увеличим отступы для солидности */
-    border-radius: 50px; /* Идеально круглая форма "пилюли" */
-    border: 2px solid rgba(255, 255, 255, 0.7); /* Полупрозрачная белая рамка */
+    background: linear-gradient(145deg, #007BFF, #0056b3);
+    padding: 12px 22px;
+    border-radius: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
 
-    /* --- Глубина и объем --- */
-    box-shadow:
-            0 8px 25px rgba(0, 86, 179, 0.4), /* Основная цветная тень для "свечения" */
-            0 4px 10px rgba(0, 0, 0, 0.3),   /* Вторая, более темная тень для контраста */
-            inset 0 1px 1px rgba(255, 255, 255, 0.2); /* Внутренний блик для эффекта 3D */
+    box-shadow: 0 8px 25px rgba(0, 86, 179, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    max-width: 250px;
+    margin-left: 10px;
 
-    /* --- Размеры и позиционирование --- */
-    max-width: 250px; /* Ограничим максимальную ширину */
-    margin-left: 10px; /* Отступ от стрелки */
-
-    /* --- Анимация --- */
-    opacity: 0; /* Начальное состояние для анимации */
-    transform: scale(0.95) translateY(10px); /* Начальное состояние для анимации */
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
     animation: fadeInScaleUp 0.5s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 
-    /* --- Обработка текста (ваш код был хорош) --- */
     white-space: normal;
     overflow-wrap: break-word;
 }
 
-/* Анимация плавного появления */
 @keyframes fadeInScaleUp {
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
 }
-
 
 .arrowSvg {
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
@@ -707,76 +828,75 @@
     top: 0px;
     width: 60px;
     height: 60px;
-    /* ✨ Повертаємо стрілку на -45 градусів, щоб вона вказувала праворуч-вниз */
     transform: rotate(50deg);
-    /* ✨ Додаємо нову, більш доречну анімацію */
     animation: pointAnimation 1.5s infinite;
 }
 
-/* ✨ Нова, більш плавна анімація "вказівки" */
 @keyframes pointAnimation {
-    0%, 100% {
-        /* Скидаємо трансформацію до початкового повороту */
-        transform: rotate(50deg) translateX(0);
-    }
-    50% {
-        /* Трохи зміщуємо стрілку по її осі для ефекту "тикання" */
-        transform: rotate(50deg) translateX(8px);
-    }
+    0%, 100% { transform: rotate(50deg) translateX(0); }
+    50% { transform: rotate(50deg) translateX(8px); }
 }
 
+@media (max-width: 360px) {
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translate(-50%, 0);
+    /* Поднимаем блок с Инфо-Текстом (InfoPanel) */
+    .infoTextUpper {
+        /* Используем отрицательный отступ, чтобы подтянуть его вверх к Расписанию */
+        margin-top: -20px;
     }
-    40% {
-        transform: translate(-50%, -25px);
-    }
-    60% {
-        transform: translate(-50%, -15px);
-    }
-}
-/* Новий клас для іконки скрині */
-.inventoryHintIcon {
-    position: relative;
-    left: 170px; /* Зберігаємо зсув від .arrowSvg */
-    top: 5px;
 
-    width: 60px;  /* Розмір від .arrowSvg */
-    height: 60px;
+    /* На всякий случай немного уменьшаем отступ у карточки,
+       чтобы нижний текст тоже влез */
+    .cardBox {
+        margin-bottom: 70px;
+    }
 
-    /* Світіння від .arrowSvg */
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+    /* Если нужно поднять вообще ВЕСЬ контент (включая расписание),
+       можно уменьшить padding-top у главного контейнера */
+    .tournamentFlexContent {
+        padding-top: 75px; /* Было 90px */
+    }
+}/* 🔥 НОВЫЙ КОНТЕЙНЕР ДЛЯ ТРЕНИРОВОК */
+.trainingScrollContent {
+    width: 100%;
+    height: 100%;
 
-    /* Нова анімація підстрибування */
-    animation: simpleBounce 1.5s infinite;
-}
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-/* Нова, проста анімація "підстрибування" */
-@keyframes simpleBounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
+    /* Отступ сверху, чтобы не наезжать на шапку */
+    padding-top: 85px;
 
-/* Ви можете залишити стару анімацію @keyframes bounce,
-   якщо вона використовується десь ще, або видалити її.
-   Цей код її не використовує.
-*/
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translate(-50%, 0);
-    }
-    40% {
-        transform: translate(-50%, -15px);
-    }
-    60% {
-        transform: translate(-50%, -8px);
-    }
+    /* Отступ снизу для навбара */
+    padding-bottom: 100px;
+
+    /* Отступы между элементами (Статус, Заголовок, Список) */
+    gap: 15px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* КІНЕЦЬ БЛОКУ ДЛЯ ЗАМІНИ */
+/* Стили для заголовка тренировки, чтобы он не был абсолютным */
+.trainingTitleStatic {
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
+    margin: 5px 0; /* Небольшой отступ сверху и снизу */
+    flex-shrink: 0;
+}
+
+/* Контейнер для списка опций */
+.optionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+    padding-bottom: 20px;
+}

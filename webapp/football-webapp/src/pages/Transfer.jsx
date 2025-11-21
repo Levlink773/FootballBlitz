@@ -65,6 +65,7 @@ export default function TransferCard({user, setUser}) {
     }, [user]);
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.transfer_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 <Header user={user}/>
                 <img

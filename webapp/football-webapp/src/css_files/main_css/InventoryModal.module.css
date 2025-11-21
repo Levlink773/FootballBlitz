@@ -1,3 +1,5 @@
+/* css_files/main_css/InventoryModal.module.css */
+
 /* --- ✨ 1. DESIGN SYSTEM (CSS VARIABLES) --- */
 .inventoryContainer {
     --glow-color: rgba(100, 180, 255, 0.7);
@@ -8,15 +10,22 @@
     --surface-light: rgba(255, 255, 255, 0.1);
     --surface-dark: rgba(0, 0, 0, 0.2);
     --border-color: rgba(255, 255, 255, 0.15);
-    --compact-vertical-shift: -40px;
+    --compact-vertical-shift: -20px; /* Reduced shift for safety */
     --transition-speed: 0.3s;
+
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 12px; /* Default gap */
     padding: 12px;
-    max-height: 90vh;
+    /* 🔥 АДАПТАЦИЯ: Высота на весь контейнер модалки */
+    height: 100%;
+    max-height: 80vh;
     overflow-y: auto;
     transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.inventoryContainer::-webkit-scrollbar {
+    display: none;
 }
 
 .scaledDown {
@@ -24,48 +33,55 @@
     transform-origin: top center;
 }
 
-/* --- 2. TOP RESOURCES BAR (Subtle Polish) --- */
+/* --- 2. TOP RESOURCES BAR (Responsive) --- */
 .resourcesBar {
-    width: 90%;
+    width: 100%; /* Full width */
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Важно для вертикального выравнивания! */
+    align-items: center;
     background-color: var(--surface-dark);
-    padding: 8px;
+    padding: 8px 12px;
     border-radius: 12px;
     border: 1px solid var(--border-color);
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
-/* --- ✨ 3. CHARACTER HUB (Major Overhaul) --- */
+/* --- ✨ 3. CHARACTER HUB (Responsive Layout) --- */
 .characterHub {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 10px; /* Reduced gap */
+    width: 100%;
 }
+
 .characterSwitcher {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    position: relative; /* For absolute positioning if needed */
 }
+
 .switchButton {
     background-color: var(--surface-light);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    width: 36px;
-    height: 36px;
+    width: 32px; /* Slightly smaller default */
+    height: 32px;
     border-radius: 50%;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
     transition: all var(--transition-speed) ease;
+    z-index: 2;
 }
+
 .switchButton:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
@@ -73,12 +89,23 @@
 }
 .switchButton:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.characterDisplayWrapper { display: flex; align-items: center; gap: 16px; }
-.equipmentColumn { display: flex; flex-direction: column; gap: 8px; }
+.characterDisplayWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Reduced gap */
+    width: 100%;
+}
+
+.equipmentColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
 .equipmentSlot {
-    width: 48px;
-    height: 48px;
+    width: 44px; /* Default size */
+    height: 44px;
     background-color: var(--surface-dark);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -88,11 +115,13 @@
     cursor: pointer;
     transition: all var(--transition-speed) ease;
 }
+
 .equipmentSlot:hover {
     background-color: rgba(0, 0, 0, 0.4);
     transform: translateY(-2px);
     box-shadow: inset 0 0 8px var(--glow-color);
 }
+
 .equipmentImage { width: 60%; height: 60%; object-fit: contain; filter: brightness(0.9); }
 
 .characterDisplay {
@@ -101,11 +130,12 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    min-width: 100px; /* Prevent shrinking too much */
 }
 
 .characterImage {
-    width: 90px;
-    height: 90px;
+    width: 80px; /* Default size */
+    height: 80px;
     border-radius: 50%;
     border: 3px solid #4a4e69;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
@@ -114,33 +144,57 @@
     transition: all var(--transition-speed) ease;
 }
 
-.characterName { font-size: 1.1rem; font-weight: 600; margin: 0; text-align: center; color: var(--text-primary); }
-.characterTeam { font-size: 0.8rem; color: var(--text-secondary); margin: 0; text-align: center; }
+.characterName {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.characterTeam {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+    text-align: center;
+}
 
 .characterStatsGrid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 8px; width: 100%; padding: 0 10px; box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
 }
+
 .statItem {
-    display: flex; align-items: center; gap: 8px;
-    background-color: rgba(255, 255, 255, 0.05); padding: 6px 10px; border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content */
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 6px;
+    border-radius: 8px;
     border: 1px solid transparent;
     transition: all var(--transition-speed) ease;
 }
+
 .statItem:hover {
     border-color: var(--border-color);
     background-color: var(--surface-light);
 }
-.statIcon { width: 24px; height: 24px; }
-.statInfo { display: flex; flex-direction: column; }
-.statValue { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-.statLabel { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
+
+.statIcon { width: 20px; height: 20px; } /* Smaller icons */
+.statInfo { display: flex; flex-direction: column; align-items: flex-start; }
+.statValue { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.statLabel { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; line-height: 1; margin-top: 2px;}
 
 .makeMainButton {
-    width: 100%; padding: 12px; margin-top: 4px; border-radius: 10px; border: none;
+    width: 100%; padding: 10px; margin-top: 4px; border-radius: 10px; border: none;
     background: var(--gold-gradient);
     color: #1a1a1a;
-    font-size: 1rem; font-weight: bold; cursor: pointer;
+    font-size: 0.9rem; font-weight: bold; cursor: pointer;
     box-shadow: 0 2px 8px rgba(255, 200, 0, 0.4);
     transition: all var(--transition-speed) ease;
     animation: pulseButton 2.5s infinite ease-in-out;
@@ -148,28 +202,34 @@
 
 @keyframes pulseButton {
     0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(255, 200, 0, 0.4); }
-    50% { transform: scale(1.03); box-shadow: 0 4px 15px rgba(255, 200, 0, 0.6); }
+    50% { transform: scale(1.02); box-shadow: 0 4px 15px rgba(255, 200, 0, 0.6); }
 }
 
 .makeMainButton:hover:not(:disabled) {
-    transform: scale(1.05) !important;
+    transform: scale(1.02) !important;
     box-shadow: 0 4px 12px rgba(255, 200, 0, 0.6);
     animation-play-state: paused;
 }
 .makeMainButton:disabled { opacity: 0.6; cursor: wait; animation: none; }
 
-/* --- ✨ 4. INVENTORY (Irresistible Loot Boxes) --- */
+/* --- ✨ 4. INVENTORY (Responsive Grid) --- */
 .inventorySection {
-    position: relative; top: 10px;
-    left: 9px;
-    width: 93%;
-    display: flex; flex-direction: column; gap: 8px;
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1; /* Take remaining space */
 }
+
 .inventoryGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    /* 🔥 АДАПТАЦИЯ: Авто-заполнение с минимальной шириной 45px */
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
     gap: 8px;
+    width: 100%;
 }
+
 .inventorySlot {
     position: relative;
     width: 100%;
@@ -183,10 +243,11 @@
     transition: all var(--transition-speed) ease;
     overflow: hidden;
 }
+
 .inventorySlot.clickable:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     border-color: var(--glow-color);
-    box-shadow: 0 0 15px var(--glow-color);
+    box-shadow: 0 0 10px var(--glow-color);
     background-color: rgba(0, 0, 0, 0.4);
 }
 .inventorySlot.disabled { filter: grayscale(80%) brightness(0.7); cursor: not-allowed; }
@@ -194,10 +255,7 @@
 .inventorySlot.clickable::after {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -75%;
-    width: 50%;
-    height: 200%;
+    top: -50%; left: -75%; width: 50%; height: 200%;
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
     transform: rotate(25deg);
     opacity: 0;
@@ -213,16 +271,16 @@
     100% { left: 125%; }
 }
 
-.itemImage { width: 85%; height: 85%; object-fit: contain; z-index: 1; }
+.itemImage { width: 80%; height: 80%; object-fit: contain; z-index: 1; }
 .itemCount {
-    position: absolute; bottom: 2px; right: 4px;
+    position: absolute; bottom: 2px; right: 2px;
     background: var(--brand-gradient);
-    color: white; font-size: 0.7rem; font-weight: bold;
-    padding: 1px 5px; border-radius: 10px; border: 1.5px solid white;
+    color: white; font-size: 0.65rem; font-weight: bold;
+    padding: 0px 4px; border-radius: 8px; border: 1px solid white;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5); z-index: 2;
 }
 
-/* --- ✨ 5. ANIMATIONS & OVERLAYS (The "WOW" Moment) --- */
+/* --- ✨ 5. ANIMATIONS & OVERLAYS --- */
 .animationOverlay {
     position: absolute; inset: 0;
     background-color: rgba(0, 0, 0, 0.85);
@@ -231,82 +289,123 @@
     z-index: 10; border-radius: 16px; overflow: hidden; color: white;
 }
 
-/* НОВЫЙ СТИЛЬ: Вспышка */
 .flashEffect {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background-color: rgba(255, 233, 159, 0.9);
     z-index: 12;
 }
 
-/* ОБНОВЛЕННЫЙ СТИЛЬ: Бокс с эффектом свечения */
 .openingBox {
-    width: 180px;
-    height: 180px;
+    width: 150px; /* Slightly smaller for mobile safety */
+    height: 150px;
     z-index: 11;
-    /* ✨ Важная часть: создаем свечение с помощью drop-shadow */
     filter: drop-shadow(0 0 15px rgba(255, 220, 120, 0.6))
     drop-shadow(0 0 40px rgba(255, 180, 50, 0.4));
 }
 
 .rewardContainer {
-    display: flex; flex-direction: column; gap: 16px; text-align: center;
+    display: flex; flex-direction: column; gap: 12px; text-align: center;
     background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(0,0,0,0) 70%);
-    padding: 32px 48px; border-radius: 20px;
+    padding: 20px;
+    border-radius: 20px;
     z-index: 11;
+    width: 100%;
 }
 .rewardTitle {
-    font-size: 2.5rem; margin: 0; color: #ffdd40;
+    font-size: 2rem; margin: 0; color: #ffdd40;
     text-shadow: 0 0 10px #ffc107, 0 0 25px #ffc107;
 }
 .rewardItem {
-    font-size: 1.8rem; margin: 0; display: flex; align-items: center;
+    font-size: 1.5rem; margin: 0; display: flex; align-items: center;
     justify-content: center;
-    gap: 12px; font-weight: 500;
+    gap: 8px; font-weight: 500;
 }
-.rewardItem img { width: 40px; height: 40px; }
+.rewardItem img { width: 32px; height: 32px; }
 
-/* ... (всі ваші існуючі стилі) ... */
-
-/* ✨ СТИЛІ ДЛЯ НОВОЇ КНОПКИ РЕФЕРАЛІВ ✨ */
+/* ✨ REFERRAL BUTTON ✨ */
 .referralButton {
-    display: flex;
-    align-items: center; /* Центрирует вертикально */
-    justify-content: center; /* Центрирует горизонтально */
-
-    /* Розміри */
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-
-    /* Вигляд */
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; min-width: 32px;
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
-
-    /* "Скляний" ефект */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
-
-    /* Тінь для глибини */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-
-    /* Стиль тексту "+" */
     color: #ffffff;
-    font-size: 28px;
-    font-weight: 300; /* Тонкий плюс */
+    font-size: 24px;
+    font-weight: 300;
     line-height: 1;
-    padding: 0;
-    padding-bottom: 2px; /* Легке центрування */
-
-    /* Анімація */
+    padding: 0; padding-bottom: 2px;
     transition: background 0.2s ease, box-shadow 0.2s ease;
     transform: translateY(2px);
 }
 
 .referralButton:hover {
-    /* Робимо яскравіше при наведенні */
     background: rgba(255, 255, 255, 0.25);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ======================================= */
+/* 🔥 MEDIA QUERIES (АДАПТАЦИЯ ДЛЯ МОБИЛОК) */
+/* ======================================= */
+
+/* Для экранов меньше 360px (iPhone SE, старые Android) */
+@media (max-width: 360px) {
+    .inventoryContainer {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    /* Resources Bar */
+    .resourcesBar {
+        padding: 6px 8px;
+    }
+    .statValue { font-size: 0.85rem; }
+    .statLabel { font-size: 0.6rem; }
+    .statIcon { width: 18px; height: 18px; }
+
+    /* Character Hub */
+    .characterImage {
+        width: 65px;
+        height: 65px;
+    }
+    .equipmentSlot {
+        width: 38px;
+        height: 38px;
+    }
+    .switchButton {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+    }
+
+    .characterName { font-size: 0.9rem; }
+    .characterTeam { font-size: 0.7rem; }
+
+    /* Stats Grid */
+    .characterStatsGrid {
+        gap: 4px;
+    }
+    .statItem {
+        padding: 4px;
+        flex-direction: column; /* Stack icon and text vertically to save width */
+        gap: 2px;
+    }
+    .statInfo {
+        align-items: center;
+    }
+
+    /* Inventory */
+    .inventoryGrid {
+        grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+        gap: 6px;
+    }
+    .itemCount { font-size: 0.6rem; padding: 0 3px; }
+
+    /* Opening Box Animation */
+    .openingBox { width: 120px; height: 120px; }
+    .rewardTitle { font-size: 1.5rem; }
+    .rewardItem { font-size: 1.2rem; }
 }

@@ -53,6 +53,7 @@ export function ModalRoot({
                               animation = true,
                               soundOnOpen = default_sound,
                           }) {
+    // ... (useEffect та useLayoutEffect залишаються без змін) ...
     useEffect(() => {
         if (soundOnOpen) {
             try {
@@ -104,7 +105,7 @@ export function ModalRoot({
         };
     }, [variant, attachTo]);
 
-    // ✨ --- ПОКРАЩЕНІ ВАРІАНТИ АНІМАЦІЇ --- ✨
+    // Анімації залишаються ті самі...
     const backdropVariants = {
         hidden: {opacity: 0},
         visible: {opacity: 1},
@@ -127,8 +128,7 @@ export function ModalRoot({
     const backdropStyle = {
         position: "absolute",
         inset: 0,
-        background: backdrop ? "rgba(0,0,0,0.5)" : "transparent",
-        // ✨ Покращений "скляний" ефект
+        background: backdrop ? "rgba(0,0,0,0.6)" : "transparent", // Трохи темніший фон
         backdropFilter: backdrop ? "blur(8px) saturate(120%)" : "none",
         WebkitBackdropFilter: backdrop ? "blur(8px) saturate(120%)" : "none",
         zIndex: 2147483646,
@@ -138,17 +138,18 @@ export function ModalRoot({
         position: "fixed",
         left: `${center.x}px`,
         top: `${center.y}px`,
-        // ✨ УСІ ВАШІ СТИЛІ ПОЗИЦІОНУВАННЯ ТА РОЗМІРІВ ЗБЕРЕЖЕНО
-        width: "min(360px, 86vw)",
-        maxWidth: "360px",
-        maxHeight: "72vh",
+
+        // 🔥 ВИПРАВЛЕННЯ: Розширюємо ширину для мобільних (було 86vw, стало 94vw)
+        width: "min(380px, 94vw)",
+        maxWidth: "380px",
+
+        // 🔥 ВИПРАВЛЕННЯ: Даємо більше висоти (було 72vh, стало 85vh)
+        maxHeight: "85vh",
+
         overflowY: "auto",
         zIndex: 2147483647,
         boxSizing: "border-box",
-        // Прибираємо стандартний скролбар, якщо потрібно
-        '::-webkit-scrollbar': {
-            display: 'none'
-        },
+        '::-webkit-scrollbar': { display: 'none' },
         scrollbarWidth: 'none',
         ...style,
     };
@@ -156,7 +157,7 @@ export function ModalRoot({
     const modal = (
         <AnimatePresence mode="wait">
             <div style={overlayBase} className={`modal-root ${className}`}>
-                <GlobalStyles/> {/* ✨ Додаємо глобальні стилі */}
+                <GlobalStyles/>
                 <motion.div
                     key="backdrop"
                     style={backdropStyle}
@@ -175,7 +176,6 @@ export function ModalRoot({
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    // ✨ Трохи змінена анімація для більш чіткого ефекту
                     transition={{type: "spring", damping: 25, stiffness: 350}}
                 >
                     {children}
@@ -387,15 +387,15 @@ export function TopChancesAlert({ teams = [] }) {
 /* ---------- PlayerModal (Більш виразний дизайн) ---------- */
 export function PlayerModal({
                                 player = {},
-                                isOwner = false, // <-- Новий пропс, що визначає, чи це гравець користувача
+                                isOwner = false,
                                 onBuy,
-                                onSell, // Тепер це функція для переходу до SetPriceModal
-                                onRemoveFromSale, // <-- Нова функція
+                                onSell,
+                                onRemoveFromSale,
                                 onInstantSell,
                                 onClose,
-                                isProcessing = false, // <-- Новий пропс для блокування кнопок
+                                isProcessing = false,
                             }) {
-    console.log("Player: ", player);
+    // ... (useEffect для Escape залишається без змін) ...
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') {
@@ -407,13 +407,14 @@ export function PlayerModal({
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [onClose]);
+
     const statItemStyle = {
-        display: "contents" // Дозволяє дочірнім елементам поводитись як прямі нащадки grid
+        display: "contents"
     };
-    const statLabelStyle = {color: "var(--text-secondary)", fontWeight: 500, fontSize: 14};
+    const statLabelStyle = {color: "var(--text-secondary)", fontWeight: 500, fontSize: 13}; // Трохи зменшив шрифт
     const statValueStyle = {
         fontWeight: 700,
-        fontSize: 15,
+        fontSize: 14,
         textAlign: 'right',
         textShadow: '0 1px 2px var(--shadow-color)'
     };
@@ -422,16 +423,15 @@ export function PlayerModal({
         <Box style={{padding: 16}} onClose={onClose}>
             <HeaderBar title="Інформація про гравця"/>
 
-            <div style={{display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap"}}>
-                <div style={{flex: "0 0 auto", width: 92, maxWidth: "28%", boxSizing: "border-box"}}>
+            <div style={{display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap"}}>
+                {/* Зображення */}
+                <div style={{flex: "0 0 auto", width: 80, maxWidth: "30%", boxSizing: "border-box"}}>
                     <motion.img
                         src={player.images.avatar || "/assets/img172.png"}
                         alt={player.name}
                         style={{
                             width: "100%",
                             height: "auto",
-                            maxHeight: 110,
-                            objectFit: "cover",
                             borderRadius: 12,
                             border: "2px solid var(--glow-primary)",
                             boxShadow: `0 0 15px -2px var(--glow-primary)`,
@@ -443,20 +443,25 @@ export function PlayerModal({
                     />
                 </div>
 
+                {/* Текстова інформація */}
                 <div style={{flex: "1 1 60%", minWidth: 140, boxSizing: "border-box"}}>
-                    <div style={{fontSize: 20, fontWeight: 800}}>{player.name || "—"}</div>
+                    <div style={{fontSize: 18, fontWeight: 800, lineHeight: 1.2}}>{player.name || "—"}</div>
                     <div style={{
                         color: "var(--text-secondary)",
-                        marginTop: 4,
+                        marginTop: 2,
+                        fontSize: 13,
                         fontStyle: 'italic'
                     }}>{player.position || "—"}</div>
 
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: "1fr auto",
-                        gap: "8px 12px",
-                        marginTop: 12,
-                        alignItems: "center"
+                        gap: "4px 10px", // Зменшені відступи
+                        marginTop: 10,
+                        alignItems: "center",
+                        background: "rgba(255,255,255,0.03)", // Легка підкладка
+                        padding: 8,
+                        borderRadius: 8
                     }}>
                         <div style={statItemStyle}><span style={statLabelStyle}>Вік:</span><span
                             style={statValueStyle}>{player.age ?? "—"}</span></div>
@@ -465,74 +470,94 @@ export function PlayerModal({
                         <div style={statItemStyle}><span style={statLabelStyle}>Талант:</span><span
                             style={statValueStyle}>{player.talent ?? "—"}</span></div>
                     </div>
+                </div>
 
-                    <div style={{
-                        marginTop: 16,
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "center",
-                        flexWrap: "wrap"
-                    }}>
-                        {/* --- УМОВНИЙ РЕНДЕРИНГ КНОПОК --- */}
-                        {isOwner ? (
-                            <>
-                                {player.transfer ? (
-                                    <GradientButton onClick={onRemoveFromSale} variant="danger" disabled={isProcessing}>
-                                        {isProcessing ? 'Знімаємо...' : 'Зняти з продажу'}
-                                    </GradientButton>
-                                ) : (
-                                    <div style={{
-                                        display: 'flex',
-                                        gap: '20px',
-                                        width: '100%',
-                                        height: 70,
-                                        position: 'relative',
-                                        right: 60
-                                    }}>
-                                        <GradientButton onClick={onSell} variant="alt" disabled={isProcessing}
-                                                        style={{flex: 1}}>
-                                            Продати на ринку
-                                        </GradientButton>
-                                        <GradientButton onClick={onInstantSell} variant="danger" disabled={isProcessing}
-                                                        style={{flex: 1}}>
-                                            Продати моментально
-                                        </GradientButton>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <GradientButton onClick={onBuy} disabled={isProcessing}>
-                                    {isProcessing ? 'Купуємо...' : 'Купити'}
+                {/* Блок кнопок (винесений на нову строку для надійності) */}
+                <div style={{
+                    marginTop: 8,
+                    width: "100%",
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "center",
+                    flexWrap: "wrap", // 🔥 Дозволяє перенос кнопок
+                    justifyContent: "space-between"
+                }}>
+                    {isOwner ? (
+                        <>
+                            {player.transfer ? (
+                                <GradientButton
+                                    onClick={onRemoveFromSale}
+                                    variant="danger"
+                                    disabled={isProcessing}
+                                    style={{width: "100%"}} // Кнопка на всю ширину
+                                >
+                                    {isProcessing ? 'Знімаємо...' : 'Зняти з продажу'}
                                 </GradientButton>
-                                <div style={{marginLeft: "auto", /* ... */}}>
-                                    @{player.seller || player.owner.username || "—"}
+                            ) : (
+                                // 🔥 ВИПРАВЛЕНО: Прибрано right: 60 і position: relative
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '8px',
+                                    width: '100%',
+                                    flexWrap: 'wrap' // Адаптивність кнопок
+                                }}>
+                                    <GradientButton
+                                        onClick={onSell}
+                                        variant="alt"
+                                        disabled={isProcessing}
+                                        style={{flex: "1 1 120px", fontSize: 13}} // Мінімальна ширина
+                                    >
+                                        На ринок
+                                    </GradientButton>
+                                    <GradientButton
+                                        onClick={onInstantSell}
+                                        variant="danger"
+                                        disabled={isProcessing}
+                                        style={{flex: "1 1 120px", fontSize: 13}}
+                                    >
+                                        Швидкий продаж
+                                    </GradientButton>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <GradientButton onClick={onBuy} disabled={isProcessing} style={{flexGrow: 1}}>
+                                {isProcessing ? 'Купуємо...' : 'Купити'}
+                            </GradientButton>
+                            <div style={{
+                                fontSize: 13,
+                                color: "var(--text-secondary)",
+                                whiteSpace: "nowrap"
+                            }}>
+                                @{player.seller || player.owner.username || "—"}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </Box>
     );
 }
-
-
 /* ---------- DonateEnergyModal & OutOfEnergyModal (Об'єднані стилі карток) ---------- */
 
-// ✨ Компонент для картки товару, щоб уникнути дублювання
 function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix = " грн"}) {
     return (
         <motion.div
             style={{
                 background: "var(--surface-highlight)",
-                padding: 12,
+                // 🔥 АДАПТАЦИЯ: Уменьшил padding с 12 до 10
+                padding: 10,
                 borderRadius: 12,
                 textAlign: "center",
                 boxSizing: "border-box",
                 border: "1px solid var(--surface-border)",
                 overflow: 'hidden',
-                position: 'relative'
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                height: '100%' // Растягиваем на всю высоту ячейки грида
             }}
             whileHover={{
                 scale: 1.03,
@@ -546,26 +571,32 @@ function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix
             }}
         >
             <img src={pack.img} alt={pack.label || `pack-${pack.id}`} style={{
-                width: 72,
-                height: 72,
+                // 🔥 АДАПТАЦИЯ: Картинка стала чуть меньше (было 72 -> 60)
+                width: 60,
+                height: 60,
                 objectFit: "contain",
                 marginBottom: 4,
                 filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
             }}/>
-            <div style={{fontWeight: 800, fontSize: 16, marginBottom: 6}}>{pack.label}</div>
+            <div style={{fontWeight: 800, fontSize: 15, marginBottom: 4}}>{pack.label}</div>
             <div style={{
-                marginBottom: 10,
+                marginBottom: 8,
                 color: "var(--text-secondary)",
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 500
             }}>{pricePrefix}{pack.price}{priceSuffix}</div>
-            <GradientButton onClick={() => onAction(pack)} style={{width: "100%", fontSize: 14}}>
-                {actionText}
-            </GradientButton>
+
+            {/* Кнопка прижимается к низу */}
+            <div style={{marginTop: 'auto', width: '100%'}}>
+                <GradientButton onClick={() => onAction(pack)} style={{width: "100%", fontSize: 13, padding: "8px 0"}}>
+                    {actionText}
+                </GradientButton>
+            </div>
         </motion.div>
     );
 }
 
+/* ---------- BuyModal (Адаптивный Грид) ---------- */
 export function BuyModal({onClose, onDonate, type = 'coin'}) {
     const packs = type === "coin" ? [
         {id: 1, label: "x100", price: 125, img: Config.IMAGES.coin_mini},
@@ -580,11 +611,18 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
     ]
 
     return (
-        <Box style={{padding: 16, maxWidth: 520, height: 480}}>
+        <Box style={{padding: 16, width: "100%", maxWidth: 520}} onClose={onClose}>
             <HeaderBar title={type === 'coin' ? "Купити монети" : "Купити енергію"}/>
 
             <motion.div
-                style={{display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12}}
+                style={{
+                    display: "grid",
+                    // 🔥 АДАПТАЦИЯ: Если экран очень узкий (< 300px), станет 1 колонка.
+                    // Если > 300px, будет 2 колонки (по ~135px).
+                    gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))",
+                    gap: 12,
+                    marginTop: 10
+                }}
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -596,7 +634,7 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
                 ))}
             </motion.div>
 
-            <div style={{marginTop: 14, textAlign: "center"}}>
+            <div style={{marginTop: 16, textAlign: "center"}}>
                 <motion.button
                     onClick={onClose}
                     style={{
@@ -604,7 +642,8 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
                         border: "none",
                         color: "var(--text-secondary)",
                         cursor: "pointer",
-                        fontSize: 13
+                        fontSize: 14,
+                        padding: 10
                     }}
                     whileHover={{color: 'var(--text-primary)'}}
                 >
@@ -615,7 +654,7 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
     );
 }
 
-
+/* ---------- OutOfEnergyModal (Адаптивный Грид) ---------- */
 export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
     const defaultPacks = [
         {id: 1, label: "x100", price: 125, img: Config.IMAGES.energy_mini},
@@ -638,7 +677,12 @@ export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
             </div>
 
             <motion.div
-                style={{display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12}}
+                style={{
+                    display: "grid",
+                    // 🔥 АДАПТАЦИЯ: Та же логика, что и в BuyModal
+                    gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))",
+                    gap: 12
+                }}
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -653,18 +697,16 @@ export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
     );
 }
 
-
-/* ---------- AlertModal (Елегантний та чистий) ---------- */
+/* ---------- AlertModal (Адаптивный) ---------- */
 export function AlertModal({
                                message = "Повідомлення",
                                html = false,
-                               onClose = () => {
-                               },
+                               onClose = () => {},
                                autoCloseMs = 3000,
-                               width = 300,
+                               // width = 300, // 🔥 УБРАНО: Не используем жесткую ширину
                                height = 120,
-                               maxFont = 22,
-                               minFont = 10,
+                               maxFont = 20, // Чуть уменьшил макс шрифт
+                               minFont = 12,
                            }) {
     const textRef = useRef(null);
     const [fontSize, setFontSize] = useState(maxFont);
@@ -675,21 +717,24 @@ export function AlertModal({
         return () => clearTimeout(t);
     }, [autoCloseMs, onClose]);
 
+    // Логика подбора шрифта (useLayoutEffect) остается без изменений...
     useLayoutEffect(() => {
         const el = textRef.current;
         if (!el) return;
         let size = maxFont;
-        el.style.fontSize = size + "px"; // Встановлюємо початковий розмір
+        el.style.fontSize = size + "px";
         while (size > minFont && (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)) {
             size--;
             el.style.fontSize = size + "px";
         }
         setFontSize(size);
-    }, [message, maxFont, minFont, width, height, html]);
+    }, [message, maxFont, minFont, height, html]);
 
     const alertStyle = {
-        width: "100%", // Займати всю ширину батьківського контейнера
-        minHeight: height, // Використовуй min-height замість height для гнучкості
+        width: "100%",
+        // 🔥 АДАПТАЦИЯ: max-width, чтобы на больших экранах не было гигантской полосы
+        maxWidth: "320px",
+        minHeight: height,
         background: `radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 70%), var(--surface-background)`,
         borderRadius: 16,
         boxShadow: "0 16px 40px var(--shadow-color), 0 0 0 1px var(--surface-border)",
@@ -698,39 +743,24 @@ export function AlertModal({
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        position: "relative", // `left: -10` прибрано
+        position: "relative",
         overflow: 'visible',
         border: '1px solid transparent',
+        margin: '0 auto' // Центрирование
     };
 
+    // ... (rest of the styles: gradientBorderStyle, textContainerStyle remain the same) ...
     const gradientBorderStyle = {
-        content: '""',
-        position: 'absolute',
-        inset: 0,
-        borderRadius: 'inherit',
-        padding: '1px',
-        background: 'var(--gradient-border)',
-        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-        WebkitMaskComposite: 'xor',
-        maskComposite: 'exclude',
-        pointerEvents: 'none',
+        content: '""', position: 'absolute', inset: 0, borderRadius: 'inherit', padding: '1px',
+        background: 'var(--gradient-border)', WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+        WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none',
     };
 
     const textContainerStyle = {
-        width: "100%",
-        height: "100%",
-        overflow: "visible",
-        color: "var(--text-primary)",
-        boxSizing: "border-box",
-        fontWeight: 700,
-        lineHeight: 1.3,
-        fontSize,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
+        width: "100%", height: "100%", overflow: "visible", color: "var(--text-primary)",
+        boxSizing: "border-box", fontWeight: 700, lineHeight: 1.3, fontSize,
+        whiteSpace: "pre-wrap", wordBreak: "break-word", display: "flex",
+        alignItems: "center", justifyContent: "center", textAlign: "center",
         textShadow: '0 2px 4px rgba(0,0,0,0.5)'
     };
 
@@ -744,11 +774,7 @@ export function AlertModal({
                     background: "rgba(255,255,255,0.08)", border: "none", color: "#fff",
                     fontSize: 18, cursor: "pointer", borderRadius: 10, zIndex: 2
                 }}
-                whileHover={{
-                    background: "rgba(255,255,255,0.15)",
-                    scale: 1.1,
-                    rotate: 90
-                }}
+                whileHover={{ background: "rgba(255,255,255,0.15)", scale: 1.1, rotate: 90 }}
                 whileTap={{scale: 0.9}}
             >
                 ×
@@ -789,15 +815,14 @@ function SecondaryButton({children, onClick, style = {}}) {
 }
 
 
-// ✨ --- BuyEnergyModal (Покращена версія) --- ✨
+/* ---------- DonateEnergyModal (Адаптивный) ---------- */
 export function DonateEnergyModal({
-                                   balanceCoins = null,
-                                   packs = null,
-                                   onConfirm = () => {
-                                   },
-                                   onClose = () => {
-                                   },
-                               }) {
+                                      balanceCoins = null,
+                                      packs = null,
+                                      onConfirm = () => {},
+                                      onClose = () => {},
+                                  }) {
+    // ... (логика defaultPacks, useEffect, useState остается без изменений) ...
     const defaultPacks = [
         {id: 1, label: "20", energy: 20, img: Config.IMAGES.energy_mini},
         {id: 2, label: "50", energy: 50, img: Config.IMAGES.energy_mini},
@@ -813,40 +838,19 @@ export function DonateEnergyModal({
     const [isInputFocused, setInputFocused] = useState(false);
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        if (inputRef.current) inputRef.current.focus();
-    }, []);
+    useEffect(() => { if (inputRef.current) inputRef.current.focus(); }, []);
 
     useEffect(() => {
-        const onKey = (e) => {
-            if (e.key === "Escape") onClose();
-            if (e.key === "Enter") handleConfirm();
-        };
+        const onKey = (e) => { if (e.key === "Escape") onClose(); if (e.key === "Enter") handleConfirm(); };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [energy, customQty]);
 
-    function onSelectPack(p) {
-        setEnergy(p.energy);
-        setCustomQty(String(p.energy));
-    }
-
-    function handleCustomChange(val) {
-        const clean = val.replace(/\D+/g, "");
-        setCustomQty(clean);
-        setEnergy(clean === "" ? 0 : Number(clean));
-    }
-
+    function onSelectPack(p) { setEnergy(p.energy); setCustomQty(String(p.energy)); }
+    function handleCustomChange(val) { const clean = val.replace(/\D+/g, ""); setCustomQty(clean); setEnergy(clean === "" ? 0 : Number(clean)); }
     function handleConfirm() {
         const qty = Number(energy || 0);
-
-        // --- ЗМІНА: Додано перевірку на мінімальну кількість ---
-        if (!qty || qty < 10) {
-            showAlert("Мінімальна кількість для донату — 10 енергії.");
-            return;
-        }
-
+        if (!qty || qty < 10) { showAlert("Мінімальна кількість для донату — 10 енергії."); return; }
         onConfirm({ energy: qty });
     }
 
@@ -857,33 +861,45 @@ export function DonateEnergyModal({
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
         borderColor: isInputFocused ? 'var(--glow-primary)' : 'var(--surface-border)',
         boxShadow: isInputFocused ? `0 0 8px -1px var(--glow-primary)` : 'none',
+        marginTop: 10
     };
 
     return (
-        <Box style={{padding: 16, maxWidth: 520}} onClose={onClose}>
+        <Box style={{padding: 16, width: "100%", maxWidth: 520}} onClose={onClose}>
             <HeaderBar title="Задонатити енергію"/>
 
-            <div style={{display: "flex", gap: 16, alignItems: "center", marginBottom: 16}}>
+            <div style={{
+                // 🔥 АДАПТАЦИЯ: На маленьких экранах картинка уйдет вверх
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 16,
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 16
+            }}>
                 <motion.div
-                    style={{flex: "0 0 92px", textAlign: 'center'}}
+                    style={{flex: "0 0 80px", textAlign: 'center'}}
                     initial={{opacity: 0, scale: 0.5}}
                     animate={{opacity: 1, scale: 1}}
                     transition={{delay: 0.1, type: 'spring', stiffness: 200}}
                 >
                     <img src={Config.IMAGES.energy_large} alt="energy" style={{
-                        width: 80,
-                        height: 80,
-                        objectFit: "contain",
-                        filter: 'drop-shadow(0 5px 10px rgba(0,0,0,0.5))'
+                        width: 80, height: 80, objectFit: "contain", filter: 'drop-shadow(0 5px 10px rgba(0,0,0,0.5))'
                     }}/>
                 </motion.div>
 
-                <div style={{flex: 1}}>
-                    <div style={{color: "var(--text-secondary)", marginBottom: 8, fontSize: 14}}>Оберіть кількість або
-                        введіть вручну
+                <div style={{flex: 1, minWidth: "200px"}}>
+                    <div style={{color: "var(--text-secondary)", marginBottom: 8, fontSize: 14, textAlign: "center"}}>
+                        Оберіть кількість або введіть вручну
                     </div>
                     <motion.div
-                        style={{display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12}}
+                        style={{
+                            display: "grid",
+                            // 🔥 АДАПТАЦИЯ: Автоматическое кол-во колонок
+                            gridTemplateColumns: "repeat(auto-fit, minmax(60px, 1fr))",
+                            gap: 8,
+                            marginBottom: 12
+                        }}
                         variants={{visible: {transition: {staggerChildren: 0.05}}}}
                         initial="hidden" animate="visible"
                     >
@@ -892,8 +908,8 @@ export function DonateEnergyModal({
                                 key={p.id}
                                 onClick={() => onSelectPack(p)}
                                 style={{
-                                    padding: "8px 12px", borderRadius: 12, cursor: "pointer",
-                                    fontWeight: 700, border: '2px solid transparent'
+                                    padding: "8px 4px", borderRadius: 12, cursor: "pointer",
+                                    fontWeight: 700, border: '2px solid transparent', fontSize: 14
                                 }}
                                 variants={{hidden: {opacity: 0, y: 10}, visible: {opacity: 1, y: 0}}}
                                 animate={{
@@ -913,47 +929,42 @@ export function DonateEnergyModal({
                 </div>
             </div>
 
-            <div style={{display: "flex", gap: 10, justifyContent: "flex-end", alignItems: 'center', marginTop: 6}}>
-                <div style={{marginRight: 'auto', color: "var(--text-secondary)", fontSize: 14}}>
+            {/* 🔥 АДАПТАЦИЯ: Кнопки внизу тоже могут переноситься */}
+            <div style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 10,
+                justifyContent: "flex-end",
+                alignItems: 'center',
+                marginTop: 6
+            }}>
+                <div style={{marginRight: 'auto', color: "var(--text-secondary)", fontSize: 14, width: "100%", textAlign: "center", marginBottom: 5}}>
                     Разом: <span style={{color: 'var(--text-primary)', fontWeight: 700}}>{energy} енергії</span>
                 </div>
-                <SecondaryButton onClick={onClose}>Відмінити</SecondaryButton>
-                <GradientButton onClick={handleConfirm} style={{minWidth: 120}}>Задонатити</GradientButton>
+                <SecondaryButton onClick={onClose} style={{flex: 1}}>Відмінити</SecondaryButton>
+                <GradientButton onClick={handleConfirm} style={{flex: 1, minWidth: 120}}>Задонатити</GradientButton>
             </div>
         </Box>
     );
 }
 
 
-// ✨ --- SetPriceModal (Покращена версія) --- ✨
+/* ---------- SetPriceModal (Адаптивный) ---------- */
 export function SetPriceModal({
-                                  initialPrice = 1000,
-                                  minPrice = 1,
-                                  maxPrice = 1000000,
-                                  onConfirm = () => {
-                                  },
-                                  onClose = () => {
-                                  },
-                                  onBack = () => {
-                                  }, // <-- Новий пропс
-                                  isProcessing = false, // <-- Новий пропс для блокування кнопки
+                                  initialPrice = 1000, minPrice = 1, maxPrice = 1000000,
+                                  onConfirm = () => {}, onClose = () => {}, onBack = () => {},
+                                  isProcessing = false,
                               }) {
+    // ... (логика useState и useEffect остается без изменений) ...
     const [price, setPrice] = useState(initialPrice);
     const [isInputFocused, setInputFocused] = useState(false);
     const inputRef = useRef(null);
 
+    useEffect(() => { if (inputRef.current) inputRef.current.focus(); }, []);
     useEffect(() => {
-        if (inputRef.current) inputRef.current.focus();
-    }, []);
-
-    useEffect(() => {
-        const onKey = (e) => {
-            if (e.key === "Escape") onClose();
-            if (e.key === "Enter") handleConfirm();
-        };
+        const onKey = (e) => { if (e.key === "Escape") onClose(); if (e.key === "Enter") handleConfirm(); };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [price]);
 
     function handleChange(val) {
@@ -970,10 +981,6 @@ export function SetPriceModal({
         onConfirm(p);
     }
 
-    const inputContainerStyle = {
-        position: 'relative', width: '100%',
-    };
-
     const inputStyle = {
         padding: "16px 20px 16px 50px", borderRadius: 12, border: "1px solid var(--surface-border)",
         background: "rgba(0,0,0,0.2)", color: "white", width: "100%",
@@ -984,20 +991,12 @@ export function SetPriceModal({
     };
 
     return (
-        <Box style={{padding: 16, maxWidth: 420}} onClose={onClose}>
+        <Box style={{padding: 16, width: "100%", maxWidth: 420}} onClose={onClose}>
             <HeaderBar title="Встановити ціну"/>
-            <div style={{color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center'}}>Введіть
-                суму в монетах
-            </div>
+            <div style={{color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center'}}>Введіть суму в монетах</div>
 
-            <div style={inputContainerStyle}>
-                <span style={{
-                    position: 'absolute',
-                    left: 18,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    fontSize: 24
-                }}>🪙</span>
+            <div style={{position: 'relative', width: '100%'}}>
+                <span style={{position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 24}}>🪙</span>
                 <input ref={inputRef} value={price} onChange={(e) => handleChange(e.target.value)}
                        inputMode="numeric" placeholder={`${minPrice}`} style={inputStyle}
                        onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}/>
@@ -1007,19 +1006,22 @@ export function SetPriceModal({
                 Мін: {minPrice.toLocaleString('uk-UA')} · Макс: {maxPrice.toLocaleString('uk-UA')}
             </div>
 
-            <div style={{display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20}}>
-                {/* --- ДОДАНО КНОПКУ НАЗАД --- */}
-                <SecondaryButton onClick={onBack}>Назад</SecondaryButton>
-                <div style={{display: "flex", gap: 10}}>
-                    <GradientButton onClick={handleConfirm} variant="alt" style={{minWidth: 140}}>
-                        {isProcessing ? 'Обробка...' : 'Підтвердити'}
-                    </GradientButton>
-                </div>
+            <div style={{
+                // 🔥 АДАПТАЦИЯ: Кнопки в столбик на очень узких экранах, иначе в ряд
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 10,
+                justifyContent: "flex-end",
+                marginTop: 20
+            }}>
+                <SecondaryButton onClick={onBack} style={{flex: "1 1 auto"}}>Назад</SecondaryButton>
+                <GradientButton onClick={handleConfirm} variant="alt" style={{flex: "2 1 auto", minWidth: 140}}>
+                    {isProcessing ? 'Обробка...' : 'Підтвердити'}
+                </GradientButton>
             </div>
         </Box>
     );
 }
-
 // ✨ --- Визначаємо опції VIP прямо тут для зручності --- ✨
 const VIP_OPTIONS = [
     {
@@ -1038,57 +1040,37 @@ const VIP_OPTIONS = [
     }
 ];
 
-// ✨ --- Оновлена версія VipPromoModal --- ✨
 export function VipPromoModal({
                                   onSubscribe = () => {},
                                   onClose = () => {},
                                   scale = 0.9,
                               }) {
-    // Ресурси для кнопки
     const banner = Config.IMAGES.bannerImage || Config.IMAGES.greenBanner;
-
-    // Функція для масштабування
     const s = (v) => (typeof v === "number" ? Math.max(1, Math.round(v * scale)) + "px" : v);
-
-    const base = {
-        buttonHeight: 52, buttonRadius: 12, priceFont: 18, padding: 16,
-    };
+    const base = { buttonHeight: 52, buttonRadius: 12, priceFont: 18, padding: 16 };
 
     return (
-        // Використовуємо ваш існуючий Box, але з іншим внутрішнім наповненням
-        <Box style={{maxWidth: s(640), borderRadius: s(16)}} onClose={onClose}>
-            <div style={{
-                padding: `${s(24)} ${s(base.padding)}`,
-                textAlign: 'center',
-                color: 'white'
-            }}>
-                {/* Загальний заголовок */}
+        // 🔥 АДАПТАЦИЯ: Увеличиваем ширину для мобильных
+        <Box style={{width: "100%", maxWidth: s(640), borderRadius: s(16)}} onClose={onClose}>
+            <div style={{ padding: `${s(24)} ${s(base.padding)}`, textAlign: 'center', color: 'white' }}>
                 <motion.h2
-                    style={{
-                        fontSize: s(24),
-                        fontWeight: 900,
-                        textShadow: "0 4px 12px rgba(0,0,0,0.7)",
-                        marginBottom: s(8),
-                    }}
+                    style={{ fontSize: s(24), fontWeight: 900, textShadow: "0 4px 12px rgba(0,0,0,0.7)", marginBottom: s(8), marginTop: 0 }}
                     initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}}
                 >
                     Оберіть ваш VIP-пасс
                 </motion.h2>
                 <motion.p
-                    style={{
-                        fontSize: s(15),
-                        color: '#c0c0d0',
-                        marginBottom: s(24)
-                    }}
+                    style={{ fontSize: s(15), color: '#c0c0d0', marginBottom: s(24), marginTop: 0 }}
                     initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
                 >
                     Отримайте максимум переваг у грі!
                 </motion.p>
 
-                {/* Контейнер для карток */}
+                {/* 🔥 АДАПТАЦИЯ: flex-wrap: wrap позволяет карточкам переноситься */}
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
+                    flexWrap: 'wrap', // <-- Ключевое изменение
                     gap: s(base.padding),
                     justifyContent: 'center',
                 }}>
@@ -1096,7 +1078,7 @@ export function VipPromoModal({
                         <motion.div
                             key={option.type}
                             style={{
-                                flex: 1,
+                                flex: "1 1 240px", // <-- Минимальная ширина карточки 240px
                                 background: 'rgba(40, 40, 60, 0.7)',
                                 borderRadius: s(12),
                                 border: `2px solid ${option.popular ? '#f0c45c' : '#4a4a6a'}`,
@@ -1110,7 +1092,6 @@ export function VipPromoModal({
                             animate={{opacity: 1, y: 0}}
                             transition={{delay: 0.2 + index * 0.15}}
                         >
-                            {/* Тег "Популярне" */}
                             {option.popular && (
                                 <div style={{
                                     position: 'absolute', top: s(-15), left: '50%', transform: 'translateX(-50%)',
@@ -1121,33 +1102,21 @@ export function VipPromoModal({
                                 </div>
                             )}
 
-                            <h3 style={{fontSize: s(18), fontWeight: 700, marginBottom: s(12)}}>{option.title}</h3>
+                            <h3 style={{fontSize: s(18), fontWeight: 700, marginBottom: s(12), marginTop: s(10)}}>{option.title}</h3>
 
-                            {/* Список переваг */}
-                            <div style={{
-                                margin: `${s(16)} 0`,
-                                color: "#c0c0d0",
-                                textAlign: 'left',
-                                fontSize: s(13),
-                                flexGrow: 1
-                            }}>
+                            <div style={{ margin: `${s(16)} 0`, color: "#c0c0d0", textAlign: 'left', fontSize: s(13), flexGrow: 1 }}>
                                 {option.benefits.map((b, i) => (
-                                    <div key={i} style={{
-                                        display: 'flex', alignItems: 'center',
-                                        gap: s(8), marginBottom: s(8)
-                                    }}>
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: s(8), marginBottom: s(8) }}>
                                         <span style={{color: '#37C35F'}}>✓</span>
                                         <span>{b}</span>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Кнопка покупки */}
                             <motion.button
-                                onClick={() => onSubscribe(option)} // Передаємо всю інформацію про опцію
+                                onClick={() => onSubscribe(option)}
                                 style={{
-                                    width: "100%", height: s(base.buttonHeight),
-                                    borderRadius: s(base.buttonRadius), border: "none", cursor: "pointer",
+                                    width: "100%", height: s(base.buttonHeight), borderRadius: s(base.buttonRadius), border: "none", cursor: "pointer",
                                     display: "inline-flex", alignItems: "center", justifyContent: "center",
                                     backgroundImage: `url(${banner})`, backgroundSize: "cover", backgroundPosition: "center",
                                     boxShadow: "0 8px 25px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.2)",
@@ -1156,10 +1125,7 @@ export function VipPromoModal({
                                 whileHover={{scale: 1.05, filter: 'brightness(1.1)'}}
                                 whileTap={{scale: 0.97, filter: 'brightness(0.95)'}}
                             >
-                                <span style={{
-                                    fontWeight: 900, fontSize: s(base.priceFont), color: "#fff",
-                                    textShadow: "0 2px 5px rgba(0,0,0,0.7)"
-                                }}>
+                                <span style={{ fontWeight: 900, fontSize: s(base.priceFont), color: "#fff", textShadow: "0 2px 5px rgba(0,0,0,0.7)" }}>
                                     {option.price}
                                 </span>
                             </motion.button>
@@ -1170,7 +1136,6 @@ export function VipPromoModal({
         </Box>
     );
 }
-
 /* ---------- НОВИЙ КОМПОНЕНТ InfoModal ---------- */
 /**
  * Модальне вікно для відображення інформації з картинкою, текстом та кнопкою.
@@ -1182,20 +1147,18 @@ export function VipPromoModal({
  */
 export function InfoModal({ title, image, text, onClose }) {
     return (
-        <Box style={{ padding: '20px', textAlign: 'center' }} onClose={onClose}>
-            {/* Необов'язковий заголовок */}
+        <Box style={{ padding: '20px', textAlign: 'center', width: "100%", maxWidth: 360 }} onClose={onClose}>
             {title && <HeaderBar title={title} />}
 
-            {/* Картинка */}
             <motion.img
                 src={image}
                 alt={title || "information icon"}
                 style={{
                     width: '100%',
-                    maxWidth: '120px', // Обмежуємо максимальний розмір
+                    maxWidth: '100px', // Чуть меньше для экономии места
                     height: 'auto',
                     objectFit: 'contain',
-                    margin: '8px auto 16px', // Відступи зверху та знизу
+                    margin: '8px auto 12px',
                     filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.4))'
                 }}
                 initial={{ scale: 0.5, opacity: 0 }}
@@ -1203,20 +1166,18 @@ export function InfoModal({ title, image, text, onClose }) {
                 transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
             />
 
-            {/* Текст повідомлення */}
             <div style={{
                 color: 'var(--text-primary)',
-                fontSize: '15px',
-                lineHeight: 1.6, // Покращуємо читабельність
-                marginBottom: '24px' // Відступ до кнопки
+                fontSize: '14px', // Оптимально для мобилок
+                lineHeight: 1.5,
+                marginBottom: '20px'
             }}>
                 {text}
             </div>
 
-            {/* Кнопка "ОК" */}
             <GradientButton
                 onClick={onClose}
-                variant="alt" // Використовуємо жовтий градієнт
+                variant="alt"
                 style={{ width: '100%', maxWidth: '200px', margin: '0 auto' }}
             >
                 OK

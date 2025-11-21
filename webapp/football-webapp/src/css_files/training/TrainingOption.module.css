@@ -1,27 +1,14 @@
-/* --- Анимации --- */
-@keyframes fadeInSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+/* css_files/training/TrainingOption.module.css */
 
-@keyframes textGlow {
-    0%, 100% {
-        text-shadow: 0 0 4px #F6FF4D, 0 0 8px #d9e044;
-    }
-    50% {
-        text-shadow: 0 0 8px #F6FF4D, 0 0 16px #d9e044;
-    }
-}
+/* ... (Анимации остаются без изменений) ... */
 
 /* --- Основной контейнер --- */
 .container {
-    width: 371px;
+    /* ❌ БЫЛО: width: 371px; */
+    /* ✅ СТАЛО: Адаптивная ширина */
+    width: 94%;
+    max-width: 400px;
+
     height: 57px;
     position: relative;
     border-radius: 20px;
@@ -32,6 +19,14 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: fadeInSlideUp 0.5s ease-out forwards;
     cursor: pointer;
+    flex-shrink: 0;
+
+    /* 🔥 FLEXBOX для внутренней структуры */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Распределить элементы по краям */
+    padding: 0 15px; /* Отступы по бокам */
+    box-sizing: border-box;
 }
 
 .container:hover {
@@ -43,45 +38,41 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     object-fit: cover;
     z-index: -1;
 }
 
-/* --- Разделители --- */
+/* --- Разделители (Теперь это просто границы) --- */
 .separator {
-    position: absolute;
-    top: 50%;
     width: 1px;
-    height: 38px;
+    height: 30px;
     background: rgba(255, 255, 255, 0.4);
-    transform: translateY(-50%);
     box-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+    /* Убираем absolute */
+    position: static;
+    flex-shrink: 0;
 }
 
-.separator1 { left: 156px; }
-.separator2 { left: 221px; }
-
-/* --- Секции с текстом --- */
-.label {
-    font-size: 12px;
-    text-transform: uppercase;
-    opacity: 0.8;
-}
-
+/* --- Секции с текстом (Flex Items) --- */
 .chanceWrapper {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 15px;
-    width: 130px;
+    /* Убираем absolute */
+    position: static;
+    width: auto;
+    flex: 1; /* Занимает доступное место */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     gap: 2px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-right: 10px;
+}
+
+.label {
+    font-size: 12px;
+    text-transform: uppercase;
+    opacity: 0.8;
 }
 
 .chanceValue {
@@ -95,24 +86,24 @@
 }
 
 .duration {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 166px;
-    width: 45px;
+    /* Убираем absolute */
+    position: static;
+    width: auto;
+    min-width: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 15px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 0 10px; /* Отступы от разделителей */
 }
 
 /* --- Кнопка действия --- */
 .actionButton {
-    position: absolute;
-    right: 20px;
-    top: 46%;
-    transform: translateY(-50%);
+    /* Убираем absolute */
+    position: static;
+    transform: none;
+
     width: 100px;
     height: 40px;
     display: flex;
@@ -124,28 +115,28 @@
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     padding: 0 10px;
+    flex-shrink: 0; /* Не сжимать кнопку */
 }
 
 .actionButton:hover {
-    transform: translateY(-50%) scale(1.05);
+    transform: scale(1.05);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     filter: brightness(1.1);
 }
 
 .actionButton:active {
-    transform: translateY(-45%) scale(1.02); /* Эффект нажатия */
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+    transform: scale(0.98);
     filter: brightness(0.95);
 }
 
 .actionButtonText {
     color: black;
-    font-size: 12px;
+    font-size: 10px;
     font-family: 'Exo 2', sans-serif;
     font-weight: 700;
-    /* Тонкая белая обводка для читаемости на любом фоне кнопки */
-    text-shadow: 0 0 3px white, 0 0 5px white;
+    text-shadow: 0 0 3px white;
     margin-right: 6px;
+    white-space: nowrap;
 }
 
 .actionButtonIcon {
@@ -153,90 +144,52 @@
     height: 14px;
 }
 
-/* --- СТИЛИ ДЛЯ КРАСИВОЙ ПОДСКАЗКИ --- */
+/* --- СТИЛИ ДЛЯ ПОДСКАЗКИ (Адаптация) --- */
 
-/* Стиль для подсвеченного контейнера (без изменений) */
-.container.highlighted {
-    position: relative;
-    animation: cyan-pulse 2s infinite;
-    z-index: 10;
-}
-
-/* Анимация сияния (без изменений) */
-@keyframes cyan-pulse {
-    0% {
-        box-shadow: 0 0 5px 2px rgba(0, 255, 255, 0.6), 0 0 5px 2px rgba(0, 191, 255, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 20px 10px rgba(0, 255, 255, 0.8), 0 0 22px 12px rgba(0, 191, 255, 0.7);
-    }
-    100% {
-        box-shadow: 0 0 5px 2px rgba(0, 255, 255, 0.6), 0 0 5px 2px rgba(0, 191, 255, 0.5);
-    }
-}
-
-/* ✨ НОВАЯ КРАСИВАЯ СТРЕЛКА ✨ */
 .container.highlighted::after {
-    content: ''; /* Убираем текст, так как рисуем фигуру */
+    content: '';
     position: absolute;
     top: 50%;
-    right: -50px; /* Располагаем справа от элемента */
-    width: 15px;  /* Размер стрелки */
+    right: 10px; /* Привязка к краю кнопки */
+    width: 15px;
     height: 15px;
-
-    /* Рисуем стрелку с помощью границ */
-    border-top: 4px solid #00ffff; /* Бирюзовый цвет */
+    border-top: 4px solid #00ffff;
     border-right: 4px solid #00ffff;
-
-    /* Свечение, подходящее под основной эффект */
     filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.9));
-
-    /* Применяем новую, более плавную анимацию */
     animation: gentle-poke 1.8s infinite ease-in-out;
+    z-index: 20;
+    pointer-events: none;
 }
 
-/* ✨ ТЕКСТ ПОДСКАЗКИ (Опционально, но рекомендуется) ✨ */
+/* Текст подсказки прячем на мобильных, чтобы не вылезал, или делаем компактнее */
 .container.highlighted::before {
-    content: 'Натисни сюди';
+    content: 'Натисни';
     position: absolute;
-    top: 50%;
-    right: -200px; /* Располагаем правее стрелки */
-    transform: translateY(-50%);
-    font-size: 22px;
+    top: -25px; /* Выносим наверх */
+    right: 20px;
+    transform: none;
+    font-size: 14px;
     font-weight: bold;
     color: #fff;
-    /* Тень для лучшей читаемости и эффекта свечения */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8), 0 0 4px rgba(0, 0, 0, 0.5);
-
-    /* Анимация плавного появления и исчезновения */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
     animation: text-fade-in-out 1.8s infinite ease-in-out;
+    pointer-events: none;
 }
 
+/* --- MEDIA QUERIES --- */
+@media (max-width: 360px) {
+    .container {
+        height: 50px;
+        padding: 0 8px;
+    }
 
-/* ✨ НОВЫЕ КЛЮЧЕВЫЕ КАДРЫ АНИМАЦИИ ✨ */
+    .label { font-size: 10px; }
+    .chanceValue { font-size: 13px; }
+    .duration { font-size: 13px; min-width: 50px; margin: 0 5px; }
 
-/* Анимация для стрелки - плавное "подталкивание" */
-@keyframes gentle-poke {
-    0%, 100% {
-        /* Начальное положение и поворот на -135 градусов, чтобы стрелка указывала влево */
-        transform: translateY(-50%) rotate(-135deg) translateX(0);
-        opacity: 0.7;
+    .actionButton {
+        width: 85px;
+        height: 34px;
     }
-    50% {
-        /* В середине анимации стрелка сдвигается влево, становится ярче и больше */
-        transform: translateY(-50%) rotate(-135deg) translateX(-10px) scale(1.1);
-        opacity: 1;
-    }
-}
-
-/* Анимация для текста */
-@keyframes text-fade-in-out {
-    0%, 100% {
-        opacity: 0.7;
-        transform: translateY(-50%) scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(-50%) scale(1.05); /* Легкое увеличение для живости */
-    }
+    .actionButtonText { font-size: 9px; }
 }

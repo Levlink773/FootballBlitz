@@ -45,6 +45,7 @@ export default function EducationCard({user, setUser}) {
 
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.education_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 <Header user={user}/>
                 <img

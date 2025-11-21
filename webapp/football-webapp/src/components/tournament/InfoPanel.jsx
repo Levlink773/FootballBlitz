@@ -14,16 +14,22 @@ const slideInFromRight = keyframes`
 
 // --- Стили ---
 const InfoContainer = styled.div`
-  position: absolute;
-  top: 300px;
-  left: 0;
+  /* ❌ БЫЛО: position: absolute; top: 300px; */
+  
+  /* ✅ СТАЛО: Делаем его частью потока */
+  position: relative;
+  top: auto; 
+  
   width: 100%;
-  padding: 0 20px;
+  padding: 0 10px; /* Чуть уменьшил отступы по бокам для красоты */
   box-sizing: border-box;
   z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  
+  /* Чтобы текст не прилипал к краям */
+  margin-bottom: 5px;
 `;
 
 const InfoIcon = styled.img`
@@ -37,7 +43,7 @@ const InfoIcon = styled.img`
 const Text = styled.p`
   margin: 0;
   color: #e0e0e0;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 1.4;
   text-shadow: 0 1px 2px rgba(0,0,0,1), 0 0 5px rgba(173,216,230,0.5);

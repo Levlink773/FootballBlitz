@@ -200,6 +200,7 @@ export default function MatchCard({user, setUser}) {
 
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.match_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 {isLoading && (
                     <div style={{

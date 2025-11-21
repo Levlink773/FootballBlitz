@@ -2,6 +2,17 @@
 @keyframes slideUpFadeIn {
     from {
         opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideUpFadeInFlex {
+    from {
+        opacity: 0;
         transform: translateY(20px);
     }
     to {
@@ -10,49 +21,136 @@
     }
 }
 
-/* --- Головний контейнер (ВИПРАВЛЕНО) --- */
+/* --- Головний контейнер --- */
 .userProfile {
-    /* Цей контейнер служить лише як "якорь" для абсолютно позиціонованих
-       елементів всередині. Йому НЕ потрібні власні розміри. */
-    position: relative;
-    bottom: 16px;
-    /* Властивості width: 100% та height: 100% були видалені, щоб не ламати потік сторінки. */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
-/* --- Зображення гравця --- */
-.playerImage {
-    /* Позиціонування залишаємо без змін */
-    width: 226px;
-    height: 256px;
-    left: 105px;
-    top: 104px;
+/* --- Контейнер для персонажів --- */
+.characterSwitcher {
     position: absolute;
-    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 
-    /* Покращення: додаємо тінь, щоб "відірвати" персонажа від фону */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* --- Кнопка перемикання (Центр) --- */
+.switchButton {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    z-index: 10;
+
+    top: 210px;
+    left: 50%;
+
+    /* ✨ ВИПРАВЛЕННЯ ДЛЯ > 380px:
+       Було -55px (надто вліво). Ставимо -25px.
+       Тепер кнопка стоїть рівно між персонажами.
+    */
+    transform: translateX(-50%);
+    margin-left: -25px;
+
+    background: rgba(255, 255, 255, 0);
+    border: 2px solid rgba(255, 215, 0, 0);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.35s ease-in-out;
+    pointer-events: auto;
+
+    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards;
+    opacity: 0;
+}
+
+.switchButton:hover {
+    transform: translateX(-50%) scale(1.1) rotate(180deg);
+    border-color: #a39438;
+}
+
+.switchButton svg, .switchButton img {
+    width: 150%;
+    height: 150%;
+    transition: transform 0.35s ease-in-out;
+}
+
+.switchButton:hover svg, .switchButton:hover img {
+    transform: rotate(180deg);
+}
+
+/* --- Другий персонаж / Тінь (Зліва) --- */
+.playerImageBack {
+    position: relative;
+    width: auto;
+    max-width: 120px;
+
+    margin-top: 156px;
+    margin-right: -25px;
+
+    z-index: 1;
+    filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.3)) brightness(0.7);
+    pointer-events: auto;
+
+    animation: slideUpFadeInFlex 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+    opacity: 0;
+}
+
+/* --- Головний персонаж (Справа) --- */
+.playerImage {
+    position: relative;
+    width: auto;
+    max-width: 226px;
+    height: auto;
+    max-height: 256px;
+
+    margin-top: 104px;
+    margin-left: -35px;
+
+    z-index: 2;
     filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.4));
-    transform: translate(-50%, -50%);
-    /* Анімація появи */
-    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+
+    animation: slideUpFadeInFlex 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 /* --- Інформаційний блок --- */
 .infoBox {
-    width: 336px;
-    height: 55px;
-    left: 50px;
-    top: 295px;
     position: absolute;
+    width: 90%;
+    max-width: 336px;
+    height: 55px;
+    box-sizing: border-box;
+
+    left: 50%;
+    top: 295px;
+    transform: translateX(-50%);
     z-index: 3;
 
-    /* Ефект "матового скла" (Glassmorphism) */
     background: rgba(40, 40, 40, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.15);
-
-    /* Покращена, м'яка тінь */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
     display: flex;
@@ -60,185 +158,108 @@
     justify-content: space-between;
     padding: 0 15px;
 
-    /* Анімація появи з затримкою */
     animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
     opacity: 0;
-}
-
-
-/* --- Ліва частина --- */
-.leftSection {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.nameAge {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-}
-
-.name {
-    color: white;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-}
-
-.age {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
-    font-weight: 500;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.locationGroup {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.location {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 11px;
-    font-weight: 600;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.locationIcon {
-    width: 15px;
-    height: 15px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-}
-
-
-/* --- Права частина (статистика) --- */
-.stats {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.stat {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: white;
-    font-size: 14px;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-    transition: transform 0.2s ease-in-out;
-}
-
-.stat:hover {
-    transform: scale(1.1);
-}
-
-.stat img {
-    width: 22px;
-    height: 22px;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
-}
-/* Добавьте этот класс в UserProfile.module.css */
-.statIcon {
-    width: 24px;  /* Или любой другой размер, который вам подходит */
-    height: 24px;
-    object-fit: contain; /* Для <img>, чтобы картинка не искажалась */
-}
-.userProfileClickable {
-    /* Copy existing styles from .userProfile and add the following */
-    display: flex;
-    align-items: center;
-    background-color: rgba(26, 26, 33, 0.7);
-    border-radius: 12px;
-    padding: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-.userProfileClickable:hover {
-    background-color: rgba(36, 36, 43, 0.85);
-    transform: translateY(-2px);
-}
-
-/* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ПЕРЕКЛЮЧАТЕЛЯ --- */
-
-/* Контейнер для позиционирования персонажей и кнопки */
-.characterSwitcher {
+.highlightOverlay {
     position: absolute;
-    /* Установите размеры, чтобы вместить обоих персонажей.
-       Эти размеры должны быть примерно равны размерам основного изображения,
-       чтобы не нарушать общую верстку. */
-    width: 240px;  /* Было: 336px */
-    height: 280px; /* Было: 360px */
-    display: flex;
-    justify-content: center; /* Центрируем, чтобы персонажи были по центру контейнера */
-}
-
-/* Стили для второго персонажа на заднем плане */
-.playerImageBack {
-    width: 120px;  /* Чуть меньше основного */
-    height: 180px;
-    position: absolute;
-    left: 60px; /* Сдвигаем влево, чтобы выглядывал */
-    top: 156px; /* Чуть ниже основного */
-    z-index: 1; /* Помещаем ЗА основного персонажа */
-    filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.3)) brightness(0.7); /* Затемняем */
-    transform: rotate(-5deg); /* Немного наклоняем для динамики */
-}
-
-/* Кнопка переключения */
-.switchButton {
-    position: absolute;
-    z-index: 4;
-    top: 210px;
-    left: 140px;
-    width: 56px;
-    height: 56px;
-    background: rgba(255, 255, 255, 0); /* Полупрозрачный фон */
-    border: 2px solid rgba(255, 215, 0, 0); /* Тонкая золотая рамка */
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(0px); /* Эффект стекла */
-    transition: all 0.35s ease-in-out;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0),
-    inset 0 0 8px rgba(255, 255, 255, 0);
-}
-
-.switchButton:hover {
-    transform: scale(1.1) rotate(180deg);
-    border-color: #a39438;
-    box-shadow: 0 8px 25px rgba(255, 215, 0, 0),
-    inset 0 0 10px rgba(255, 255, 255, 0);
-}
-
-.switchButton svg {
-    width: 150%;
-    height: 150%;
-    transition: transform 0.35s ease-in-out;
-}
-
-.switchButton:hover svg {
-    transform: rotate(180deg);
-}
-.switchButton img {
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 80%;
-    transition: transform 0.35s ease-in-out;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
 }
 
-.switchButton:hover img {
-    transform: rotate(180deg);
+.arrowContainer {
+    position: absolute;
+    /* Ставимо на ту ж висоту, де приблизно кнопка завдань, але трохи нижче/вище за потреби */
+    top: 180px;
+
+    /* 🔥 КЛЮЧОВЕ ЗМІНИ: Прив'язка до центру */
+    left: 50%;
+
+    /* Зсуваємо вправо від центру, але МЕНШЕ, ніж кнопку завдань.
+       Кнопка завдань має margin-left: 110px.
+       Даємо скрині margin-left: 40px.
+       Різниця 70px гарантує, що вони не злипнуться.
+       І скриня буде висіти акуратно на плечі персонажа. */
+    margin-left: 40px;
+
+    z-index: 101;
 }
 
-.switchButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    box-shadow: none;
+.inventoryHintIcon {
+    position: relative;
+    /* Прибираємо старі дивні зміщення */
+    left: auto;
+    top: 0;
+
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+    animation: simpleBounce 1.5s infinite;
+}
+
+@keyframes simpleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+/* Внутрішні стилі InfoBox */
+.leftSection { display: flex; flex-direction: column; gap: 3px; }
+.nameAge { display: flex; align-items: baseline; gap: 4px; }
+.name { color: white; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); white-space: nowrap; }
+.age { color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
+.locationGroup { display: flex; align-items: center; gap: 5px; }
+.location { color: rgba(255, 255, 255, 0.9); font-size: 11px; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
+.locationIcon { width: 15px; height: 15px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+.stats { display: flex; align-items: center; gap: 12px; }
+.stat { display: flex; align-items: center; gap: 5px; color: white; font-size: 14px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); transition: transform 0.2s ease-in-out; }
+.stat:hover { transform: scale(1.1); }
+.statIcon { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+
+/* --- 📱 АДАПТАЦІЯ ДЛЯ МАЛИХ ЕКРАНІВ (< 380px) --- */
+@media (max-width: 380px) {
+    /* 1. Головний персонаж */
+    .playerImage {
+        max-width: 180px;
+        margin-top: 135px;
+        margin-left: -35px;
+    }
+
+    /* 2. Чорний силует (Тінь) */
+    .playerImageBack {
+        /* ✨ ЗМЕНШЕНО: Щоб він не був більшим за головного на малих екранах */
+        max-width: 110px;
+
+        margin-right: -15px;
+        margin-top: 165px;
+    }
+
+    /* 3. Кнопка перемикання */
+    .switchButton {
+        top: 195px;
+        width: 48px;
+        height: 48px;
+
+        /* ✨ Посунув трохи правіше від попереднього варіанту (-25px замість -35px),
+           щоб кнопка була рівно між плечима */
+        margin-left: -20px;
+        margin-top: 15px;
+    }
+
+    /* 4. Інфо-бокс */
+    .infoBox {
+        top: 285px;
+        height: 50px;
+        padding: 0 10px;
+    }
+
+    .name { font-size: 13px; }
+    .age { font-size: 12px; }
+    .stats { gap: 8px; }
+    .stat { font-size: 12px; }
+    .statIcon { width: 18px; height: 18px; }
 }

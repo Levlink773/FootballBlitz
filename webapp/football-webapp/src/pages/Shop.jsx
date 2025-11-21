@@ -120,6 +120,7 @@ export default function ShopCard({user, setUser}) {
 
     return (
         <div className={styles.page}>
+            <img className={styles.pageBackgroundBlur} src={Config.IMAGES.shop_background} alt="" />
             <div className={styles.mainContainer} data-modal-root>
                 {isLoading && (
                     <div style={{

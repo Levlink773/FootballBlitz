@@ -1,46 +1,25 @@
-/* --- Анимации --- */
+/* css_files/rating/Rating.module.css */
+
+/* --- Анимации (без змін) --- */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px) translateX(-50%);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) translateX(-50%);
-    }
+    from { opacity: 0; transform: translateY(20px) translateX(-50%); }
+    to { opacity: 1; transform: translateY(0) translateX(-50%); }
 }
 
 @keyframes slideInItem {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes pulseGlow {
-    0%, 100% {
-        box-shadow: 10px 10px 15px rgba(166, 36, 222, 0.4);
-        opacity: 0.8;
-    }
-    50% {
-        box-shadow: 10px 10px 25px rgba(166, 36, 222, 0.6);
-        opacity: 1;
-    }
+    0%, 100% { box-shadow: 0 0 15px rgba(166, 36, 222, 0.4); opacity: 0.8; }
+    50% { box-shadow: 0 0 25px rgba(166, 36, 222, 0.6); opacity: 1; }
 }
 
 @keyframes pulseArrow {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
-
 
 /* --- Основные стили --- */
 
@@ -48,32 +27,38 @@
     position: absolute;
     top: 80px;
     left: 50%;
-    /* НЕ МЕНЯЕМ: Сохранено позиционирование */
     transform: translateX(-50%);
-    width: 383px;
+
+    /* 🔥 АДАПТАЦІЯ: Замість фіксованих 383px */
+    width: 94%;
+    max-width: 400px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
-
-    /* НОВОЕ: Анимация появления всего блока */
     animation: fadeIn 0.6s ease-out forwards;
+    z-index: 5;
 }
 
 .title {
     color: white;
-    font-size: 22px; /* Немного увеличен для акцента */
+    font-size: 22px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.7); /* Улучшенная тень */
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.7);
     text-align: center;
-    letter-spacing: 1px; /* Добавляет "воздуха" */
+    letter-spacing: 1px;
+    width: 100%;
 }
 
 .listBox {
     width: 100%;
-    height: 384px;
-    /* УЛУЧШЕНО: Градиент вместо сплошного цвета для глубины */
+    /* 🔥 АДАПТАЦІЯ: Висота тепер залежить від екрану, але не менше 300px */
+    height: auto;
+    min-height: 350px;
+    max-height: 60vh; /* Щоб на коротких екранах не вилазило за межі */
+
     background: linear-gradient(180deg, rgba(45, 25, 65, 0.85) 0%, rgba(30, 30, 30, 0.9) 100%);
     border-radius: 15px;
     border: 1px solid #A624DE;
@@ -87,12 +72,11 @@
 .listBox::before {
     content: '';
     position: absolute;
-    top: -2px; left: -2px; right: -2px; bottom: -2px; /* Покрывает border */
-    border-radius: 17px; /* Чуть больше основного радиуса */
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 17px;
     outline: 4px solid #A624DE;
-    filter: blur(8px); /* Немного увеличено размытие */
+    filter: blur(8px);
     z-index: -1;
-    /* НОВОЕ: Пульсирующее свечение */
     animation: pulseGlow 5s infinite ease-in-out;
 }
 
@@ -102,67 +86,49 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-right: 5px; /* Небольшой отступ, чтобы контент не прилипал к скроллбару */
+    padding-right: 5px;
 }
 
-/* НОВОЕ: Стилизация скроллбара */
-.scrollableList::-webkit-scrollbar {
-    width: 6px;
-}
-.scrollableList::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-}
-.scrollableList::-webkit-scrollbar-thumb {
-    background: #A624DE;
-    border-radius: 3px;
-}
-.scrollableList::-webkit-scrollbar-thumb:hover {
-    background: #c347ff;
-}
-
+/* Скроллбар */
+.scrollableList::-webkit-scrollbar { width: 6px; }
+.scrollableList::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
+.scrollableList::-webkit-scrollbar-thumb { background: #A624DE; border-radius: 3px; }
 
 .ratingItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 8px 12px; /* Добавлены внутренние отступы */
-    border-radius: 8px; /* Скругление для красивого ховера */
+    padding: 8px 12px;
+    border-radius: 8px;
     color: white;
     font-size: 14px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
     box-sizing: border-box;
-
-    /* НОВОЕ: Плавные переходы для ховер-эффекта */
     transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
-
-    /* НОВОЕ: Анимация появления с задержкой */
-    opacity: 0; /* Изначально прозрачный */
+    opacity: 0;
     animation: slideInItem 0.5s ease-out forwards;
-    animation-delay: calc(var(--delay-index) * 75ms); /* Каскадная задержка */
+    animation-delay: calc(var(--delay-index) * 75ms);
 }
 
-/* НОВОЕ: Эффект при наведении */
 .ratingItem:hover {
-    transform: scale(1.03); /* Плавное увеличение */
-    background-color: rgba(255, 255, 255, 0.1); /* Легкая подсветка */
-    cursor: default;
+    transform: scale(1.02);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .rankInfo {
     display: flex;
     align-items: center;
-    gap: 12px; /* Немного увеличен отступ */
-    flex-basis: 70%; /* Даем больше места для имени */
-    overflow: hidden; /* Важно для обрезки текста */
+    gap: 10px;
+    flex: 1; /* Займає весь вільний простір */
+    min-width: 0; /* Важливо для text-overflow */
 }
 
 .rankNumber {
     text-align: center;
-    width: 27px;
+    min-width: 25px; /* Щоб цифри не скакали */
     font-size: 16px;
     color: rgba(255, 255, 255, 0.8);
 }
@@ -170,92 +136,148 @@
 .rankIcon {
     width: 20px;
     height: 24px;
+    object-fit: contain;
 }
 
 .rankName {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: clamp(8px, 2vw, 14px);
-    text-wrap: balance;
+    font-size: 14px;
 }
 
-/* НОВОЕ: Контейнер для очков для лучшего выравнивания */
 .rankScoreContainer {
     display: flex;
-    align-items: baseline; /* Выравнивание по базовой линии */
+    align-items: baseline;
     justify-content: flex-end;
     gap: 5px;
-    flex-basis: 30%;
+    margin-left: 10px;
     text-align: right;
+    flex-shrink: 0; /* Не стискати очки */
 }
 
 .rankScore {
-    font-size: 18px; /* Увеличиваем цифру */
-    font-weight: 800; /* Делаем ее жирнее */
+    font-size: 18px;
+    font-weight: 800;
     color: #f0f0f0;
 }
 
-/* НОВОЕ: Стиль для слова "очок" */
 .scoreUnit {
     font-size: 12px;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.7);
 }
 
+.statusText {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 20px;
+    font-size: 14px;
+}
 
-/* ИСПРАВЛЕНО: Позиционирование нижней секции */
-.howToContainer {
+/* --- КНОПКИ ХАБУ (RatingHub) --- */
+.hubButton {
     width: 100%;
-    height: 22px;
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.8), rgba(30, 30, 30, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 20px 15px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.hubButton:hover {
+    background: linear-gradient(135deg, rgba(80, 80, 80, 0.9), rgba(50, 50, 50, 1));
+    border-color: #F700FF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(166, 36, 222, 0.3);
+}
+
+.hubButton:active {
+    transform: translateY(1px);
+}
+
+/* --- Bottom Controls --- */
+.howToContainer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     flex-shrink: 0;
-    margin-top: 15px; /* Отступ сверху вместо неправильных свойств */
-    padding-top: 10px; /* Небольшой отступ от разделительной линии */
-    border-top: 1px solid rgba(166, 36, 222, 0.3); /* Разделитель */
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(166, 36, 222, 0.3);
+    cursor: pointer;
 }
 
 .howToText {
     color: #F700FF;
     font-size: 14px;
-    font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 0 0 4px rgba(247, 0, 255, 0.5);
-    cursor: pointer;
-    transition: color 0.2s ease, text-shadow 0.2s ease; /* Плавный переход для ховера */
+    transition: all 0.2s ease;
 }
 
-/* НОВОЕ: Эффект при наведении */
-.howToText:hover {
-    color: #ff80ff; /* Более яркий цвет */
-    text-shadow: 0 0 8px rgba(255, 128, 255, 0.8); /* Усиленное свечение */
+.howToContainer:hover .howToText {
+    color: #ff80ff;
+    text-shadow: 0 0 8px rgba(255, 128, 255, 0.8);
 }
 
 .arrowIcon {
-    width: 48px;
+    width: 36px; /* Трохи зменшив */
     height: auto;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.50));
 }
 
-/* НОВОЕ: Пульсация стрелок при наведении на всю область */
 .howToContainer:hover .arrowIcon {
     animation: pulseArrow 1s infinite ease-in-out;
 }
-.hubButton {
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 1px solid #ffc107;
-    color: white;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 80%;
-    text-align: center;
-}
 
-.hubButton:hover {
-    background-color: rgba(255, 193, 7, 0.3);
+/* 🔥 MEDIA QUERY ДЛЯ МАЛИХ ЕКРАНІВ (< 380px) */
+@media (max-width: 380px) {
+    .ratingContainer {
+        width: 96%; /* Ще ширше на малих екранах */
+        top: 70px; /* Трохи вище */
+    }
+
+    .listBox {
+        padding: 10px;
+        min-height: 300px;
+    }
+
+    .title {
+        font-size: 18px; /* Менший заголовок */
+    }
+
+    .ratingItem {
+        padding: 6px 8px; /* Менше відступів у рядку */
+    }
+
+    .rankName {
+        font-size: 12px; /* Менший шрифт імені */
+    }
+
+    .rankScore {
+        font-size: 15px; /* Менші очки */
+    }
+
+    .scoreUnit {
+        font-size: 10px;
+        display: none; /* Приховуємо слово "очок" якщо дуже тісно */
+    }
+
+    .hubButton {
+        padding: 15px 10px;
+        font-size: 14px;
+    }
 }

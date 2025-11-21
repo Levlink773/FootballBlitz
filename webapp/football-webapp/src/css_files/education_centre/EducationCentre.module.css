@@ -69,18 +69,26 @@
 }
 
 
-/* --- DAILY REWARD BLOCK --- */
 .dailyReward {
-    width: 358px;
+    /* ❌ БУЛО: width: 358px; */
+    /* ✅ СТАЛО: Гумова ширина */
+    width: 100%;
+    max-width: 358px; /* Не ширше оригінального дизайну */
+
     height: 120px;
     position: relative;
     display: flex;
     align-items: center;
+
+    /* Додаємо box-sizing, щоб padding не роздував ширину */
+    box-sizing: border-box;
     padding: 0 15px;
+
     background-image: url('../../assets/public/img156.png');
     background-size: cover;
-    border-radius: 10px; /* Smoother radius */
-    border: 1px rgba(255, 255, 255, 0.15); /* Subtle border */
+    background-position: center; /* Центруємо фон при стисненні */
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     transition: all 0.3s ease;
 }
 
@@ -92,7 +100,9 @@
 .dailyRewardIcon {
     width: 51px;
     height: 70px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); /* Add shadow to icon */
+    object-fit: contain; /* Щоб не спотворювалась */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    flex-shrink: 0; /* Забороняємо іконці стискатися */
 }
 
 .dailyRewardTitle {
@@ -102,6 +112,40 @@
     font-size: 20px;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+
+    /* Додаємо відступи, щоб текст не прилипав до іконки та кнопки */
+    padding: 0 10px;
+    line-height: 1.1; /* Покращує вигляд, якщо текст перенесеться на 2 рядки */
+}
+
+/* --- АДАПТАЦІЯ ДЛЯ МАЛИХ ЕКРАНІВ (< 370px) --- */
+@media (max-width: 370px) {
+    .dailyReward {
+        height: 100px; /* Трохи зменшуємо висоту */
+        padding: 0 10px; /* Зменшуємо відступи по краях */
+    }
+
+    .dailyRewardIcon {
+        width: 40px; /* Зменшуємо іконку */
+        height: 55px;
+    }
+
+    .dailyRewardTitle {
+        font-size: 16px; /* Зменшуємо шрифт заголовка */
+        padding: 0 5px;
+    }
+
+    /* Зменшуємо кнопку отримання нагороди */
+    .getRewardButton,
+    .inactiveRewardWrapper {
+        width: 80px;
+        height: 45px;
+        transform: scale(0.95); /* Трохи масштабуємо */
+    }
+
+    .getRewardButtonText {
+        font-size: 12px;
+    }
 }
 
 /* --- REWARD BUTTON (ACTIVE) --- */

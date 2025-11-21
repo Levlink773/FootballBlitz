@@ -1,57 +1,57 @@
-/* Добавляем анимацию плавного появления */
+/* Анімація появи */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translate(-50%, 20px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 }
 
-/* Главный контейнер для всего блока */
+/* === ГОЛОВНИЙ КОНТЕЙНЕР === */
 .statsPanel {
-    position: relative; /* ВАЖНО: Это нужно для позиционирования дочернего элемента */
+    /* ✨ ВИПРАВЛЕННЯ: Робимо позицію абсолютною, щоб точно розмістити під карткою */
+    position: absolute;
+
+    /* Картка закінчується на 480px (360 top + 120 height).
+       Даємо 20px відступу -> 500px. */
+    top: 480px;
+
+    /* Центрування */
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* Адаптивна ширина */
+    width: 90%;
+    max-width: 380px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
-    width: 100%;
-    padding: 20px;
+
+    /* Прибираємо старий margin-top */
+    margin: 0;
+    padding: 0 10px;
     box-sizing: border-box;
-    margin-top: 430px;
+
+    z-index: 5;
     animation: fadeIn 0.8s ease-out forwards;
 }
 
-/* === НОВЫЙ СТИЛЬ ДЛЯ НАДПИСИ "ТЕСТ" === */
-.testLabel {
-    position: absolute; /* Позиционируем абсолютно, чтобы не влиять на другие элементы */
-    top: 35px;        /* Отступ сверху */
-    right: 5px;      /* Отступ справа */
-    font-size: 18px;  /* Небольшой шрифт */
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.4); /* Полупрозрачный цвет */
-    background: rgba(0, 0, 0, 0.2);  /* Легкий фон для читаемости */
-    padding: 2px 6px;
-    border-radius: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    pointer-events: none; /* Чтобы надпись не перехватывала клики мыши */
-}
-
-
-/* Контейнер для "Статистика", переключателя и "Рейтинги" */
+/* === ЗАГОЛОВОК (Статистика / Рейтинги) === */
 .header {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 12px;
+    width: 100%;
     position: relative;
-    top: 10px;
+    /* top: 10px; - можна прибрати або зменшити */
 }
 
-/* Общий стиль для заголовков "Статистика" и "Рейтинги" (без изменений) */
 .title {
     color: #a09b3b;
     font-size: 12px;
@@ -59,24 +59,28 @@
     font-weight: 700;
     text-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4);
     transition: color 0.4s ease, text-shadow 0.4s ease;
+    cursor: pointer;
 }
 
-/* Стиль для активного заголовка (без изменений) */
 .activeTitle {
     color: #FEF21B;
     text-shadow: 0px 0px 8px rgba(254, 242, 27, 0.7), 0px 4px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Контейнер для статистики (без изменений) */
+/* === КОНТЕЙНЕР З ЦИФРАМИ === */
 .statsContainer {
     width: 100%;
-    max-width: 320px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-around; /* Рівномірний розподіл */
     align-items: center;
+
+    /* Фон або рамка (опціонально, для кращої читабельності) */
+    /* background: rgba(0,0,0,0.2); */
+    /* border-radius: 12px; */
+    /* padding: 10px; */
 }
 
-/* Общий стиль для блока со значением (без изменений) */
+/* === ОКРЕМИЙ БЛОК СТАТИСТИКИ === */
 .statBox {
     display: flex;
     flex-direction: column;
@@ -86,44 +90,41 @@
     color: white;
     font-family: 'Inter', sans-serif;
     transition: transform 0.3s ease;
+    min-width: 60px; /* Щоб цифри не скакали */
 }
 
 .statBox:hover {
     transform: scale(1.05);
 }
 
-
-/* Стиль для большого числа или процента (без изменений) */
 .statValue {
-    font-size: 30px;
-    font-weight: 400;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+    font-size: 28px; /* Трохи зменшив для мобільних */
+    font-weight: 700;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    margin-bottom: 2px;
 }
 
-/* Стиль для подписи (без изменений) */
 .statLabel {
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1;
-    margin-top: -5px;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
 }
 
-/* Вертикальный разделитель (без изменений) */
+/* === РОЗДІЛЮВАЧ === */
 .divider {
-    width: 2px;
-    height: 40px;
+    width: 1px;
+    height: 30px;
     background: linear-gradient(
             to bottom,
-            rgba(255, 255, 255, 0.2),
-            rgba(255, 255, 255, 0.8),
-            rgba(255, 255, 255, 0.2)
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.5),
+            rgba(255, 255, 255, 0.1)
     );
-    border-radius: 1px;
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
 }
 
-/* --- Улучшенные стили для переключателя --- (без изменений) */
+/* === ПЕРЕМИКАЧ === */
 .toggleContainer {
     width: 26px;
     height: 14px;
@@ -139,8 +140,8 @@
 }
 
 .toggleCircle {
-    width: 9px;
-    height: 9px;
+    width: 10px;
+    height: 10px;
     background: #999;
     box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.5);
     border-radius: 50%;
@@ -154,5 +155,28 @@
 .toggleContainer.active .toggleCircle {
     background: #FEF21B;
     box-shadow: 0px 0px 8px rgba(254, 242, 27, 0.7), 0px 2px 3px rgba(0, 0, 0, 0.5);
-    transform: translateX(11px);
+    transform: translateX(12px);
+}
+
+/* === ТЕСТОВИЙ ЛЕЙБЛ (Якщо потрібен) === */
+.testLabel {
+    position: absolute;
+    top: -20px;
+    right: 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- АДАПТАЦІЯ ДЛЯ МАЛИХ ЕКРАНІВ --- */
+@media (max-width: 360px) {
+    .statsPanel {
+        top: 490px; /* Трохи піднімаємо на малих екранах */
+        width: 95%;
+    }
+    .statValue {
+        font-size: 24px;
+    }
+    .statLabel {
+        font-size: 10px;
+    }
 }

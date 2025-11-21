@@ -1,7 +1,10 @@
 /* Shop.module.css */
 
 :root {
-    --shop-width: 370px;
+    /* 🔥 АДАПТАЦИЯ: Меняем фиксированную ширину на переменную */
+    --shop-width: 94%;
+    --shop-max-width: 400px;
+
     --accent-yellow: #FFDE07;
     --accent-yellow-dark: #D4A000;
     --accent-blue: #0A84FF;
@@ -20,23 +23,25 @@
     box-sizing: border-box;
 }
 
-/* UPDATED FOR SCROLLING */
+/* UPDATED FOR SCROLLING AND RESPONSIVENESS */
 .shopContainer {
     position: absolute;
     top: 80px;
     left: 50%;
     transform: translateX(-50%);
+
+    /* 🔥 АДАПТАЦИЯ */
     width: var(--shop-width);
+    max-width: var(--shop-max-width);
+
     display: flex;
     flex-direction: column;
     gap: 22px;
 
-    /* --- SCROLLING CHANGES START --- */
-    height: calc(100vh - 90px); /* Set max height relative to viewport */
-    overflow-y: auto; /* Enable vertical scroll when content overflows */
-    padding-bottom: 130px; /* Keep bottom padding for spacing */
-    padding-right: 4px; /* Add space for the scrollbar */
-    /* --- SCROLLING CHANGES END --- */
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+    padding-bottom: 130px;
+    padding-right: 4px;
 
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     -webkit-font-smoothing: antialiased;
@@ -46,7 +51,7 @@
 
 /* Custom Scrollbar Styling */
 .shopContainer::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 .shopContainer::-webkit-scrollbar-track {
     background: transparent;
@@ -59,8 +64,6 @@
     background-color: rgba(74, 68, 53, 0.6);
 }
 
-
-/* mounting flicker prevention + simple entrance */
 .shopContainer.mounted {
     --mounted: 1;
 }
@@ -75,12 +78,12 @@
     top: 20px;
     box-shadow: var(--shadow-strong);
     transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;
-    /* Added flex-shrink to prevent container squishing on small screens */
     flex-shrink: 0;
+    width: 100%; /* Занимает всю ширину родителя */
 }
 
 .featuredItem:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-6px) scale(1.01); /* Чуть меньше scale для мобильных */
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
@@ -98,14 +101,10 @@
     filter: saturate(1.2) brightness(1);
 }
 
-/* Holographic Shine Effect */
 .featuredItem::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 12px;
     background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.2), transparent 80%);
     background-size: 200% 100%;
@@ -129,9 +128,9 @@
     z-index: 7;
     background: linear-gradient(45deg, var(--accent-yellow), #FFC400);
     color: #1A1A1A;
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 11px; /* Чуть меньше шрифт */
     font-weight: 900;
     letter-spacing: .5px;
     text-transform: uppercase;
@@ -142,17 +141,17 @@
     position: absolute;
     inset: 0;
     display: flex;
-    gap: 18px;
+    gap: 15px; /* Уменьшен отступ */
     align-items: center;
-    padding: 18px;
+    padding: 15px; /* Уменьшен паддинг */
     z-index: 5;
     background: linear-gradient(180deg, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.4) 100%);
     pointer-events: none;
 }
 
 .featuredIcon {
-    width: 82px;
-    height: 98px;
+    width: 80px;
+    height: 96px;
     object-fit: contain;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -171,40 +170,40 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     color: #fff;
     flex: 1 1 auto;
     pointer-events: auto;
+    min-width: 0; /* Чтобы текст обрезался, а не распирал блок */
 }
 
 .featuredTitle {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 900;
     margin: 0;
     text-shadow: 0 3px 8px rgba(0,0,0,0.7);
     letter-spacing: .6px;
+    white-space: nowrap;
 }
 
 .featuredDesc {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
     text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 
-/* UPDATED FOR BUTTON POSITION */
 .featuredFooter {
     display: flex;
     align-items: center;
-    gap: 12px;
-    /* --- BUTTON POSITION CHANGE --- */
-    margin-top: 6px; /* Reduced from 8px to lift the button up */
-    /* --- BUTTON POSITION CHANGE END --- */
+    gap: 10px;
+    margin-top: 6px;
+    justify-content: space-between; /* Разносим цену и кнопку */
 }
 
 .featuredPrice {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 900;
     color: var(--accent-yellow);
     text-shadow: 0 2px 8px rgba(0,0,0,0.5);
@@ -213,28 +212,29 @@
 .buyButton {
     background: linear-gradient(180deg, var(--accent-yellow) 0%, var(--accent-yellow-dark) 100%);
     border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 15px;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
     font-weight: 900;
     color: #1A1A1A;
     cursor: pointer;
     transition: all var(--transition-fast) ease;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     pointer-events: auto;
-    position: relative;
-    top: 4px;
-    right: 48px;
+
+    /* 🔥 АДАПТАЦІЯ: Прибираємо position:relative и top/right хаки */
+    position: static;
+    transform: none;
 }
 
 .buyButton:hover {
-    transform: translateY(-3px) scale(1.03);
+    transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(255, 222, 7, 0.3);
     filter: brightness(1.05);
 }
 
 .buyButton:active {
-    transform: translateY(-1px) scale(1);
+    transform: translateY(0);
     filter: brightness(0.95);
 }
 
@@ -245,15 +245,16 @@
     background: var(--glass-darker);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 16px 12px;
+    padding: 16px 8px; /* Меньше боковые отступы */
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between; /* Равномерное распределение */
     align-items: flex-end;
     min-height: 185px;
     box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
     flex-shrink: 0;
     position: relative;
     top: -5px;
+    gap: 5px;
 }
 
 .shopBox {
@@ -262,7 +263,7 @@
     align-items: center;
     text-align: center;
     gap: 6px;
-    width: 32%;
+    width: 32%; /* Треть ширины */
     opacity: 0;
     transform: translateY(15px) scale(.95);
     animation: pop-in 500ms cubic-bezier(.2, .9, .3, 1) forwards;
@@ -282,12 +283,13 @@
     display: flex;
     align-items: flex-end;
     height: auto;
+    justify-content: center;
 }
 
 .boxImage {
     margin-bottom: 6px;
     display: block;
-    max-width: 100%;
+    max-width: 90%; /* Чтобы не вылезало */
     height: auto;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
     transition: transform var(--transition-base) ease, filter var(--transition-base) ease;
@@ -295,15 +297,17 @@
 
 .boxTitle {
     color: #F9F9F9;
-    font-size: 13px;
+    font-size: 12px; /* Чуть меньше */
     font-weight: 800;
     text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    white-space: nowrap; /* Не переносить текст */
 }
 
 .boxPrices {
     display: flex;
-    gap: 6px;
-    font-size: 12px;
+    flex-direction: column; /* Цена под ценой на узких экранах выглядит лучше */
+    gap: 2px;
+    font-size: 11px;
     font-weight: 900;
     align-items: center;
 }
@@ -312,33 +316,36 @@
     color: var(--muted);
     text-decoration: line-through;
     font-weight: 700;
+    font-size: 10px;
 }
 
 .discountedPrice {
     color: var(--danger-red);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .discountTag {
     background: rgba(255, 222, 7, 0.15);
     color: var(--accent-yellow);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
-    padding: 2px 6px;
+    padding: 2px 4px;
     border-radius: 4px;
     border: 1px solid rgba(255, 222, 7, 0.3);
 }
 
 .boxBuy {
-    margin-top: 6px;
-    padding: 7px 14px;
+    margin-top: 4px;
+    padding: 6px 10px;
     border-radius: 8px;
     background: linear-gradient(180deg, #505050, #333333);
     border: 1px solid rgba(255,255,255,0.2);
     color: #fff;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
     transition: all var(--transition-fast) ease;
+    width: 100%;
 }
 
 .boxBuy:hover {
@@ -350,36 +357,33 @@
 
 
 /* ======================================= */
-/* CURRENCY SECTION (MAJOR CHANGES HERE)   */
+/* CURRENCY SECTION                        */
 /* ======================================= */
 
-/* NEW ANIMATION FOR THE BACKGROUND */
 @keyframes shimmering-bg {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* MODIFIED CONTAINER */
 .currencyContainer {
     width: 100%;
     margin: 0 auto;
     display: grid;
+    /* 🔥 АДАПТАЦІЯ: Стек по вертикали по умолчанию для узких экранов */
     grid-template-columns: 1fr 1fr;
-    gap: 0; /* Gap removed, will be handled by item padding */
+    gap: 8px;
     flex-shrink: 0;
-    position: relative; /* Needed for pseudo-element */
+    position: relative;
     top: -20px;
 
-    /* New unified styling */
     border-radius: 12px;
-    padding: 4px;
+    padding: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: var(--glass-darker);
-    overflow: hidden; /* To keep animated glow inside */
+    overflow: hidden;
 }
 
-/* New animated background pseudo-element */
 .currencyContainer::before {
     content: '';
     position: absolute;
@@ -395,39 +399,32 @@
     animation: shimmering-bg 5s ease infinite;
 }
 
-/* MODIFIED ITEM BASE STYLE */
 .currencyItem {
     position: relative;
-    min-height: 80px;
+    min-height: 70px;
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
-    padding: 12px;
-    /* Removed individual borders and backgrounds */
+    padding: 10px;
     border: none;
     border-radius: 10px;
-    background-color: transparent; /* Now transparent */
+    background-color: rgba(255, 255, 255, 0.02); /* Легкий фон */
     transition: background-color var(--transition-fast) ease;
-    z-index: 1; /* To be on top of the container's pseudo-element */
+    z-index: 1;
 }
 
-/* Remove hover effects that are no longer needed */
 .currencyItem:hover {
     transform: none;
     box-shadow: none;
-    background-color: rgba(255, 255, 255, 0.05); /* Subtle hover feedback */
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Individual backgrounds removed */
-.coinItem, .energyItem { background: transparent; }
-
-/* MODIFIED ICON SIZE AND POSITION */
 .currencyBigImg {
     position: absolute;
-    top: -3px; /* Raised */
-    right: 15px;
-    width: 45px;
-    height: 45px; /* Reduced from 75px */
+    top: 0px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
     z-index: 2;
@@ -445,30 +442,31 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     pointer-events: none;
 }
 
-/* MODIFIED LABEL FONT SIZE */
 .currencyLabel {
     color: #fff;
-    font-size: 18px; /* Reduced from 20px */
+    font-size: 16px;
     font-weight: 900;
     text-transform: uppercase;
     text-shadow: 0 4px 10px rgba(0,0,0,0.7);
     line-height: 1;
-    position: relative;
-    top: -37px;
-    left: 15px;
+    position: absolute;
+    top: -35px;
+    left: 5px;
 }
 
 .currencyOverlay .buyButton {
+    position: static; /* Сброс */
     white-space: nowrap;
-    padding: 8px 14px;
-    border-radius: 9px;
-    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
     pointer-events: auto;
     flex-shrink: 0;
+    margin: 0;
 }
 
 .energyItem .buyButton {
@@ -483,24 +481,85 @@
 
 
 /* ======================================= */
-/* RESPONSIVE & ACCESSIBILITY              */
+/* 🔥 MEDIA QUERIES (АДАПТАЦИЯ ДЛЯ МОБИЛОК) */
 /* ======================================= */
-@media (max-width: 420px) {
-    .featuredContent { flex-direction: row; gap: 12px; padding: 12px; }
-    .featuredIcon { width: 64px; height: 78px; }
-    .featuredTitle { font-size: 18px; }
-    .featuredPrice { font-size: 16px; }
 
-    /* MODIFIED currency container for mobile */
-    .currencyContainer {
-        grid-template-columns: 1fr; /* Stack items vertically */
-        padding: 4px;
-        gap: 4px;
+/* Для екранів менше 380px (iPhone SE, старі Android) */
+@media (max-width: 400px) {
+    .featuredItem {
+        top: 10px;
     }
 
-    .currencyItem { min-height: 80px; }
-    .currencyBigImg { height: 65px; top: -15px; }
-    .currencyLabel { font-size: 18px; }
+    .featuredBg {
+        height: 130px;
+    }
+
+    .featuredIcon {
+        width: 60px;
+        height: 75px;
+    }
+
+    .featuredTitle {
+        font-size: 18px;
+    }
+
+    .featuredDesc {
+        font-size: 11px;
+    }
+
+    .buyButton {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* 🔥🔥🔥 ГОЛОВНА ЗМІНА ТУТ: ВАЛЮТА В РЯД 🔥🔥🔥 */
+    .currencyContainer {
+        /* Повертаємо 2 колонки замість однієї */
+        grid-template-columns: 1fr 1fr;
+        padding: 4px;
+        gap: 4px; /* Маленький відступ між ними */
+    }
+
+    .currencyItem {
+        /* Зменшуємо висоту блоку */
+        min-height: 65px;
+        padding: 6px;
+    }
+
+    .currencyLabel {
+        /* Зменшуємо шрифт цифр (100, 50) */
+        font-size: 14px;
+        top: -28px;
+        left: 2px;
+    }
+
+    .currencyBigImg {
+        /* Зменшуємо картинку монети/блискавки */
+        width: 30px;
+        height: 30px;
+        top: 2px;
+        right: 5px;
+    }
+
+    /* Адаптація кнопки купити всередині маленького блоку */
+    .currencyOverlay .buyButton {
+        padding: 4px 8px;
+        font-size: 10px;
+        width: 100%; /* Розтягуємо кнопку на всю ширину маленького блоку */
+        text-align: center;
+    }
+
+    /* Бокси компактніше */
+    .shopBox {
+        width: 33%;
+    }
+    .boxTitle {
+        font-size: 10px;
+    }
+    .boxBuy {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
