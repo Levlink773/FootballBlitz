@@ -409,3 +409,50 @@
     .rewardTitle { font-size: 1.5rem; }
     .rewardItem { font-size: 1.2rem; }
 }
+
+/* css_files/main_css/InventoryModal.module.css */
+
+/* ... (інші стилі вище) ... */
+
+/* ✨ ОНОВЛЕНА КНОПКА РЕФЕРАЛІВ (Прямокутна і помітна) ✨ */
+.referralButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Робимо прямокутною */
+    height: 36px;          /* Висота як у інших елементів */
+    min-width: 60px;       /* Ширша за висоту */
+    padding: 0 12px;       /* Відступи з боків */
+    border-radius: 10px;   /* Скруглені кути, але не коло */
+
+    /* Яскравий фон (Золотий градієнт) */
+    background: var(--gold-gradient);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+
+    /* Тінь для об'єму */
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+
+    /* Стиль тексту "+" */
+    color: #2a1a00;        /* Темний колір для контрасту на золотому */
+    font-size: 28px;       /* Великий плюс */
+    font-weight: 800;      /* Жирний шрифт */
+    line-height: 1;        /* Щоб не було зайвих відступів по висоті */
+
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+    /* Центрування в рядку ресурсів */
+    margin: 0 8px;
+}
+
+.referralButton:hover {
+    transform: translateY(-2px) scale(1.05); /* Легке збільшення */
+    filter: brightness(1.1); /* Робимо ще яскравіше */
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+}
+
+.referralButton:active {
+    transform: translateY(0) scale(0.95);
+    filter: brightness(0.95);
+}

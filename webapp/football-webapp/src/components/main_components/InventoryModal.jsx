@@ -134,27 +134,19 @@ const UserResources = ({user, onOpenReferral}) => (
         <motion.button
             className={styles.referralButton}
             onClick={onOpenReferral}
-            title="Запросити друзів (Відкрити реферальне вікно)"
-            whileHover={{scale: 1.15, rotate: 90}}
-            whileTap={{scale: 0.9, rotate: 0}}
-            transition={{type: 'spring', stiffness: 400, damping: 15}}
-
-            // ✅ ДОБАВЛЯЕМ ИНЛАЙН СТИЛЬ ДЛЯ СМЕЩЕНИЯ
-            style={{
-                marginTop: '2px', // Сдвигает кнопку на 2px вниз
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
+            title="Запросити друзів (+бонуси)"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
         >
-            <span style={{position: 'relative', top: '2px'}}>
-        +
-    </span>
+            {/* Плюс тепер центрується автоматично через flex у CSS */}
+            +
         </motion.button>
 
         <StatDisplay iconSrc={Config.IMAGES.energy} value={user.energy ?? 0} label="Енергія"/>
     </div>
 );
+
 const CharacterHub = ({
                           user,
                           allCharacters,
@@ -221,8 +213,6 @@ const ReferralView = ({user, onBack}) => {
     const [referralCount, setReferralCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
-
-    const REFERAL_EXP = 1000;
     const referralLink = `https://t.me/football_blitz_bot?start=ref_${user?.user_id}`;
 
     useEffect(() => {
@@ -292,7 +282,7 @@ const ReferralView = ({user, onBack}) => {
                     Запрошуй друзів та отримуй цінні бонуси! 🎉
                 </p>
                 <motion.div style={bonusBoxStyle} initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}}>
-                    🔋 <strong>150 енергії</strong> та 💰 <strong>20 монет</strong>
+                    🔋 <strong>300 енергії</strong> та 💰 <strong>300 монет</strong>
                 </motion.div>
                 <div style={{marginTop: 20, marginBottom: 20}}>
                     <div style={statsStyle}>

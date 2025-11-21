@@ -50,7 +50,7 @@ import trophy_bronze from "./assets/public/img143.png";
 import trophy_silver from "./assets/public/img144.png";
 import box_mini from "./assets/public/box2.png";
 import box_medium from "./assets/public/box1.png";
-import box_premium from "./assets/public/img151.png";
+import box_premium from "./assets/public/box_3.png";
 import energy_shop from "./assets/public/img145.png";
 import coin_shop from "./assets/public/img146.png";
 import big_coin from "./assets/public/img_9.png";

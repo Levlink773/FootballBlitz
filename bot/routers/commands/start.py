@@ -33,7 +33,8 @@ async def register_referal(user: UserBot, referal: str):
     try:
         text = (f"🎉 <b>У вас з'явився новий реферал!</b>\n\n{user.link_to_user} \n"
                 f"Ви отрумуєте +300 монет та +300 енергії! ")
-
+        text_webapp = (f"🎉 <b>У вас з'явився новий реферал!</b>"
+                f"Ви отрумуєте +300 монет та +300 енергії! ")
         await bot.send_message(
             chat_id=referal_user_id,
             text=text)
@@ -41,7 +42,7 @@ async def register_referal(user: UserBot, referal: str):
             event_type="show_alert",
             user_id=int(referal_user_id),
             payload={
-                "message": text
+                "message": text_webapp,
             }
         )
 
