@@ -12,11 +12,21 @@ import {CreateTeamModal} from "../components/register/CreateModalTeamName.jsx";
 import {GetFirstCharacterModal} from "../components/register/GetFirstCharacterModal.jsx";
 import {showAlert, showInfoModal} from "../alertService.jsx";
 import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
+// 🔥 1. Імпортуємо InventoryModal сюди
+import {InventoryModal} from "../components/main_components/InventoryModal.jsx";
 
-const HighlightArrow = () => {
+// ✨ Оновлений компонент підказки, який приймає onClick
+const HighlightArrow = ({ onClick }) => {
     return (
-        <div className={styles.highlightOverlay}>
-            <div className={styles.arrowContainer}>
+        // Додаємо onClick на обгортку або саму іконку
+        <div className={styles.highlightOverlay} style={{pointerEvents: 'none'}}>
+            {/* pointerEvents: 'none' на оверлеї важливо, щоб кліки проходили,
+                АЛЕ ми хочемо, щоб сама іконка була клікабельною */}
+            <div
+                className={styles.arrowContainer}
+                onClick={onClick}
+                style={{pointerEvents: 'auto', cursor: 'pointer'}} // Робимо контейнер активним
+            >
                 <img
                     src={Config.IMAGES.chest_inventory}
                     alt="Inventory"
@@ -32,6 +42,9 @@ export const Main = ({ user, setUser }) => {
     const vip_pass_status = user?.vip_pass_is_active;
 
     const showHighlightArrow = user && user.status_register === "END_REGISTER";
+
+    // 🔥 2. Стан для відкриття інвентарю
+    const [isInventoryOpen, setIsInventoryOpen] = useState(false);
 
     const handleTeamCreated = (updatedUser) => { setUser(updatedUser); };
     const handleCharacterClaimed = (updatedUserWithNewStatus) => { setUser(updatedUserWithNewStatus); };
@@ -57,28 +70,48 @@ export const Main = ({ user, setUser }) => {
     const date = new Date(user.vip_pass_expiration_date);
     const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
+    // Обробник відкриття інвентарю
+    const openInventory = () => setIsInventoryOpen(true);
+    const closeInventory = () => setIsInventoryOpen(false);
+
     return (
         <div className={styles.page}>
-            {/* ✨ ДОДАНО: Розмитий фон для заповнення "чорного простору" */}
             <img className={styles.pageBackgroundBlur} src={Config.IMAGES.background} alt="" />
 
             <div className={styles.mainContainer} data-modal-root>
-                {/* --- REGISTRATION MODALS --- */}
                 {showCreateTeamModal && <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />}
                 {showGetCharacterModal && <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />}
 
-                {/* --- ✨ ПІДКАЗКА --- */}
-                {showHighlightArrow && <HighlightArrow />}
+                {/* --- ✨ ПІДКАЗКА (тепер відкриває інвентар) --- */}
+                {showHighlightArrow && <HighlightArrow onClick={openInventory} />}
 
-                {/* Main page content */}
+                {/* 🔥 3. Сам модальне вікно інвентарю тепер тут */}
+                {isInventoryOpen && (
+                    <InventoryModal
+                        user={user}
+                        onClose={closeInventory}
+                        onUserUpdate={setUser}
+                    />
+                )}
+
                 <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background" />
                 <Header user={user} />
+
                 {vip_pass_status ? (
                     <VipBannerActive expiryDate={formattedDate} />
                 ) : (
                     <VipBanner />
                 )}
-                <UserProfile user={user} onUserUpdate={setUser} />
+
+                {/* 🔥 4. Передаємо функцію відкриття в UserProfile,
+                    щоб клік по аватару теж працював
+                */}
+                <UserProfile
+                    user={user}
+                    onUserUpdate={setUser}
+                    onOpenInventory={openInventory}
+                />
+
                 <DailyTasks />
                 <div className={styles.eventCardWrapperEventMain}>
                     <EventCard user={user} onUserUpdate={setUser} />

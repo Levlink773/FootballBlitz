@@ -1,6 +1,6 @@
 // src/api.js
 
-export const API_BASE_URL = 'http://localhost:8123'; // 'https://football-blitz.online/api';
+export const API_BASE_URL = 'https://football-blitz.online/api';
 /**
  * Виставляє гравця на трансфер.
  * @param {number} characterId - ID персонажа.

@@ -139,7 +139,12 @@ const UserResources = ({user, onOpenReferral}) => (
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
         >
-            {/* Плюс тепер центрується автоматично через flex у CSS */}
+            {/* Додаємо зображення персонажа */}
+            <img
+                src={Config.IMAGES.referal_character}
+                alt="Referral character icon"
+                style={{ width: '30px', height: '30px', marginRight: '4px' }}
+            />
             +
         </motion.button>
 

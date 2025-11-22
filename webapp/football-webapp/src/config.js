@@ -103,6 +103,7 @@ import face_2 from "./assets/public/face_2.png";
 import toucher from "./assets/public/img_44.png";
 import face_dark from "./assets/public/face_dark.png";
 import chest_inventory from "./assets/public/chest.png";
+import referal_character from "./assets/public/character.png";
 
 
 class Config {
@@ -207,6 +208,7 @@ class Config {
         toucher: toucher,
         face_dark: face_dark,
         chest_inventory: chest_inventory,
+        referal_character: referal_character,
     };
 
     // какие-то игровые настройки

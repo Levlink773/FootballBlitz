@@ -213,7 +213,7 @@
     top: 193px;
 
     /* 🔥 КЛЮЧОВЕ ЗМІНИ: Прив'язка до центру */
-    left: 53%;
+    left: -1%;
 
     /* Зсуваємо вправо від центру, але МЕНШЕ, ніж кнопку завдань.
        Кнопка завдань має margin-left: 110px.
@@ -899,4 +899,9 @@
     width: 100%;
     align-items: center;
     padding-bottom: 20px;
+}
+@media (max-width: 340px) {
+    .arrowContainer {
+        left: -7%;
+    }
 }
