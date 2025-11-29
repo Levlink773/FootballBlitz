@@ -1,245 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Montserrat:wght@500;700;900&display=swap');
+
 :root {
-    --glow-color: hsl(193, 95%, 68%);
-    --card-bg: linear-gradient(160deg, #1e1e2f 0%, #10101a 100%);
+    --gold-primary: #FFD700;
+    --gold-secondary: #DAA520;
+    --card-bg-dark: #121418;
+    --card-bg-light: #1f252e;
+    --text-white: #ffffff;
 }
 
-/* Контейнер всей карточки */
 .revealContainer {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: 'Orbitron', sans-serif;
-    perspective: 1000px;
+    font-family: 'Montserrat', sans-serif;
+    perspective: 1200px;
     padding: 10px 0;
     position: relative;
     z-index: 10;
 }
 
 .congratsTitle {
-    font-size: 2.2rem;
-    color: #ffd700;
-    margin-bottom: 15px;
-    text-shadow: 0 0 15px #ffd700;
-    text-align: center;
-    line-height: 1.2;
+    font-family: 'Russo One', sans-serif;
+    font-size: 2rem;
+    text-transform: uppercase;
+    /* Золотий текстовий градієнт */
+    background: linear-gradient(to bottom, #FFF8DC, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
 }
 
-/* Обертка для 3D-трансформаций */
+/* --- КАРТКА (WRAPPER) --- */
 .cardWrapper {
     width: 100%;
-    max-width: 320px; /* Ограничиваем ширину, но даем сжаться */
-    aspect-ratio: 3 / 4; /* Сохраняем пропорции */
+    max-width: 280px;
+    aspect-ratio: 2 / 3; /* Пропорції футбольної картки */
     cursor: grab;
     transform-style: preserve-3d;
-    margin: 0 auto; /* Центрируем */
+    margin: 0 auto;
 }
 
+/* --- ДИЗАЙН КАРТКИ --- */
 .card {
     width: 100%;
     height: 100%;
-    background: var(--card-bg);
+    /* Складний градієнт фону */
+    background: radial-gradient(circle at 50% 30%, #2a3038, #0a0c10 80%);
     border-radius: 20px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Золота Рамка */
+    border: 2px solid var(--gold-primary);
+    outline: 4px solid rgba(0,0,0,0.5); /* Зовнішня темна обводка */
+    outline-offset: -2px;
+
+    box-shadow:
+            0 0 40px rgba(255, 215, 0, 0.15), /* Золоте сяйво */
+            0 20px 50px rgba(0,0,0,0.7),
+            inset 0 0 20px rgba(0,0,0,0.8);
+
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 221, 0.2) inset;
-    transform-style: preserve-3d;
-    box-sizing: border-box;
-
-    /* Flexbox для центрирования содержимого */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+    padding: 15px;
+    box-sizing: border-box;
 }
 
-/* Эффект сияния */
-.cardShine {
+/* Ефект переливання (Sheen) */
+.cardSheen {
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-    transform: rotate(30deg);
-    animation: holo-shine 5s infinite linear;
-    opacity: 0;
+    background: linear-gradient(
+            135deg,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.05) 40%,
+            rgba(255,255,255,0.2) 50%,
+            rgba(255,255,255,0.05) 60%,
+            rgba(255,255,255,0) 100%
+    );
     pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: overlay;
 }
 
-.cardWrapper:hover .cardShine {
-    opacity: 1;
+/* --- ВЕРХНЯ ЧАСТИНА (РЕЙТИНГ) --- */
+.cardTopInfo {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 4;
 }
 
-@keyframes holo-shine {
-    0% { transform: translateX(-50%) translateY(-25%) rotate(30deg); }
-    100% { transform: translateX(25%) translateY(50%) rotate(30deg); }
-}
-
-/* Аватар */
-.characterImage {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--glow-color);
-    box-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color) inset;
-    object-fit: cover;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    position: relative;
-    z-index: 2;
-}
-
-/* Имя персонажа */
-.characterName {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 15px;
-    text-shadow: 0 0 8px rgba(255,255,255,0.5);
-    text-align: center;
-    width: 100%;
-    word-wrap: break-word;
-    position: relative;
-    z-index: 2;
-}
-
-/* Сетка характеристик */
-.statsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-}
-
-.statItem {
-    background-color: rgba(0,0,0,0.4);
-    border-radius: 10px;
-    padding: 8px 4px;
+.ratingBox {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255,255,255,0.05);
-    transition: background-color 0.3s ease;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 }
 
-.statItem:hover {
-    background-color: rgba(0, 255, 221, 0.1);
+.ratingNumber {
+    font-family: 'Russo One', sans-serif;
+    font-size: 2.2rem;
+    color: var(--text-white);
+    line-height: 1;
 }
 
-.statLabel {
+.ratingLabel {
     font-size: 0.7rem;
-    color: #aaa;
-    margin-bottom: 4px;
+    font-weight: 700;
+    color: var(--gold-primary);
+}
+
+.flagBox {
+    font-size: 1.8rem;
+    text-align: center;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+/* --- ЗОБРАЖЕННЯ --- */
+.imageContainer {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: 10px;
+    z-index: 2;
+}
+
+.imageGlow {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(0,0,0,0) 70%);
+    z-index: 1;
+}
+
+.characterImage {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    /* Вирізаємо в формі щита або кола, тут коло пасує краще до дизайну */
+    border-radius: 50%;
+    border: 3px solid var(--gold-secondary);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    z-index: 2;
+}
+
+/* --- НИЖНЯ ЧАСТИНА (ІНФО) --- */
+.cardBottom {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    margin-top: auto; /* Притискає до низу */
+    padding-top: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); /* Затемнення знизу */
+    border-radius: 0 0 15px 15px;
+}
+
+.characterName {
+    font-family: 'Russo One', sans-serif;
     text-transform: uppercase;
+    color: var(--text-white);
+    margin: 0 0 10px 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 1px;
+    /* Градієнтна лінія під ім'ям */
+    border-bottom: 2px solid;
+    border-image: linear-gradient(to right, transparent, var(--gold-primary), transparent) 1;
+    padding-bottom: 5px;
+}
+
+/* --- СТАТИ --- */
+.statsRow {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-white);
+}
+
+.statIcon {
+    font-size: 0.8rem;
+    color: var(--gold-primary);
+    margin-bottom: 3px;
 }
 
 .statValue {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #fff;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.1rem;
 }
 
-/* Кнопка продолжить */
+.statLabel {
+    font-size: 0.6rem;
+    color: #aaa;
+    font-weight: 700;
+}
+
+.statDivider {
+    width: 1px;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- КНОПКА (Золотий Злиток) --- */
 .continueButton {
-    position: relative;
-    margin-top: 25px;
+    margin-top: 30px;
     width: 100%;
     max-width: 280px;
-    padding: 14px 20px;
+    padding: 16px;
     border: none;
-    border-radius: 12px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #ffffff;
+    border-radius: 14px;
     cursor: pointer;
-    outline: none;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    color: #3b2800;
 
-    background: linear-gradient(90deg, #0f4c75, #3282b8, #00b7c2, var(--glow-color));
-    background-size: 400% 400%;
-    box-shadow: 0 0 5px var(--glow-color), 0 0 15px var(--glow-color);
-    text-shadow: 0 0 5px hsla(0, 0%, 100%, 0.5);
+    background: linear-gradient(180deg, #FFD700 0%, #e6b800 100%);
+    box-shadow: 0 5px 0 #b38f00, 0 15px 20px rgba(0,0,0,0.4);
 
-    transition: all 0.3s ease-in-out;
-    animation: gradient-flow 5s ease infinite, pulse-glow 2s infinite ease-in-out;
-}
-
-.continueButton::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
-    background: inherit;
-    background-size: inherit;
-    border-radius: inherit;
-    filter: blur(20px);
-    opacity: 0.8;
-    animation: gradient-flow 5s ease infinite;
-}
-
-.continueButton:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 0 20px var(--glow-color);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s;
 }
 
 .continueButton:active {
-    transform: translateY(-1px) scale(0.98);
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #b38f00;
 }
 
-@keyframes gradient-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+.continueButton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shineButton 3s infinite;
 }
 
-@keyframes pulse-glow {
-    0% { box-shadow: 0 0 5px var(--glow-color); }
-    50% { box-shadow: 0 0 15px var(--glow-color); }
-    100% { box-shadow: 0 0 5px var(--glow-color); }
+@keyframes shineButton {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
 }
 
-/* 🔥 АДАПТАЦИЯ ДЛЯ УЗКИХ ЭКРАНОВ (< 360px) */
-@media (max-width: 360px) {
-    .congratsTitle {
-        font-size: 1.8rem;
-        margin-bottom: 10px;
-    }
-
-    .cardWrapper {
-        max-width: 260px; /* Уменьшаем ширину карточки */
-    }
-
-    .card {
-        padding: 15px; /* Меньше отступы внутри */
-    }
-
-    .characterImage {
-        width: 60px;
-        height: 60px;
-    }
-
-    .characterName {
-        margin-bottom: 10px;
-    }
-
-    .statLabel {
-        font-size: 0.6rem;
-    }
-
-    .statValue {
-        font-size: 0.9rem;
-    }
-
-    .continueButton {
-        padding: 12px;
-        font-size: 1rem;
-        margin-top: 20px;
-    }
+/* MEDIA */
+@media (max-width: 380px) {
+    .congratsTitle { font-size: 1.6rem; }
+    .cardWrapper { max-width: 240px; }
+    .ratingNumber { font-size: 1.8rem; }
+    .characterImage { width: 100px; height: 100px; }
+    .statValue { font-size: 1rem; }
 }

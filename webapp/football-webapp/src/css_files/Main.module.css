@@ -905,3 +905,76 @@
         left: -7%;
     }
 }
+
+/* ... ваші попередні стилі ... */
+
+/* ========================================= */
+/* 🔥 КНОПКА ТУТОРІАЛУ (TUTORIAL BUTTON)    */
+/* ========================================= */
+
+.tutorialContainer {
+    position: absolute;
+    /* inventory знаходиться на top: 193px.
+       45px висота скрині + 15px відступ = ~253px */
+    top: 240px;
+
+    /* Таке саме вирівнювання, як у скрині */
+    left: -8%;
+    margin-left: 40px;
+
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.4); /* Напівпрозорий чорний */
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%; /* Кругла кнопка */
+
+    cursor: pointer;
+    z-index: 101;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    animation: fadeInScale 0.5s ease-out;
+}
+
+.tutorialContainer:active {
+    transform: scale(0.95);
+}
+
+.tutorialContainer:hover {
+    border-color: #00DDFF;
+    box-shadow: 0 0 15px rgba(0, 221, 255, 0.6);
+}
+
+.tutorialIcon {
+    font-size: 22px;
+    color: #ffffff;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));
+}
+
+.tutorialLabel {
+    font-size: 7px;
+    font-weight: 700;
+    color: #00DDFF; /* Яскравий колір тексту */
+    margin-top: -2px;
+    text-shadow: 0 1px 2px black;
+    letter-spacing: 0.5px;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Адаптація для маленьких екранів (так само як для скрині) */
+@media (max-width: 340px) {
+    .tutorialContainer {
+        left: -7%;
+    }
+}

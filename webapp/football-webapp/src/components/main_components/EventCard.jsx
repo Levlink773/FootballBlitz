@@ -5,7 +5,7 @@ import { Steps } from 'intro.js-react';
 import 'intro.js/introjs.css';
 
 import Config from "../../config.js";
-import {showAlert} from "../../alertService.jsx";
+import {showAlert, showInfoModal} from "../../alertService.jsx";
 import { useWebSocketPro } from "../../../useWebsocket.js";
 import { API_BASE_URL } from "../../api.js";
 import buttonBg from '../../assets/public/vip_emblem_large.png';
@@ -413,6 +413,18 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 setNotificationShown(true);
                 fetchBlitzStatus();
                 await fetchUser();
+            }
+            console.log("ИМЕННО: ", result.is_tutorial)
+            if (result.is_tutorial) {
+                const msg = `
+🔹 Тренер:
+Навчання завершено — чудова робота! 🎉
+Прокачуй команду і готуйся до турніру. Покажи клас на полі! ⚽🔥
+`;
+                showInfoModal({
+                    image: Config.IMAGES.training_info,
+                    text: msg
+                });
             }
         } catch (error) {
             console.error("Registration failed:", error);

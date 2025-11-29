@@ -10,20 +10,23 @@ import {showAlert, showInfoModal} from "../alertService.jsx";
 import useWebSocket from "../../useWebsocket.js";
 import {API_BASE_URL} from "../api.js";
 
-// ... (Ваши константы TRAINING_OPTIONS, FIRST_TRAINING_OPTION остаются без изменений) ...
-const TRAINING_OPTIONS_F = [
-    { id: 2, bg: Config.IMAGES.train_line, chance: '~45%', duration: '60 хв.', cost: -20, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-    { id: 3, bg: Config.IMAGES.train_line, chance: '~55%', duration: '90 хв.', cost: -40, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-    { id: 4, bg: Config.IMAGES.train_line, chance: '~75%', duration: '120 хв.', cost: -60, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
-];
+// Константи залишаємо як були, тільки переконайся, що FIRST_TRAINING_OPTION має потрібні поля
 const TRAINING_OPTIONS = [
     { id: 1, bg: Config.IMAGES.train_line, chance: '~35%', duration: '30 хв.', cost: -10, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
     { id: 2, bg: Config.IMAGES.train_line, chance: '~45%', duration: '60 хв.', cost: -20, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
     { id: 3, bg: Config.IMAGES.train_line, chance: '~55%', duration: '90 хв.', cost: -40, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
     { id: 4, bg: Config.IMAGES.train_line, chance: '~75%', duration: '120 хв.', cost: -60, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy },
 ];
+
 const FIRST_TRAINING_OPTION = {
-    id: 'first_training', bg: Config.IMAGES.train_line, chance: '~100%', duration: '5 хв.', cost: 0, actionImg: Config.IMAGES.gold_line, actionIcon: Config.IMAGES.energy, isFirstTraining: true,
+    id: 'first_training',
+    bg: Config.IMAGES.train_line,
+    chance: '~100%',
+    duration: '5 хв.',
+    cost: 0,
+    actionImg: Config.IMAGES.gold_line,
+    actionIcon: Config.IMAGES.energy,
+    isFirstTraining: true,
 };
 
 export default function TrainingRoomCard({user, setUser}) {
@@ -43,21 +46,23 @@ export default function TrainingRoomCard({user, setUser}) {
 
     const displayedOptions = useMemo(() => {
         if (user?.status_register === 'FIRST_TRAINING') {
-            const msg = `
-🔹 Тренер:
-— Вітаю! Я чекав саме на тебе. 🏟️
-Перший крок до великого футболу — перше тренування.
-Тисни Ок та «Почати» — і я підкажу, що робити далі.
-            `;
-            showInfoModal({
-                image: Config.IMAGES.training_info,
-                text: msg
-            })
-            return [FIRST_TRAINING_OPTION, ...TRAINING_OPTIONS_F];
+            // Показуємо модалку тільки один раз при вході, логіку модалки не чіпаєм
+                const msg = `
+Вітаю на тренуванні! Готовий до першого кроку у великий футбол? 🏟️
+Тисни Ок та «Почати безкоштовно»!
+                `;
+                showInfoModal({
+                    image: Config.IMAGES.training_info,
+                    text: msg
+                });
+
+            // 🔥 ЗМІНА: Повертаємо ЛИШЕ перше тренування, без інших опцій
+            return [FIRST_TRAINING_OPTION];
         }
         return TRAINING_OPTIONS;
     }, [user]);
 
+    // ... useEffect для checkTrainingStatus залишається без змін ...
     useEffect(() => {
         if (!user?.user_id) return;
         const checkTrainingStatus = async () => {
@@ -72,6 +77,7 @@ export default function TrainingRoomCard({user, setUser}) {
     }, [user?.user_id]);
 
     const handleStartTraining = async (duration, cost, isFirst = false) => {
+        // ... логіка handleStartTraining залишається без змін ...
         if (isTrainingActive) {
             showAlert('Тренування вже відбувається. Дочекайтесь його закінчення.');
             return;
@@ -84,10 +90,18 @@ export default function TrainingRoomCard({user, setUser}) {
                 cost_energy: Math.abs(cost),
                 is_first_training: isFirst,
             });
-            showAlert('Перше тренування успішно розпочато!');
             await fetchUser();
             const response = await axios.get(`${API_BASE_URL}/training/status/${user.user_id}`);
             setIsTrainingActive(response.data.in_training);
+            const msg = `
+            Перше тренування стартувало!
+            Тепер вирушаємо до арени бліц-турніру 🏟️
+                `;
+            showInfoModal({
+                image: Config.IMAGES.training_info,
+                text: msg
+            });
+
         } catch (error) {
             const errorMessage = error.response?.data?.detail || 'Сталася помилка. Спробуйте знову.';
             showAlert(errorMessage);
@@ -105,29 +119,16 @@ export default function TrainingRoomCard({user, setUser}) {
                     className={styles.backgroundImage}
                 />
 
-                {/* 🔥 ИСПОЛЬЗУЕМ ГИБКИЙ КОНТЕЙНЕР ВМЕСТО ABSOLUTE */}
                 <div className={styles.trainingScrollContent}>
-
-                    {/* Блок статуса */}
                     <TrainingStatus user={user} />
 
-                    {/* Заголовок */}
                     <div className={styles.trainingTitleStatic}>
                         ТРЕНУВАЛЬНА ЗАЛА
                     </div>
 
-                    {/* Список опций */}
                     <div className={styles.optionsList}>
                         {displayedOptions.map(option => {
-                            const isFirstTrainingPending = user?.status_register === 'FIRST_TRAINING';
-                            const isThisTheFirstOption = option.id === 'first_training';
-                            const clickHandler = () => {
-                                if (isFirstTrainingPending && !isThisTheFirstOption) {
-                                    showAlert('Спочатку пройдіть перше тренування.');
-                                } else {
-                                    handleStartTraining(option.duration, option.cost, !!option.isFirstTraining);
-                                }
-                            };
+                            const isFirstTrainingMode = user?.status_register === 'FIRST_TRAINING';
 
                             return (
                                 <TrainingOption
@@ -138,8 +139,9 @@ export default function TrainingRoomCard({user, setUser}) {
                                     cost={option.cost}
                                     actionImg={option.actionImg}
                                     actionIcon={option.actionIcon}
-                                    onStartTraining={clickHandler}
-                                    isHighlighted={isFirstTrainingPending && isThisTheFirstOption}
+                                    onStartTraining={() => handleStartTraining(option.duration, option.cost, !!option.isFirstTraining)}
+                                    // 🔥 Передаємо новий проп для стилізації
+                                    isFirstTrainingMode={isFirstTrainingMode}
                                 />
                             );
                         })}

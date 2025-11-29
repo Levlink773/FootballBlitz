@@ -12,20 +12,20 @@ import {CreateTeamModal} from "../components/register/CreateModalTeamName.jsx";
 import {GetFirstCharacterModal} from "../components/register/GetFirstCharacterModal.jsx";
 import {showAlert, showInfoModal} from "../alertService.jsx";
 import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
-// 🔥 1. Імпортуємо InventoryModal сюди
 import {InventoryModal} from "../components/main_components/InventoryModal.jsx";
+import {API_BASE_URL} from "../api.js"; // 🔥 Переконайтеся, що імпортували API URL
 
-// ✨ Оновлений компонент підказки, який приймає onClick
+// 🔥 1. Імпорт іконки для туторіалу
+import { FaGraduationCap } from "react-icons/fa";
+
+// Компонент підказки (Інвентар)
 const HighlightArrow = ({ onClick }) => {
     return (
-        // Додаємо onClick на обгортку або саму іконку
         <div className={styles.highlightOverlay} style={{pointerEvents: 'none'}}>
-            {/* pointerEvents: 'none' на оверлеї важливо, щоб кліки проходили,
-                АЛЕ ми хочемо, щоб сама іконка була клікабельною */}
             <div
                 className={styles.arrowContainer}
                 onClick={onClick}
-                style={{pointerEvents: 'auto', cursor: 'pointer'}} // Робимо контейнер активним
+                style={{pointerEvents: 'auto', cursor: 'pointer'}}
             >
                 <img
                     src={Config.IMAGES.chest_inventory}
@@ -37,13 +37,28 @@ const HighlightArrow = ({ onClick }) => {
     );
 };
 
+// 🔥 2. Новий компонент кнопки Туторіалу
+const TutorialButton = ({ onClick }) => {
+    return (
+        <div
+            className={styles.tutorialContainer}
+            onClick={onClick}
+        >
+            <FaGraduationCap className={styles.tutorialIcon} />
+            <span className={styles.tutorialLabel}>HELP</span>
+        </div>
+    );
+};
+
 export const Main = ({ user, setUser }) => {
-    console.log("User: ", user);
+    // console.log("User: ", user);
     const vip_pass_status = user?.vip_pass_is_active;
 
     const showHighlightArrow = user && user.status_register === "END_REGISTER";
 
-    // 🔥 2. Стан для відкриття інвентарю
+    // 🔥 3. Умова відображення кнопки (менше 3 тренувань)
+    const showTutorialBtn = user && (user.count_of_training < 3);
+
     const [isInventoryOpen, setIsInventoryOpen] = useState(false);
 
     const handleTeamCreated = (updatedUser) => { setUser(updatedUser); };
@@ -56,7 +71,7 @@ export const Main = ({ user, setUser }) => {
         const updateUserStatus = async () => {
             if (user?.status_register === 'FIRST_TRAINING') {
                 try {
-                    const msg = `🔹 Тренер:\nТи в Головному меню. Тут видно характеристики гравця, VIP-статус, статистику та інші важливі дані.\nА зараз — час на перше тренування. Тисни Ок -> «Тренування» і починаємо!`;
+                    const msg = `🔹 Тренер:\nЦе головне меню. Але час не чекає! Тисни Ок -> «Тренування» і починаємо!`;
                     showInfoModal({ image: Config.IMAGES.main_info, text: msg });
                 } catch (error) {
                     console.error("Failed to update user status:", error);
@@ -67,10 +82,28 @@ export const Main = ({ user, setUser }) => {
         updateUserStatus();
     }, [user]);
 
+    // 🔥 4. Логіка натискання на кнопку Туторіалу
+    const handleTutorialClick = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'TRANSFER' }) // Змінюємо статус
+            });
+
+            if (!res.ok) throw new Error('Помилка оновлення статусу');
+
+            const updatedUser = await res.json();
+            setUser(updatedUser); // Оновлюємо користувача в React, що спричинить редирект (через App.jsx)
+        } catch (e) {
+            console.error(e);
+            showAlert("Щось пішло не так при запуску навчання.");
+        }
+    };
+
     const date = new Date(user.vip_pass_expiration_date);
     const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
-    // Обробник відкриття інвентарю
     const openInventory = () => setIsInventoryOpen(true);
     const closeInventory = () => setIsInventoryOpen(false);
 
@@ -82,10 +115,12 @@ export const Main = ({ user, setUser }) => {
                 {showCreateTeamModal && <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />}
                 {showGetCharacterModal && <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />}
 
-                {/* --- ✨ ПІДКАЗКА (тепер відкриває інвентар) --- */}
+                {/* Підказка на інвентар (Скриня) */}
                 {showHighlightArrow && <HighlightArrow onClick={openInventory} />}
 
-                {/* 🔥 3. Сам модальне вікно інвентарю тепер тут */}
+                {/* 🔥 5. Рендеримо кнопку Туторіалу, якщо виконується умова */}
+                {showTutorialBtn && <TutorialButton onClick={handleTutorialClick} />}
+
                 {isInventoryOpen && (
                     <InventoryModal
                         user={user}
@@ -103,9 +138,6 @@ export const Main = ({ user, setUser }) => {
                     <VipBanner />
                 )}
 
-                {/* 🔥 4. Передаємо функцію відкриття в UserProfile,
-                    щоб клік по аватару теж працював
-                */}
                 <UserProfile
                     user={user}
                     onUserUpdate={setUser}
@@ -117,7 +149,7 @@ export const Main = ({ user, setUser }) => {
                     <EventCard user={user} onUserUpdate={setUser} />
                 </div>
                 <StatsPanel user={user} />
-                <NavigationBar />
+                <NavigationBar user={user}/>
             </div>
         </div>
     );

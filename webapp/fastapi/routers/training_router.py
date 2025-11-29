@@ -66,7 +66,7 @@ async def start_training(body: StartTrainingBody):
     # обновляем время тренировки в БД
     now = datetime.now()
     if body.is_first_training:
-        await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.TRANSFER)
+        await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.FIRST_BLITZ)
     try:
         await RemniderCharacterService.update_training_info(
             character_id=main_char.id,

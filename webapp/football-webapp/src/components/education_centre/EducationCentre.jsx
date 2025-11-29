@@ -180,7 +180,7 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
 
                 // Если это была обучающая награда, меняем статус
                 if (user?.status_register === "EDUCATION_CENTER") {
-                    await updateUserStatus('FIRST_BLITZ');
+                    await updateUserStatus('RATING');
                 } else {
                     await fetchUser(); // В обычном случае просто обновляем данные
                 }

@@ -1,4 +1,6 @@
-/* --- Глобальный контейнер хедера (без изменений) --- */
+/* src/css_files/Header.module.css */
+
+/* --- Глобальний контейнер хедера --- */
 .headerContainer {
     display: flex;
     align-items: center;
@@ -7,11 +9,15 @@
     max-width: 400px;
     height: 52px;
     padding: 0 12px;
+
     position: absolute;
     top: 15px;
     left: 50%;
     transform: translateX(-50%);
+
+    /* Стандартний шар */
     z-index: 1000;
+
     background: rgba(45, 45, 55, 0.45);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -19,313 +25,155 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     animation: fadeInDown 0.8s ease-out;
+
+    /* 🔥 ВАЖЛИВО: Щоб стрілка могла виходити за межі блоку */
+    overflow: visible !important;
 }
 
-/* --- Левая секция (без изменений) --- */
-.leftSection {
+/* 🔥 СТАН ГАЙДА: Піднімаємо хедер НАД затемненням */
+.headerContainer.guideActive {
+    z-index: 9001; /* Вище за Overlay (9000) */
+    background: transparent; /* Прозорий фон, щоб акцент був тільки на кнопці */
+    border-color: transparent;
+    box-shadow: none;
+    pointer-events: none; /* Сам контейнер не блокує, блокують діти */
+}
+
+/* Дозволяємо клікати на кнопку магазину, навіть якщо контейнер pointer-events: none */
+.headerContainer.guideActive .rightSection {
+    pointer-events: auto;
+}
+
+/* --- Ліва та Середня секції --- */
+.leftSection, .middleSection {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-.iconButton {
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-bottom: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-}
-.iconButton:hover {
-    transform: scale(1.1);
-}
-.notificationIcon {
-    width: 30px;
-    height: 30px;
-    stroke: #fff;
-    transition: fill 0.3s ease;
-}
-.notificationBell {
-    fill: rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-}
-.iconButton:hover .notificationBell {
-    fill: rgba(255, 255, 255, 0.4);
-    animation: ring 0.5s ease-in-out;
-}
-.notificationDot {
-    fill: #ff3b30;
-    stroke: #fff;
-    stroke-width: 2;
-    animation: pulseDot 2s infinite;
-}
-.avatarContainer {
-    position: relative;
-    width: 32px;
-    height: 32px;
-}
-.avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    object-fit: cover;
-}
-.avatarGlow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 255, 132, 0.5) 0%, rgba(0, 255, 132, 0) 60%);
-    animation: pulse 2.5s infinite ease-in-out;
-    z-index: -1;
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-/* --- Средняя секция (без изменений) --- */
-.middleSection {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.currencyGroup {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    padding: 4px 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-.currencyGroup:hover {
-    background: rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-.currencyIcon {
-    width: 20px;
-    height: 20px;
-    filter: drop-shadow(0 0 4px rgba(255, 223, 77, 0.5));
-}
-.currencyAmount {
-    color: #FFFFFF;
-    font-size: 15px;
-    font-weight: 700;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
-    min-width: 40px;
-    text-align: left;
-}
-.addButton {
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(145deg, #FDE047 0%, #F59E0B 100%);
-    border-radius: 8px;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: all 0.2s ease-out;
-}
-.addButton:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 4px 10px rgba(251, 215, 54, 0.4);
-}
-.addButton:active {
-    transform: scale(0.95);
-    filter: brightness(0.9);
+/* 🔥 ЗАТЕМНЕННЯ НЕАКТИВНИХ ЕЛЕМЕНТІВ */
+.dimmed {
+    opacity: 0.1; /* Майже невидимі */
+    filter: grayscale(100%);
+    pointer-events: none; /* Заборона кліків */
 }
 
-/* --- Правая секция --- */
-.rightSection {
-    display: flex;
-    align-items: center;
-}
+/* --- Інші елементи (без змін) --- */
+.iconButton { background: transparent; border: none; padding: 0; margin-bottom: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
+.iconButton:hover { transform: scale(1.1); }
+.notificationIcon { width: 30px; height: 30px; stroke: #fff; transition: fill 0.3s ease; }
+.notificationBell { fill: rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+.iconButton:hover .notificationBell { fill: rgba(255, 255, 255, 0.4); animation: ring 0.5s ease-in-out; }
+.notificationDot { fill: #ff3b30; stroke: #fff; stroke-width: 2; animation: pulseDot 2s infinite; }
+.avatarContainer { position: relative; width: 32px; height: 32px; }
+.avatar { width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.5); object-fit: cover; }
+.avatarGlow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle, rgba(0, 255, 132, 0.5) 0%, rgba(0, 255, 132, 0) 60%); animation: pulse 2.5s infinite ease-in-out; z-index: -1; }
 
-/* --- СТИЛИ ДЛЯ НОВОЙ ЗОЛОТОЙ КНОПКИ МАГАЗИНА --- */
+.middleSection { gap: 10px; }
+.currencyGroup { display: flex; align-items: center; gap: 5px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 4px 8px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+.currencyGroup:hover { background: rgba(0, 0, 0, 0.5); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+.currencyIcon { width: 20px; height: 20px; filter: drop-shadow(0 0 4px rgba(255, 223, 77, 0.5)); }
+.currencyAmount { color: #FFFFFF; font-size: 15px; font-weight: 700; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); min-width: 40px; text-align: left; }
+.addButton { width: 22px; height: 22px; background: linear-gradient(145deg, #FDE047 0%, #F59E0B 100%); border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); cursor: pointer; transition: all 0.2s ease-out; }
+.addButton:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 4px 10px rgba(251, 215, 54, 0.4); }
+.addButton:active { transform: scale(0.95); filter: brightness(0.9); }
+
+.rightSection { display: flex; align-items: center; }
+
+/* ========================================= */
+/* 🔥 КНОПКА МАГАЗИНУ ТА СТРІЛКА 🔥 */
+/* ========================================= */
+
 .shopButton {
     position: relative;
-    width: 55px; /* Уменьшил ширину для "небольшой" кнопки */
+    width: 55px;
     height: 28px;
     left: 2px;
-    background: transparent; /* Фон задается SVG */
+    background: transparent;
     border: none;
     cursor: pointer;
     padding: 0;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 12px; /* Совпадает с SVG */
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); /* Мягкое золотое свечение */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    z-index: 1;
 }
 
-.shopButton:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
-}
+.shopButton:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6); }
 
-.shopButtonSvg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Анимация вращения блика внутри SVG уже есть */
-}
-
-.shopIconActual { /* Это будет наша иконка тележки */
-    position: absolute;
-    width: 20px; /* Размер иконки */
-    height: 20px;
-    left: 53%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    color: #4B3621; /* Темно-коричневый для контраста с золотом */
-    filter: drop-shadow(0 1px 1px rgba(255,255,255,0.5)); /* Легкий блик */
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.shopButton:hover .shopIconActual {
-    transform: translate(-50%, -50%) scale(1.1); /* Иконка немного увеличивается */
-}
-
-
-/* --- Ключевые кадры для анимаций --- */
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translate(-50%, -30px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 0.7; }
-    70% { transform: scale(1.3); opacity: 0; }
-    100% { transform: scale(0.95); opacity: 0; }
-}
-
-/* Анимация для колокольчика */
-@keyframes ring {
-    0%, 100% { transform: rotate(0); }
-    10%, 90% { transform: rotate(0); }
-    20%, 40%, 60%, 80% { transform-origin: top center; transform: rotate(-10deg); }
-    30%, 50%, 70% { transform-origin: top center; transform: rotate(10deg); }
-}
-
-/* Анимация для точки уведомления */
-@keyframes pulseDot {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* Добавьте этот код в конец вашего файла Header.module.css */
-
-/* Добавьте этот код в конец вашего файла Header.module.css */
-
-/* Применяем стили, когда кнопка должна быть подсвечена */
+/* СТАН ПІДСВІТКИ (HIGHLIGHTED) */
 .shopButton.highlighted {
-    position: relative;
-    /* Анимация красивого золотого свечения */
-    animation: gold-pulse 2s infinite;
+    z-index: 9002;
+    background-color: rgba(40, 40, 40, 1); /* Непрозорий фон */
+    /* Світіння */
+    box-shadow:
+            0 0 0 2px #fff,
+            0 0 20px 5px rgba(255, 215, 0, 0.8),
+            0 0 50px 10px rgba(255, 215, 0, 0.5);
+    transform: scale(1.15);
+    animation: gold-pulse-strong 2s infinite;
 }
-/* --- СТИЛІ ДЛЯ КРАСИВОЇ ВКАЗІВНОЇ СТРІЛКИ --- */
 
-/* 2. Створюємо нову, красиву стрілку через ::before */
+/* 🔥 СТРІЛКА */
 .shopButton.highlighted::before {
     content: '';
     position: absolute;
+    /* Зсуваємо вниз, щоб вказувала на кнопку знизу, або вверх */
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg); /* 180deg - вказує вгору */
 
-    /* Координаты оставляем без изменений */
-    top: 40px;
-    left: -10px;
+    width: 35px;
+    height: 35px;
 
-    /* --- ИЗМЕНЕНИЕ: ДЕЛАЕМ СТРЕЛКУ "ЖИРНЕЕ" И ОТЧЕТЛИВЕЕ --- */
-    /* Создаем форму стрелки с помощью рамок */
-    width: 20px; /* Увеличена ширина стрелки */
-    height: 20px; /* Увеличена высота стрелки */
-    border-top: 6px solid #FFD700;   /* <-- Увеличено с 5px до 6px */
-    border-right: 6px solid #FFD700; /* <-- Увеличено с 5px до 6px */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300DDFF'%3E%3Cpath d='M12 21l-12-18h24z'/%3E%3Cpath d='M12 21l-12-18h24z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
 
-    /* Поворот оставляем без изменений */
-    transform: rotate(45deg); /* Сохраняем поворот, который был */
-
-    /* --- ИЗМЕНЕНИЕ: ДЕЛАЕМ СВЕЧЕНИЕ СИЛЬНЕЕ И КРАСИВЕЕ --- */
-    /* Добавляем свечение, чтобы стрелка выделялась на любом фоне */
-    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1)); /* <-- Увеличено радиус размытия и непрозрачность до 1 */
-
-    /* Анимация остается, но ее параметры будут изменены ниже */
-    animation: point-and-glow 1.8s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px #00DDFF);
+    animation: arrowBounceUp 1s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 9003;
 }
 
-
-/* --- КЛЮЧЕВЫЕ КАДРЫ ДЛЯ НОВОЙ, УСИЛЕННОЙ АНИМАЦИИ СТРЕЛКИ --- */
-
-@keyframes point-and-glow {
-    0% {
-        transform: rotate(-5deg) translate(0, 0) scale(1); /* Сохраняем поворот */
-        opacity: 0.9;
-        /* --- ИЗМЕНЕНИЕ: Сильнее базовое свечение --- */
-        filter: drop_shadow(0 0 10px rgba(255, 215, 0, 0.9));
-    }
-    50% {
-        transform: rotate(-5deg) translate(-7px, 7px) scale(1.15); /* Сохраняем поворот, усилено движение и масштаб */
-        opacity: 1;
-        /* --- ИЗМЕНЕНИЕ: Значительно усиленное пиковое свечение для "вау-эффекта" --- */
-        filter: drop_shadow(0 0 25px rgba(255, 215, 0, 1)); /* Максимальное свечение */
-    }
-    100% {
-        transform: rotate(-5deg) translate(0, 0) scale(1); /* Сохраняем поворот */
-        opacity: 0.9;
-        /* --- ИЗМЕНЕНИЕ: Сильнее базовое свечение --- */
-        filter: drop_shadow(0 0 10px rgba(255, 215, 0, 0.9));
-    }
+@keyframes arrowBounceUp {
+    0%, 100% { transform: translateX(-50%) rotate(180deg) translateY(0); }
+    50% { transform: translateX(-50%) rotate(180deg) translateY(10px); }
 }
 
-/* Анимацию свечения для самой кнопки оставляем без изменений */
-@keyframes gold-pulse {
-    0% {
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-    }
-    50% {
-        box-shadow: 0 6px 25px 5px rgba(255, 215, 0, 0.7);
-    }
-    100% {
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-    }
+@keyframes gold-pulse-strong {
+    0% { box-shadow: 0 0 0 2px #fff, 0 0 20px 5px rgba(255, 215, 0, 0.8); }
+    50% { box-shadow: 0 0 0 2px #fff, 0 0 35px 10px rgba(255, 215, 0, 1); }
+    100% { box-shadow: 0 0 0 2px #fff, 0 0 20px 5px rgba(255, 215, 0, 0.8); }
 }
 
-/* Применяем анимацию к кнопке (обновлено для использования gold-pulse) */
-.shopButton.highlighted {
-    position: relative;
-    animation: gold-pulse 2s infinite;
+/* ========================================= */
+/* 🔥 ОВЕРЛЕЙ (ТЕМРЯВА) 🔥 */
+/* ========================================= */
+.guideOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* 85% темряви */
+    z-index: 9000;
+    pointer-events: all;
+    backdrop-filter: blur(3px);
+    animation: fadeInOverlay 0.3s ease-out forwards;
 }
 
-.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none; /* Helps prevent click events on complex elements */
-}
-@media (max-width: 410px) {
-    .avatarContainer {
-        display: none;
-    }
-}
+@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
 
+.shopButtonSvg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.shopIconActual { position: absolute; width: 20px; height: 20px; left: 53%; top: 50%; transform: translate(-50%, -50%); color: #4B3621; filter: drop-shadow(0 1px 1px rgba(255,255,255,0.5)); transition: transform 0.3s; }
+.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
-/*
- * Этап 2: На очень маленьких экранах шириной 380px и меньше.
- * Если места все еще не хватает, убираем и иконку уведомлений (колокольчик).
- * Остаются только самые важные элементы: баланс валют и кнопка магазина.
-*/
-@media (max-width: 365px) {
-    .iconButton {
-        display: none;
-    }
-}
+@keyframes fadeInDown { from { opacity: 0; transform: translate(-50%, -30px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.3); opacity: 0; } 100% { transform: scale(0.95); opacity: 0; } }
+@keyframes ring { 0%, 100% { transform: rotate(0); } 10%, 90% { transform: rotate(0); } 20%, 40%, 60%, 80% { transform-origin: top center; transform: rotate(-10deg); } 30%, 50%, 70% { transform-origin: top center; transform: rotate(10deg); } }
+@keyframes pulseDot { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+
+@media (max-width: 410px) { .avatarContainer { display: none; } }
+@media (max-width: 365px) { .iconButton { display: none; } }

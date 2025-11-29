@@ -341,6 +341,17 @@ class UserService:
                 await session.execute(stmt)
 
     @classmethod
+    async def add_full_count_to_gym(cls, user_id: int, amount: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(count_of_training=func.coalesce(UserBot.count_of_training, 0) + amount)
+                )
+                await session.execute(stmt)
+
+    @classmethod
     async def consume_energy(cls, user_id: int, amount_energy_consume: int) -> bool:
         # Этот метод был написан хорошо, возвращаемое значение изменено на bool для ясности
         async for session in get_session():

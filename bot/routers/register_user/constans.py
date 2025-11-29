@@ -13,6 +13,6 @@ SELECT_GENDER_PHOTO = FSInputFile("src/register_user/choise_gender.jpg")
 ADITIONAL_INFO_PHOTO = FSInputFile("src/register_user/new_member_additional_information.jpg")
 PHOTO_BOX_NEW_MEMBER = FSInputFile("src/register_user/photo_box_new_member.jpg")
 
-TIME_SLEEP_REGISTER_MESSAGE = 3
+TIME_SLEEP_REGISTER_MESSAGE = 1
 TIME_FORGOT_MESSAGE = 60*7
 COUNT_FORGOT_MESSAGE = 3

@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from database.models.user_bot import UserBot
+from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 
 
 def get_settings_keyboard(user: UserBot) -> ReplyKeyboardMarkup:
@@ -10,39 +10,35 @@ def get_settings_keyboard(user: UserBot) -> ReplyKeyboardMarkup:
     """
     builder = ReplyKeyboardBuilder()
 
-    # 1. Кнопка "Телеграм мод"
-    # Логіка: Якщо user.is_tg_mode == True, значить режим УВІМКНЕНО.
-    # Ми хочемо показати поточний статус або дію.
-    # Зазвичай на кнопці пишуть дію: "Вимкнути", якщо зараз увімкнено.
-    # Але у вашому прикладі логіка була: "Увімкнути... ✅", якщо is_tg_mode=True.
-    # Це виглядає як відображення статусу, а не дії.
-    # Давайте зробимо так:
-    # Якщо is_tg_mode == True -> Кнопка "Вимкнути клавіатуру ❌"
-    # Якщо is_tg_mode == False -> Кнопка "Увімкнути клавіатуру ✅"
+    # --- ЛОГИКА БЛОКИРОВКИ ---
+    # Проверяем статус пользователя.
+    # Если регистрация не закончена (status != "END_REGISTER"), добавляем замочек.
+    if user.status_register != STATUS_USER_REGISTER.END_REGISTER:
+        prefix = "🔒 "
+    else:
+        prefix = ""
 
+    # 1. Кнопка "Телеграм мод"
     if user.is_tg_mode:
         tg_mode_text = "Вимкнути клавіатуру ❌"
     else:
         tg_mode_text = "Увімкнути клавіатуру ✅"
 
-    builder.button(text=tg_mode_text)
+    # Добавляем кнопку с учетом префикса
+    builder.button(text=f"{prefix}{tg_mode_text}")
 
     # 2. Кнопка "Оповіщення"
-    # Логіка: disable_spam == True означає, що спам ВИМКНЕНО (оповіщення не приходять).
-    # Отже, якщо disable_spam == True -> ми хочемо їх УВІМКНУТИ.
-    # Текст кнопки: "Увімкнути повідомлення ✅"
-
-    # Якщо disable_spam == False (оповіщення приходять) -> ми хочемо їх ВИМКНУТИ.
-    # Текст кнопки: "Вимкнути повідомлення ❌"
-
     if user.disable_spam:
         spam_text = "Увімкнути повідомлення ✅"
     else:
         spam_text = "Вимкнути повідомлення ❌"
 
-    builder.button(text=spam_text)
+    # Добавляем кнопку с учетом префикса
+    builder.button(text=f"{prefix}{spam_text}")
 
     # 3. Кнопка "Головна площа"
+    # К кнопке выхода/навигации обычно замок не добавляют, чтобы человек мог выйти,
+    # но если нужно и сюда — просто добавьте prefix в f-строку.
     builder.button(text="⬅️ Головна площа")
 
     # Вибудовуємо кнопки в один стовпчик

@@ -3,7 +3,7 @@ import asyncio
 from typing import Optional
 
 from aiogram import Bot
-from aiogram.types import InlineKeyboardMarkup, FSInputFile, InlineKeyboardButton, WebAppInfo
+from aiogram.types import InlineKeyboardMarkup, FSInputFile, InlineKeyboardButton, WebAppInfo, ReplyKeyboardRemove
 
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 
@@ -19,6 +19,8 @@ from .constans import (
 )
 from .config import PHOTO_STAGE_REGISTER_USER, TEXT_STAGE_REGISTER_USER
 from .keyboard.register_user import create_team
+from ...keyboards.menu_keyboard import main_menu
+
 
 class StartRegisterUser:
     _bot: Bot = bot
@@ -57,16 +59,11 @@ class StartRegisterUser:
             text='''
 Ей, чемпіоне!
 Готовий вийти на поле? ⚽
-⬅️⬅️ Бий по кнопці <b>OPEN</b> зліва! ⬅️⬅️
+⬅️⬅️ Бий по кнопці <b>Грати</b> зліва! ⬅️⬅️
 Твій шлях у Football Bliz починається просто зараз 💪🔥
             ''',
             photo=FSInputFile("bot/routers/register_user/open_app.jpg"),
-            keyboard=InlineKeyboardMarkup(inline_keyboard=[[
-                InlineKeyboardButton(
-                    text="⚽ Відкрити Додаток",
-                    web_app=WebAppInfo(url=f"https://football-blitz.online/?user_id={self.user.user_id}")
-                )]]
-            )
+            keyboard=main_menu(self.user)
         )
         
         

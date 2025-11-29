@@ -1,47 +1,27 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
 import styles from '../css_files/Header.module.css';
-
 import Config from "../config.js";
-
 import { api } from "../api.js";
-
 import { showAlert } from "../alertService.jsx";
-
 import { BuyModal, ModalRoot } from "./modal_components/ModalComponents.jsx";
-
-import {useGuide} from "./register/context/GuideContext.jsx";
+import { useGuide } from "./register/context/GuideContext.jsx";
 
 const NotificationIcon = ({ hasNotification }) => (
-    <svg
-        className={styles.notificationIcon}
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path
-            className={styles.notificationBell}
-            d="M12 22C13.1046 22 14 21.1046 14 20H10C10 21.1046 10.8954 22 12 22ZM18 16V11C18 7.68629 15.3137 5 12 5C8.68629 5 6 7.68629 6 11V16L4 18H20L18 16Z"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
+    <svg className={styles.notificationIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path className={styles.notificationBell} d="M12 22C13.1046 22 14 21.1046 14 20H10C10 21.1046 10.8954 22 12 22ZM18 16V11C18 7.68629 15.3137 5 12 5C8.68629 5 6 7.68629 6 11V16L4 18H20L18 16Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         {hasNotification && <circle className={styles.notificationDot} cx="18" cy="6" r="4" />}
     </svg>
 );
 
-const ShopButton = ({ isHighlighted, guideTarget }) => {
+const ShopButton = ({ isHighlighted, isDisabled }) => {
     const navigate = useNavigate();
 
     const handleGoToShop = () => {
-        if (guideTarget && guideTarget !== 'shop') {
-            return;
-        }
+        if (isDisabled) return;
         navigate('/shop');
     };
 
-    const isDisabled = guideTarget && guideTarget !== 'shop';
     const buttonClasses = `${styles.shopButton} ${isHighlighted ? styles.highlighted : ''} ${isDisabled ? styles.disabled : ''}`;
 
     return (
@@ -63,37 +43,21 @@ const ShopButton = ({ isHighlighted, guideTarget }) => {
                 <rect x="0" y="0" width="100" height="38" rx="12" ry="12" fill="url(#goldGradient)" />
                 <rect x="0" y="0" width="100" height="38" rx="12" ry="12" fill="url(#goldShine)" />
             </svg>
-            <img
-                src={Config.IMAGES.shop_icon}
-                alt="Shop Icon"
-                className={styles.shopIconActual}
-            />
+            <img src={Config.IMAGES.shop_icon} alt="Shop Icon" className={styles.shopIconActual} />
         </button>
     );
 }
 
-// Змінений компонент CurrencyGroup
 const CurrencyGroup = ({ icon, alt, amount, onAddClick, isDisabled = false }) => {
-    // Створюємо динамічний список класів для кнопки
-    const addButtonClasses = `${styles.addButton} ${isDisabled ? styles.disabled : ''}`;
-
     return (
-        <div className={styles.currencyGroup}>
+        <div className={`${styles.currencyGroup} ${isDisabled ? styles.disabled : ''}`}>
             <img className={styles.currencyIcon} src={icon} alt={alt} aria-label={alt} />
             <span className={styles.currencyAmount}>{amount ?? 0}</span>
-            <button
-                className={addButtonClasses} // Використовуємо динамічні класи
-                onClick={onAddClick}
-                aria-label={`Add ${alt}`}
-                disabled={isDisabled} // Додаємо атрибут disabled
-            >
-                +
-            </button>
+            <button className={`${styles.addButton} ${isDisabled ? styles.disabled : ''}`} onClick={onAddClick} aria-label={`Add ${alt}`} disabled={isDisabled}>+</button>
         </div>
     );
 };
 
-// Змінений компонент Header
 export const Header = ({ user }) => {
     const { guideTarget } = useGuide();
     const location = useLocation();
@@ -101,74 +65,64 @@ export const Header = ({ user }) => {
     const [activeModal, setActiveModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // --- НОВИЙ КОД: Визначаємо, чи потрібно блокувати кнопки ---
-    // Кнопки заблоковані, якщо у користувача НЕМАЄ статусу 'END_REGISTER'
+    // --- ЛОГІКА ГАЙДА ---
+    const isShopTarget = guideTarget === 'shop';
+    const isOnShopPage = location.pathname === '/shop';
+
+    // 1. Показуємо ОВЕРЛЕЙ, якщо ціль - Магазин, і ми ще не в ньому
+    const showGuideVisuals = isShopTarget && !isOnShopPage;
+
+    // 2. БЛОКУЄМО ВСЕ ІНШЕ: Якщо йде реєстрація АБО якщо йде гайд і ми не на місці
     const isRegistrationIncomplete = user?.status_register !== 'END_REGISTER';
-    // --- КІНЕЦЬ НОВОГО КОДУ ---
+    const isInteractionsLocked = isRegistrationIncomplete || (!!guideTarget && !isOnShopPage);
 
     const openModal = (modalType) => {
-        // Додаткова перевірка, хоча кнопка і так буде заблокована
-        if (isRegistrationIncomplete) return;
+        if (isInteractionsLocked) return;
         setActiveModal(modalType);
     };
 
     const closeModal = () => setActiveModal(null);
 
     const handlePurchase = async (productType, item) => {
-        // ... (решта логіки без змін)
-        if (!user || !user.user_id) {
-            showAlert("Помилка: користувача не знайдено. Будь ласка, перезавантажте сторінку.");
-            return;
-        }
-
+        if (!user || !user.user_id) { showAlert("Користувача не знайдено."); return; }
         setIsLoading(true);
         closeModal();
-
         try {
             let response;
             const data = { userId: user.user_id };
-
             switch (productType) {
-                case 'coin':
-                    response = await api.createCoinPayment({ ...data, pack: item });
-                    break;
-                case 'energy':
-                    response = await api.createEnergyPayment({ ...data, pack: item });
-                    break;
-                default:
-                    throw new Error("Unknown product type");
+                case 'coin': response = await api.createCoinPayment({ ...data, pack: item }); break;
+                case 'energy': response = await api.createEnergyPayment({ ...data, pack: item }); break;
+                default: throw new Error("Unknown product type");
             }
-
-            if (response && response.page_url) {
-                window.location.href = response.page_url;
-            } else {
-                throw new Error("Не вдалося отримати посилання на оплату.");
-            }
+            if (response && response.page_url) window.location.href = response.page_url;
         } catch (error) {
-            console.error("Payment failed:", error);
-            showAlert(`Помилка під час створення платежу: ${error.message}`);
+            console.error("Payment error", error);
+            showAlert("Помилка оплати.");
         } finally {
             setIsLoading(false);
         }
     };
+
     const avatarUrl = user?.avatar_url || Config.IMAGES.avatar;
-    const isShopHighlighted = guideTarget === 'shop' && location.pathname !== '/shop';
 
     return (
         <>
+            {/* 🔥 1. Рендеримо темний фон */}
+            {showGuideVisuals && <div className={styles.guideOverlay} />}
 
             {isLoading && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
-                }}>
+                <div style={{position: 'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.7)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', color:'white'}}>
                     <h2>Створення платежу...</h2>
                 </div>
             )}
-            <header className={styles.headerContainer}>
-                <div className={styles.leftSection}>
-                    <button className={styles.iconButton} aria-label="Notifications">
+
+            {/* 🔥 2. Додаємо клас guideActive до контейнера, щоб підняти його над темрявою */}
+            <header className={`${styles.headerContainer} ${showGuideVisuals ? styles.guideActive : ''}`}>
+
+                {/* Загашені секції */}
+                <div className={`${styles.leftSection} ${showGuideVisuals ? styles.dimmed : ''}`}>
+                    <button className={styles.iconButton} disabled={isInteractionsLocked}>
                         <NotificationIcon hasNotification={false} />
                     </button>
                     <div className={styles.avatarContainer}>
@@ -177,34 +131,25 @@ export const Header = ({ user }) => {
                     </div>
                 </div>
 
-                <div className={styles.middleSection}>
-                    <CurrencyGroup
-                        icon={Config.IMAGES.coin}
-                        alt="Coins"
-                        amount={user?.money}
-                        onAddClick={() => openModal('coin')}
-                        isDisabled={isRegistrationIncomplete} // <-- ПЕРЕДАЄМО СТАН БЛОКУВАННЯ
-                    />
-                    <CurrencyGroup
-                        icon={Config.IMAGES.energy}
-                        alt="Energy"
-                        amount={user?.energy}
-                        onAddClick={() => openModal('energy')}
-                        isDisabled={isRegistrationIncomplete} // <-- ПЕРЕДАЄМО СТАН БЛОКУВАННЯ
-                    />
+                <div className={`${styles.middleSection} ${showGuideVisuals ? styles.dimmed : ''}`}>
+                    <CurrencyGroup icon={Config.IMAGES.coin} alt="Coins" amount={user?.money} onAddClick={() => openModal('coin')} isDisabled={isInteractionsLocked} />
+                    <CurrencyGroup icon={Config.IMAGES.energy} alt="Energy" amount={user?.energy} onAddClick={() => openModal('energy')} isDisabled={isInteractionsLocked} />
                 </div>
+
+                {/* Кнопка магазину */}
                 <div className={styles.rightSection}>
-                    <ShopButton isHighlighted={isShopHighlighted} guideTarget={guideTarget} />
+                    <ShopButton
+                        isHighlighted={showGuideVisuals}
+                        guideTarget={guideTarget}
+                        // Вона активна, тільки якщо це ціль гайда
+                        isDisabled={isInteractionsLocked && !showGuideVisuals}
+                    />
                 </div>
             </header>
 
             {activeModal && (
                 <ModalRoot>
-                    <BuyModal
-                        type={activeModal}
-                        onClose={closeModal}
-                        onDonate={(pack) => handlePurchase(activeModal, pack)}
-                    />
+                    <BuyModal type={activeModal} onClose={closeModal} onDonate={(pack) => handlePurchase(activeModal, pack)} />
                 </ModalRoot>
             )}
         </>

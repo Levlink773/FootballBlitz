@@ -61,6 +61,7 @@ class RegisterResponse(BaseModel):
     ok: bool
     message: str
     blitz_id: Optional[int] = None
+    is_tutorial: bool = False
 class MatchStateResponse(BaseModel):
     match_id: Optional[str] = None
     state: Optional[str] = None
@@ -244,7 +245,7 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
         # Меняем статус пользователя после всех проверок и списаний
         if is_tutorial_user:
             # Следующий статус после первого блица - это
-            await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.RATING)
+            await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.END_REGISTER)
 
     except BlitzCloseError:
         return RegisterResponse(ok=False, message="Реєстрацію на бліц закрито.", blitz_id=blitz_id)
@@ -259,7 +260,7 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
         logger.exception("Unexpected error when registering user %s to blitz %s: %s", user_id, blitz_id, e)
         raise HTTPException(status_code=500, detail="Внутрішня помилка при реєстрації")
 
-    return RegisterResponse(ok=True, message="Успішна реєстрація на бліц", blitz_id=blitz_id)
+    return RegisterResponse(ok=True, message="Успішна реєстрація на бліц", blitz_id=blitz_id, is_tutorial=is_tutorial_user)
 
 @router.get("/is_registered/{user_id}", response_model=RegisterStatusResponse)
 async def is_user_registered_in_blitz(user_id: int):

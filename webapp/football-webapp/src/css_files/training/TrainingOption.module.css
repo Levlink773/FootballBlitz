@@ -1,14 +1,14 @@
 /* css_files/training/TrainingOption.module.css */
 
-/* ... (Анимации остаются без изменений) ... */
+/* --- Анимации --- */
+@keyframes fadeInSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes textGlow { 0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 0, 0.5); } 50% { text-shadow: 0 0 15px rgba(255, 255, 0, 1); } }
+@keyframes heroPulse { 0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); } 50% { transform: scale(1.02); box-shadow: 0 0 35px rgba(255, 215, 0, 0.6); } 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); } }
 
 /* --- Основной контейнер --- */
 .container {
-    /* ❌ БЫЛО: width: 371px; */
-    /* ✅ СТАЛО: Адаптивная ширина */
     width: 94%;
     max-width: 400px;
-
     height: 57px;
     position: relative;
     border-radius: 20px;
@@ -20,176 +20,110 @@
     animation: fadeInSlideUp 0.5s ease-out forwards;
     cursor: pointer;
     flex-shrink: 0;
-
-    /* 🔥 FLEXBOX для внутренней структуры */
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Распределить элементы по краям */
-    padding: 0 15px; /* Отступы по бокам */
+    justify-content: space-between;
+    padding: 0 15px;
     box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 10px;
 }
 
-.container:hover {
-    transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+.background { width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover; z-index: -1; }
+.separator { width: 1px; height: 30px; background: rgba(255, 255, 255, 0.4); box-shadow: 0 0 3px rgba(255, 255, 255, 0.3); position: static; flex-shrink: 0; }
+.chanceWrapper { position: static; width: auto; flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); white-space: nowrap; }
+.label { font-size: 12px; text-transform: uppercase; opacity: 0.8; }
+.chanceValue { font-size: 15px; background: linear-gradient(180deg, #FFF5A1 0%, #F6FF4D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: textGlow 2.5s infinite ease-in-out; }
+.duration { position: static; width: auto; min-width: 50px; display: flex; align-items: center; justify-content: center; font-size: 15px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); }
+
+/* Обычная кнопка */
+.actionButton { position: static; width: 100px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); cursor: pointer; transition: transform 0.2s ease; padding: 0 10px; flex-shrink: 0; }
+.actionButton:hover { transform: scale(1.05); filter: brightness(1.1); }
+.actionButton:active { transform: scale(0.98); filter: brightness(0.95); }
+.actionButtonText { color: black; font-size: 10px; font-family: 'Exo 2', sans-serif; font-weight: 700; text-shadow: 0 0 3px white; margin-right: 6px; white-space: nowrap; }
+.actionButtonIcon { width: 10px; height: 14px; }
+
+
+/* ========================================= */
+/* 🔥 HERO MODE (ПЕРШЕ ТРЕНУВАННЯ) 🔥 */
+/* ========================================= */
+
+.heroMode {
+    height: 90px;
+    width: 94%;
+    margin: 20px 0;
+    overflow: visible;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.2);
+    animation: heroPulse 2s infinite ease-in-out;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+
+    /* Гарантируем одну строку */
+    flex-wrap: nowrap !important;
 }
 
-.background {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0; left: 0;
-    object-fit: cover;
-    z-index: -1;
-}
+.heroMode .background { filter: brightness(1.2) sepia(0.2); border-radius: 18px; }
+.heroMode .chanceWrapper .chanceValue { font-size: 20px; text-shadow: 0 0 15px #FFD700; white-space: nowrap; }
+.heroMode .duration { font-size: 18px; color: #FFD700; white-space: nowrap; font-weight: 800; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
 
-/* --- Разделители (Теперь это просто границы) --- */
-.separator {
-    width: 1px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
-    /* Убираем absolute */
-    position: static;
-    flex-shrink: 0;
-}
-
-/* --- Секции с текстом (Flex Items) --- */
-.chanceWrapper {
-    /* Убираем absolute */
-    position: static;
+/* ЗОЛОТАЯ КНОПКА */
+.heroMode .actionButton {
+    /* На больших экранах: */
     width: auto;
-    flex: 1; /* Занимает доступное место */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 2px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    margin-right: 10px;
-}
+    min-width: 140px;
+    height: 45px;
+    padding: 0 15px;
 
-.label {
-    font-size: 12px;
-    text-transform: uppercase;
-    opacity: 0.8;
-}
-
-.chanceValue {
-    font-size: 15px;
-    background: linear-gradient(180deg, #FFF5A1 0%, #F6FF4D 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-fill-color: transparent;
-    animation: textGlow 2.5s infinite ease-in-out;
-}
-
-.duration {
-    /* Убираем absolute */
-    position: static;
-    width: auto;
-    min-width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    margin: 0 10px; /* Отступы от разделителей */
-}
-
-/* --- Кнопка действия --- */
-.actionButton {
-    /* Убираем absolute */
-    position: static;
-    transform: none;
-
-    width: 100px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 16px;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    padding: 0 10px;
-    flex-shrink: 0; /* Не сжимать кнопку */
-}
-
-.actionButton:hover {
+    background-image: none !important;
+    background: linear-gradient(180deg, #FFD700 0%, #FFC107 100%) !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.5);
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-    filter: brightness(1.1);
+    border: none;
+    z-index: 5;
+    /* 🔥 Ключевое: разрешаем кнопке сжиматься */
+    flex-shrink: 1;
 }
+.heroMode .actionButtonText { font-size: 11px; color: #3b2d00; text-shadow: none; font-weight: 900; white-space: nowrap; margin-right: 5px; letter-spacing: 0.5px; }
 
-.actionButton:active {
-    transform: scale(0.98);
-    filter: brightness(0.95);
-}
 
-.actionButtonText {
-    color: black;
-    font-size: 10px;
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 700;
-    text-shadow: 0 0 3px white;
-    margin-right: 6px;
-    white-space: nowrap;
-}
+/* ========================================= */
+/* 📱 АДАПТАЦИЯ (ПРОПОРЦИОНАЛЬНОЕ УМЕНЬШЕНИЕ) */
+/* ========================================= */
 
-.actionButtonIcon {
-    width: 10px;
-    height: 14px;
-}
-
-/* --- СТИЛИ ДЛЯ ПОДСКАЗКИ (Адаптация) --- */
-
-.container.highlighted::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 10px; /* Привязка к краю кнопки */
-    width: 15px;
-    height: 15px;
-    border-top: 4px solid #00ffff;
-    border-right: 4px solid #00ffff;
-    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.9));
-    animation: gentle-poke 1.8s infinite ease-in-out;
-    z-index: 20;
-    pointer-events: none;
-}
-
-/* Текст подсказки прячем на мобильных, чтобы не вылезал, или делаем компактнее */
-.container.highlighted::before {
-    content: 'Натисни';
-    position: absolute;
-    top: -25px; /* Выносим наверх */
-    right: 20px;
-    transform: none;
-    font-size: 14px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
-    animation: text-fade-in-out 1.8s infinite ease-in-out;
-    pointer-events: none;
-}
-
-/* --- MEDIA QUERIES --- */
-@media (max-width: 360px) {
-    .container {
-        height: 50px;
-        padding: 0 8px;
+@media (max-width: 400px) {
+    /* Уменьшаем высоту и отступы контейнера */
+    .heroMode {
+        height: 70px;
+        padding: 0 8px; /* Меньше отступа по бокам */
+        gap: 5px;
     }
 
-    .label { font-size: 10px; }
-    .chanceValue { font-size: 13px; }
-    .duration { font-size: 13px; min-width: 50px; margin: 0 5px; }
-
-    .actionButton {
-        width: 85px;
-        height: 34px;
+    /* Уменьшаем текст "Шанс" */
+    .heroMode .chanceWrapper .chanceValue {
+        font-size: 15px; /* Было 20 */
     }
-    .actionButtonText { font-size: 9px; }
+    .heroMode .label {
+        font-size: 9px;
+    }
+
+    /* Уменьшаем текст времени "5 хв" */
+    .heroMode .duration {
+        font-size: 14px; /* Было 18 */
+        min-width: 40px;
+    }
+
+    /* 🔥 КНОПКА: Самое важное изменение */
+    .heroMode .actionButton {
+        min-width: 0;   /* 1. Убираем ограничение минимума */
+        width: auto;    /* 2. Ширина по содержимому */
+        padding: 0 8px; /* 3. Маленькие отступы внутри кнопки, чтобы влез текст */
+        height: 38px;
+    }
+
+    .heroMode .actionButtonText {
+        font-size: 8px; /* 4. Уменьшаем шрифт текста внутри кнопки */
+        margin-right: 2px;
+        letter-spacing: 0; /* Убираем межбуквенный интервал для экономии места */
+    }
 }

@@ -151,6 +151,7 @@ def user_to_dict(u: UserBot) -> dict:
         "final_count_of_blitz": getattr(u, "final_count_of_blitz", 0),
         "main_character_id": getattr(u, "main_character_id", None),
         "status_register": getattr(u, "status_register").name if getattr(u, "status_register", None) else None,
+        "count_of_training": getattr(u, "count_of_training", 0),
     }
 
     # небольшие удобства

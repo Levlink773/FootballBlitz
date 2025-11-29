@@ -45,6 +45,7 @@ class UserBot(Base):
     referal_user_id = Column(BigInteger, nullable=True)
     is_tg_mode = Column(Boolean, default=False)
     disable_spam = Column(Boolean, default=False)
+    count_of_training = Column(BigInteger, default=0)
 
     characters = relationship(
         "Character",

@@ -8,15 +8,12 @@
     --accent-glow: rgba(20, 255, 236, 0.7);
 }
 
-/* Основной контейнер навигационной панели */
 .navigationBar {
-    /* Responsive: фиксируем внизу экрана — корректно ведёт себя на маленьких устройствах */
+    /* ... ваші параметри ... */
     position: absolute;
     bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
-
-    /* ширина адаптивна: займёт максимум --nav-max-width или 92% экрана */
     width: min(92%, var(--nav-max-width));
     max-width: var(--nav-max-width);
     z-index: 1000;
@@ -34,12 +31,18 @@
     border-radius: 25px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-
     animation: fadeIn 0.45s ease-out forwards;
 
-    /* Поведение при слишком маленькой ширине — даём возможность скроллить по горизонтали */
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* 🔥 ГОЛОВНЕ ВИПРАВЛЕННЯ 🔥 */
+    /* Видаліть overflow-x: auto або hidden */
+
+    /* overflow-x: auto;  <-- ЦЕЙ РЯДОК ВБИВАВ СТРІЛКУ */
+
+    /* Додайте це, щоб дозволити стрілці "вилетіти" за межі блоку */
+    overflow: visible !important;
+
+    /* Прибираємо скрол тач, бо скролу більше немає */
+    /* -webkit-overflow-scrolling: touch; */
 }
 
 /* Контейнер для одной кнопки (иконка + текст) */
@@ -167,4 +170,132 @@
     display: none; /* показ по желанию, можно включить для подсказки скролла */
 }
 
+/* Додаємо затемнення на весь екран */
+.guideOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Сильне затемнення (85%) */
+    z-index: 9000; /* Дуже високий шар */
+    pointer-events: all; /* Блокує кліки всюди, крім виділеного елемента */
+    backdrop-filter: blur(3px); /* Легке розмиття фону для акценту */
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.navigationBar {
+    /* ... (Ваші попередні стилі залишаються) ... */
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(92%, var(--nav-max-width));
+    max-width: var(--nav-max-width);
+
+    /* 🔥 ВАЖЛИВО: Коли гайд активний, навігація має бути вище за оверлей */
+    z-index: 9001;
+
+    height: var(--nav-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+
+    background: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    animation: fadeIn 0.45s ease-out forwards;
+    overflow-x: auto;
+}
+
+/* ... (navItem, navIcon, navLabel залишаються без змін) ... */
+
+.navItem {
+    /* ... ваші стилі ... */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 48px;
+    height: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    transition: all 0.22s ease;
+    padding: 8px 6px;
+    /* Важливо для z-index */
+    z-index: 1;
+}
+
+/* Стиль для елементів, які НЕ підсвічені під час гайда (робимо їх тьмяними) */
+.navItem.dimmed {
+    opacity: 0.15;
+    pointer-events: none;
+    filter: grayscale(100%);
+}
+
+/* 🔥 Яскраве виділення потрібної кнопки */
+.navItem.highlighted {
+    position: relative;
+    z-index: 9002; /* Вище за Overlay і сам NavigationBar */
+    border-radius: 16px;
+
+    /* Яскраве світіння */
+    box-shadow:
+            0 0 0 2px #fff, /* Біла обводка */
+            0 0 20px 5px var(--accent-glow), /* Основне світіння */
+            0 0 50px 10px rgba(20, 255, 236, 0.4); /* Широке розсіяне світіння */
+
+    background-color: rgba(40, 40, 40, 1); /* Непрозорий фон, щоб перекрити затемнення */
+    color: #fff;
+    transform: scale(1.05); /* Трохи збільшуємо */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.navItem.highlighted .navIcon {
+    filter: drop-shadow(0 0 5px #fff);
+}
+
+/* 🔥 Яскрава стрілка */
+.navItem.highlighted::before {
+    content: '';
+    position: absolute;
+    /* Піднімаємо стрілку вище */
+    top: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px; /* Більша стрілка */
+    height: 40px;
+
+    /* Використовуємо SVG стрілку (або можна просто картинку) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300DDFF'%3E%3Cpath d='M12 21l-12-18h24z'/%3E%3Cpath d='M12 21l-12-18h24z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    /* Тінь для стрілки */
+    filter: drop-shadow(0 0 10px var(--accent-glow)) drop-shadow(0 0 20px white);
+
+    animation: aggressive-point-down 1s infinite ease-in-out;
+    z-index: 9003;
+}
+
+/* Агресивна анімація стрілки */
+@keyframes aggressive-point-down {
+    0%, 100% {
+        transform: translate(-50%, 0);
+    }
+    50% {
+        transform: translate(-50%, 15px); /* Амплітуда руху більша */
+    }
+}
 /* Конец файла */

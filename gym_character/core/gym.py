@@ -55,6 +55,7 @@ class Gym:
         
     async def _wait_training(self, time_sleep: int) -> None:
         try:
+            await UserService.add_full_count_to_gym(self.character.characters_user_id, 1)
             await UserService.update_training_time(self.character.characters_user_id)
             await asyncio.sleep(time_sleep)
             await self._run_training()
