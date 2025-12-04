@@ -46,6 +46,7 @@ class UserBot(Base):
     is_tg_mode = Column(Boolean, default=False)
     disable_spam = Column(Boolean, default=False)
     count_of_training = Column(BigInteger, default=0)
+    is_bot = Column(Boolean, default=False, nullable=False)
 
     characters = relationship(
         "Character",

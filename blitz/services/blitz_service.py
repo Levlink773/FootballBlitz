@@ -53,7 +53,8 @@ class BlitzService:
                 if not blitz.can_register:
                     raise BlitzCloseError(f"Blitz with id {blitz_id} is not registered")
                 if blitz.blitz_type == BlitzType.VIP_BLITZ_V8 and not user.vip_pass_is_active:
-                    raise UserForbiddenError("Blitz only VIP users")
+                    if not user.is_bot:
+                        raise UserForbiddenError("Blitz only VIP users")
 
                 # Проверка — уже есть такой персонаж в блице?
                 result = await session.execute(

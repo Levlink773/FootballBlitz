@@ -25,14 +25,15 @@
 
 .modalContent {
     font-family: 'Montserrat', sans-serif;
-    background: radial-gradient(circle at center top, #2a3545 0%, #05070a 100%);
+    /* ВИДАЛЯЄМО старий градієнт, бо тепер буде картинка */
+    /* background: radial-gradient(circle at center top, #2a3545 0%, #05070a 100%); */
 
-    /* 🔥 Зберігаємо ширину, яка виправила баг 🔥 */
+    background-color: #05070a; /* Колір підстраховки */
+
     width: 95vw;
     max-width: 460px;
-
     border-radius: 24px;
-    padding: 40px 25px 35px 25px; /* Більше відступів зверху/знизу, бо немає картинки */
+    padding: 40px 25px 35px 25px;
     text-align: center;
     position: relative;
     border: 2px solid var(--gold-secondary);
@@ -40,26 +41,52 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    /* ВАЖЛИВО: Щоб картинка не вилазила за кути */
+    overflow: hidden;
 }
 
-/* --- Кубок --- */
-.trophyIconContainer {
+/* 🔥 НОВЕ: Додаємо фон стадіону/поля через псевдо-елемент 🔥 */
+.modalContent::before {
+    content: "";
     position: absolute;
-    top: -35px; /* Трохи вище */
-    background: linear-gradient(135deg, #FFD700, #FDB931);
-    width: 70px; /* Трохи більший кубок, бо він головний елемент декору */
-    height: 70px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-    border: 4px solid #05070a;
-    z-index: 10;
-}
-.trophyIcon { color: #4a3406; font-size: 2rem; }
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 
-/* --- Тексти --- */
+    /* URL картинки стадіону (можна замінити на свою локальну) */
+    background-image: url('https://images.unsplash.com/photo-1522770179533-24471fcdba45?q=80&w=1000&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+
+    /* Затемнення: робимо картинку темною, щоб було видно золотий текст */
+    /* Зверху трохи світліше, знизу майже чорне */
+    filter: brightness(0.4) sepia(0.2) hue-rotate(180deg) saturate(0.8);
+    opacity: 0.6;
+
+    z-index: 1; /* Найнижчий шар всередині картки */
+}
+
+/* 🔥 НОВЕ: Додатковий градієнт поверх картинки для читабельності 🔥 */
+.modalContent::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(5, 7, 10, 0.7) 0%, rgba(5, 7, 10, 0.95) 100%);
+    z-index: 2;
+}
+
+/* ... Кубок залишаємо як є ... */
+.trophyIconContainer {
+    /* ... старі стилі ... */
+    z-index: 10; /* Піднімаємо вище фону */
+}
+
+/* Оновлюємо тексти, щоб вони були НАД фоном */
 .title {
     margin-top: 30px;
     font-family: 'Russo One', sans-serif;
@@ -69,17 +96,28 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
+
+    position: relative; /* Щоб працював z-index */
+    z-index: 10;
 }
 
 .subtitle {
     color: #aebfd1;
     font-size: 0.95rem;
-    margin-bottom: 30px; /* Відступ до форми */
+    margin-bottom: 30px;
     line-height: 1.4;
     padding: 0 10px;
+
+    position: relative; /* Щоб працював z-index */
+    z-index: 10;
 }
 
-.form { width: 100%; position: relative; z-index: 10; }
+/* Форма вже має z-index: 10 у твоєму коді, тому вона буде зверху */
+.form {
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
 .inputContainer { margin-bottom: 25px; width: 100%; }
 
 /* 🔥 FLEXBOX ДЛЯ ВКАЗІВНИКІВ 🔥 */

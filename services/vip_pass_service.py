@@ -41,6 +41,7 @@ class VipPassService:
             try:
                 stmt = (
                     select(UserBot)
+                    .where(UserBot.is_bot.is_(False))
                     .where(UserBot.energy <= CONST_VIP_ENERGY)
                     .where(UserBot.vip_pass_expiration_date >  datetime.now())
                 )

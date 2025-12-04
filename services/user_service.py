@@ -55,7 +55,7 @@ class UserService:
     async def get_all_users(cls) -> list[UserBot] | None:
         async for session in get_session():
             async with session.begin():
-                stmt = select(UserBot).options(
+                stmt = select(UserBot).where(UserBot.is_bot.is_(False)).options(
                     selectinload(UserBot.characters)
                     .selectinload(Character.reminder),
                     selectinload(UserBot.characters)
@@ -73,7 +73,7 @@ class UserService:
     async def get_all_users_where_end_register(cls) -> list[UserBot] | None:
         async for session in get_session():
             async with session.begin():
-                stmt = select(UserBot).where(UserBot.status_register == STATUS_USER_REGISTER.END_REGISTER).options(
+                stmt = select(UserBot).where(UserBot.is_bot.is_(False)).where(UserBot.status_register == STATUS_USER_REGISTER.END_REGISTER).options(
                     selectinload(UserBot.characters)
                     .selectinload(Character.reminder),
                     selectinload(UserBot.characters)
@@ -426,6 +426,7 @@ class UserService:
                 # В этом методе нет ошибки, он только для чтения
                 result = await session.execute(
                     select(UserBot)
+                    .where(UserBot.is_bot.is_(False))
                     .where(UserBot.energy <= CONST_ENERGY)
                     .where(
                         or_(
@@ -594,3 +595,28 @@ class UserService:
                     .values(is_tg_mode=status)
                 )
                 await session.execute(stmt)
+
+    @classmethod
+    async def delete_all_bots(cls):
+        """
+        Видаляє всіх користувачів, у яких is_bot = True.
+        """
+        print("🗑️ Починаю видалення всіх ботів...")
+
+        async for session in get_session():
+            async with session.begin():
+                # Спочатку можна підрахувати скільки їх (необов'язково, але корисно для логів)
+                count_stmt = select(UserBot).where(UserBot.is_bot.is_(True))
+                result = await session.execute(count_stmt)
+                bots = result.scalars().all()
+                count = len(bots)
+
+                if count == 0:
+                    print("🤷 Боти не знайдені.")
+                    return
+
+                # Видалення
+                stmt = delete(UserBot).where(UserBot.is_bot.is_(True))
+                await session.execute(stmt)
+
+        print(f"💀 Успішно видалено {count} ботів та пов'язані дані.")

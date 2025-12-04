@@ -135,7 +135,8 @@ const Text = styled.span`
 
 const TimeText = styled(Text)`
     color: #a9a9d4;
-    font-size: 11px;
+    font-size: 10px;
+    
     font-weight: 500;
     margin-top: 2px;
     

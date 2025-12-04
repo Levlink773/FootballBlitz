@@ -49,9 +49,11 @@ class CharacterService:
             async with session.begin():
                 stmt = (
                     select(Character)
-                    .join(ReminderCharacter)
+                    .join(ReminderCharacter)  # Join для перевірки дати нагороди
+                    .join(UserBot, Character.owner)  # Join до власника (UserBot)
                     .where(
-                        ReminderCharacter.education_reward_date >= two_months_ago
+                        ReminderCharacter.education_reward_date >= two_months_ago,
+                        UserBot.is_bot.is_(False)  # Виключаємо ботів
                     )
                 )
                 result = await session.execute(stmt)

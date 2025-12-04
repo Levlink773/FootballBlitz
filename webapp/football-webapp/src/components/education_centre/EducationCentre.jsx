@@ -3,10 +3,10 @@ import EducationCentreView from './EducationCentreView';
 import Config from "../../config.js";
 import { showAlert } from "../../alertService.jsx";
 import { API_BASE_URL } from "../../api.js";
-import { Steps } from 'intro.js-react'; // Импортируем компонент для шагов
-import 'intro.js/introjs.css'; // Импортируем стили
+import { Steps } from 'intro.js-react';
+import 'intro.js/introjs.css';
 
-// ... (TASK_METADATA и transformApiTasks остаются без изменений)
+// ... (TASK_METADATA і transformApiTasks залишаються без змін) ...
 const TASK_METADATA = {
     CONDUCT_3_TRAINING: {
         id: 'CONDUCT_3_TRAINING',
@@ -51,19 +51,15 @@ const transformApiTasks = (apiTasks) => {
     }).filter(task => task.status !== 'claimed');
 };
 
-
-const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем всего пользователя
+const EducationCentre = ({ user, onUserUpdate }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [dailyReward, setDailyReward] = useState({ isClaimable: false, timeLeft: 0 });
-
-    // Состояние для управления подсветкой
     const [isTutorialEnabled, setTutorialEnabled] = useState(false);
 
-    // Шаги для подсветки
     const tutorialSteps = [
         {
-            element: '[data-tutorial="daily-reward"]', // Селектор для кнопки ежедневной награды
+            element: '[data-tutorial="daily-reward"]',
             intro: 'Вітаємо в Учбовому Центрі! Отримайте свою першу щоденну нагороду, щоб продовжити.',
             position: 'bottom',
         },
@@ -81,6 +77,21 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
         }
     };
 
+    // Функція для зміни статусу
+    const updateUserStatus = useCallback(async (newStatus) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (!response.ok) throw new Error('Failed to update user status');
+            await fetchUser();
+        } catch (error) {
+            console.error(error.message);
+        }
+    }, [user?.user_id]);
+
     const fetchData = useCallback(async () => {
         if (!user?.user_id) return;
         setIsLoading(true);
@@ -92,18 +103,31 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
 
             const remainingData = await remainingRes.json();
             const tasksData = await tasksRes.json();
+
+            const isReady = remainingData.ready;
+
             setDailyReward({
-                isClaimable: remainingData.ready,
+                isClaimable: isReady,
                 timeLeft: remainingData.seconds_remaining
             });
 
             setTasks(transformApiTasks(tasksData.tasks));
-            const i = user?.status_register === "EDUCATION_CENTER";
-            console.log("i : ", i);
-            // Проверяем статус пользователя и готовность награды для запуска подсветки
-            if (i && remainingData.ready) {
-                console.log("remainingData: ", remainingData.ready);
-                setTutorialEnabled(true);
+
+            const isEducationStage = user?.status_register === "EDUCATION_CENTER";
+
+            // 🔥 ЛОГІКА АВТО-ПРОПУСКУ
+            if (isEducationStage) {
+                if (isReady) {
+                    // Якщо нагорода готова — вмикаємо туторіал
+                    setTutorialEnabled(true);
+                } else {
+                    // Якщо нагорода НЕ готова (таймер) — автоматично пропускаємо етап
+                    console.log("Нагорода недоступна, пропускаємо навчання...");
+                    // Невелика затримка для плавності
+                    setTimeout(() => {
+                        updateUserStatus('RATING');
+                    }, 1500);
+                }
             }
 
         } catch (error) {
@@ -111,61 +135,35 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
         } finally {
             setIsLoading(false);
         }
-    }, [user]);
+    }, [user, updateUserStatus]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
+    // Таймер зворотного відліку
     useEffect(() => {
-        // Условие выхода из эффекта остается тем же
         if (dailyReward.isClaimable || dailyReward.timeLeft <= 0) return;
 
         const timer = setInterval(() => {
-            // Используем функциональное обновление для всей логики
             setDailyReward(prev => {
-                // Сначала проверяем, не пора ли остановить таймер
                 if (prev.timeLeft <= 1) {
-                    clearInterval(timer); // Останавливаем интервал
+                    clearInterval(timer);
 
-                    // Если нужно, включаем подсказку
+                    // Якщо таймер закінчився, і ми все ще в навчанні — вмикаємо туторіал
                     if (user?.status_register === "EDUCATION_CENTER") {
                         setTutorialEnabled(true);
                     }
 
-                    // Возвращаем финальное состояние
                     return { isClaimable: true, timeLeft: 0 };
                 }
-
-                // Если время еще есть, просто уменьшаем его на 1
                 return { ...prev, timeLeft: prev.timeLeft - 1 };
             });
         }, 1000);
 
-        // Функция очистки для остановки таймера при размонтировании компонента
         return () => clearInterval(timer);
-
     }, [dailyReward.isClaimable, dailyReward.timeLeft, user?.status_register]);
 
-
-    // Функция для смены статуса пользователя
-    const updateUserStatus = async (newStatus) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to update user status');
-            }
-            // Обновляем пользователя на фронтенде после успешного ответа
-            await fetchUser();
-        } catch (error) {
-            console.error(error.message);
-            showAlert("Не вдалося оновити статус користувача.");
-        }
-    };
 
     const handleClaimDaily = async () => {
         try {
@@ -178,14 +176,13 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
             if (data.ok) {
                 showAlert(`Нагорода отримана: ${data.message}`);
 
-                // Если это была обучающая награда, меняем статус
+                // Якщо це навчання — завершуємо його
                 if (user?.status_register === "EDUCATION_CENTER") {
                     await updateUserStatus('RATING');
                 } else {
-                    await fetchUser(); // В обычном случае просто обновляем данные
+                    await fetchUser();
                 }
-
-                await fetchData(); // Обновляем данные центра
+                await fetchData();
             } else {
                 showAlert(`Помилка: ${data.message}`);
             }
@@ -196,6 +193,7 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
     };
 
     const handleClaimTask = async (taskId) => {
+        // ... (без змін)
         try {
             const response = await fetch(`${API_BASE_URL}/education/tasks/claim`, {
                 method: 'POST',
@@ -219,11 +217,9 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
     if (isLoading) {
         return <div>Завантаження учбового центру...</div>;
     }
-    console.log("Is rutor: ", isTutorialEnabled)
 
     return (
         <>
-            {/* Компонент Steps для управления подсветкой */}
             <Steps
                 enabled={isTutorialEnabled}
                 steps={tutorialSteps}
@@ -236,6 +232,7 @@ const EducationCentre = ({ user, onUserUpdate }) => { // Принимаем вс
                     hidePrev: true,
                     skipLabel: 'Пропустити',
                     showBullets: false,
+                    overlayOpacity: 0.8, // Темніший фон для фокусу
                 }}
             />
 

@@ -1,4 +1,5 @@
 import asyncio
+import time
 from datetime import datetime, timedelta
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -13,9 +14,12 @@ from logging_config import logger
 from services.user_service import UserService
 from webapp.fastapi.publisher import make_payload, publish_event, make_payloads_for_users, publish_batch
 
+# 👇 Імпортуємо генератор ботів (вставте правильний шлях до файлу)
+from utils.user_utils import BotGenerator
+
 
 class BlitzTextGetter:
-
+    # ... (код без змін) ...
     def __init__(self, start_time: str, count_users: int):
         self.start_time = start_time
         self.count_users = count_users
@@ -113,10 +117,10 @@ class BlitzReminder:
                 # Находим тех, кто еще не зарегистрировался
                 unregister_users = await BlitzService.get_unregistered_users(self.blitz_id)
 
-
                 # Отправляем напоминание только им
                 reminder_text = get_reminder_text_func()
                 await self.__reminder_blitz_for_users(unregister_users, reminder_text, self.blitz_id)
+
     async def remind(self) -> bool:
         now = datetime.now()
         today_start = self.blitz_start_at
@@ -125,9 +129,13 @@ class BlitzReminder:
         remind_10_minutes = today_start - timedelta(minutes=10)
         remind_5_minutes = today_start - timedelta(minutes=5)
 
+        # Час для додавання ботів (за 1 хвилину до старту)
+        add_bots_time = today_start - timedelta(minutes=1)
+
         all_users = await UserService.get_all_users_where_end_register()
         all_users = [u for u in all_users if not u.disable_spam]
 
+        # --- VIP нагадування ---
         if self.remind_for_vip_users > 0:
             if now < vip_remind_time:
                 await asyncio.sleep((vip_remind_time - now).total_seconds())
@@ -138,40 +146,79 @@ class BlitzReminder:
                 await self.__reminder_blitz_for_users(vip_users, self.blitz_text_getter.msg_vip_user(), self.blitz_id)
 
         now = datetime.now()
+
+        # --- Звичайне нагадування ---
         if self.remind_for_simple_users > 0:
             if now < simple_remind_time:
                 await asyncio.sleep((simple_remind_time - now).total_seconds())
                 simple_users = [user for user in all_users if not user.vip_pass_is_active if not user.disable_spam]
-                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
+                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(),
+                                                      self.blitz_id)
             elif now < today_start:
                 simple_users = [user for user in all_users if not user.vip_pass_is_active if not user.disable_spam]
-                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(), self.blitz_id)
+                await self.__reminder_blitz_for_users(simple_users, self.blitz_text_getter.msg_simple_user(),
+                                                      self.blitz_id)
 
-        # Напоминание за 10 минут
+        # --- Нагадування за 10 хвилин ---
         await self._send_reminder(
             remind_10_minutes,
             all_users,
             self.blitz_text_getter.ten_minutes_left
         )
 
-        # Напоминание за 5 минут
+        # --- Нагадування за 5 хвилин ---
         await self._send_reminder(
             remind_5_minutes,
             all_users,
             self.blitz_text_getter.five_minutes_left
         )
+
+        # --- ДОДАВАННЯ БОТІВ ЗА 1 ХВИЛИНУ ---
+        now = datetime.now()
+        if now < add_bots_time:
+            # Чекаємо до моменту "1 хвилина до старту"
+            await asyncio.sleep((add_bots_time - now).total_seconds())
+
+        # Перевіряємо поточну кількість гравців
+        current_users = await BlitzService.get_users_from_blitz_users(self.blitz_id)
+        current_count = len(current_users)
+        missing_count = self.necessary_count_users - current_count
+
+        if missing_count > 0 and current_count > 0:
+            logger.info(f"🤖 Не вистачає {missing_count} гравців. Запускаємо ботів для Blitz ID: {self.blitz_id}")
+
+            start_time = time.perf_counter()  # ⏱ Засікаємо час
+
+            try:
+                await BotGenerator.create_bots(
+                    count=missing_count,
+                    add_to_blitz_id=self.blitz_id,
+                    add_to_blitz_max_char=self.necessary_count_users
+                )
+
+                execution_time = time.perf_counter() - start_time  # ⏱ Рахуємо різницю
+                logger.info(f"✅ Users created in {execution_time:.4f} seconds")
+
+            except Exception as e:
+                logger.error(f"❌ Помилка при генерації ботів: {e}")
+
+        # --- Фінальне очікування та старт ---
         now = datetime.now()
         if now < today_start:
             await asyncio.sleep((today_start - now).total_seconds())
+
+        # Отримуємо фінальний список (разом з ботами)
         users: list[UserBot] = await BlitzService.get_users_from_blitz_users(self.blitz_id)
         logger.info(f"Users len: {len(users)}")
         logger.info(f"Need len: {self.necessary_count_users}")
         logger.info(f"Blitz id: {self.blitz_id}")
+
         if len(users) >= self.necessary_count_users:
             users = users[:self.necessary_count_users]
-            logger.info(f"Users len 1: {len(users)}")
+            logger.info(f"Users len finalized: {len(users)}")
             await send_message_all_users(users, self.blitz_text_getter.start_tournament(), photo_path=START_BLITZ_PHOTO)
         else:
+            # Цей блок виконається тільки якщо генерація ботів впала з помилкою
             await UserService.add_energy_to_users(
                 [user.user_id for user in users],
                 self.registration_cost,
@@ -194,9 +241,9 @@ class BlitzReminder:
                     "message": f"❌ Гра не відбулася. \n {len(users)} / {self.necessary_count_users}"}
             )
 
-            # 2а) Лучший вариант — отправить пакетами через pipeline
             results = await publish_batch(payloads, batch_size=32)
             logger.info("publish_batch results: sent=%s total=%s", sum(1 for r in results if r), len(results))
             await send_message_all_users(users, cancel_blitz_text)
             return False
+
         return True

@@ -71,6 +71,9 @@ class Sender:
             keyboard: Optional[dict] = None,
     ) -> Message | None:
         try:
+            if user.is_bot:
+                logger.info("User %s is bot, skipping", user.user_name)
+                return None
             return await self._bot.send_message(
                 chat_id=user.user_id,
                 text=text,
@@ -90,6 +93,9 @@ class Sender:
             keyboard: Optional[dict] = None,
     ) -> Message | None:
         try:
+            if user.is_bot:
+                logger.info("User %s is bot, skipping", user.user_name)
+                return None
             return await self._bot.send_photo(
                 chat_id=user.user_id,
                 caption=caption,

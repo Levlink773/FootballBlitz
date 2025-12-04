@@ -17,6 +17,9 @@ from utils.blitz_photo_utils import get_photo, save_photo_id
 async def send_message(user: UserBot, text: str, reply_markup: InlineKeyboardMarkup = None,
                        photo_path: str = None):
     try:
+        if user.is_bot:
+            logger.info("User %s is bot, skipping msg", user.user_name)
+            return
         if photo_path:
             is_save, photo = await get_photo(photo_path)
             msg = await bot.send_photo(

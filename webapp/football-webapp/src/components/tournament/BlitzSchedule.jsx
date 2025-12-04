@@ -4,12 +4,12 @@ import Config from "../../config.js";
 import BlitzOption from "./TournamentOption.jsx";
 
 const defaultSchedule = [
-    { id: 1, title: "Бліц (8)", time: "09:00 & 11:00", cost: "-30" },
-    { id: 2, title: "Бліц (8)", time: "12:00 & 13:00", cost: "-30" },
-    { id: 3, title: "Бліц (8)", time: "15:00 & 16:00", cost: "-30" },
-    { id: 4, title: "Бліц (8)", time: "18:00 & 19:00", cost: "-30" },
-    { id: 5, title: "Бліц (8)", time: "20:00 & 21:00", cost: "-30" },
-    { id: 6, title: "Бліц (8)", time: "22:00 & 00:00", cost: "-30" },
+    { id: 1, title: "Бліц (16) День", time: "09:00, 11:00, 15:00", cost: "-30" },
+    { id: 2, title: "Бліц (16) Вечір", time: "16:00, 20:00, 00:00", cost: "-30" },
+    { id: 3, title: "Бліц (32) День", time: "12:00, 13:00", cost: "-30" },
+    { id: 4, title: "Бліц (32) Вечір", time: "18:00, 19:00, 21:00", cost: "-30" },
+    { id: 5, title: "🏆 VIP Бліц (16)", time: "17:00", cost: "-30" },
+    { id: 6, title: "🏆 VIP Бліц (8)", time: "10:00, 14:00, 22:00", cost: "-30" },
 ];
 
 // Видаляємо фіксовані константи, вони більше не потрібні для сітки
@@ -63,9 +63,9 @@ export default function BlitzSchedule({ items = defaultSchedule }) {
                         title={item.title}
                         time={item.time}
                         cost={item.cost}
-                        trophy={item.id === 6 ? Config.IMAGES.king : Config.IMAGES.trophy}
+                        trophy={item.id === 6 || item.id === 5 ? Config.IMAGES.king : Config.IMAGES.trophy}
                         icon={Config.IMAGES.energy}
-                        backgroundImage={index === items.length - 1 ? Config.IMAGES.king_vip : Config.IMAGES.blitz_line}
+                        backgroundImage={index === items.length - 1 || index === items.length - 2 ? Config.IMAGES.king_vip : Config.IMAGES.blitz_line}
                     />
                 </AnimatedItem>
             ))}

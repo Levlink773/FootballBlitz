@@ -329,4 +329,5 @@ class StartBlitz:
             await TeamBlitzMatchManager.clear_matches()
             await BlitzService.remove_all_blitzes()
             await BlitzTeamService.remove_all_blitz_teams()
+            await UserService.delete_all_bots()
             logger.info("🏁 Блиц удален!")
