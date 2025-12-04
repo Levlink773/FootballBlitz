@@ -40,6 +40,8 @@ class RewardMediumBoxBlitzTeam(RewardBlitzTeam):
         await UserService.add_count_of_medium_box(user.user_id, 1)
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         name_box, callback_name_box, photo_path = self.box_type()
         callback_data = BoxRewardCallback(box_type=callback_name_box).pack()
         markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -88,6 +90,8 @@ class RewardEnergyBlitzTeam(RewardBlitzTeam):
         self.reward_exp = reward_exp
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо енергію
         await UserService.add_energy_user(
             user_id=user.user_id,
@@ -107,6 +111,8 @@ class RewardMoneyBlitzTeam(RewardBlitzTeam):
         self.reward_money = reward_money
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо баланс монет
         await UserService.add_money_user(
             user_id=user.user_id,
@@ -126,6 +132,8 @@ class RewardRatingBlitzTeam(RewardBlitzTeam):
         self.reward_rating = reward_rating
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо рейтинг
         await UserService.add_rating(
             user_id=user.user_id,
@@ -143,6 +151,8 @@ class RewardRatingBlitzTeam(RewardBlitzTeam):
 class RewardStatisticsBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо рейтинг
         await UserService.add_count_play_blitz_user(
             user.user_id,
@@ -153,6 +163,8 @@ class RewardStatisticsBlitzTeam(RewardBlitzTeam):
 class RewardStatisticsSemiFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо рейтинг
         await UserService.add_count_rich_semi_final_blitz_user(
             user.user_id,
@@ -163,6 +175,8 @@ class RewardStatisticsSemiFinalBlitzTeam(RewardBlitzTeam):
 class RewardStatisticFinalLooserFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо рейтинг
         await UserService.add_count_rich_final_looser_blitz_user(
             user.user_id,
@@ -173,6 +187,8 @@ class RewardStatisticFinalLooserFinalBlitzTeam(RewardBlitzTeam):
 class RewardStatisticFinalWinnerFinalBlitzTeam(RewardBlitzTeam):
 
     async def reward_blitz_user(self, user: UserBot):
+        if user.is_bot:
+            return
         # Збільшуємо рейтинг
         await UserService.add_count_rich_final_winner_blitz_user(
             user.user_id,

@@ -39,7 +39,7 @@ class BlitzMatch:
         )
 
     def _generate_count_goals(self) -> int:
-        choices = [1] * 5 + [3] * 60 + [5] * 35
+        choices = [1] * 29 + [3] * 70 + [5] * 1
         count = random.choice(choices)
         return count
 

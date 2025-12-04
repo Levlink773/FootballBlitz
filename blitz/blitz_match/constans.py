@@ -59,7 +59,7 @@ BLITZ_STAGES_PATCH = [
     "blitz/blitz_match/photos/1v4.png",
     "blitz/blitz_match/photos/1v2.jpg",
     "blitz/blitz_match/photos/final.jpg",
-    "blitz/blitz_match/photos/1v16.jpg",
+    "blitz/blitz_match/photos/1v16.png",
 ]
 REGISTER_BLITZ_PHOTO = "blitz/blitz_match/photos/reg_blitz.png"
 STAGE_MAP = {

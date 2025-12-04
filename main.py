@@ -10,6 +10,7 @@ from loader import bot, dp, app
 from bot.routers.router import main_router
 from bot.middlewares import handlers
 from load_utils import start_utils
+from services.user_service import UserService
 from webapp.fastapi.app import app_fastapi
 from webhook_api.handlers.box_handler import MonoResultBox
 from webhook_api.handlers.energy_handler import MonoResultEnergy
@@ -44,6 +45,7 @@ async def start_polling():
 async def main():
     await start_utils()
     await TeamBlitzMatchManager.clear_matches()
+    await UserService.delete_all_bots()
     await asyncio.gather(
         start_polling(),
         start_weebhook(),

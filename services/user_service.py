@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from config import CONST_ENERGY, CONST_VIP_ENERGY
+from database.models.blitz_character import BlitzUser
 from database.models.character import Character
 from database.models.reminder_character import ReminderCharacter
 from database.models.statistics import Statistics
@@ -599,24 +600,42 @@ class UserService:
     @classmethod
     async def delete_all_bots(cls):
         """
-        Видаляє всіх користувачів, у яких is_bot = True.
+        Видаляє всіх користувачів, у яких is_bot = True, разом із залежними даними.
         """
         print("🗑️ Починаю видалення всіх ботів...")
 
         async for session in get_session():
             async with session.begin():
-                # Спочатку можна підрахувати скільки їх (необов'язково, але корисно для логів)
-                count_stmt = select(UserBot).where(UserBot.is_bot.is_(True))
-                result = await session.execute(count_stmt)
-                bots = result.scalars().all()
-                count = len(bots)
+                # 1. Знаходимо ID всіх ботів
+                bots_stmt = select(UserBot.user_id).where(UserBot.is_bot.is_(True))
+                result = await session.execute(bots_stmt)
+                bot_ids = result.scalars().all()
 
-                if count == 0:
+                if not bot_ids:
                     print("🤷 Боти не знайдені.")
                     return
 
-                # Видалення
-                stmt = delete(UserBot).where(UserBot.is_bot.is_(True))
+                # 2. Видаляємо записи з blitz_users (участь у турнірах)
+                # Це вирішує помилку blitz_users_ibfk_3
+                await session.execute(
+                    delete(BlitzUser).where(BlitzUser.user_id.in_(bot_ids))
+                )
+
+                # 3. Видаляємо записи з characters (персонажі)
+                # Це вирішує помилку characters_ibfk_1
+                # Важливо: Якщо у Character є свої залежності (наприклад, Reminder),
+                # їх теж треба видалити або налаштувати ON DELETE CASCADE в базі.
+                await session.execute(
+                    delete(Character).where(Character.characters_user_id.in_(bot_ids))
+                )
+
+                # 4. Видаляємо саму статистику (якщо є Statistics)
+                # await session.execute(
+                #    delete(Statistics).where(Statistics.user_id.in_(bot_ids))
+                # )
+
+                # 5. Нарешті видаляємо самих ботів
+                stmt = delete(UserBot).where(UserBot.user_id.in_(bot_ids))
                 await session.execute(stmt)
 
-        print(f"💀 Успішно видалено {count} ботів та пов'язані дані.")
+        print(f"💀 Успішно видалено {len(bot_ids)} ботів та пов'язані дані.")
