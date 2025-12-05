@@ -77,7 +77,6 @@ export default function TrainingRoomCard({user, setUser}) {
     }, [user?.user_id]);
 
     const handleStartTraining = async (duration, cost, isFirst = false) => {
-        // ... логіка handleStartTraining залишається без змін ...
         if (isTrainingActive) {
             showAlert('Тренування вже відбувається. Дочекайтесь його закінчення.');
             return;
@@ -93,14 +92,19 @@ export default function TrainingRoomCard({user, setUser}) {
             await fetchUser();
             const response = await axios.get(`${API_BASE_URL}/training/status/${user.user_id}`);
             setIsTrainingActive(response.data.in_training);
-            const msg = `
-            Перше тренування стартувало!
-            Тепер вирушаємо до арени бліц-турніру 🏟️
-                `;
-            showInfoModal({
-                image: Config.IMAGES.training_info,
-                text: msg
-            });
+
+            // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+            // Показываем сообщение только если это первая тренировка (isFirst === true)
+            if (isFirst) {
+                const msg = `
+                Перше тренування стартувало!
+                Тепер вирушаємо до арени бліц-турніру 🏟️
+                    `;
+                showInfoModal({
+                    image: Config.IMAGES.training_info,
+                    text: msg
+                });
+            }
 
         } catch (error) {
             const errorMessage = error.response?.data?.detail || 'Сталася помилка. Спробуйте знову.';

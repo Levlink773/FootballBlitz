@@ -12,8 +12,9 @@ import {useWebSocketPro} from "../../useWebsocket.js";
 import DOMPurify from 'dompurify';
 
 // --- НОВЫЙ КОМПОНЕНТ SCOREBOARD ---
+// --- ВИПРАВЛЕНИЙ КОМПОНЕНТ SCOREBOARD ---
 const Scoreboard = ({matchState}) => {
-    // Не рендерим компонент, если данных о командах нет
+    // Не рендерим компонент, якщо даних про команди немає
     if (!matchState?.name_first_team || !matchState?.name_second_team) {
         return null;
     }
@@ -24,6 +25,10 @@ const Scoreboard = ({matchState}) => {
         exit: {opacity: 0, y: 10},
     };
 
+    // Очищаємо HTML перед рендерингом
+    const safeFirstTeamName = DOMPurify.sanitize(matchState.name_first_team);
+    const safeSecondTeamName = DOMPurify.sanitize(matchState.name_second_team);
+
     return (
         <motion.div
             className={styles.scoreboardContainer}
@@ -32,23 +37,33 @@ const Scoreboard = ({matchState}) => {
             transition={{type: 'spring', stiffness: 100, damping: 15}}
         >
             <div className={styles.team}>
-                <span className={styles.teamName}>{matchState.name_first_team}</span>
+                {/* Використовуємо dangerouslySetInnerHTML для першої команди */}
+                <span
+                    className={styles.teamName}
+                    dangerouslySetInnerHTML={{ __html: safeFirstTeamName }}
+                />
             </div>
+
             <div className={styles.score}>
                 <AnimatePresence mode="wait">
                     <motion.span key={`score_a_${matchState.goal_first_team}`} {...scoreVariants}>
-                        {matchState.goal_first_team}
+                        {matchState.goal_first_team ?? 0}
                     </motion.span>
                 </AnimatePresence>
                 <span className={styles.scoreSeparator}>:</span>
                 <AnimatePresence mode="wait">
                     <motion.span key={`score_b_${matchState.goal_second_team}`} {...scoreVariants}>
-                        {matchState.goal_second_team}
+                        {matchState.goal_second_team ?? 0}
                     </motion.span>
                 </AnimatePresence>
             </div>
+
             <div className={`${styles.team} ${styles.teamRight}`}>
-                <span className={styles.teamName}>{matchState.name_second_team}</span>
+                {/* Використовуємо dangerouslySetInnerHTML для другої команди */}
+                <span
+                    className={styles.teamName}
+                    dangerouslySetInnerHTML={{ __html: safeSecondTeamName }}
+                />
             </div>
         </motion.div>
     );

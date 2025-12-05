@@ -6,17 +6,25 @@ from aiogram.types import InlineKeyboardMarkup
 from blitz.blitz_match.constans import TEAM_BLITZ_PHOTO
 from blitz.services.blitz_team_service import BlitzTeamService
 from blitz.services.message_sender.rate_limiter import rate_limiter_simple
+from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from loader import bot
 from logging_config import logger
+from services.user_service import UserService
 from utils.blitz_photo_utils import get_photo, save_photo_id
 
 
 @rate_limiter_simple
-async def send_message(user: UserBot, text: str, reply_markup: InlineKeyboardMarkup = None,
+async def send_message(user: UserBot | BlitzUser, text: str, reply_markup: InlineKeyboardMarkup = None,
                        photo_path: str = None):
     try:
+        if isinstance(user, BlitzUser):
+            user: UserBot = await UserService.get_user(user.user_id)
+        if user.is_bot:
+            logger.info("User %s is bot, skipping msg", user.user_name)
+            return
+
         if user.is_bot:
             logger.info("User %s is bot, skipping msg", user.user_name)
             return

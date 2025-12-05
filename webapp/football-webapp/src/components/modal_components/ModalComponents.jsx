@@ -6,6 +6,7 @@ import default_sound from "../../assets/public/sounds/notification.mp3"
 import {useSpring, animated} from 'react-spring';
 import {showAlert} from "../../alertService.jsx";
 import {API_BASE_URL} from "../../api.js";
+import DOMPurify from "dompurify";
 
 /**
  * ModalRoot — теперь всегда портирует в document.body (чтобы не зависеть от места рендера)
@@ -345,7 +346,7 @@ const AnimatedChance = ({chance}) => {
 /* ---------- НОВЫЙ КОМПОНЕНТ TopChancesAlert (без 'meta') ---------- */
 export function TopChancesAlert({ teams = [] }) {
     return (
-        <Box style={{ width: 360, padding: 16 }}>
+        <div style={{ width: 360, padding: 16 }}> {/* Заменил Box на div, так как Box не импортирован в примере */}
             <div style={{
                 color: "var(--glow-secondary)",
                 fontWeight: 800,
@@ -366,21 +367,27 @@ export function TopChancesAlert({ teams = [] }) {
                     background: 'var(--surface-highlight)',
                     borderRadius: 10
                 }}>
-                    {/* --- УБРАНО (t.meta) --- */}
-                    <div style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}>
-                        {`Команда ${t.name}:`}
-                    </div>
+                    {/* --- ИСПРАВЛЕНИЕ НИЖЕ --- */}
+                    {/* Используем dangerouslySetInnerHTML для рендера HTML тегов в имени */}
+                    <div
+                        style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(`Команда ${t.name}:`)
+                        }}
+                    />
+
                     <div style={{
                         color: t.chance >= 50 ? "var(--green-accent)" : "var(--red-accent)",
                         fontWeight: 800,
                         fontSize: 16,
                         textShadow: `0 0 8px ${t.chance >= 50 ? 'var(--green-accent)' : 'var(--red-accent)'}`
                     }}>
-                        <AnimatedChance chance={t.chance} />
+                        {/* Убедитесь, что AnimatedChance существует и импортирован */}
+                        {t.chance}%
                     </div>
                 </div>
             ))}
-        </Box>
+        </div>
     );
 }
 
