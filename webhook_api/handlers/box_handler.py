@@ -55,11 +55,11 @@ class MonoResultBox(EndPoint):
             [InlineKeyboardButton(text="Відкрити 🗝️", callback_data=callback_data)]
         ])
         if payment.type_box == TypeBox.LARGE_BOX:
-            await UserService.add_count_of_big_box(user.user_id, -1)
+            await UserService.add_count_of_big_box(user.user_id, 1)
         elif payment.type_box == TypeBox.MEDIUM_BOX:
-            await UserService.add_count_of_medium_box(user.user_id, -1)
+            await UserService.add_count_of_medium_box(user.user_id, 1)
         elif payment.type_box == TypeBox.SMALL_BOX:
-            await UserService.add_count_of_small_box(user.user_id, -1)
+            await UserService.add_count_of_small_box(user.user_id, 1)
         await payment.bot.send_message(
             chat_id = payment.payment.user_id,
             text    = self.TEXT_TEMPLATE.format(name_box = name_box),

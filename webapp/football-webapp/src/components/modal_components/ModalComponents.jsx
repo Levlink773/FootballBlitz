@@ -343,10 +343,11 @@ const AnimatedChance = ({chance}) => {
 };
 
 
-/* ---------- НОВЫЙ КОМПОНЕНТ TopChancesAlert (без 'meta') ---------- */
 export function TopChancesAlert({ teams = [] }) {
     return (
-        <div style={{ width: 360, padding: 16 }}> {/* Заменил Box на div, так как Box не импортирован в примере */}
+        // Якщо у вас Box був імпортований з UI бібліотеки - поверніть Box.
+        // Якщо ні - цей div з padding повністю повторює стиль старого Box.
+        <div style={{ width: 360, padding: 16 }}>
             <div style={{
                 color: "var(--glow-secondary)",
                 fontWeight: 800,
@@ -357,6 +358,7 @@ export function TopChancesAlert({ teams = [] }) {
             }}>
                 Поточні шанси на гол:
             </div>
+
             {teams.slice(0, 2).map((t, i) => (
                 <div key={t.name} style={{
                     display: "flex",
@@ -364,26 +366,29 @@ export function TopChancesAlert({ teams = [] }) {
                     alignItems: "center",
                     marginTop: i === 0 ? 0 : 8,
                     padding: '8px 12px',
+                    // Цей стиль відповідає за те, щоб плашка не була прозорою:
                     background: 'var(--surface-highlight)',
                     borderRadius: 10
                 }}>
-                    {/* --- ИСПРАВЛЕНИЕ НИЖЕ --- */}
-                    {/* Используем dangerouslySetInnerHTML для рендера HTML тегов в имени */}
+
+                    {/* ВИПРАВЛЕННЯ HTML: Рендеримо ім'я через dangerouslySetInnerHTML */}
                     <div
                         style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}
                         dangerouslySetInnerHTML={{
+                            // Формуємо рядок "Команда ІМ'Я:" і чистимо його
                             __html: DOMPurify.sanitize(`Команда ${t.name}:`)
                         }}
                     />
 
+                    {/* ВИПРАВЛЕННЯ ЦИФР: Залишаємо стилі і AnimatedChance, але округляємо число */}
                     <div style={{
                         color: t.chance >= 50 ? "var(--green-accent)" : "var(--red-accent)",
                         fontWeight: 800,
                         fontSize: 16,
                         textShadow: `0 0 8px ${t.chance >= 50 ? 'var(--green-accent)' : 'var(--red-accent)'}`
                     }}>
-                        {/* Убедитесь, что AnimatedChance существует и импортирован */}
-                        {t.chance}%
+                        {/* Передаємо округлене значення в ваш красивий компонент */}
+                        <AnimatedChance chance={Math.round(t.chance)} />
                     </div>
                 </div>
             ))}

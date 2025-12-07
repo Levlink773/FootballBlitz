@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react'; // Прибрали useEffect, він тут більше не потрібен
 import {Header} from "../components/Header.jsx";
 import Config from "../config.js";
 import {NavigationBar} from "../components/NavigationBar.jsx";
@@ -7,29 +7,11 @@ import BlitzSchedule from "../components/tournament/BlitzSchedule.jsx";
 import EventCard from "../components/main_components/EventCard.jsx";
 import {InfoPanel} from "../components/tournament/InfoPanel.jsx";
 import BlitzRegistrationInfo from "../components/tournament/BlitzRegistrationInfo.jsx";
-import {showAlert, showInfoModal} from "../alertService.jsx";
+// import {showAlert, showInfoModal} from "../alertService.jsx"; // Тут більше не використовуються
 
 export default function TournamentCard({user, setUser}) {
-    useEffect(() => {
-        const updateUserStatus = async () => {
-            if (user?.status_register === 'FIRST_BLITZ') {
-                try {
-                    const msg = `
-Вітаю на Бліц-арені – Натискай «Зареєструватися», для реєстрації в наближчий бліц.
-Грай, перемагай та отримуй нагороди й рейтинг!
-`;
-                    showInfoModal({
-                        image: Config.IMAGES.blitz_info,
-                        text: msg
-                    });
-                } catch (error) {
-                    console.error("Failed to update user status:", error);
-                    showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
-                }
-            }
-        };
-        updateUserStatus();
-    }, [user]);
+    // Логіку модальних вікон перенесено в EventCard,
+    // щоб вона залежала від реального стану турніру (активний/не активний)
 
     return (
         <div className={styles.page}>
@@ -55,7 +37,7 @@ export default function TournamentCard({user, setUser}) {
                         <InfoPanel/>
                     </div>
 
-                    {/* 3. EventCard (Центр) */}
+                    {/* 3. EventCard (Центр) - Вся логіка туторіалу тепер всередині */}
                     <div className={styles.cardBox}>
                         <EventCard user={user} onUserUpdate={setUser}/>
                     </div>
