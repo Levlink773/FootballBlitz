@@ -14,6 +14,7 @@ from config import (
     ADMINS, 
 )
 from logging_config import logger
+from schedulers.one_off_scheduler import OneOffScheduler
 
 
 async def init_bot_command():
@@ -49,6 +50,6 @@ async def init_db():
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp.startup.register(start)
-
+task_scheduler = OneOffScheduler()
 app = web.Application()
 

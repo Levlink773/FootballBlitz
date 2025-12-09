@@ -5,7 +5,6 @@ import Config from "../../config.js";
 import {api, API_BASE_URL} from "../../api.js";
 import {InventoryModal} from "./InventoryModal.jsx";
 import {showAlert} from '../../alertService';
-import {ModalRoot, VipPromoModal} from "../modal_components/ModalComponents.jsx";
 
 // --- Компонент AgeIcon (без змін) ---
 const AgeIcon = ({className}) => (
@@ -24,7 +23,7 @@ const AgeIcon = ({className}) => (
             <path className="fil2" d="M4.775 2.165H2.052a.236.236 0 0 0-.237.237v.023a.316.316 0 0 1 .386.05.32.32 0 0 1 .094.226v.064a.16.16 0 1 0 .32 0v-.064a.32.32 0 0 1 .639 0v.064a.16.16 0 1 0 .319 0v-.064a.32.32 0 0 1 .64 0v.064a.16.16 0 1 0 .319 0v-.064a.32.32 0 0 1 .48-.276v-.023a.236.236 0 0 0-.237-.237z"/>
             <path className="fil3" d="M3.187 2.991a.319.319 0 0 1-.093-.226v-.064a.16.16 0 1 0-.32 0v.064a.319.319 0 0 1-.64 0v-.064a.16.16 0 0 0-.319 0v.662h3.196V2.702a.16.16 0 1 0-.32 0v.064a.32.32 0 0 1-.639 0v-.064a.16.16 0 1 0-.319 0v.064a.32.32 0 0 1-.546.226z"/>
             <path className="fil2" d="M5.091 3.524H1.595a.237.237 0 0 0-.237.238v.118a.382.382 0 0 1 .497.04c.07.07.113.166.113.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .657-.272c.07.07.113.166.113.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .657-.272c.07.07.114.166.114.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .61-.312v-.118a.237.237 0 0 0-.238-.238h-.14z"/>
-            <path className="fil3" d="M3.142 4.545a.384.384 0 0 1-.114-.272v-.081a.224.224 0 0 0-.225-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.657.272.384.384 0 0 1-.113-.272v-.081a.224.224 0 0 0-.225-.225.225.225 0 0 0-.225.224v.901h4.11V4.192a.224.224 0 0 0-.224-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.657.272.384.384 0 0 1-.113-.272v-.081a.224.224 0 0 0-.226-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.656.272z"/>
+            <path className="fil3" d="M3.142 4.545a.384.384 0 0 1-.114-.272v-.081a.224.224 0 0 0-.225-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.657.272.384.384 0 0 1-.113-.272v-.081a.224.224 0 0 0-.226-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.656.272z"/>
             <path style={{fill: '#949494'}} d="M5.549 5.253H1.013v.188h4.8v-.188z"/>
         </g>
         <path style={{fill: 'none'}} d="M0 0h6.827v6.827H0z"/>
@@ -50,14 +49,16 @@ const setMainCharacterAPI = (userId, characterId) => {
     });
 };
 
-export const UserProfile = ({user, onUserUpdate}) => {
+// 🔥 Додано onOpenVipModal у пропси
+export const UserProfile = ({user, onUserUpdate, onOpenVipModal}) => {
     const [allCharacters, setAllCharacters] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isSwitching, setIsSwitching] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isVipPromoOpen, setIsVipPromoOpen] = useState(false);
+
+    // Ми прибрали локальний стейт isVipPromoOpen, так як тепер ним керує Main.jsx
 
     useEffect(() => {
         if (!user || !user.user_id) {
@@ -108,17 +109,20 @@ export const UserProfile = ({user, onUserUpdate}) => {
         }
     };
 
+    // Цей метод залишається для купівлі монет/енергії/боксів з Інвентаря
+    // VIP тут більше не обробляється (або можна перенаправляти на логіку батька)
     const handlePurchase = async (productType, item) => {
         if (!user || !user.id) {
-            showAlert("Помилка: користувача не знайдено. Будь ласка, перезавантажте сторінку.");
+            showAlert("Помилка: користувача не знайдено.");
             return;
         }
         setIsLoading(true);
-        setIsVipPromoOpen(false)
         try {
             let response;
             const data = {userId: user.user_id};
             switch (productType) {
+                // vip тут більше не викликається напряму з UserProfile,
+                // але якщо викличеться - спрацює
                 case 'vip':
                     response = await api.createVipPayment({...data, price: item.price, type: item.type});
                     break;
@@ -163,18 +167,28 @@ export const UserProfile = ({user, onUserUpdate}) => {
         {alt: 'Strength', value: Math.round(currentCharacter?.power ?? 0), icon: <img src={Config.IMAGES.arm} alt="Strength" className={styles.statIcon}/>},
     ];
 
+    // 🔥 Оновлена функція, яка використовує метод з Main.jsx
     const triggerVipPromo = () => {
-        setIsVipPromoOpen(true);
-        showAlert('Тільки VIP-гравці можуть мати декілька персонажів.', 'info');
+        if (onOpenVipModal) {
+            onOpenVipModal(
+                "Хочеш другого гравця та силу х2?",
+                "Купуй VIP статус прямо зараз!"
+            );
+        } else {
+            console.error("onOpenVipModal prop is missing!");
+        }
     };
+
     const handleInventoryOpen = (e) => {
         e.stopPropagation();
         setIsModalOpen(true);
     };
+
     const handleVipPromoOpen = (e) => {
         e.stopPropagation();
         triggerVipPromo();
     };
+
     const handleSwitchClick = (e) => {
         e.stopPropagation();
         if (showVipPromo) {
@@ -189,11 +203,10 @@ export const UserProfile = ({user, onUserUpdate}) => {
             {isModalOpen && (
                 <InventoryModal user={user} onClose={() => setIsModalOpen(false)} onUserUpdate={onUserUpdate} />
             )}
-            {isVipPromoOpen && (
-                <ModalRoot>
-                    <VipPromoModal onClose={() => setIsVipPromoOpen(false)} onSubscribe={(option) => handlePurchase('vip', option)} />
-                </ModalRoot>
-            )}
+
+            {/* Ми прибрали <VipPromoModal> звідси.
+               Тепер UserProfile просто каже Main.jsx: "Відкрий віп!"
+            */}
 
             {/* Головний контейнер: Абсолютне позиціонування з CSS */}
             <div className={styles.userProfile} title={showVipPromo ? "Отримати VIP-статус" : "Відкрити інвентар"}>
@@ -218,9 +231,9 @@ export const UserProfile = ({user, onUserUpdate}) => {
                                 className={styles.playerImageBack}
                                 src={Config.IMAGES.face_dark}
                                 alt="Купити VIP"
-                                onClick={handleVipPromoOpen}
+                                onClick={handleVipPromoOpen} // 🔥 Клік на обличчя викликає новий тригер
                                 title="Отримати VIP-статус"
-                                style={{cursor: 'pointer', zIndex: 2}}
+                                style={{cursor: 'pointer', zIndex: 3}}
                                 initial={{opacity: 0, x: 50}}
                                 animate={{opacity: 1, x: 0}}
                                 exit={{opacity: 0, x: 50}}

@@ -8,6 +8,7 @@ from aiogram.enums import ParseMode
 
 from bot.callbacks.blitz_callback import BoxRewardCallback
 from database.models.types import TypeBox
+from logging_config import logger
 from services.user_service import UserService
 from webhook_api.schemas import MonoResultSchema
 from ..base_endpoint import EndPoint, HTTPMethod
@@ -65,6 +66,7 @@ class MonoResultBox(EndPoint):
             text    = self.TEXT_TEMPLATE.format(name_box = name_box),
             reply_markup = markup,
         )
+        logger.error(f"Lootbox +1 type {payment.payment.type_box}")
 
         # open_box = OpenBoxService(
         #     type_box = payment.type_box,

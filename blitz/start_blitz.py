@@ -148,44 +148,54 @@ class StartBlitz:
 
     async def reward_rating(self, final_winner: BlitzTeam, final_looser: BlitzTeam,
                             pure_semifinal_losers: list[BlitzTeam]):
-        await asyncio.sleep(3)
+        # await asyncio.sleep(3) # Краще прибрати або перенести в UI
         try:
-            await UserService.add_rating(
+            # Переможець (+3)
+            res_winner = await UserService.add_rating(
                 user_id=final_winner.users[0].user_id,
                 rating_to_add=3
             )
-            # Епічний фініш повідомлення про енергію
+            logger.info(f"Winner reward result: {res_winner}")
+
             await send_message(
                 user=final_winner.users[0],
-                text=f"📊 <b>+3 очок рейтингу</b> за результат у турнірі Football Bliz! "
-                     "Ваші досягнення вже враховано у загальному рейтингу гравців. "
-                     "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+                text=f"📊 <b>+3 очок рейтингу</b> за результат у турнірі Football Bliz! ..."
             )
+
+            # Перевірка на само-гру (захист від багів)
+            if final_looser.users[0].user_id == final_winner.users[0].user_id:
+                logger.error("CRITICAL: Winner and Loser are the same user! Skipping loser reward.")
+                return
+
+            # Той, хто програв фінал (+2)
             await UserService.add_rating(
                 user_id=final_looser.users[0].user_id,
                 rating_to_add=2
             )
-            # Епічний фініш повідомлення про енергію
             await send_message(
                 user=final_looser.users[0],
-                text=f"📊 <b>+2 очок рейтингу</b> за результат у турнірі Football Bliz! "
-                     "Ваші досягнення вже враховано у загальному рейтингу гравців. "
-                     "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+                text=f"📊 <b>+2 очок рейтингу</b> за результат у турнірі Football Bliz! ..."
             )
+
+            # Півфіналісти (+1)
             for semi_team in pure_semifinal_losers:
+                # Захист від дублювання (якщо півфіналіст якось потрапив у фінал)
+                if semi_team.users[0].user_id in [final_winner.users[0].user_id, final_looser.users[0].user_id]:
+                    continue
+
                 await UserService.add_rating(
                     user_id=semi_team.users[0].user_id,
                     rating_to_add=1
                 )
-                # Епічний фініш повідомлення про енергію
                 await send_message(
                     user=semi_team.users[0],
-                    text=f"📊 <b>+1 очок рейтингу</b> за результат у турнірі Football Bliz! "
-                         "Ваші досягнення вже враховано у загальному рейтингу гравців. "
-                         "Продовжуйте боротися за вершину турнірної таблиці! 🏆"
+                    text=f"📊 <b>+1 очок рейтингу</b> за результат у турнірі Football Bliz! ..."
                 )
+
         except Exception as e:
-            pass
+            # ОБОВ'ЯЗКОВО логувати помилку, інакше ви не знайдете причину зникнення балів
+            logger.exception(f"Error in reward_rating: {e}")
+            raise e  # Прокидуємо помилку далі, або обробляємо
 
     async def finish_match(self, final_winner: BlitzTeam, final_looser: BlitzTeam):
         """Завершает блиц: отправляет событие финалистам и очищает состояние матчей."""
@@ -269,42 +279,48 @@ class StartBlitz:
         pair_teams = [(teams[0], teams[1])]
         logger.info(f"pair_teams final: {pair_teams}")
         text_init = await BlitzAnnounceService.announce_matchups(pair_teams)
+
         logger.info("Blitz match final started")
         final_winner, final_looser = await StartBlitz._start_blitz_match(pair_teams[0], 1, text_init)
-        logger.info(f"final_winner: {final_winner}")
+        logger.info(f"final_winner ID: {final_winner.id}, final_looser ID: {final_looser.id}")
+
         pure_semifinal_losers = [
             team for team in semifinal_teams
             if team.id not in {final_winner.id, final_looser.id}
         ]
+
         bz_reward = BlitzRewardService.reward_blitz_team
         text = await BlitzAnnounceService.announce_end(users, final_winner, final_looser, reward_energy_garanted)
 
         await TeamBlitzMatchManager.set_all_matches_state(
             BlitzStateData(state=BlitzState.FINISHED, message=text),
         )
+        # Публікуємо результати, але не чекаємо їх
         asyncio.create_task(_delayed_publish_all_match())
+
+        # --- НАГОРОДЖЕННЯ (Лутбокси та енергія) ---
         await bz_reward(self.blitz_reward_pack.reward_winner, final_winner)
         await bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser)
         for semi_team in pure_semifinal_losers:
             await bz_reward(self.blitz_reward_pack.reward_semi_final, semi_team)
+
+        # Гарантовані нагороди
         await asyncio.gather(
             *[
                 bz_reward(self.blitz_reward_pack.reward_guaranteed, team)
                 for team in all_teams
             ]
         )
-        # --- ИСПРАВЛЕННЫЙ КОД ---
-        logger.info("Reward blitz match")
 
-        # Создаем список всех финальных задач, которые должны быть выполнены до очистки
-        final_tasks = [
-            self.reward_rating(final_winner, final_looser, pure_semifinal_losers),
-            self.finish_match(final_winner, final_looser)
-            # Добавьте сюда другие асинхронные задачи, если они есть
-        ]
+        logger.info("Reward blitz match started")
 
-        # Ждем завершения ВСЕХ финальных задач
-        await asyncio.gather(*final_tasks)
+        # --- ВИПРАВЛЕННЯ: Послідовне виконання ---
+        # 1. Спочатку нараховуємо рейтинг. Це найважливіше.
+        # Ми прибираємо це з gather, щоб гарантувати запис до того, як почнеться очищення.
+        await self.reward_rating(final_winner, final_looser, pure_semifinal_losers)
+
+        # 2. Тільки після успішного нарахування рейтингу завершуємо матч і очищаємо дані
+        await self.finish_match(final_winner, final_looser)
 
         logger.info("All final tasks are completed. Finishing blitz.")
         return final_winner

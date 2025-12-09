@@ -286,15 +286,15 @@ export const EventCard = ({ user, onUserUpdate }) => {
     const completeTutorialStatus = useCallback(async () => {
         if (!user?.user_id) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${user.user_id}`, {
+            // 🔥 ЗМІНЕНО: END_REGISTER -> HOME
+            const response = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status_register: 'END_REGISTER' }),
+                body: JSON.stringify({ status: 'HOME' }), // Переводимо в статус HOME
             });
             if (response.ok) {
-                console.log("Tutorial status auto-updated to END_REGISTER");
-                // Оновлюємо дані користувача глобально
-                fetchUser();
+                console.log("Tutorial status auto-updated to HOME");
+                fetchUser(); // Це оновить юзера -> App.jsx побачить HOME -> перекине на Main
             }
         } catch (error) {
             console.error("Failed to auto-update tutorial status:", error);
@@ -470,23 +470,37 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 body: JSON.stringify({ user_id: user.user_id }),
             });
             const result = await response.json();
-            showAlert(result.message);
+
+            // Если не туториал - показываем обычный алерт
+            if (!result.is_tutorial) {
+                showAlert(result.message);
+            }
+
             if (response.ok && result.ok) {
                 setNotificationShown(true);
                 fetchBlitzStatus();
+
+                // 🔥 ВАЖНОЕ ИСПРАВЛЕНИЕ 🔥
+                // Если это туториал, мы должны ЯВНО перевести пользователя в статус HOME.
+                // Это заставит App.jsx увидеть новый статус и сделать редирект на главную.
+                if (result.is_tutorial) {
+                    try {
+                        await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'HOME' }) // <-- Ставим статус HOME
+                        });
+                        console.log("Status updated to HOME locally after registration");
+                    } catch (err) {
+                        console.error("Failed to set HOME status", err);
+                    }
+                }
+
+                // Теперь обновляем глобального юзера.
+                // App.jsx увидит статус HOME и автоматически перекинет на Main.jsx
                 await fetchUser();
             }
-            if (result.is_tutorial) {
-                const msg = `
-🔹 Тренер:
-Навчання завершено — чудова робота! 🎉
-Прокачуй команду і готуйся до турніру. Покажи клас на полі! ⚽🔥
-`;
-                showInfoModal({
-                    image: Config.IMAGES.training_info,
-                    text: msg
-                });
-            }
+
         } catch (error) {
             console.error("Registration failed:", error);
             showAlert("Сталася помилка під час реєстрації. Спробуйте пізніше.");

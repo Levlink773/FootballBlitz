@@ -6,7 +6,7 @@ from aiohttp import web
 from blitz.blitz_match.core.redis_manager import TeamBlitzMatchManager
 from config import WEBAPP_HOST, WEBAPP_PORT, CALLBACK_URL_WEBHOOK_BOX_BLITZ, CALLBACK_URL_WEBHOOK_ENERGY_BLITZ, \
     CALLBACK_URL_WEBHOOK_VIP_PASS_BLITZ, CALLBACK_URL_WEBHOOK_MONEY_BLITZ
-from loader import bot, dp, app
+from loader import bot, dp, app, task_scheduler
 from bot.routers.router import main_router
 from bot.middlewares import handlers
 from load_utils import start_utils
@@ -44,6 +44,7 @@ async def start_polling():
 
 async def main():
     await start_utils()
+    await task_scheduler.start()
     await TeamBlitzMatchManager.clear_matches()
     await UserService.delete_all_bots()
     await asyncio.gather(

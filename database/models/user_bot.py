@@ -28,6 +28,7 @@ class STATUS_USER_REGISTER(EnumBase):
     RATING = "RATING"
     END_REGISTER = "END_REGISTER"
     FORGOT_TRAINING = "FORGOT_TRAINING"
+    HOME = "HOME"
 
 
 class UserBot(Base):

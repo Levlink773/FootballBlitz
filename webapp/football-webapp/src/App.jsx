@@ -68,7 +68,7 @@ function AppContent() {
         const needsGoHome = [
             "CREATE_TEAM",
             "SEND_NAME_TEAM",
-            "GET_FIRST_CHARACTER"
+            "GET_FIRST_CHARACTER",
         ].includes(user.status_register);
 
         if (needsGoHome && location.pathname !== "/") {
@@ -87,6 +87,7 @@ function AppContent() {
         const needsBlitzHint = user.status_register === "FIRST_BLITZ";
         const needsECHint = user.status_register === "EDUCATION_CENTER";
         const needsRatingHint = user.status_register === "RATING";
+        const needsHomeHint = user.status_register === "HOME";
 
         if (needsTrainingHint) {
             setGuideTarget('training');
@@ -100,6 +101,8 @@ function AppContent() {
             setGuideTarget("tournaments");
         } else if (needsRatingHint) {
             setGuideTarget('ratings');
+        } else if (needsHomeHint) {
+            setGuideTarget('home');
         } else {
             // Сбрасываем, если пользователь прошел все этапы обучения
             setGuideTarget(null);

@@ -245,7 +245,7 @@ async def register_to_blitz(blitz_id: int, body: RegisterRequest):
         # Меняем статус пользователя после всех проверок и списаний
         if is_tutorial_user:
             # Следующий статус после первого блица - это
-            await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.END_REGISTER)
+            await UserService.edit_status_register(user.user_id, STATUS_USER_REGISTER.HOME)
 
     except BlitzCloseError:
         return RegisterResponse(ok=False, message="Реєстрацію на бліц закрито.", blitz_id=blitz_id)

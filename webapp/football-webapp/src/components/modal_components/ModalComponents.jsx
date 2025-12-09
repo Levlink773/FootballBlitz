@@ -1034,7 +1034,6 @@ export function SetPriceModal({
         </Box>
     );
 }
-// ✨ --- Визначаємо опції VIP прямо тут для зручності --- ✨
 const VIP_OPTIONS = [
     {
         title: "VIP на 7 днів",
@@ -1051,46 +1050,92 @@ const VIP_OPTIONS = [
         popular: true,
     }
 ];
-
+// 1. Стандартна модалка (використовує дефолтні тексти)
 export function VipPromoModal({
                                   onSubscribe = () => {},
                                   onClose = () => {},
                                   scale = 0.9,
                               }) {
+    // Ми просто викликаємо універсальну модалку, але не передаємо title/subtitle,
+    // щоб спрацювали дефолтні значення всередині
+    return (
+        <VipPromoModalWithTitle
+            onSubscribe={onSubscribe}
+            onClose={onClose}
+            scale={scale}
+        />
+    );
+}
+
+// 2. Модалка з кастомним заголовком (Використовує той самий VIP_OPTIONS)
+export function VipPromoModalWithTitle({
+                                           onSubscribe = () => {},
+                                           onClose = () => {},
+                                           scale = 0.9,
+                                           title,
+                                           subtitle
+                                       }) {
     const banner = Config.IMAGES.bannerImage || Config.IMAGES.greenBanner;
     const s = (v) => (typeof v === "number" ? Math.max(1, Math.round(v * scale)) + "px" : v);
     const base = { buttonHeight: 52, buttonRadius: 12, priceFont: 18, padding: 16 };
 
     return (
-        // 🔥 АДАПТАЦИЯ: Увеличиваем ширину для мобильных
-        <Box style={{width: "100%", maxWidth: s(640), borderRadius: s(16)}} onClose={onClose}>
-            <div style={{ padding: `${s(24)} ${s(base.padding)}`, textAlign: 'center', color: 'white' }}>
+        <Box
+            style={{
+                width: "95%",         // Трохи відступу від країв екрану
+                maxWidth: s(640),
+                borderRadius: s(16),
+                // 🔥 АДАПТАЦІЯ ВИСОТИ:
+                maxHeight: "85vh",    // Максимальна висота - 85% від висоти екрану
+                display: "flex",      // Робимо контейнер флексом
+                flexDirection: "column",
+                overflow: "hidden"    // Щоб скруглення кутів не зрізались скролом
+            }}
+            onClose={onClose}
+        >
+            {/* 🔥 СКРОЛ-КОНТЕЙНЕР: */}
+            <div style={{
+                padding: `${s(24)} ${s(base.padding)}`,
+                textAlign: 'center',
+                color: 'white',
+                overflowY: "auto",      // Вмикаємо прокрутку, якщо контент не влазить
+                maxHeight: "100%",      // Займає всю доступну висоту Box
+                scrollbarWidth: "none", // Ховаємо скролбар для Firefox
+                msOverflowStyle: "none" // Ховаємо скролбар для IE/Edge
+            }}>
+                {/* Стиль для приховування скролбару в Chrome/Safari */}
+                <style>
+                    {`
+                        div::-webkit-scrollbar { display: none; }
+                    `}
+                </style>
+
                 <motion.h2
                     style={{ fontSize: s(24), fontWeight: 900, textShadow: "0 4px 12px rgba(0,0,0,0.7)", marginBottom: s(8), marginTop: 0 }}
                     initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}}
                 >
-                    Оберіть ваш VIP-пасс
+                    {title || "Оберіть ваш VIP-пасс"}
                 </motion.h2>
                 <motion.p
                     style={{ fontSize: s(15), color: '#c0c0d0', marginBottom: s(24), marginTop: 0 }}
                     initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
                 >
-                    Отримайте максимум переваг у грі!
+                    {subtitle || "Отримайте максимум переваг у грі!"}
                 </motion.p>
 
-                {/* 🔥 АДАПТАЦИЯ: flex-wrap: wrap позволяет карточкам переноситься */}
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    flexWrap: 'wrap', // <-- Ключевое изменение
+                    flexWrap: 'wrap',
                     gap: s(base.padding),
                     justifyContent: 'center',
+                    paddingBottom: s(10) // Додатковий відступ знизу, щоб кнопка не прилипала при скролі
                 }}>
                     {VIP_OPTIONS.map((option, index) => (
                         <motion.div
                             key={option.type}
                             style={{
-                                flex: "1 1 240px", // <-- Минимальная ширина карточки 240px
+                                flex: "1 1 240px",
                                 background: 'rgba(40, 40, 60, 0.7)',
                                 borderRadius: s(12),
                                 border: `2px solid ${option.popular ? '#f0c45c' : '#4a4a6a'}`,
@@ -1395,5 +1440,6 @@ export default {
     AlertModal,
     SetPriceModal,
     DonateEnergyModal,
-    InfoModal
+    InfoModal,
+    VipPromoModalWithTitle
 };
