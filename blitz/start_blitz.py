@@ -11,7 +11,8 @@ from blitz.blitz_match.utils import generate_blitz_match_id
 from blitz.blitz_reminder import BlitzReminder
 from blitz.enum_blitz import BlitzStatus
 from blitz.services.blitz_announce_service import BlitzAnnounceService
-from blitz.services.blitz_reward_service import BlitzRewardService, RewardEnergyBlitzTeam
+from blitz.services.blitz_reward_service import BlitzRewardService, RewardEnergyBlitzTeam, RewardBlitzTeam, \
+    RewardSmallBoxBlitzTeam, RewardMediumBoxBlitzTeam, RewardLargeBoxBlitzTeam
 from blitz.services.blitz_service import BlitzService
 from blitz.services.blitz_team_service import BlitzTeamService
 from blitz.services.message_sender.blitz_sender import send_message
@@ -100,6 +101,20 @@ class StartBlitz:
         self.registration_cost = blitz_data.registration_cost
         self.blitz_pack = blitz_data.blitz_pack
         self.blitz_reward_pack = blitz_data.blitz_pack.blitz_reward_pack
+
+    @staticmethod
+    def _get_box_token(rewards_list: list[RewardBlitzTeam]) -> str | None:
+        """
+        Проверяет список наград и возвращает тип бокса для фронтенда.
+        """
+        for reward in rewards_list:
+            if isinstance(reward, RewardSmallBoxBlitzTeam):
+                return "SMALL_BOX"
+            if isinstance(reward, RewardMediumBoxBlitzTeam):
+                return "MEDIUM_BOX"
+            if isinstance(reward, RewardLargeBoxBlitzTeam):
+                return "LARGE_BOX"
+        return None
 
     @staticmethod
     async def _start_blitz_match(teams: tuple[BlitzTeam, BlitzTeam], stage: int, text_init: str) -> tuple[
@@ -199,19 +214,41 @@ class StartBlitz:
 
     async def finish_match(self, final_winner: BlitzTeam, final_looser: BlitzTeam):
         """Завершает блиц: отправляет событие финалистам и очищает состояние матчей."""
-        # Собираем всех пользователей из команд финалистов
-        finalist_users = final_winner.users + final_looser.users
-        if finalist_users:
-            logger.info(f"Отправка финального события 'remove_user' {len(finalist_users)} финалистам.")
-            # Формируем и отправляем событие для перенаправления на клиенте
-            payloads = make_payloads_for_users(
+
+        # 1. Определяем боксы для финалистов на основе конфига
+        # Победитель получает награды победителя + гарантированные
+        winner_rewards = self.blitz_reward_pack.reward_winner + self.blitz_reward_pack.reward_guaranteed
+        winner_box = self._get_box_token(winner_rewards)
+
+        # Проигравший получает награды финалиста-лузера + гарантированные
+        looser_rewards = self.blitz_reward_pack.reward_final_looser + self.blitz_reward_pack.reward_guaranteed
+        looser_box = self._get_box_token(looser_rewards)
+
+        # 2. Отправляем событие Победителю
+        if final_winner.users:
+            logger.info(f"Отправка финального события WINNER пользователям команды {final_winner.id}")
+            payloads_winner = make_payloads_for_users(
                 event_type="remove_user",
-                users=finalist_users,
+                users=final_winner.users,
                 payload_factory=lambda u: {
-                    "message": "Вітаємо. Енергія та рейтинг начисленно, лутбокси можете забрати у телеграмі!",
+                    "message": "Вітаємо з перемогою! 🏆 Нагороди нараховано.",
+                    "reward_box": winner_box  # <-- Добавляем бокс
                 }
             )
-            asyncio.create_task(_delayed_publish(payloads))
+            asyncio.create_task(_delayed_publish(payloads_winner))
+
+        # 3. Отправляем событие Проигравшему в финале
+        if final_looser.users:
+            logger.info(f"Отправка финального события LOOSER пользователям команды {final_looser.id}")
+            payloads_looser = make_payloads_for_users(
+                event_type="remove_user",
+                users=final_looser.users,
+                payload_factory=lambda u: {
+                    "message": "Вітаємо з 2-м місцем! 🥈 Нагороди нараховано.",
+                    "reward_box": looser_box  # <-- Добавляем бокс
+                }
+            )
+            asyncio.create_task(_delayed_publish(payloads_looser))
 
         await TeamBlitzMatchManager.clear_matches()
         TBMatchManager.clear_matches()
@@ -234,48 +271,75 @@ class StartBlitz:
         # await BlitzTeamSender.send_teams_message(teams)
         logger.info("Teams sended")
         users: list[UserBot] = await BlitzService.get_users_from_blitz_users(blitz_id)
+        # Определяем гарантированную награду энергией для анонсов
         reward_energy_garanted = 50
         reward_patch = self.blitz_reward_pack.reward_guaranteed[0]
         if isinstance(reward_patch, RewardEnergyBlitzTeam):
             reward_energy_garanted = reward_patch.reward_exp
         semifinal_teams = []
+        # --- ЦИКЛ РАУНДОВ ---
         while len(teams) > 2:
-            if len(teams) == 4:
+            # Проверяем, является ли текущий раунд полуфиналом (4 команды -> 2 вылетают)
+            is_semifinal_round = (len(teams) == 4)
+
+            if is_semifinal_round:
                 semifinal_teams = teams.copy()
+
             pair_teams = BlitzTeamService.pair_teams(teams)
             logger.info(f"pair_teams: {pair_teams} for stage {len(pair_teams)}")
+
             text = await BlitzAnnounceService.announce_matchups(pair_teams)
             tasks = [
                 StartBlitz._start_blitz_match((first, second), len(pair_teams), text)
                 for first, second in pair_teams
             ]
+
             logger.info(f"tasks: {tasks}")
             logger.info("blitz match started")
+
+            # Ждем завершения матчей
             results_match = await asyncio.gather(*tasks)
             await TeamBlitzMatchManager.clear_matches()
             logger.info(f"blitz match finish: {results_match}")
+
             looser_teams_stage = [looser for _, looser in results_match]
             winner_teams_stage = [winner for winner, _ in results_match]
             logger.info(f"winner_teams_stage: {winner_teams_stage}")
-            # --- ШАГ 3: Отправляем событие 'remove_user' проигравшим в раунде ---
+
+            # --- 🔥 ОБНОВЛЕННАЯ ЛОГИКА ОТПРАВКИ СОБЫТИЯ ВЫБЫВШИМ ---
+
+            # 1. Определяем, какие награды получают выбывшие на этом этапе
+            current_stage_rewards = self.blitz_reward_pack.reward_guaranteed.copy()
+
+            if is_semifinal_round:
+                # Если это полуфинал, добавляем награды полуфиналистов
+                current_stage_rewards += self.blitz_reward_pack.reward_semi_final
+
+            # 2. Получаем токен бокса (если он есть в наградах)
+            box_token = self._get_box_token(current_stage_rewards)
+
+            # 3. Отправляем событие
             loser_users = [user for team in looser_teams_stage for user in team.users]
             if loser_users:
-                logger.info(f"Отправка события 'remove_user' {len(loser_users)} выбывшим пользователям.")
-                # Формируем payload для каждого выбывшего пользователя
+                logger.info(f"Отправка 'remove_user' {len(loser_users)} выбывшим. Box Token: {box_token}")
+
                 payloads = make_payloads_for_users(
                     event_type="remove_user",
                     users=loser_users,
                     payload_factory=lambda u: {
-                        "message": "Ви вибули. Нагороди Ви отримаєте по завершеню турніра!"
+                        "message": "Ви вибули. Нагороди Ви отримаєте по завершеню турніра!",
+                        "reward_box": box_token  # <--- 🔥 Добавляем бокс в payload
                     }
                 )
-                # Отправляем в фоне, чтобы не блокировать основной процесс
                 asyncio.create_task(_delayed_publish(payloads))
-            # --- Конец нового блока ---
+            # --- КОНЕЦ ОБНОВЛЕННОГО БЛОКА ---
+
             asyncio.create_task(
                 BlitzAnnounceService.announce_round_results(winner_teams_stage, looser_teams_stage,
                                                             reward_energy_garanted))
             teams = winner_teams_stage
+
+        # --- ФИНАЛ ---
         pair_teams = [(teams[0], teams[1])]
         logger.info(f"pair_teams final: {pair_teams}")
         text_init = await BlitzAnnounceService.announce_matchups(pair_teams)
@@ -295,16 +359,15 @@ class StartBlitz:
         await TeamBlitzMatchManager.set_all_matches_state(
             BlitzStateData(state=BlitzState.FINISHED, message=text),
         )
-        # Публікуємо результати, але не чекаємо їх
+        # Публикуем результаты
         asyncio.create_task(_delayed_publish_all_match())
 
-        # --- НАГОРОДЖЕННЯ (Лутбокси та енергія) ---
+        # --- НАГРАЖДЕНИЕ В БД ---
         await bz_reward(self.blitz_reward_pack.reward_winner, final_winner)
         await bz_reward(self.blitz_reward_pack.reward_final_looser, final_looser)
         for semi_team in pure_semifinal_losers:
             await bz_reward(self.blitz_reward_pack.reward_semi_final, semi_team)
 
-        # Гарантовані нагороди
         await asyncio.gather(
             *[
                 bz_reward(self.blitz_reward_pack.reward_guaranteed, team)
@@ -314,12 +377,11 @@ class StartBlitz:
 
         logger.info("Reward blitz match started")
 
-        # --- ВИПРАВЛЕННЯ: Послідовне виконання ---
-        # 1. Спочатку нараховуємо рейтинг. Це найважливіше.
-        # Ми прибираємо це з gather, щоб гарантувати запис до того, як почнеться очищення.
+        # 1. Начисляем рейтинг
         await self.reward_rating(final_winner, final_looser, pure_semifinal_losers)
 
-        # 2. Тільки після успішного нарахування рейтингу завершуємо матч і очищаємо дані
+        # 2. Завершаем матч и отправляем финальные payload'ы (с боксами для победителя/финалиста)
+        # Убедитесь, что метод finish_match тоже обновлен (как в предыдущем ответе)
         await self.finish_match(final_winner, final_looser)
 
         logger.info("All final tasks are completed. Finishing blitz.")

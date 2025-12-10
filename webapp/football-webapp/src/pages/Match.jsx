@@ -10,6 +10,7 @@ import {showAlert, showTopChanceAlert} from "../alertService.jsx";
 import {api, API_BASE_URL} from "../api.js";
 import {useWebSocketPro} from "../../useWebsocket.js";
 import DOMPurify from 'dompurify';
+import {LootBoxOpeningModal} from "../components/modal_components/LootBoxOpeningModal.jsx";
 
 // --- НОВЫЙ КОМПОНЕНТ SCOREBOARD ---
 // --- ВИПРАВЛЕНИЙ КОМПОНЕНТ SCOREBOARD ---
@@ -77,6 +78,9 @@ export default function MatchCard({user, setUser}) {
     const [matchState, setMatchState] = useState(undefined);
     const [isMatchStateLoading, setIsMatchStateLoading] = useState(true);
 
+    // 🔥 СТЕЙТ ДЛЯ НАГОРОДИ
+    const [rewardBoxType, setRewardBoxType] = useState(null);
+
     const navigate = useNavigate();
 
     const fetchUser = async () => {
@@ -115,9 +119,17 @@ export default function MatchCard({user, setUser}) {
                 break;
 
             case 'remove_user':
-                console.log("User removed from match via WebSocket, redirecting...");
-                showAlert(data.payload.message)
-                navigate('/blitz');
+                console.log("User removed via WS");
+
+                // 🔥 Сервер должен прислать: { type: 'remove_user', payload: { reward_box: 'SMALL_BOX' } }
+                // Если награды нет (проиграл), reward_box будет null или undefined
+                if (data.payload && data.payload.reward_box) {
+                    setRewardBoxType(data.payload.reward_box);
+                } else {
+                    // Если бокса нет - просто уходим
+                    showAlert(data.payload.message || "Матч завершено");
+                    navigate('/blitz');
+                }
                 break;
 
             default:
@@ -126,6 +138,11 @@ export default function MatchCard({user, setUser}) {
     }, [navigate]);
 
     useWebSocketPro(user?.user_id, handleWebSocketMessage);
+    const handleCloseReward = async () => {
+        setRewardBoxType(null);
+        await fetchUser(); // Обновляем баланс
+        navigate('/blitz');
+    };
 
     useEffect(() => {
         const fetchMatchState = async () => {
@@ -253,6 +270,14 @@ export default function MatchCard({user, setUser}) {
                         <ModalRoot>
                             <OutOfEnergyModal onClose={() => setActiveModal(null)} onBuy={handlePurchaseEnergy}/>
                         </ModalRoot>
+                    )}
+                    {/* 🔥 ДОДАЄМО МОДАЛКУ ВІДКРИТТЯ БОКСУ */}
+                    {rewardBoxType && (
+                        <LootBoxOpeningModal
+                            boxType={rewardBoxType}
+                            userId={user.user_id}
+                            onClose={handleCloseReward}
+                        />
                     )}
                 </AnimatePresence>
             </div>

@@ -2,6 +2,8 @@ import logging
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+from blitz.blitz_match.constans import SMALL_BOX_BLITZ_PHOTO, MEDIUM_BOX_BLITZ_PHOTO, LARGE_BOX_BLITZ_PHOTO
+from bot.callbacks.blitz_callback import BoxRewardCallback
 from database.models.types import TypeBox
 from database.models.user_bot import STATUS_USER_REGISTER
 from loader import bot
@@ -20,22 +22,25 @@ async def give_scheduled_box(user_id: int, box_type: str = TypeBox.SMALL_BOX, ti
         # 1. Текст и логика в зависимости от типа бокса
         name_box = ""
         callback_data = ""
-
-
+        photo = SMALL_BOX_BLITZ_PHOTO
         if box_type == TypeBox.LARGE_BOX:
             await UserService.add_count_of_big_box(user_id, 1)
             name_box = "ВЕЛИКИЙ БОКС"
-            callback_data = "open_box:large"  # Твой callback для открытия
+            callback_data = "large"  # Твой callback для открытия
+            photo = LARGE_BOX_BLITZ_PHOTO
 
         elif box_type == TypeBox.MEDIUM_BOX:
             await UserService.add_count_of_medium_box(user_id, 1)
             name_box = "Середній бокс"
-            callback_data = "open_box:medium"
+            callback_data = "medium"
+            photo = MEDIUM_BOX_BLITZ_PHOTO
+
 
         elif box_type == TypeBox.SMALL_BOX:
             await UserService.add_count_of_small_box(user_id, 1)
             name_box = "Бокс новачка"
-            callback_data = "open_box:small"
+            callback_data = "small"
+        callback_data = BoxRewardCallback(box_type=callback_data).pack()
 
         # 2. Формируем клавиатуру
         markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -50,7 +55,8 @@ async def give_scheduled_box(user_id: int, box_type: str = TypeBox.SMALL_BOX, ti
         )
 
         # 4. Отправляем сообщение через бота
-        await bot.send_message(
+        await bot.send_photo(
+            photo=photo,
             chat_id=user_id,
             text=text,
             reply_markup=markup
