@@ -325,73 +325,85 @@ function GradientButton({children, onClick, style = {}, variant = 'primary'}) {
 
 
 // ✨ 2. Створюємо невеликий компонент для анімації числа
-const AnimatedChance = ({chance}) => {
-    // Використовуємо хук useSpring для анімації
-    const {number} = useSpring({
-        from: {number: 0},
-        to: chance,
-        delay: 300, // Невелика затримка перед початком анімації
-        config: {mass: 1, tension: 20, friction: 15}, // Налаштування для плавної анімації
+const AnimatedChance = ({ chance }) => {
+    const { number } = useSpring({
+        from: { number: 0 },
+        to: { number: chance },
+        config: { duration: 1000 },
+        delay: 200
     });
 
-    // Повертаємо анімований елемент
+    // 🔥 ВАЖЛИВО: style={{ color: 'inherit' }} змушує цифри брати колір батька
     return (
-        <animated.span>
-            {number.to(val => `${val.toFixed(0)}%`)}
+        <animated.span style={{ color: 'inherit' }}>
+            {number.to(n => n.toFixed(0))}
         </animated.span>
     );
 };
 
-
 export function TopChancesAlert({ teams = [] }) {
     return (
-        // Якщо у вас Box був імпортований з UI бібліотеки - поверніть Box.
-        // Якщо ні - цей div з padding повністю повторює стиль старого Box.
         <div style={{ width: 360, padding: 16 }}>
             <div style={{
-                color: "var(--glow-secondary)",
+                color: "#E0E0E0", // Світло-сірий заголовок
                 fontWeight: 800,
                 fontSize: 16,
                 textAlign: "center",
                 marginBottom: 12,
-                textShadow: '0 2px 5px rgba(174, 76, 255, 0.4)'
+                textShadow: '0 2px 5px rgba(0, 0, 0, 0.5)'
             }}>
                 Поточні шанси на гол:
             </div>
 
-            {teams.slice(0, 2).map((t, i) => (
-                <div key={t.name} style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginTop: i === 0 ? 0 : 8,
-                    padding: '8px 12px',
-                    // Цей стиль відповідає за те, щоб плашка не була прозорою:
-                    background: 'var(--surface-highlight)',
-                    borderRadius: 10
-                }}>
+            {teams.slice(0, 2).map((t, i) => {
+                const isHigh = t.chance >= 50;
 
-                    {/* ВИПРАВЛЕННЯ HTML: Рендеримо ім'я через dangerouslySetInnerHTML */}
-                    <div
-                        style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}
-                        dangerouslySetInnerHTML={{
-                            // Формуємо рядок "Команда ІМ'Я:" і чистимо його
-                            __html: DOMPurify.sanitize(`Команда ${t.name}:`)
-                        }}
-                    />
+                // 🔥 Жорсткі кольори (Зелений / Червоний) - ніяких змінних
+                const teamColor = isHigh ? "#32CD32" : "#FF4500";
 
-                    {/* ВИПРАВЛЕННЯ ЦИФР: Залишаємо стилі і AnimatedChance, але округляємо число */}
-                    <div style={{
-                        color: t.chance >= 50 ? "var(--green-accent)" : "var(--red-accent)",
-                        fontWeight: 800,
-                        fontSize: 16,
-                        textShadow: `0 0 8px ${t.chance >= 50 ? 'var(--green-accent)' : 'var(--red-accent)'}`
+                return (
+                    <div key={t.name} style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: i === 0 ? 0 : 8,
+                        padding: '10px 14px',
+                        background: 'rgba(30, 30, 40, 0.95)', // Темний фон плашки
+                        borderRadius: 10,
+                        border: `1px solid ${teamColor}44`, // Напівпрозора рамка кольору команди
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
                     }}>
-                        {/* Передаємо округлене значення в ваш красивий компонент */}
-                        <AnimatedChance chance={Math.round(t.chance)} />
+                        <div
+                            style={{
+                                color: "#FFFFFF",
+                                fontSize: 14,
+                                fontWeight: 600,
+                                textShadow: "0 1px 2px rgba(0,0,0,0.8)"
+                            }}
+                            dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(`Команда ${t.name}:`)
+                            }}
+                        />
+
+                        {/* Стилі для блоку з цифрами */}
+                        <div style={{
+                            color: teamColor, // 🔥 Колір тексту
+                            fontWeight: 900,
+                            fontSize: 18,
+                            textShadow: `0 0 15px ${teamColor}`, // 🔥 Світіння тим самим кольором
+                            minWidth: '50px',
+                            textAlign: 'right',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: '2px'
+                        }}>
+                            <AnimatedChance chance={Math.round(t.chance)} />
+                            <span>%</span>
+                        </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }

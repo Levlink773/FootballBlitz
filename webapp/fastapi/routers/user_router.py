@@ -18,6 +18,7 @@ from logging_config import logger
 from services.character_service import CharacterService
 from services.user_service import UserService  # поправьте путь если нужно
 from utils.generate_character import get_character, CharacterData
+from utils.referal_utils import reward_referal
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -681,3 +682,24 @@ async def get_user_referral_count(user_id: int):
             status_code=500,
             detail="Could not fetch referral count."
         )
+
+
+@router.post("/{user_id}/trigger-referral-reward", status_code=status.HTTP_200_OK)
+async def trigger_referral_reward(user_id: int):
+    """
+    Ручка для ручного або автоматичного виклику нагороди рефералу.
+    Приймає ID користувача (нового гравця), знаходить його реферера і нагороджує.
+    """
+    # 1. Знаходимо користувача
+    user = await UserService.get_user(user_id=user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Користувача не знайдено")
+
+    if not user.referal_user_id:
+        raise HTTPException(status_code=400, detail="Цей користувач не має реферера (referal_user_id is None)")
+
+    # 2. Викликаємо логіку нагороди
+    await reward_referal(user)
+
+    return {"status": "success", "message": f"Referral logic triggered for user {user_id}"}

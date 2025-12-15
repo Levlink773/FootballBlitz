@@ -5,7 +5,7 @@ import { showAlert } from "../../alertService.jsx";
 import { API_BASE_URL } from "../../api.js";
 import { Steps } from 'intro.js-react';
 import 'intro.js/introjs.css';
-
+import reward_sound from "../../assets/public/sounds/reward.mp3"
 // ... (TASK_METADATA і transformApiTasks залишаються без змін) ...
 const TASK_METADATA = {
     CONDUCT_3_TRAINING: {
@@ -174,7 +174,7 @@ const EducationCentre = ({ user, onUserUpdate }) => {
             });
             const data = await response.json();
             if (data.ok) {
-                showAlert(`Нагорода отримана: ${data.message}`);
+                showAlert(`Нагорода отримана: ${data.message}`, {sound: reward_sound});
 
                 // Якщо це навчання — завершуємо його
                 if (user?.status_register === "EDUCATION_CENTER") {
@@ -202,7 +202,7 @@ const EducationCentre = ({ user, onUserUpdate }) => {
             });
             const data = await response.json();
             if (data.ok) {
-                showAlert(`Нагорода отримана: ${data.message}`);
+                showAlert(`Нагорода отримана: ${data.message}`, {sound: reward_sound});
                 await fetchData();
                 await fetchUser();
             } else {

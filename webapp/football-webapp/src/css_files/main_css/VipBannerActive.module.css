@@ -1,7 +1,7 @@
-/* --- Импорт шрифтов --- */
+/* --- Импорт шрифтов (без змін) --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Raleway:wght@500;700&display=swap');
 
-/* --- Keyframes (без изменений) --- */
+/* --- Keyframes (без змін) --- */
 @keyframes characterFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-4px); }
@@ -17,19 +17,14 @@
     50% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); }
 }
 
-/* --- Основной контейнер --- */
+/* --- Основной контейнер (без змін) --- */
 .container {
     position: absolute;
-    /* АДАПТИВНОСТЬ ПО ВЕРТИКАЛИ: */
-    top: 80px; /* Можно использовать calc(10vh + 10px) для гибкости */
-
-    /* АДАПТИВНОСТЬ ПО ГОРИЗОНТАЛИ: */
+    top: 80px;
     left: 50%;
     transform: translateX(-50%);
-
-    width: 92%;       /* Занимает 92% ширины экрана */
-    max-width: 360px; /* Но не шире 360px */
-
+    width: 92%;
+    max-width: 360px;
     height: 90px;
     z-index: 10;
     display: flex;
@@ -38,27 +33,26 @@
     border-radius: 8px;
 }
 
-/* --- Фон баннера --- */
+/* --- Фон баннера (без змін) --- */
 .bannerBackground {
-    /* Фон занимает всю ширину минус место под персонажа слева */
     width: 90%;
     height: 65px;
     position: absolute;
-    right: 0; /* Прижимаем вправо */
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     border-radius: 8px;
     z-index: 1;
     overflow: hidden;
-    /* Чтобы картинка фона не растягивалась уродливо */
     object-fit: cover;
 }
 
-/* --- Эффект блеска --- */
+/* --- Эффект блеска (ЗМІНЕНО) --- */
 .shimmerEffect {
     position: absolute;
-    top: 50%;
-    left: 10%; /* Начинается там, где начинается фон */
+    /* ЗМІНА ТУТ: Було 50%, стало 55%, щоб опустити трохи нижче */
+    top: 80%;
+    left: 10%;
     width: 90%;
     height: 65px;
     transform: translateY(-50%);
@@ -70,31 +64,30 @@
     );
     z-index: 4;
     pointer-events: none;
-    /* Обрезка по форме родителя, чтобы блеск не вылезал */
     clip-path: inset(0 0 0 0 round 8px);
     animation: shimmer 3s infinite linear;
     animation-delay: 2s;
 }
 
-/* --- Персонаж --- */
+/* --- Персонаж (без змін) --- */
 .characterImage {
     width: auto;
-    height: 100%; /* Высота подстраивается под контейнер (90px) */
+    height: 100%;
     max-height: 89px;
     position: absolute;
-    left: 0; /* Прижат к левому краю контейнера */
+    left: 0;
     bottom: 0;
     z-index: 3;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
     animation: characterFloat 4s infinite ease-in-out;
 }
 
-/* --- Контейнер текста --- */
+/* --- Контейнер текста (без змін) --- */
 .textContainer {
     position: absolute;
     z-index: 2;
     right: 0;
-    width: 85%; /* Текст внутри области фона */
+    width: 85%;
     height: 65px;
     display: flex;
     flex-direction: column;
@@ -103,10 +96,9 @@
     color: white;
 }
 
-/* --- Тексты --- */
+/* --- Тексты (без змін) --- */
 .vipTitle {
     font-family: 'Inter', sans-serif;
-    /* Адаптивный шрифт: 16px минимум, 18px максимум */
     font-size: clamp(16px, 5vw, 18px);
     font-weight: 800;
     color: #FFD700;
@@ -118,9 +110,8 @@
 
 .expiryText {
     font-family: 'Raleway', sans-serif;
-    /* Адаптивный шрифт: 9px минимум, 10px максимум */
     font-size: clamp(9px, 3vw, 10px);
-    font-weight: 700; /* Чуть жирнее для мелкого текста */
+    font-weight: 700;
     color: #FFFFFF;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
     text-transform: uppercase;
@@ -128,13 +119,13 @@
     text-align: center;
 }
 
-/* Медиа-запрос для очень маленьких экранов (iPhone 5/SE) */
+/* Медиа-запрос (без змін) */
 @media (max-width: 350px) {
     .container {
-        width: 96%; /* Расширяем контейнер почти на весь экран */
+        width: 96%;
     }
     .bannerBackground {
-        width: 85%; /* Чуть уменьшаем фон, чтобы влез персонаж */
+        width: 85%;
     }
     .textContainer {
         width: 80%;

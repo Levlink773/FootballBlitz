@@ -36,6 +36,8 @@ class MonoResultBox(EndPoint):
             order_id=self.data.invoiceId,
             type_payment = BoxPayment
         )
+        for _ in range(10):
+           logger.error("BOX BOX")
         
         if not payment:
             return
@@ -66,7 +68,7 @@ class MonoResultBox(EndPoint):
             text    = self.TEXT_TEMPLATE.format(name_box = name_box),
             reply_markup = markup,
         )
-        logger.error(f"Lootbox +1 type {payment.payment.type_box}")
+        logger.error(f"Lootbox +1 type {payment.type_box}")
 
         # open_box = OpenBoxService(
         #     type_box = payment.type_box,

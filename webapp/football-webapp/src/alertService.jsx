@@ -7,47 +7,48 @@ import {AlertModal, InfoModal, ModalRoot, TopChancesAlert} from "./components/mo
  * @param {object} options - Додаткові пропси для AlertModal (напр., { autoCloseMs: 3000, html: true }).
  */
 export function showAlert(message, options = {}) {
-    // 1. Знаходимо головний контейнер для модальних вікон.
+    // 1. Знаходимо головний контейнер
     const targetContainer = document.querySelector('[data-modal-root]');
     if (!targetContainer) {
         console.error('Контейнер [data-modal-root] не знайдено в DOM.');
         return;
     }
 
-    // 2. Створюємо тимчасовий DOM-елемент, куди будемо рендерити наш алерт.
+    // 2. Створюємо тимчасовий DOM-елемент
     const alertHost = document.createElement('div');
     targetContainer.appendChild(alertHost);
 
-    // 3. Створюємо новий React root на цьому елементі.
+    // 3. Створюємо React root
     const root = createRoot(alertHost);
 
-    // 4. Визначаємо функцію очищення. Це найважливіша частина!
+    // 4. Функція очищення
     const cleanup = () => {
-        // Розмонтовуємо React-компонент
         root.unmount();
-        // Видаляємо тимчасовий DOM-елемент
         if (targetContainer.contains(alertHost)) {
             targetContainer.removeChild(alertHost);
         }
     };
 
-    // 5. Збираємо всі пропси для AlertModal.
-    // Функція cleanup буде викликана або по таймеру, або при кліку на "хрестик".
+    // 5. 🔥 ЗМІНИ ТУТ:
+    // Витягуємо 'sound' з опцій, щоб передати його в ModalRoot.
+    // Решту опцій (...restOptions) залишаємо для AlertModal.
+    const { sound, ...restOptions } = options;
+
     const alertProps = {
         message,
         onClose: cleanup,
-        autoCloseMs: 5000, // ✨ Стандартний час закриття - 5 секунд
-        ...options, // Користувацькі опції можуть це перезаписати
+        autoCloseMs: 5000,
+        ...restOptions, // Передаємо решту опцій (наприклад, autoCloseMs)
     };
 
-    // 6. Рендеримо компонент.
-    // Ми огортаємо AlertModal в ModalRoot, щоб зберегти логіку позиціонування та анімації.
+    // 6. Рендеримо компонент
     root.render(
         <ModalRoot
             onClose={cleanup}
             variant="alert"
-            backdrop={false} // Для алертів зазвичай не потрібен фон
+            backdrop={false}
             animation={true}
+            soundOnOpen={sound}
         >
             <AlertModal {...alertProps} />
         </ModalRoot>

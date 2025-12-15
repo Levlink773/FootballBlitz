@@ -473,7 +473,7 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     const isMainCharacter = allCharacters[currentIndex]?.id === user.main_character_id;
 
     if (isLoading) {
-        return <ModalRoot onClose={onClose}><ModalBox>
+        return <ModalRoot onClose={onClose} soundOnOpen={null}><ModalBox>
             <div>Завантаження...</div>
         </ModalBox></ModalRoot>;
     }
@@ -485,7 +485,7 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     const handleBackToInventory = () => setCurrentView('inventory');
 
     return (
-        <ModalRoot onClose={onClose}>
+        <ModalRoot onClose={onClose} soundOnOpen={null}>
             {/*
           ModalBox.onClose тепер динамічний:
           - Якщо ми в інвентарі (inventory) -> викликаємо зовнішній onClose (закриття модалки).

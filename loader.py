@@ -33,7 +33,7 @@ async def set_default_menu():
         # не передаём chat_id => это будет default (у всех пользователей)
         menu_button=MenuButtonWebApp(
             text="Open",
-            web_app=WebAppInfo(url="https://847d8d686867.ngrok-free.app/")
+            web_app=WebAppInfo(url="https://football-blitz.online/")
         )
     )
   

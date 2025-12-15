@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled, {css, keyframes} from 'styled-components';
 import { Steps } from 'intro.js-react';
 import 'intro.js/introjs.css';
-
+import win_sound from "../../assets/public/sounds/winner.mp3"
 import Config from "../../config.js";
 import {showAlert, showInfoModal} from "../../alertService.jsx";
 import { useWebSocketPro } from "../../../useWebsocket.js";
@@ -350,7 +350,11 @@ export const EventCard = ({ user, onUserUpdate }) => {
 
     const handleWebSocketMessage = useCallback((data) => {
         if(data.type === 'show_alert' && data.payload) {
-            showAlert(data.payload.message, { html: data.payload.html });
+            if (data.payload.message === "Бліц турнір почався!") {
+                showAlert(data.payload.message, { html: data.payload.html, sound: win_sound, });
+            } else {
+                showAlert(data.payload.message, { html: data.payload.html });
+            }
             fetchBlitzStatus();
         } else if (data.type === 'update_max_participants' && data.payload) {
             setBlitzInfo(prev => prev ? { ...prev, info: { ...prev.info, participants_count: data.payload.max_participants } } : prev);

@@ -1,6 +1,6 @@
 import logging
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
 
 from blitz.blitz_match.constans import SMALL_BOX_BLITZ_PHOTO, MEDIUM_BOX_BLITZ_PHOTO, LARGE_BOX_BLITZ_PHOTO
 from bot.callbacks.blitz_callback import BoxRewardCallback
@@ -56,9 +56,9 @@ async def give_scheduled_box(user_id: int, box_type: str = TypeBox.SMALL_BOX, ti
 
         # 4. Отправляем сообщение через бота
         await bot.send_photo(
-            photo=photo,
+            photo=FSInputFile(photo),
             chat_id=user_id,
-            text=text,
+            caption=text,
             reply_markup=markup
         )
 

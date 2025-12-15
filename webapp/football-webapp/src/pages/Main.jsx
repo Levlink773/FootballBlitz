@@ -156,10 +156,8 @@ export const Main = ({ user, setUser }) => {
 Навчання завершено — чудова робота! 🎉
 Тепер ти повноцінний менеджер. Прокачуй команду, змагайся в турнірах та піднімайся в рейтингу!
 `;
-                // await перед showInfoModal, якщо ваша функція підтримує проміси (SweetAlert2 style)
-                // Якщо ні - вона просто покажеться, а код піде далі.
                 await showInfoModal({
-                    image: Config.IMAGES.training_info, // Або інша картинка фіналу
+                    image: Config.IMAGES.training_info,
                     text: msg
                 });
 
@@ -173,7 +171,21 @@ export const Main = ({ user, setUser }) => {
 
                     if (res.ok) {
                         const updatedUser = await res.json();
-                        setUser(updatedUser); // Оновлюємо стейт, модалка зникне, статус стане фінальним
+                        setUser(updatedUser);
+
+                        // 👇👇👇 ДОДАНО ВИКЛИК РЕФЕРАЛЬНОЇ НАГОРОДИ 👇👇👇
+                        try {
+                            // Викликаємо нагороду "у фоні", не блокуючи інтерфейс, якщо станеться помилка
+                            await fetch(`${API_BASE_URL}/users/${user.user_id}/trigger-referral-reward`, {
+                                method: 'POST'
+                            });
+                            console.log("Referral reward triggered successfully");
+                        } catch (refError) {
+                            // Логуємо помилку, але не зупиняємо роботу додатку,
+                            // бо користувач вже завершив реєстрацію
+                            console.error("Failed to trigger referral reward:", refError);
+                        }
+                        // 👆👆👆 КІНЕЦЬ ДОДАНОГО КОДУ 👆👆👆
                     }
                 } catch (e) {
                     console.error("Error finishing registration:", e);

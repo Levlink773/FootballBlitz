@@ -31,6 +31,13 @@ class STATUS_USER_REGISTER(EnumBase):
     HOME = "HOME"
 
 
+class BlitzActive(EnumBase):
+    ACTIVE = "ACTIVE"
+    SIMPLE = "SIMPLE"
+    WEAK = "WEAK"
+    DISABLED = "DISABLED"
+
+
 class UserBot(Base):
     __tablename__ = 'users'
 
@@ -46,6 +53,12 @@ class UserBot(Base):
     referal_user_id = Column(BigInteger, nullable=True)
     is_tg_mode = Column(Boolean, default=False)
     disable_spam = Column(Boolean, default=False)
+    blitz_mode: Mapped[BlitzActive] = mapped_column(
+        Enum(BlitzActive),
+        nullable=False,
+        default=BlitzActive.SIMPLE,
+        server_default=text("'SIMPLE'")
+    )
     count_of_training = Column(BigInteger, default=0)
     is_bot = Column(Boolean, default=False, nullable=False)
 
