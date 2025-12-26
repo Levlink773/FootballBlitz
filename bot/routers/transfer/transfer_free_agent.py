@@ -99,6 +99,7 @@ async def buy_free_agent(callback: types.CallbackQuery):
 
     buyer_id = callback.from_user.id
     char = transfer.character
+
     async for session in get_session():
         char: Character = await session.scalar(
             select(Character).where(Character.id == char.id).options(selectinload(Character.transfer))
@@ -112,38 +113,36 @@ async def buy_free_agent(callback: types.CallbackQuery):
                 selectinload(UserBot.main_character),
             )
         )
+
         if not buyer:
             await callback.answer("❌ Ви ще не зареєстровані у грі.", show_alert=True)
             return
 
-        # проверка денег
+        # 1. Перевірка грошей
         if buyer.money < transfer.price:
             await callback.answer("❌ У вас недостатньо монет.", show_alert=True)
             return
 
-        # проверка на максимальное количество игроков
-        if (not buyer.vip_pass_is_active and len(buyer.characters) >= 1) or (
-            buyer.vip_pass_is_active and len(buyer.characters) >= 2
-        ):
-            t = (
-                "⚠️ Ви вже досягли максимальної кількості гравців. 🧍‍♂️️ "
-                "Продайте одного з існуючих, щоб придбати нового."
+        # 2. НОВА ПЕРЕВІРКА: Ліміт 11 гравців
+        if len(buyer.characters) >= 11:
+            await callback.answer(
+                "⚠️ Ви досягли ліміту в 11 гравців! 🚫\nПродайте когось, щоб купити нового.",
+                show_alert=True
             )
-            await callback.answer(t, show_alert=True)
             return
 
-        # списываем деньги
+        # списати гроші
         buyer.money -= transfer.price
 
-        # назначаем нового владельца
+        # призначити нового власника
         char.characters_user_id = buyer.user_id
         session.add(char)
 
-        # удаляем из free_agents_market
+        # видалити з free_agents_market
         await session.delete(transfer)
         await session.commit()
 
-    # если нет главного игрока → назначаем
+    # якщо немає головного гравця → призначаємо
     await UserService.assign_main_character_if_none(buyer_id)
 
     text = (f"✅ Ви успішно купили гравця {char.name} "

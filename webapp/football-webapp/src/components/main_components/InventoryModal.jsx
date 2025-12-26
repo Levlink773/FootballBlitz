@@ -1,94 +1,56 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-// ✨ 1. ИМПОРТИРУЕМ ХУКИ ИЗ REACT-SPRING
 import {useSpring, animated} from 'react-spring';
 import styles from '../../css_files/main_css/InventoryModal.module.css';
 import Config from '../../config.js';
 import {motion, AnimatePresence} from 'framer-motion';
 import {showAlert} from '../../alertService.jsx';
 import {API_BASE_URL} from '../../api.js';
-import {ModalRoot} from "../modal_components/ModalComponents.jsx";
-import {Box as ModalBox} from '../modal_components/ModalComponents.jsx';
-import Img77 from '../../assets/public/img65.png';
+import {ModalRoot, Box as ModalBox} from "../modal_components/ModalComponents.jsx";
 import ReactCanvasConfetti from 'react-canvas-confetti';
 import boxOpenSound from '../../assets/public/sounds/lootbox.mp3';
+import AgeIconMini from '../mini_components.jsx';
 import Confetti from "react-confetti";
+import Img77 from '../../assets/public/img65.png';
 
-// --- SVG ИКОНКА (без изменений) ---
-const AgeIcon = ({className}) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" width="100%" height="100%"
-         style={{
-             shapeRendering: 'geometricPrecision',
-             textRendering: 'geometricPrecision',
-             imageRendering: 'optimizeQuality',
-             fillRule: 'evenodd',
-             clipRule: 'evenodd'
-         }}
-         viewBox="0 0 6.827 6.827">
-        <defs>
-            <style>{`.fil2{fill:#b38e85}.fil3{fill:#e7e9ee}.fil0{fill:#333;fill-rule:nonzero}`}</style>
-        </defs>
-        <g id="Layer_x0020_1">
-            <g id="_625017608">
-                <path id="_625017968" className="fil0"
-                      d="M1.596 3.364H5.23a.397.397 0 0 1 .398.398v1.41a.08.08 0 0 1-.08.08H1.278a.08.08 0 0 1-.08-.08v-1.41a.397.397 0 0 1 .398-.398zm3.635.16H1.596a.237.237 0 0 0-.238.238v1.33h4.11v-1.33a.237.237 0 0 0-.237-.238z"/>
-                <path id="_625017632" className="fil0"
-                      d="M1.013 5.441h4.8v-.189h-4.8v.189zm4.88.16H.933a.08.08 0 0 1-.08-.08v-.349a.08.08 0 0 1 .08-.08h4.96a.08.08 0 0 1 .08.08v.349a.08.08 0 0 1-.08-.08z"/>
-                <path id="_625018160" className="fil0"
-                      d="M2.052 2.005h2.723a.395.395 0 0 1 .396.397v1.042a.08.08 0 0 1-.08.08H1.735a.08.08 0 0 1-.08-.08V2.402a.395.395 0 0 1 .397-.397zm2.723.16H2.052a.236.236 0 0 0-.237.237v.962h3.196v-.962a.236.236 0 0 0-.236-.237z"/>
-                <path id="_625018112" className="fil0"
-                      d="M1.198 4.233a.08.08 0 0 0 .16 0v-.041a.224.224 0 0 1 .225-.225.225.225 0 0 1 .225.225v.081a.384.384 0 0 0 .657.272.384.384 0 0 0 .113-.272v-.081a.224.224 0 0 1 .225-.225.225.225 0 0 1 .225.225v.081a.384.384 0 0 0 .385.385.384.384 0 0 0 .385-.385v-.081a.224.224 0 0 1 .225-.225.225.225 0 0 1 .226.225v.081a.384.384 0 0 0 .385.385.384.384 0 0 0 .385-.385v-.081a.224.224 0 0 1 .225-.225.225.225 0 0 1 .225.225v.081a.08.08 0 0 0 .16 0v-.081a.384.384 0 0 0-.657-.272.384.384 0 0 0-.113.272v.081a.224.224 0 0 1-.225.225.225.225 0 0 1-.225-.225v-.081a.384.384 0 0 0-.386-.385.384.384 0 0 0-.385.385v.081a.224.224 0 0 1-.225.225.225.225 0 0 1-.225-.225v-.081a.384.384 0 0 0-.385-.385.384.384 0 0 0-.385.385v.081a.224.224 0 0 1-.225.225.225.225 0 0 1-.225-.225v-.081a.384.384 0 0 0-.657-.272.384.384 0 0 0-.113.272v.04z"/>
-                <path id="_625017560" className="fil0"
-                      d="M1.655 2.733a.08.08 0 0 0 .16 0v-.032a.16.16 0 0 1 .16-.16.159.159 0 0 1 .16.16v.064a.32.32 0 0 0 .32.32.319.319 0 0 0 .32-.32v-.064a.16.16 0 0 1 .159-.16.159.159 0 0 1 .16.16v.064a.319.319 0 0 0 .32.32.319.319 0 0 0 .319-.32v-.064a.16.16 0 0 1 .16-.16.159.159 0 0 1 .16.16v.064a.32.32 0 0 0 .639 0v-.064a.16.16 1 1 .32 0v.064a.08.08 0 0 0 .16 0v-.064a.32.32 0 0 0-.64 0v.064a.16.16 1 1-.32 0v-.064a.32.32 0 0 0-.32-.32.319.319 0 0 0-.319.32v.064a.16.16 0 0 1-.16.16.159.159 0 0 1-.16-.16v-.064a.32.32 0 0 0-.32-.32.319.319 0 0 0-.319.32v.064a.16.16 0 0 1-.16.16.159.159 0 0 1-.16-.16v-.064a.32.32 0 0 0-.319-.32.319.319 0 0 0-.32.32v.032z"/>
-                <path id="_625017728" className="fil0"
-                      d="M3.8 1.403a.512.512 0 0 1-.022.563.496.496 0 0 1-.307.192.437.437 0 0 1-.343-.079.438.438 0 0 1-.172-.307.495.495 0 0 1 .623-.529.08.08 0 0 1 .057.066c.005.025.01.041.02.048.01.007.03.01.065.005a.08.08 0 0 1 .08.041zm-.087.279a.365.365 0 0 0-.029-.158.209.209 0 0 1-.124-.04.197.197 0 0 1-.068-.096.335.335 0 0 0-.377.368.279.279 0 0 0 .109.196.28.28 0 0 0 .219.049.332.332 0 0 0 .27-.32z"/>
-            </g>
-            <path
-                d="M3.713 1.682a.365.365 0 0 0-.029-.158.209.209 0 0 1-.124-.04.197.197 0 0 1-.068-.096.335.335 0 0 0-.377.368.272.272 0 0 0 .26.25h.028a.336.336 0 0 0 .248-.135.332.332 0 0 0 .062-.19z"
-                style={{fill: '#f45a52'}}/>
-            <path className="fil2"
-                  d="M4.775 2.165H2.052a.236.236 0 0 0-.237.237v.023a.316.316 0 0 1 .386.05.32.32 0 0 1 .094.226v.064a.16.16 0 1 0 .32 0v-.064a.32.32 0 0 1 .639 0v.064a.16.16 0 1 0 .319 0v-.064a.32.32 0 0 1 .64 0v.064a.16.16 0 1 0 .319 0v-.064a.32.32 0 0 1 .48-.276v-.023a.236.236 0 0 0-.237-.237z"/>
-            <path className="fil3"
-                  d="M3.187 2.991a.319.319 0 0 1-.093-.226v-.064a.16.16 0 1 0-.32 0v.064a.319.319 0 0 1-.64 0v-.064a.16.16 0 0 0-.319 0v.662h3.196V2.702a.16.16 0 1 0-.32 0v.064a.32.32 0 0 1-.639 0v-.064a.16.16 0 1 0-.319 0v.064a.32.32 0 0 1-.546.226z"/>
-            <path className="fil2"
-                  d="M5.091 3.524H1.595a.237.237 0 0 0-.237.238v.118a.382.382 0 0 1 .497.04c.07.07.113.166.113.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .657-.272c.07.07.113.166.113.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .657-.272c.07.07.114.166.114.272v.081a.224.224 0 0 0 .225.225.225.225 0 0 0 .225-.225v-.081a.384.384 0 0 1 .61-.312v-.118a.237.237 0 0 0-.238-.238h-.14z"/>
-            <path classNameclassName="fil3"
-                  d="M3.142 4.545a.384.384 0 0 1-.114-.272v-.081a.224.224 0 0 0-.225-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.657.272.384.384 0 0 1-.113-.272v-.081a.224.224 0 0 0-.225-.225.225.225 0 0 0-.225.224v.901h4.11V4.192a.224.224 0 0 0-.224-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.657.272.384.384 0 0 1-.113-.272v-.081a.224.224 0 0 0-.226-.225.225.225 0 0 0-.225.225v.081a.384.384 0 0 1-.656.272z"/>
-            <path style={{fill: '#949494'}} d="M5.549 5.253H1.013v.188h4.8v-.188z"/>
-        </g>
-        <path style={{fill: 'none'}} d="M0 0h6.827v6.827H0z"/>
-    </svg>
-);
+// =========================================================
+// 🛠️ ЗАГАЛЬНІ КОМПОНЕНТИ ТА УТИЛІТИ
+// =========================================================
 
 const HeaderBar = ({title}) => (
     <h2 style={{textAlign: 'center', margin: '0 0 16px', fontSize: 20, fontWeight: 700}}>{title}</h2>
 );
-const SecondaryButton = ({onClick, children}) => (
+
+const SecondaryButton = ({onClick, children, style={}}) => (
     <button onClick={onClick} style={{
-        padding: '10px 16px',
-        borderRadius: 10,
-        border: '1px solid #555',
-        background: '#333',
-        color: 'white',
-        cursor: 'pointer'
+        padding: '8px 12px', borderRadius: 8, border: '1px solid #555', background: '#333', color: 'white', cursor: 'pointer', ...style
     }}>{children}</button>
 );
-const GradientButton = ({onClick, children, style = {}}) => (
-    <button onClick={onClick} style={{
-        padding: '10px 20px',
-        borderRadius: 10,
-        border: 'none',
-        background: 'linear-gradient(90deg, #007BFF, #00C6FF)',
-        color: 'white',
-        fontWeight: 'bold',
-        cursor: 'pointer', ...style
-    }}>{children}</button>
+
+const StatDisplay = ({iconNode, iconSrc, value, label}) => (
+    <div className={styles.statItem}>
+        {iconNode || <img src={iconSrc} alt={label} className={styles.statIcon}/>}
+        <div className={styles.statInfo}>
+            <span className={styles.statValue}>{value}</span>
+            <span className={styles.statLabel}>{label}</span>
+        </div>
+    </div>
 );
-// --- API-ХЕЛПЕРЫ (без изменений) ---
+
+const EquipmentSlot = ({imgSrc, altText, label}) => (
+    <div className={styles.equipmentSlot} title={label}>
+        <img src={imgSrc} alt={altText} className={styles.equipmentImage}/>
+    </div>
+);
+
+const AnimatedNumber = ({value}) => {
+    const {number} = useSpring({ from: {number: 0}, number: value, config: {mass: 1, tension: 20, friction: 10} });
+    return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
+};
+
+// --- API ---
 const openLootBoxAPI = async (userId, boxType) => {
     const response = await fetch(`${API_BASE_URL}/users/${userId}/open-box`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({box_type: boxType})
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({box_type: boxType})
     });
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({detail: 'Unknown error'}));
@@ -97,123 +59,268 @@ const openLootBoxAPI = async (userId, boxType) => {
     return response.json();
 };
 const fetchAllCharactersAPI = (userId) => fetch(`${API_BASE_URL}/users/${userId}/all`);
+const fetchReferralCountAPI = (userId) => fetch(`${API_BASE_URL}/users/${userId}/count_of_ref`);
 const setMainCharacterAPI = (userId, characterId) => fetch(`${API_BASE_URL}/users/${userId}/set-main`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({character_id: characterId})
+    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({character_id: characterId})
 });
 
-// --- МАЛІ, ПЕРЕВИКОРИСТОВУВАНІ КОМПОНЕНТИ (без изменений) ---
-const StatDisplay = ({iconNode, iconSrc, value, label}) => (
-    <div className={styles.statItem}>{iconNode || <img src={iconSrc} alt={label} className={styles.statIcon}/>}
-        <div className={styles.statInfo}><span className={styles.statValue}>{value}</span><span
-            className={styles.statLabel}>{label}</span></div>
-    </div>
-);
-const EquipmentSlot = ({imgSrc, altText, label}) => (
-    <div className={styles.equipmentSlot} title={label}><img src={imgSrc} alt={altText}
-                                                             className={styles.equipmentImage}/></div>
-);
-const InventorySlot = ({item, onOpen, isOpening}) => {
-    const isLootBox = item && item.type && item.image && item.name;
-    if (!isLootBox) return <div className={styles.inventorySlot}/>;
-    const {type, count, image, name} = item;
-    const canOpen = count > 0 && !isOpening;
-    const slotClasses = `${styles.inventorySlot} ${canOpen ? styles.clickable : ''} ${isOpening ? styles.disabled : ''}`;
-    return (<div className={slotClasses} onClick={() => canOpen && onOpen(type, image)}
-                 title={canOpen ? `Відкрити ${name}` : (isOpening ? 'Зачекайте...' : 'У вас немає цих боксів')}>{<img
-        src={image} alt={name} className={styles.itemImage}/>}{count > 0 &&
-        <span className={styles.itemCount}>x{count}</span>}</div>);
+// 🔥 API ДЛЯ ЗБЕРЕЖЕННЯ СКЛАДУ
+const saveSquadAPI = (userId, squadMap) => {
+    const payload = {
+        gk: squadMap.gk.map(p => p ? p.id : null),
+        def: squadMap.def.map(p => p ? p.id : null),
+        mid: squadMap.mid.map(p => p ? p.id : null),
+        att: squadMap.att.map(p => p ? p.id : null)
+    };
+    return fetch(`${API_BASE_URL}/users/${userId}/save-squad`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+    });
 };
 
-// --- ВЕЛИКІ ЛОГІЧНІ БЛОКИ (без изменений) ---
+// --- HEADER З РЕСУРСАМИ ---
 const UserResources = ({user, onOpenReferral}) => (
     <div className={styles.resourcesBar}>
         <StatDisplay iconSrc={Config.IMAGES.coin} value={user.money ?? 0} label="Монети"/>
-
-        <motion.button
-            className={styles.referralButton}
-            onClick={onOpenReferral}
-            title="Запросити друзів (+бонуси)"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-        >
-            {/* Додаємо зображення персонажа */}
-            <img
-                src={Config.IMAGES.referal_character}
-                alt="Referral character icon"
-                style={{ width: '30px', height: '30px', marginRight: '4px' }}
-            />
-            +
+        <motion.button className={styles.referralButton} onClick={onOpenReferral} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <img src={Config.IMAGES.referal_character} alt="Ref" style={{ width: '24px', height: '24px', marginRight: '4px' }} /> +
         </motion.button>
-
         <StatDisplay iconSrc={Config.IMAGES.energy} value={user.energy ?? 0} label="Енергія"/>
     </div>
 );
 
-const CharacterHub = ({
-                          user,
-                          allCharacters,
-                          currentIndex,
-                          onPrev,
-                          onNext,
-                          onSetMain,
-                          isSettingMain,
-                          isMainCharacter
-                      }) => {
-    const displayedCharacter = allCharacters[currentIndex];
-    if (!displayedCharacter) return null;
-    return (<div className={styles.characterHub}>
-        <div className={styles.characterSwitcher}>
-            <button onClick={onPrev} className={styles.switchButton} disabled={allCharacters.length <= 1}>‹</button>
-            <div className={styles.characterDisplayWrapper}>
-                <div className={styles.equipmentColumn}><EquipmentSlot imgSrc={Config.IMAGES.tshirt} altText="Футболка"
-                                                                       label="Футболка"/><EquipmentSlot
-                    imgSrc={Config.IMAGES.shorts} altText="Шорти" label="Шорти"/></div>
-                <div className={styles.characterDisplay}><AnimatePresence mode="wait">
-                    <motion.div key={currentIndex} initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}}
-                                exit={{opacity: 0, scale: 0.9}} transition={{duration: 0.2}}><img
-                        src={isMainCharacter ? Img77 : Config.IMAGES.avatar_uk} alt={displayedCharacter.name}
-                        className={styles.characterImage}/></motion.div>
-                </AnimatePresence><h3 className={styles.characterName}>{displayedCharacter.name}</h3><p
-                    className={styles.characterTeam}>{user.team_name}</p></div>
-                <div className={styles.equipmentColumn}><EquipmentSlot imgSrc={Config.IMAGES.gaiters} altText="Гетри"
-                                                                       label="Гетри"/><EquipmentSlot
-                    imgSrc={Config.IMAGES.boots} altText="Бутси" label="Бутси"/></div>
-            </div>
-            <button onClick={onNext} className={styles.switchButton} disabled={allCharacters.length <= 1}>›</button>
-        </div>
-        <div className={styles.characterStatsGrid}><StatDisplay iconSrc={Config.IMAGES.arm}
-                                                                value={Math.round(displayedCharacter.power)}
-                                                                label="Сила"/><StatDisplay
-            iconSrc={Config.IMAGES.target} value={displayedCharacter.talent} label="Талант"/><StatDisplay
-            iconNode={<AgeIcon className={styles.statIcon}/>} value={displayedCharacter.age} label="Вік"/></div>
-        {!isMainCharacter && (<button onClick={onSetMain} className={styles.makeMainButton}
-                                      disabled={isSettingMain}>{isSettingMain ? 'Зберігаємо...' : '🌟 Зробити основним'}</button>)}
-    </div>);
+// =========================================================
+// 🏟️ 1. КОМПОНЕНТИ ПОЛЯ ТА ЛАВКИ
+// =========================================================
+
+// Слот на полі
+const PitchSlot = ({ player, onClick, positionLabel, isEmpty, isSelected }) => {
+    return (
+        <motion.div
+            className={`
+                ${styles.playerSlot} 
+                ${isEmpty ? styles.empty : ''} 
+                ${isSelected ? styles.selected : ''}
+            `}
+            onClick={onClick}
+            whileTap={{ scale: 0.95 }}
+            animate={isSelected ? { scale: 1.15, borderColor: '#00ff88', boxShadow: '0 0 15px rgba(0, 255, 136, 0.5)' } : {}}
+        >
+            {player ? (
+                <>
+                    <div className={styles.slotPositionBadge}>{positionLabel}</div>
+                    <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.playerIconImg} />
+                    <span className={styles.playerNameMini}>{player.name}</span>
+                    <div className={styles.slotRating}>{Math.round(player.power)}</div>
+                </>
+            ) : (
+                <span className={styles.emptySlotLabel}>{positionLabel}</span>
+            )}
+        </motion.div>
+    );
 };
-const InventorySection = ({items, onOpenBox, isOpening}) => (
-    <div className={styles.inventorySection}>
-        <div className={styles.inventoryGrid}>{items.map((item, index) => (
-            <InventorySlot key={item.type || `empty-${index}`} item={item} onOpen={onOpenBox}
-                           isOpening={isOpening}/>))}</div>
+
+// Лавка запасних (горизонтальний скрол)
+const Bench = ({ players, onSelect, selectedPlayerId }) => {
+    return (
+        <div className={styles.benchContainer}>
+            <div className={styles.sectionTitle}>Лавка запасних ({players.length})</div>
+            <div className={styles.benchScroll}>
+                {players.map(player => (
+                    <motion.div
+                        key={player.id}
+                        className={`${styles.benchSlot} ${selectedPlayerId === player.id ? styles.selected : ''}`}
+                        onClick={() => onSelect(player)}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.benchImage} />
+                        <div className={styles.benchInfo}>
+                            <span className={styles.benchPos}>{player.position ? player.position.substring(0,3) : 'UNK'}</span>
+                            <span className={styles.benchOvr}>{Math.round(player.power)}</span>
+                        </div>
+                    </motion.div>
+                ))}
+                {players.length === 0 && <div className={styles.emptyBenchMsg}>Лавка порожня</div>}
+            </div>
+        </div>
+    );
+};
+
+// Компонент Поля
+const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
+    const isSelected = (sec, idx) => selectedSlot && selectedSlot.type === 'field' && selectedSlot.section === sec && selectedSlot.index === idx;
+
+    return (
+        <div className={styles.squadContainer}>
+            <div className={styles.pitch}>
+                {/* ATTACK */}
+                <div className={styles.pitchRow}>
+                    <span className={styles.pitchLabel}>FWD</span>
+                    {squadData.att.map((p, i) => (
+                        <PitchSlot key={`att-${i}`} player={p} positionLabel="FWD" isSelected={isSelected('att', i)}
+                                   onClick={() => onSlotClick('field', { section: 'att', index: i, player: p })} />
+                    ))}
+                </div>
+                {/* MIDFIELD */}
+                <div className={styles.pitchRow}>
+                    <span className={styles.pitchLabel}>MID</span>
+                    {squadData.mid.map((p, i) => (
+                        <PitchSlot key={`mid-${i}`} player={p} positionLabel="MID" isSelected={isSelected('mid', i)}
+                                   onClick={() => onSlotClick('field', { section: 'mid', index: i, player: p })} />
+                    ))}
+                </div>
+                {/* DEFENSE */}
+                <div className={styles.pitchRow}>
+                    <span className={styles.pitchLabel}>DEF</span>
+                    {squadData.def.map((p, i) => (
+                        <PitchSlot key={`def-${i}`} player={p} positionLabel="DEF" isSelected={isSelected('def', i)}
+                                   onClick={() => onSlotClick('field', { section: 'def', index: i, player: p })} />
+                    ))}
+                </div>
+                {/* GOALKEEPER */}
+                <div className={styles.pitchRow}>
+                    <span className={styles.pitchLabel}>GK</span>
+                    <PitchSlot player={squadData.gk[0]} positionLabel="GK" isSelected={isSelected('gk', 0)}
+                               onClick={() => onSlotClick('field', { section: 'gk', index: 0, player: squadData.gk[0] })} />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// =========================================================
+// 👤 2. КОМПОНЕНТ ДЕТАЛЕЙ ГРАВЦЯ
+// =========================================================
+
+// Всередині InventoryModal.jsx
+
+const PlayerDetailView = ({ character, onClose, isMain }) => {
+    if (!character) return null;
+
+    // Мапінг позицій
+    const posMap = { 'GOALKEEPER': 'ВОРОТАР', 'DEFENDER': 'ЗАХИСНИК', 'MIDFIELDER': 'ПІВЗАХИСНИК', 'ATTACKER': 'НАПАДНИК' };
+    const positionLabel = posMap[character.position] || character.position || "ГРАВЕЦЬ";
+
+    return (
+        <motion.div
+            className={styles.detailContainer}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+            {/* 1. Header */}
+            <div className={styles.detailHeader}>
+                <button className={styles.backButton} onClick={onClose}>
+                    ‹ Команда
+                </button>
+                <div className={styles.detailPositionBadge}>
+                    {positionLabel}
+                </div>
+            </div>
+
+            {/* 2. Hero Section (Avatar + Equipment) */}
+            <div className={styles.heroSection}>
+                {/* Left Equips */}
+                <div className={styles.equipColumn}>
+                    <div className={styles.equipSlot} title="Футболка">
+                        <img src={Config.IMAGES.tshirt} alt="Shirt" className={styles.equipImage}/>
+                    </div>
+                    <div className={styles.equipSlot} title="Шорти">
+                        <img src={Config.IMAGES.shorts} alt="Shorts" className={styles.equipImage}/>
+                    </div>
+                </div>
+
+                {/* Center Avatar */}
+                <div className={styles.avatarContainer}>
+                    <div className={styles.avatarGlow}></div>
+                    <img
+                        src={isMain ? Img77 : Config.IMAGES.avatar_uk}
+                        alt={character.name}
+                        className={styles.avatarImg}
+                    />
+                    <div className={styles.charInfo}>
+                        <h3 className={styles.charName}>{character.name}</h3>
+                        <p className={styles.charTeam}>{character.country || "Команда"}</p>
+                    </div>
+                </div>
+
+                {/* Right Equips */}
+                <div className={styles.equipColumn}>
+                    <div className={styles.equipSlot} title="Гетри">
+                        <img src={Config.IMAGES.gaiters} alt="Gaiters" className={styles.equipImage}/>
+                    </div>
+                    <div className={styles.equipSlot} title="Бутси">
+                        <img src={Config.IMAGES.boots} alt="Boots" className={styles.equipImage}/>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. Stats Section */}
+            <div className={styles.statsContainer}>
+                <div className={styles.statCard}>
+                    <img src={Config.IMAGES.arm} alt="Power" style={{width: 20, marginBottom: 4}}/>
+                    <span className={styles.statVal}>{Math.round(character.power)}</span>
+                    <span className={styles.statLbl}>Сила</span>
+                </div>
+                <div className={styles.statCard}>
+                    <img src={Config.IMAGES.target} alt="Talent" style={{width: 20, marginBottom: 4}}/>
+                    <span className={styles.statVal}>{character.talent}</span>
+                    <span className={styles.statLbl}>Талант</span>
+                </div>
+                <div className={styles.statCard}>
+                    {/* Передаємо size={20} щоб зменшити іконку тортика */}
+                    <AgeIconMini size={20} style={{marginBottom: 4}}/>
+                    <span className={styles.statVal}>{character.age}</span>
+                    <span className={styles.statLbl}>Вік</span>
+                </div>
+            </div>
+
+            {/* 4. Footer Slots */}
+            <div className={styles.slotsSection}>
+                <div className={styles.slotsTitle}>Слоти гравця</div>
+                <div className={styles.slotsGrid}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <motion.div
+                            key={i}
+                            className={styles.emptyFeatureSlot}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            title="Пустий слот"
+                        >
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// =========================================================
+// 📦 3. ЗАГАЛЬНИЙ ІНВЕНТАР (Лутбокси)
+// =========================================================
+const GeneralInventory = ({ lootBoxes, onOpenBox, isOpening }) => (
+    <div className={styles.benchSection} style={{position: 'relative', top: -24}}>
+        <div className={styles.divider}></div>
+        <div className={styles.sectionTitle}>Інвентар клубу</div>
+        <div className={styles.inventoryGrid}>
+            {lootBoxes.map((box, i) => (
+                <div key={`box-${i}`}
+                     className={`${styles.inventorySlot} ${styles.clickable} ${isOpening ? styles.disabled : ''}`}
+                     onClick={() => !isOpening && onOpenBox(box.type, box.image)}
+                     title={box.name}
+                >
+                    <img src={box.image} alt={box.name} className={styles.itemImage}/>
+                    <span className={styles.itemCount}>x{box.count}</span>
+                </div>
+            ))}
+            {Array.from({length: Math.max(0, 5 - lootBoxes.length)}).map((_, i) => (
+                <div key={`empty-${i}`} className={styles.inventorySlot} style={{opacity: 0.2}}/>
+            ))}
+        </div>
     </div>
 );
 
-// --- ВАРИАНТЫ АНИМАЦИЙ ДЛЯ FRAMER MOTION (без изменений) ---
-const rewardContainerVariants = {
-    hidden: {opacity: 0},
-    visible: {opacity: 1, transition: {staggerChildren: 0.25, delayChildren: 0.2}},
-};
-const rewardItemVariants = {
-    hidden: {opacity: 0, y: 50, scale: 0.8},
-    visible: {opacity: 1, y: 0, scale: 1, transition: {type: 'spring', stiffness: 120, damping: 12}},
-};
-const fetchReferralCountAPI = (userId) => fetch(`${API_BASE_URL}/users/${userId}/count_of_ref`);
-
-// ✨--- НОВИЙ КОМПОНЕНТ "ВИДУ" ДЛЯ РЕФЕРАЛІВ ---✨
-// (Це, по суті, вміст ReferralModal, але без <Box>)
+// --- РЕФЕРАЛИ ---
 const ReferralView = ({user, onBack}) => {
     const [referralCount, setReferralCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -221,395 +328,314 @@ const ReferralView = ({user, onBack}) => {
     const referralLink = `https://t.me/football_blitz_bot?start=ref_${user?.user_id}`;
 
     useEffect(() => {
-        if (!user?.user_id) {
-            setIsLoading(false);
-            return;
-        }
+        if (!user?.user_id) return;
         setIsLoading(true);
         fetchReferralCountAPI(user.user_id)
-            .then(res => res.json())
-            .then(data => setReferralCount(data.count || 0))
-            .catch(err => console.error("Failed to fetch referral count:", err))
+            .then(res => res.json()).then(data => setReferralCount(data.count || 0))
             .finally(() => setIsLoading(false));
     }, [user?.user_id]);
 
-    function handleCopy() {
+    const handleCopy = () => {
         navigator.clipboard.writeText(referralLink).then(() => {
-            setIsCopied(true);
-            showAlert("Посилання скопійовано!", "success");
-            setTimeout(() => setIsCopied(false), 2000);
-        }).catch(err => {
-            showAlert("Помилка копіювання.", "error");
+            setIsCopied(true); setTimeout(() => setIsCopied(false), 2000);
         });
-    }
-
-    // Стилі (адаптовані для вбудовування)
-    const bonusBoxStyle = {
-        background: 'var(--surface-highlight)',
-        border: '1px solid var(--surface-border)',
-        borderRadius: 12,
-        padding: "12px 8px",
-        margin: "16px 0",
-        fontSize: 18,
-        fontWeight: 700,
-        lineHeight: 1.4,
-        textAlign: 'center',
-        boxShadow: "0 4px 12px var(--shadow-color)"
-    };
-    const linkDisplayStyle = {
-        padding: "12px 16px",
-        borderRadius: 10,
-        border: "1px solid var(--surface-border)",
-        background: "rgba(0,0,0,0.2)",
-        color: "var(--text-primary)",
-        width: "100%",
-        boxSizing: "border-box",
-        fontSize: 14,
-        fontWeight: 500,
-        textAlign: 'center',
-        wordBreak: 'break-all',
-        marginBottom: 12
-    };
-    const statsStyle = {
-        fontSize: 16,
-        color: "var(--text-secondary)",
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '2px 31px'
     };
 
     return (
         <div style={{padding: 16, maxWidth: 460, margin: '0 auto'}}>
             <HeaderBar title="🌀 Реферальна система"/>
             <div style={{padding: "8px 8px 0"}}>
-                <p style={{textAlign: 'center', fontSize: 16, margin: '0 0 16px', color: 'var(--text-primary)'}}>
-                    Запрошуй друзів та отримуй цінні бонуси! 🎉
-                </p>
-                <motion.div style={bonusBoxStyle} initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}}>
+                <div style={{background: 'var(--surface-highlight)', border: '1px solid var(--surface-border)', borderRadius: 12, padding: "12px", margin: "16px 0", textAlign: 'center'}}>
                     🔋 <strong>300 енергії</strong> та 💰 <strong>300 монет</strong>
-                </motion.div>
-                <div style={{marginTop: 20, marginBottom: 20}}>
-                    <div style={statsStyle}>
-                        <span>👥 Твої реферали:</span>
-                        <span style={{color: 'var(--text-primary)', fontWeight: 700, fontSize: 18}}>
-                            {isLoading ? "..." : referralCount}
-                        </span>
-                    </div>
                 </div>
-                <div>
-                    <div style={{fontSize: 14, color: "var(--text-secondary)", marginBottom: 10, textAlign: 'center'}}>
-                        🎯 Твоє реферальне посилання:
-                    </div>
-                    <div style={linkDisplayStyle}>{referralLink}</div>
+                <div style={{margin: '20px 0', display: 'flex', justifyContent: 'space-between', padding: '0 10px'}}>
+                    <span>👥 Твої реферали:</span>
+                    <strong>{isLoading ? "..." : referralCount}</strong>
                 </div>
-                <div
-                    style={{display: "flex", gap: 10, justifyContent: "flex-end", alignItems: 'center', marginTop: 24}}>
-                    {/* КНОПКА "НАЗАД" - використовує той самий обробник, що і "Х" */}
+                <div style={{padding: 10, background: "rgba(0,0,0,0.2)", borderRadius: 8, wordBreak: 'break-all', textAlign: 'center', fontSize: 14}}>
+                    {referralLink}
+                </div>
+                <div style={{display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24}}>
                     <SecondaryButton onClick={onBack}>Назад</SecondaryButton>
-                    <GradientButton onClick={handleCopy} style={{minWidth: 160}}>
-                        {isCopied ? "Скопійовано!" : "Копіювати"}
-                    </GradientButton>
+                    <GradientButton onClick={handleCopy}>{isCopied ? "Скопійовано!" : "Копіювати"}</GradientButton>
                 </div>
             </div>
         </div>
     );
 };
-// --- ✨ 2. НОВЫЙ КОМПОНЕНТ ДЛЯ АНИМАЦИИ ЧИСЕЛ ---
-const AnimatedNumber = ({value}) => {
-    const {number} = useSpring({
-        from: {number: 0},
-        number: value,
-        delay: 0, // небольшая задержка перед началом счета
-        config: {mass: 2, tension: 12, friction: 10},
-    });
 
-    return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
-};
-
-// --- ГОЛОВНИЙ КОМПОНЕНТ МОДАЛЬНОГО ВІКНА ---
+// =========================================================
+// 🚀 ГОЛОВНИЙ КОМПОНЕНТ
+// =========================================================
 export const InventoryModal = ({user, onClose, onUserUpdate}) => {
-    // ... все стейты остаются без изменений
+    const [currentView, setCurrentView] = useState('squad');
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Дані
+    const [allCharacters, setAllCharacters] = useState([]);
+    const [squadMap, setSquadMap] = useState({ gk: [null], def: [null,null,null,null], mid: [null,null,null,null], att: [null,null,null,null] });
+    const [benchPlayers, setBenchPlayers] = useState([]);
+
+    // Взаємодія { type: 'field'|'bench', section?, index?, player }
+    const [selection, setSelection] = useState(null);
+    const [selectedCharacter, setSelectedCharacter] = useState(null); // Для деталей
+
+    // Логіка Боксів
     const [isOpening, setIsOpening] = useState(false);
     const [rewards, setRewards] = useState(null);
     const [openedBoxImage, setOpenedBoxImage] = useState(null);
-    const [allCharacters, setAllCharacters] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSettingMain, setIsSettingMain] = useState(false);
     const [animationPhase, setAnimationPhase] = useState('idle');
-
-    // ... вся логика хуков и обработчиков остается без изменений
-    const refAnimationInstance = useRef(null);
-    const getInstance = useCallback((instance) => {
-        refAnimationInstance.current = instance;
-    }, []);
-    const makeShot = useCallback((particleRatio, opts) => {
-        refAnimationInstance.current && refAnimationInstance.current({
-            ...opts,
-            origin: {y: 0.6},
-            particleCount: Math.floor(200 * particleRatio),
-        });
-    }, []);
-    const fireConfetti = useCallback(() => {
-        makeShot(0.25, {spread: 26, startVelocity: 55});
-        makeShot(0.2, {spread: 60});
-        makeShot(0.35, {spread: 100, decay: 0.91, scalar: 0.8});
-        makeShot(0.1, {spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2});
-        makeShot(0.1, {spread: 120, startVelocity: 45});
-    }, [makeShot]);
     const [showConfettiHappy, setShowConfettiHappy] = useState(false);
-    const [windowSize, setWindowSize] = useState({width: window.innerWidth, height: window.innerHeight});
+    const [isSettingMain, setIsSettingMain] = useState(false);
 
-    const [currentView, setCurrentView] = useState('inventory');
-    // ✨--- ЛОГІКА ПЕРЕМИКАННЯ ВИДУ ---✨
-
-    // ✨ 4. ДОДАЄМО НОВИЙ СТЕЙТ ДЛЯ РЕФЕРАЛЬНОГО ВІКНА
-    const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
-    useEffect(() => {
-        const handleResize = () => {
-            setWindowSize({width: window.innerWidth, height: window.innerHeight});
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+    // Confetti
+    const refAnimationInstance = useRef(null);
+    const getInstance = useCallback((instance) => { refAnimationInstance.current = instance; }, []);
+    const fireConfetti = useCallback(() => {
+        if(refAnimationInstance.current) refAnimationInstance.current({ origin: {y: 0.6}, particleCount: 100, spread: 70 });
     }, []);
 
+    // 1. INIT
     useEffect(() => {
-        const loadCharacters = async () => {
+        const loadData = async () => {
             setIsLoading(true);
             try {
-                const response = await fetchAllCharactersAPI(user.user_id);
-                if (!response.ok) throw new Error('Не вдалося завантажити персонажів.');
-                const data = await response.json();
-                setAllCharacters(data || []);
-                const mainCharIndex = data ? data.findIndex(c => c.id === user.main_character_id) : -1;
-                setCurrentIndex(mainCharIndex >= 0 ? mainCharIndex : 0);
-            } catch (error) {
-                showAlert(error.message);
-            } finally {
-                setIsLoading(false);
+                const res = await fetchAllCharactersAPI(user.user_id);
+                if(res.ok) {
+                    const chars = await res.json();
+                    setAllCharacters(chars || []);
+                    initializeSquad(chars || []);
+                }
+            } catch(e) { console.error(e); }
+            finally { setIsLoading(false); }
+        };
+        loadData();
+    }, [user.user_id]);
+
+    // 2. INITIALIZE SQUAD (SMART or SAVED)
+    // 2. INITIALIZE SQUAD (SMART or SAVED)
+    // 2. INITIALIZE SQUAD (SMART or SAVED)
+    const initializeSquad = (chars) => {
+        const hasSavedPos = chars.some(c => c.squad_position);
+
+        if (hasSavedPos) {
+            // ВІДНОВЛЕННЯ ЗБЕРЕЖЕНОЇ СХЕМИ
+            // Створюємо порожню схему з NULL
+            const newSquad = {
+                gk: [null],
+                def: [null, null, null, null],
+                mid: [null, null, null, null],
+                att: [null, null, null, null]
+            };
+            const usedIds = new Set();
+
+            // 1. Спочатку розставляємо тих, хто має позицію
+            chars.forEach(c => {
+                if (c.squad_position) {
+                    const [sec, idxStr] = c.squad_position.split('_'); // "def_1"
+                    const idx = parseInt(idxStr, 10);
+
+                    // Перевіряємо, чи існує така секція і індекс
+                    if (newSquad[sec] && idx >= 0 && idx < newSquad[sec].length) {
+                        newSquad[sec][idx] = c; // Ставимо гравця в КОНКРЕТНИЙ слот
+                        usedIds.add(c.id);
+                    }
+                }
+            });
+
+            // 2. Решта йде на лавку
+            const bench = chars.filter(c => !usedIds.has(c.id));
+            // Лавку можна сортувати по силі, це ок
+            bench.sort((a, b) => b.power - a.power);
+
+            setSquadMap(newSquad);
+            setBenchPlayers(bench);
+
+        } else {
+            // ПЕРШИЙ ЗАПУСК - РОЗУМНЕ СОРТУВАННЯ
+            smartAutoFillSquad(chars);
+        }
+    };
+
+    const smartAutoFillSquad = (chars) => {
+        // Сортуємо всіх доступних гравців за силою
+        const sortedChars = [...chars].sort((a, b) => b.power - a.power);
+
+        const newSquad = {
+            gk: [null],
+            def: [null,null,null,null],
+            mid: [null,null,null,null],
+            att: [null,null,null,null]
+        };
+        const usedIds = new Set();
+
+        // Helper для заповнення лінії
+        const fillLine = (posName, sec, limit) => {
+            // Знаходимо кандидатів на цю позицію, які ще не використані
+            const candidates = sortedChars.filter(c => c.position === posName && !usedIds.has(c.id));
+
+            // Заповнюємо слоти зліва направо (0, 1, 2...)
+            for (let i = 0; i < limit && i < candidates.length; i++) {
+                newSquad[sec][i] = candidates[i];
+                usedIds.add(candidates[i].id);
             }
         };
-        loadCharacters();
-    }, [user.user_id, user.main_character_id]);
 
-    const handleNext = () => {
-        if (!allCharacters.length) return;
-        setCurrentIndex((prev) => (prev + 1) % allCharacters.length);
-    };
-    const handlePrev = () => {
-        if (!allCharacters.length) return;
-        setCurrentIndex((prev) => (prev - 1 + allCharacters.length) % allCharacters.length);
+        fillLine('GOALKEEPER', 'gk', 1);
+        fillLine('DEFENDER', 'def', 4);
+        fillLine('MIDFIELDER', 'mid', 4);
+        fillLine('ATTACKER', 'att', 4);
+
+        // Якщо залишились гравці, вони йдуть на лавку
+        const bench = sortedChars.filter(c => !usedIds.has(c.id));
+
+        setSquadMap(newSquad);
+        setBenchPlayers(bench);
+
+        // Зберігаємо цю авто-розстановку, щоб вона стала "збереженою"
+        saveSquadAPI(user.user_id, newSquad).catch(console.error);
     };
 
-    const handleSetMain = async () => {
-        const displayedCharacter = allCharacters[currentIndex];
-        if (!displayedCharacter) return;
+    // 3. INTERACTION (SWAP / SELECT / DETAIL)
+    const handleInteraction = (type, payload) => {
+        if (!selection) {
+            if (payload.player || type === 'field') setSelection({ type, ...payload });
+            return;
+        }
+
+        const isSame = (type === 'field' && selection.type === 'field' && selection.section === payload.section && selection.index === payload.index) ||
+            (type === 'bench' && selection.type === 'bench' && selection.player?.id === payload.player?.id);
+
+        if (isSame) {
+            if (payload.player) {
+                setSelection(null);
+                setSelectedCharacter(payload.player);
+                setCurrentView('detail');
+            } else {
+                setSelection(null);
+            }
+            return;
+        }
+
+        // SWAP
+        performSwap(selection, { type, ...payload });
+    };
+
+    const performSwap = (source, target) => {
+        const newSquad = { ...squadMap };
+        const newBench = [...benchPlayers];
+
+        const getPlayer = (loc) => loc.type === 'bench' ? loc.player : newSquad[loc.section][loc.index];
+        const p1 = getPlayer(source);
+        const p2 = getPlayer(target);
+
+        if (source.type === 'field' && target.type === 'field') {
+            newSquad[source.section][source.index] = p2;
+            newSquad[target.section][target.index] = p1;
+        } else {
+            // Field <-> Bench
+            if (source.type === 'bench') {
+                const idx = newBench.findIndex(p => p.id === p1.id);
+                if(idx > -1) newBench.splice(idx, 1);
+                newSquad[target.section][target.index] = p1;
+                if(p2) newBench.push(p2);
+            } else {
+                const idx = newBench.findIndex(p => p.id === p2.id);
+                if(idx > -1) newBench.splice(idx, 1);
+                newSquad[source.section][source.index] = p2;
+                if(p1) newBench.push(p1);
+            }
+        }
+
+        setSquadMap(newSquad);
+        setBenchPlayers(newBench);
+        setSelection(null);
+
+        // 🔥 ЗБЕРЕЖЕННЯ НА БЕКЕНД
+        saveSquadAPI(user.user_id, newSquad).catch(console.error);
+    };
+
+    // 4. MAIN CHARACTER
+    const handleSetMain = async (charId) => {
         setIsSettingMain(true);
         try {
-            const response = await setMainCharacterAPI(user.user_id, displayedCharacter.id);
-            if (!response.ok) throw new Error('Помилка встановлення персонажа.');
-            const updatedUser = await response.json();
-            onUserUpdate(updatedUser);
-            showAlert('Головного персонажа успішно змінено!', 'success');
-        } catch (error) {
-            showAlert(error.message);
-        } finally {
-            setIsSettingMain(false);
-        }
+            const res = await setMainCharacterAPI(user.user_id, charId);
+            if (!res.ok) throw new Error();
+            onUserUpdate(await res.json());
+            showAlert('Головного гравця змінено!', 'success');
+        } catch { showAlert('Помилка'); }
+        finally { setIsSettingMain(false); }
     };
 
-    const handleOpenBox = async (boxType, boxImage) => {
-        setIsOpening(true);
-        setOpenedBoxImage(boxImage);
-        setAnimationPhase('idle');
-        setRewards(null);
-        const audio = new Audio(boxOpenSound);
-        audio.volume = 0.7;
-        const oldMoney = user.money;
-        const oldEnergy = user.energy;
+    // 5. LOOTBOX
+    const handleOpenBox = async (type, img) => {
+        setIsOpening(true); setOpenedBoxImage(img); setAnimationPhase('idle'); setRewards(null);
+        const audio = new Audio(boxOpenSound); audio.volume = 0.5;
         try {
-            const openPromise = openLootBoxAPI(user.user_id, boxType);
+            const promise = openLootBoxAPI(user.user_id, type);
+            setTimeout(() => { setAnimationPhase('shaking'); setTimeout(() => audio.play().catch(()=>{}), 1500); }, 200);
+            const updatedUser = await promise;
             setTimeout(() => {
-                setAnimationPhase('shaking');
-                setTimeout(async () => {
-                    audio.play().catch(() => {
-                        console.error("Audio ne mogu")
-                    });
-                }, 1500);
-            }, 200);
-            setTimeout(async () => {
-                const updatedUser = await openPromise;
-                const moneyReward = (updatedUser.money ?? 0) - (oldMoney ?? 0);
-                const energyReward = (updatedUser.energy ?? 0) - (oldEnergy ?? 0);
-                setRewards({money: moneyReward, energy: energyReward});
-                setAnimationPhase('revealed');
-                fireConfetti();
-                setShowConfettiHappy(true);
-                setTimeout(() => {
-                    onUserUpdate(updatedUser);
-                    setRewards(null);
-                    setOpenedBoxImage(null);
-                    setIsOpening(false);
-                    setAnimationPhase('idle');
-                }, 5000);
+                setRewards({money: (updatedUser.money??0)-(user.money??0), energy: (updatedUser.energy??0)-(user.energy??0)});
+                setAnimationPhase('revealed'); fireConfetti(); setShowConfettiHappy(true);
+                setTimeout(() => { onUserUpdate(updatedUser); setRewards(null); setIsOpening(false); }, 4000);
             }, 2000);
-        } catch (error) {
-            showAlert(error.message);
-            setIsOpening(false);
-        }
+        } catch(e) { showAlert(e.message); setIsOpening(false); }
     };
 
-    // ... остальная логика компонента без изменений
     const lootBoxes = [
-        {type: 'SMALL_BOX', count: user.count_of_small_box, image: Config.IMAGES.box_mini, name: "Малий Бокс"},
-        {type: 'MEDIUM_BOX', count: user.count_of_medium_box, image: Config.IMAGES.box_medium, name: "Середній Бокс"},
-        {type: 'LARGE_BOX', count: user.count_of_big_box, image: Config.IMAGES.box_premium, name: "Великий Бокс"}
+        {type: 'SMALL_BOX', count: user.count_of_small_box, image: Config.IMAGES.box_mini, name: "Малий"},
+        {type: 'MEDIUM_BOX', count: user.count_of_medium_box, image: Config.IMAGES.box_medium, name: "Середній"},
+        {type: 'LARGE_BOX', count: user.count_of_big_box, image: Config.IMAGES.box_premium, name: "Великий"}
     ].filter(box => box.count > 0);
-    const totalSlots = 10;
-    const emptySlotsCount = totalSlots - lootBoxes.length;
-    const emptySlots = Array.from({length: Math.max(0, emptySlotsCount)}).map(() => ({}));
-    const inventoryItems = [...lootBoxes, ...emptySlots];
-    const isMainCharacter = allCharacters[currentIndex]?.id === user.main_character_id;
 
-    if (isLoading) {
-        return <ModalRoot onClose={onClose} soundOnOpen={null}><ModalBox>
-            <div>Завантаження...</div>
-        </ModalBox></ModalRoot>;
-    }
+    const handleBack = () => {
+        if (currentView !== 'squad') setCurrentView('squad'); else onClose();
+    };
 
-    const COMPACT_VERTICAL_SHIFT = '-10px';
-    const containerStyle = !isMainCharacter ? {'--compact-vertical-shift': COMPACT_VERTICAL_SHIFT} : {};
-
-    const handleOpenReferral = () => setCurrentView('referral');
-    const handleBackToInventory = () => setCurrentView('inventory');
+    if (isLoading) return <ModalRoot onClose={onClose}><ModalBox><div>Завантаження...</div></ModalBox></ModalRoot>;
 
     return (
-        <ModalRoot onClose={onClose} soundOnOpen={null}>
-            {/*
-          ModalBox.onClose тепер динамічний:
-          - Якщо ми в інвентарі (inventory) -> викликаємо зовнішній onClose (закриття модалки).
-          - Якщо ми в рефералці (referral) -> викликаємо handleBackToInventory (повернення до інвентаря).
-        */}
-            <ModalBox
-                onClose={currentView === 'inventory' ? onClose : handleBackToInventory}
-            >
-                <ReactCanvasConfetti refConfetti={getInstance} style={{
-                    position: 'absolute',
-                    pointerEvents: 'none',
-                    width: '100%',
-                    height: '100%',
-                    top: 0,
-                    left: 0,
-                    zIndex: 9999
-                }}/>
-                {showConfettiHappy && (
-                    <Confetti
-                        width={windowSize.width}
-                        height={windowSize.height}
-                        recycle={false}
-                        numberOfPieces={400}
-                        gravity={0.1}
-                        onConfettiComplete={() => setShowConfettiHappy(false)}
-                        style={{zIndex: 9999}}
-                    />
-                )}
+        <ModalRoot onClose={onClose}>
+            <ModalBox onClose={handleBack}>
+                <ReactCanvasConfetti refConfetti={getInstance} style={{position: 'absolute', pointerEvents: 'none', width: '100%', height: '100%', top:0, left:0, zIndex: 9999}}/>
+                {showConfettiHappy && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={400} gravity={0.1} />}
 
-                {/* ✨ Анімація переходу між видами: Inventory <-> Referral */}
                 <AnimatePresence mode="wait">
+                    {currentView === 'squad' && (
+                        <motion.div key="squad" initial={{opacity:0, x:"-20%"}} animate={{opacity:1, x:"0%"}} exit={{opacity:0, x:"-20%"}} transition={{duration:0.25}}>
+                            <div className={styles.inventoryContainer}>
+                                <UserResources user={user} onOpenReferral={() => setCurrentView('referral')} />
 
-                    {/* --------------------------------- */}
-                    {/* 1. ВИД ІНВЕНТАРЯ (за замовчуванням) */}
-                    {/* --------------------------------- */}
-                    {currentView === 'inventory' && (
-                        <motion.div
-                            key="inventory"
-                            // Анімація входу: з'являється зліва
-                            initial={{opacity: 0, x: "-100%"}}
-                            animate={{opacity: 1, x: "0%"}}
-                            // Анімація виходу: йде вправо
-                            exit={{opacity: 0, x: "100%"}}
-                            transition={{duration: 0.3, ease: "easeInOut"}}
-                            // ✅ ИСПРАВЛЕНО: style={{ position: 'absolute', width: '100%' }} - УДАЛЕНО
-                        >
-                            <div className={`${styles.inventoryContainer} ${!isMainCharacter ? styles.scaledDown : ''}`}
-                                 style={containerStyle}>
-                                <UserResources
-                                    user={user}
-                                    onOpenReferral={handleOpenReferral} // <--- Тепер змінює стейт currentView
+                                <div style={{textAlign:'center', marginBottom: 5, color: '#aaa', fontSize: 11}}>
+                                    Натисни для вибору, ще раз для деталей. Клік на іншого для заміни.
+                                </div>
+
+                                <SquadBoard
+                                    squadData={{
+                                        gk: squadMap.gk.map(id => id ? id : null),
+                                        def: squadMap.def, mid: squadMap.mid, att: squadMap.att
+                                    }}
+                                    onSlotClick={handleInteraction}
+                                    selectedSlot={selection}
                                 />
-                                <CharacterHub user={user} allCharacters={allCharacters} currentIndex={currentIndex}
-                                              onPrev={handlePrev} onNext={handleNext} onSetMain={handleSetMain}
-                                              isSettingMain={isSettingMain} isMainCharacter={isMainCharacter}/>
-                                <InventorySection items={inventoryItems} onOpenBox={handleOpenBox}
-                                                  isOpening={isOpening}/>
+
+                                <GeneralInventory lootBoxes={lootBoxes} onOpenBox={handleOpenBox} isOpening={isOpening} />
                             </div>
 
-                            {/* БЛОК АНІМАЦІЇ ВІДКРИТТЯ БОКСУ (Вкладено всередину) */}
                             <AnimatePresence>
                                 {isOpening && (
-                                    <motion.div className={styles.animationOverlay} initial={{opacity: 0}}
-                                                animate={{opacity: 1}} exit={{opacity: 0}}>
-                                        <AnimatePresence>
-                                            {animationPhase === 'revealed' && (
-                                                <motion.div className={styles.flashEffect} initial={{opacity: 0}}
-                                                            animate={{opacity: [0, 1, 0]}}
-                                                            transition={{duration: 0.5, times: [0, 0.1, 1]}}/>
-                                            )}
-                                        </AnimatePresence>
+                                    <motion.div className={styles.animationOverlay} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}>
                                         <AnimatePresence>
                                             {animationPhase !== 'revealed' && (
-                                                <motion.img
-                                                    src={openedBoxImage}
-                                                    alt="Opening box..."
-                                                    className={styles.openingBox}
-                                                    initial={{scale: 0.5, y: 100, opacity: 0}}
-                                                    animate={animationPhase === 'shaking'
-                                                        ? {
-                                                            opacity: 1,
-                                                            y: 0,
-                                                            rotate: [0, -5, 5, -5, 5, -5, 0],
-                                                            scale: [1, 1.2, 1.1, 1.5, 1.4, 1.8, 1.9],
-                                                            transition: {
-                                                                rotate: {
-                                                                    duration: 0.4,
-                                                                    repeat: Infinity,
-                                                                    ease: 'linear'
-                                                                },
-                                                                scale: {
-                                                                    duration: 1.8,
-                                                                    ease: "easeInOut",
-                                                                    times: [0, 0.2, 0.3, 0.5, 0.6, 0.8, 1]
-                                                                }
-                                                            }
-                                                        }
-                                                        : {
-                                                            opacity: 1,
-                                                            scale: 1,
-                                                            y: 0,
-                                                            transition: {type: 'spring', stiffness: 100}
-                                                        }
-                                                    }
-                                                    exit={{scale: 5, opacity: 0, transition: {duration: 0.3}}}
+                                                <motion.img src={openedBoxImage} className={styles.openingBox}
+                                                            animate={animationPhase === 'shaking' ? { rotate: [0, -5, 5, 0], scale: [1, 1.1, 1] } : {}}
                                                 />
                                             )}
                                         </AnimatePresence>
-
                                         {animationPhase === 'revealed' && rewards && (
-                                            <motion.div className={styles.rewardContainer}
-                                                        variants={rewardContainerVariants} initial="hidden"
-                                                        animate="visible">
-                                                <motion.h2 className={styles.rewardTitle} variants={rewardItemVariants}>
-                                                    Отримано!
-                                                </motion.h2>
-                                                <motion.p className={styles.rewardItem} variants={rewardItemVariants}>
-                                                    <img src={Config.IMAGES.coin} alt="Money"/> +<AnimatedNumber
-                                                    value={rewards.money}/>
-                                                </motion.p>
-                                                <motion.p className={styles.rewardItem} variants={rewardItemVariants}>
-                                                    <img src={Config.IMAGES.energy} alt="Energy"/> +<AnimatedNumber
-                                                    value={rewards.energy}/>
-                                                </motion.p>
+                                            <motion.div className={styles.rewardContainer} animate={{scale:[0.8, 1], opacity: 1}}>
+                                                <h2>+{rewards.money} 💰 / +{rewards.energy} ⚡</h2>
                                             </motion.div>
                                         )}
                                     </motion.div>
@@ -618,24 +644,21 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
                         </motion.div>
                     )}
 
-                    {/* ------------------------------ */}
-                    {/* 2. ВИД РЕФЕРАЛІВ */}
-                    {/* ------------------------------ */}
-                    {currentView === 'referral' && (
-                        <motion.div
-                            key="referral"
-                            // Анімація входу: з'являється справа
-                            initial={{opacity: 0, x: "100%"}}
-                            animate={{opacity: 1, x: "0%"}}
-                            // Анімація виходу: йде вліво
-                            exit={{opacity: 0, x: "-100%"}}
-                            transition={{duration: 0.3, ease: "easeInOut"}}
-                            // ✅ ИСПРАВЛЕНО: style={{ position: 'absolute', width: '100%' }} - УДАЛЕНО
-                        >
-                            <ReferralView
-                                user={user}
-                                onBack={handleBackToInventory} // Натискання на "Назад" або "X" повертає в інвентар
+                    {currentView === 'detail' && selectedCharacter && (
+                        <motion.div key="detail" initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.9}} transition={{duration:0.2}}>
+                            <PlayerDetailView
+                                character={selectedCharacter}
+                                onClose={() => setCurrentView('squad')}
+                                onSetMain={handleSetMain}
+                                isSettingMain={isSettingMain}
+                                isMain={selectedCharacter.id === user.main_character_id}
                             />
+                        </motion.div>
+                    )}
+
+                    {currentView === 'referral' && (
+                        <motion.div key="referral" initial={{opacity:0, x:"100%"}} animate={{opacity:1, x:"0%"}} exit={{opacity:0, x:"100%"}}>
+                            <ReferralView user={user} onBack={() => setCurrentView('squad')} />
                         </motion.div>
                     )}
                 </AnimatePresence>

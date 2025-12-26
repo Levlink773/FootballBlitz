@@ -196,7 +196,6 @@ async def change_page(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
-# === Хэндлер: покупка игрока ===
 @transfer_transfer_router.callback_query(F.data.startswith("buy:"))
 async def buy_player(callback: types.CallbackQuery):
     transfer_id = int(callback.data.split(":")[1])
@@ -207,17 +206,16 @@ async def buy_player(callback: types.CallbackQuery):
         return
 
     char = transfer.character
-
     buyer_id = callback.from_user.id
     seller_id = char.characters_user_id
 
-    # запрет покупать своего игрока
+    # заборона купувати свого гравця
     if buyer_id == seller_id:
         await callback.answer("❌ Ви не можете купити свого гравця.", show_alert=True)
         return
 
-    # проверка денег у покупателя
     async for session in get_session():
+        # Завантажуємо дані
         char: Character = await session.scalar(
             select(Character).where(Character.id == char.id).options(selectinload(Character.transfer))
         )
@@ -231,38 +229,49 @@ async def buy_player(callback: types.CallbackQuery):
             )
         )
         seller: UserBot = await session.scalar(select(UserBot).where(UserBot.user_id == seller_id))
+
+        # 1. Перевірка грошей
         if buyer.money < transfer.price:
             await callback.answer("💸 Недостатньо коштів.", show_alert=True)
             return
-        if (not buyer.vip_pass_is_active and len(buyer.characters) >= 1) or (
-                buyer.vip_pass_is_active and len(buyer.characters) >= 2):
-            t = '⚠️ Ви вже досягли максимальної кількості гравців. 🧍‍♂️️ Продайте одного з існуючих, щоб придбати нового.'
-            await callback.answer(t, show_alert=True)
+
+        # 2. НОВА ПЕРЕВІРКА: Ліміт 11 гравців
+        if len(buyer.characters) >= 11:
+            await callback.answer(
+                "⚠️ Ви досягли ліміту в 11 гравців! 🚫\nПродайте когось, щоб купити нового.",
+                show_alert=True
+            )
             return
-        # смена владельца игрока
+
+        # зміна власника гравця
         char.characters_user_id = buyer_id
 
-        # транзакция: списать и зачислить деньги
+        # транзакція: списати та зарахувати гроші
         buyer.money -= transfer.price
         session.add(buyer)
         if seller:
             seller.money += transfer.price
             session.add(seller)
 
-        # удалить с трансфера
+        # видалити з трансферу
         await session.delete(transfer)
         await session.commit()
+
     await UserService.assign_main_character_if_none(buyer_id)
     await callback.message.edit_media(
         media=InputMediaPhoto(
             media=SUCCESS_BUY_PLAYER, caption=f"✅ Ви купили гравця {char.name} за {transfer.price} монет!"
         )
     )
-    await callback.bot.send_message(
-        chat_id=seller_id,
-        text=f"Вітаємо! 🎉\n💰 Вашого гравця <b>{char.name}</b> купили за {transfer.price} монет!\n\n"
-             f"Баланс поповнено на <b>{transfer.price}</b> монет."
-    )
+    if seller_id:
+        try:
+            await callback.bot.send_message(
+                chat_id=seller_id,
+                text=f"Вітаємо! 🎉\n💰 Вашого гравця <b>{char.name}</b> купили за {transfer.price} монет!\n\n"
+                     f"Баланс поповнено на <b>{transfer.price}</b> монет."
+            )
+        except:
+            pass # Ігноруємо помилку, якщо бот заблокований у продавця
 
 
 # === Хэндлер: список игроков ===
@@ -357,24 +366,36 @@ async def instant_sell(callback: types.CallbackQuery):
     user_id = callback.from_user.id
 
     async for session in get_session():
+        # Завантажуємо юзера разом із персонажами, щоб порахувати їх кількість
+        user: UserBot = await session.scalar(
+            select(UserBot)
+            .where(UserBot.user_id == user_id)
+            .options(selectinload(UserBot.characters))
+        )
+
+        if not user:
+            await callback.answer("❌ Користувача не знайдено.", show_alert=True)
+            return
+
+        # НОВА ПЕРЕВІРКА: Не можна продати останнього гравця
+        if len(user.characters) <= 1:
+            await callback.answer("⚠️ Ви не можете продати свого останнього гравця!", show_alert=True)
+            return
+
         char = await session.get(Character, char_id)
         if not char or char.characters_user_id != user_id:
             await callback.answer("❌ Неможливо продати цього гравця.", show_alert=True)
             return
 
-        user: UserBot = await session.scalar(select(UserBot).where(UserBot.user_id == user_id))
-        if not user:
-            await callback.answer("❌ Користувача не знайдено.", show_alert=True)
-            return
-
         fact_price = char.character_price
+
+        # Видаляємо зв'язки з тренуваннями та самого персонажа
         await session.execute(
             delete(CharacterJoinTraining).where(CharacterJoinTraining.character_id == char.id)
         )
-        # удаляем персонажа у игрока
         await session.delete(char)
 
-        # начисляем деньги
+        # Нараховуємо гроші
         user.money += fact_price
         session.add(user)
 
@@ -395,12 +416,22 @@ class SellPlayerFSM(StatesGroup):
     selected_char_id = State()
 
 
-# === Хэндлер: пользователь нажал "Виставити на трансфер" ===
 @transfer_transfer_router.callback_query(F.data.startswith("sell:"))
 async def sell_player(callback: types.CallbackQuery, state: FSMContext):
     char_id = int(callback.data.split(":")[1])
+    user_id = callback.from_user.id
 
     async for session in get_session():
+        # Перевірка кількості гравців перед виставленням
+        user_characters_count = await session.scalar(
+            select(select(Character).where(Character.characters_user_id == user_id).count())
+        )
+
+        # НОВА ПЕРЕВІРКА: Не можна виставити, якщо гравець 1
+        if user_characters_count <= 1:
+            await callback.answer("⚠️ Ви не можете продати свого останнього гравця!", show_alert=True)
+            return
+
         char = await session.get(Character, char_id)
         if not char:
             await callback.answer("❌ Гравця не знайдено.", show_alert=True)
@@ -408,9 +439,8 @@ async def sell_player(callback: types.CallbackQuery, state: FSMContext):
 
         min_price = int(char.character_price * 0.8)
 
-        # сохраняем в state id игрока и минимальную цену
+        # зберігаємо в state id гравця і мінімальну ціну
         await state.update_data(char_id=char_id, min_price=min_price)
-
         await state.set_state(SellPlayerFSM.waiting_for_price)
 
         await callback.message.answer(

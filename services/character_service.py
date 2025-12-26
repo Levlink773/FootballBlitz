@@ -99,7 +99,8 @@ class CharacterService:
                 age=data.age,
                 power=data.power,
                 gender=data.gender,
-                country=data.country
+                country=data.country,
+                position=data.position,
             )
             session.add(ch)
             await session.commit()
@@ -173,12 +174,21 @@ class CharacterService:
     @classmethod
     async def update_character_education_time(cls, character: Character, amount_add_time: timedelta):
         async for session in get_session():
-            async with session.begin():
-                try:
-                    session.add(character)
-                except:
-                    pass
-                character.reminder.education_reward_date = datetime.now() + amount_add_time
-                merged_obj = await session.merge(character)
-                await session.commit()
-                return merged_obj
+            # Привязываем объект к сессии
+            session.add(character)
+
+            # 🔥 ПРОВЕРКА И ЛЕЧЕНИЕ: Если ремайндера нет — создаем
+            if character.reminder is None:
+                new_reminder = ReminderCharacter(character_id=character.id)
+                session.add(new_reminder)
+                character.reminder = new_reminder
+                # Флашим, чтобы создался ID и связь, если нужно
+                await session.flush()
+
+                # Теперь безопасно обновляем
+            character.reminder.education_reward_date = datetime.now() + amount_add_time
+
+            # Мержим и сохраняем
+            merged_obj = await session.merge(character)
+            await session.commit()
+            return merged_obj

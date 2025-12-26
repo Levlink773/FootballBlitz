@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { FaBolt, FaStar, FaBirthdayCake, FaShieldAlt } from 'react-icons/fa'; // Нові іконки для статів
+import { FaBolt, FaStar, FaBirthdayCake } from 'react-icons/fa';
 import styles from '../../css_files/register/CharacterRevealCard.module.css';
 import Config from "../../config.js";
+import {GiGloves, GiRunningShoe, GiShield, GiSoccerBall} from "react-icons/gi";
 
 // Анімація контейнера
 const containerVariants = {
@@ -44,27 +45,35 @@ const countryFlagMap = {
     'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'Morocco': '🇲🇦', 'Senegal': '🇸🇳',
     'Nigeria': '🇳🇬', 'default': '🌍',
 };
+const positionMap = {
+    'GOALKEEPER': { label: 'GK', full: 'ВОРОТАР', icon: <GiGloves /> },
+    'DEFENDER':   { label: 'DEF', full: 'ЗАХИСНИК', icon: <GiShield /> },
+    'MIDFIELDER': { label: 'MID', full: 'ПІВЗАХИСНИК', icon: <GiRunningShoe /> },
+    'ATTACKER':   { label: 'FWD', full: 'НАПАДНИК', icon: <GiSoccerBall /> },
+    'default':    { label: 'UNK', full: 'ГРАВЕЦЬ', icon: <FaStar /> }
+};
 
-export const CharacterRevealCard = ({ character, onContinue }) => {
+// --- ✨ ОНОВЛЕНО: приймаємо counter і customButtonText ---
+export const CharacterRevealCard = ({ character, onContinue, customButtonText, counter }) => {
     if (!character) return null;
 
-    // 3D effect logic
+    // --- 3D Ефекти ---
     const x = useMotionValue(0);
     const y = useMotionValue(0);
-    const rotateX = useTransform(y, [-100, 100], [20, -20]); // Менший кут для реалізму
+    const rotateX = useTransform(y, [-100, 100], [20, -20]);
     const rotateY = useTransform(x, [-100, 100], [-20, 20]);
-
-    // Блік, який рухається разом з мишкою/пальцем
     const sheenX = useTransform(x, [-100, 100], [0, 100]);
     const sheenY = useTransform(y, [-100, 100], [0, 100]);
 
+    // --- Дані ---
     const flag = countryFlagMap[character.country] || countryFlagMap['default'];
+    const posData = positionMap[character.position] || positionMap['default'];
+    const overallRating = character.power || 50;
 
-    // Розрахунок розміру шрифту (залишив твою логіку)
+    // --- Розмір шрифту імені ---
     const baseSizeRem = 1.6;
     const decrementPerCharRem = 0.07;
     const minSizeRem = 0.8;
-
     const nameFontSizeRem = useMemo(() => {
         const name = character.name || "";
         const len = name.length;
@@ -73,9 +82,6 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
         return Math.max(minSizeRem, +(baseSizeRem - decrement).toFixed(3));
     }, [character.name]);
 
-    // Використаємо "Силу" як загальний рейтинг (OVR) на картці
-    const overallRating = character.power || 50;
-
     return (
         <motion.div
             className={styles.revealContainer}
@@ -83,10 +89,18 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
             initial="hidden"
             animate="visible"
         >
+            {/* 1. Лічильник (ГРАВЕЦЬ 1 / 11) */}
+            {counter && (
+                <motion.div className={styles.counterBadge} variants={textVariants}>
+                    ГРАВЕЦЬ {counter}
+                </motion.div>
+            )}
+
             <motion.h2 className={styles.congratsTitle} variants={textVariants}>
                 НОВА ЗІРКА!
             </motion.h2>
 
+            {/* 2. Картка з 3D ефектом */}
             <motion.div
                 style={{ x, y, rotateX, rotateY, z: 100 }}
                 drag
@@ -96,26 +110,32 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
                 className={styles.cardWrapper}
                 variants={cardVariants}
             >
-                {/* Основна картка */}
                 <div className={styles.card}>
-                    {/* Динамічний блік */}
+                    {/* Блік */}
                     <motion.div
                         className={styles.cardSheen}
                         style={{ backgroundPosition: `${sheenX}% ${sheenY}%` }}
                     />
 
-                    {/* Верхня частина: Рейтинг і Прапор */}
+                    {/* Верх: Рейтинг, Позиція, Прапор */}
                     <div className={styles.cardTopInfo}>
                         <div className={styles.ratingBox}>
                             <span className={styles.ratingNumber}>{overallRating}</span>
                             <span className={styles.ratingLabel}>GEN</span>
                         </div>
+
+                        {/* Позиція */}
+                        <div className={styles.positionBox}>
+                            <span className={styles.positionIcon}>{posData.icon}</span>
+                            <span className={styles.positionLabel}>{posData.label}</span>
+                        </div>
+
                         <div className={styles.flagBox}>
                             {flag}
                         </div>
                     </div>
 
-                    {/* Зображення */}
+                    {/* Фото + Повна назва позиції */}
                     <div className={styles.imageContainer}>
                         <div className={styles.imageGlow}></div>
                         <img
@@ -123,9 +143,12 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
                             alt={character.name}
                             className={styles.characterImage}
                         />
+                        <div className={styles.positionFullLabel}>
+                            {posData.full}
+                        </div>
                     </div>
 
-                    {/* Інфо знизу */}
+                    {/* Низ: Ім'я та Стати */}
                     <div className={styles.cardBottom}>
                         <motion.h3
                             className={styles.characterName}
@@ -157,6 +180,7 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
                 </div>
             </motion.div>
 
+            {/* 3. Кнопка */}
             <motion.button
                 className={styles.continueButton}
                 onClick={onContinue}
@@ -164,7 +188,7 @@ export const CharacterRevealCard = ({ character, onContinue }) => {
                 whileHover={{ scale: 1.05, boxShadow: "0px 0px 25px rgb(255, 215, 0)" }}
                 whileTap={{ scale: 0.95 }}
             >
-                ПІДПИСАТИ КОНТРАКТ
+                {customButtonText || "ОТРИМАТИ"}
             </motion.button>
         </motion.div>
     );

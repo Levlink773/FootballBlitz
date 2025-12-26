@@ -45,6 +45,19 @@ export const claimFirstCharacter = async (userId) => {
     // which now includes the main_character and the status 'END_REGISTER'.
     return response.json();
 };
+export const claimFirstTeam = async (userId) => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/claim-first-characters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to claim team");
+    }
+
+    return response.json();
+};
 
 /**
  * Знімає гравця з трансферу.

@@ -4,6 +4,8 @@ from enum import Enum
 
 from config import Gender, Country
 from constants import POWER_MUL, TALENT_MUL, AGE_MUL, MIN_PRICE_FIRST_CHARACTER
+from database.models.character import Position
+from utils.name_loader import load_male_names
 
 
 @dataclass
@@ -14,6 +16,7 @@ class CharacterData:
     power: float
     gender: Gender
     country: Country
+    position: Position = Position.MIDFIELDER
 
     @property
     def price(self):
@@ -46,126 +49,7 @@ COUNTRY_WEIGHTS = {
 }
 
 # Примеры имен
-MALE_NAMES = {
-    'Hassan', 'Tristram', 'Theophilus', 'Brodie', 'Pedro Pablo', 'Presley', 'Chester', 'Harper', 'John', 'Rico',
-    'Clarence', 'Diego Manuel', 'Angelo', 'Paulo Henrique', 'Rodrigo Alves', 'Ewan', 'Robin', 'Quinn', 'Chris',
-    'Campbell', 'Guillermo', 'Lance', 'Elias Gabriel', 'Ali', 'Gerardo', 'Hugo Rafael', 'Ricky', 'Thurman', 'Emile',
-    'Gian', 'Roderick', 'Ricardo Miguel', 'Virgil', 'Gerard', 'Juan', 'Ricardo Jose', 'David Leon', 'Sherman', 'Lawson',
-    'Milo', 'Shane', 'Isaiah', 'Sincere', 'Dash', 'Milford', 'Junior', 'Cassius', 'Garland', 'Eric', 'Johnny', 'Manuel',
-    'Jesús', 'Joe', 'Adriano', 'Willis', 'Norbert', 'Rory', 'Wes', 'Roald', 'Simon', 'Borislav', 'Pedro', 'Myles',
-    'Kellan', 'Jose Eduardo', 'Wyatt', 'Adam', 'Odin', 'Reginald', 'Igor Alexey', 'Seth', 'Tomas', 'Glenn', 'Nat',
-    'Omer', 'Benicio', 'Tudor', 'Piers', 'Onofre', 'Trent', 'Jameson', 'Horacio', 'Stacy', 'Yan', 'Haroun', 'Brady',
-    'Matteo Lorenzo', 'Romeo', 'Carlos Eduardo', 'Lysander', 'Bennett', 'Winston', 'Maurice', 'Grant', 'Fred', 'Ken',
-    'Jimmie', 'Diego Rafael', 'Vladislav', 'Morris', 'Rodolfo', 'Sage', 'Arden', 'Finnian', 'Clyde', 'Kermit',
-    'Orville', 'Shakir', 'Yacine', 'Tristán', 'Elian', 'Marcin', 'Yasir', 'Harrison', 'Will', 'Yaroslav', 'Amadeo',
-    'Rod', 'Wade', 'Stepan', 'Knut', 'Storm', 'Stan', 'Gonzalo', 'Denis', 'Gregory', 'Nash', 'Yuri Petrov', 'Evan',
-    'Garrett', 'Jim', 'Carlos', 'Sonny', 'Thom', 'Jules', 'Cael', 'Jamison', 'Alberto', 'Robb', 'Dino', 'Roy', 'Damian',
-    'Andrey', 'Jackson', 'Vlad', 'Pierce', 'Vyacheslav', 'Mickey', 'Evgeny', 'Jason', 'Tonio', 'Jon', 'Brad', 'Hadrian',
-    'Kevin Manuel', 'Maximiano', 'Milton', 'Tommaso', 'Andres', 'Quincy', 'Khalil', 'Kai', 'Rocco', 'Giovanni',
-    'Kurtis', 'Vance', 'Steve', 'Yulian', 'Calvin', 'Bradley', 'Judah', 'Rigoberto', 'Edmund',
-    'Burke', 'Dexter', 'Konstantin Petrov', 'Killian', 'Kaleb', 'Federico', 'Marcus', 'Theodore', 'Franco', 'Ari',
-    'James', 'Leroy', 'Louis', 'Fergus', 'Sheldon', 'Sylvio', 'Nadir', 'Amos', 'Beau', 'Thorin', 'Weaver', 'Stanton',
-    'Luiz Fernando', 'Felix', 'Sergio Ricardo', 'Jake', 'Trey', 'Dimitri', 'Wilbert', 'Kristopher', 'Everton', 'Trajan',
-    'Bruno Miguel', 'Leandro', 'Cassian', 'John Paul', 'Alphonse', 'Hussein', 'Vinh', 'Sidney', 'Alvin', 'Ignacio',
-    'Vitaliy', 'Luis Alberto', 'Francis', 'Fischer', 'Tye', 'Webb', 'Thomas', 'Roland', 'Daniel', 'Hugh', 'Philemon',
-    'Niklas', 'Victor Manuel', 'Quinton', 'Shahan', 'Talbot', 'Shepard', 'Yves', 'Yorick', 'Tien', 'Myron', 'Hector',
-    'King', 'Bruce', 'Andrej', 'Voislav', 'Roan', 'Henrique', 'Blaine', 'Hagen', 'Caden', 'Colton', 'Theo', 'Slavko',
-    'Cruz', 'Yisrael', 'Erik', 'Marshall', 'Robert', 'Spencer', 'Kurt', 'Thierry', 'Manuel Alejandro', 'Ryan', 'Alexis',
-    'Desmond', 'Alec', 'Wilton', 'Malik', 'Jamal', 'Yale', 'Marty', 'Norris', 'Landon', 'Vladlen', 'Peyton', 'Hubert',
-    'Felipe', 'Raul Alejandro', 'Gustavo', 'Reno', 'Donald', 'Johan', 'Lars', 'Raymond', 'Vaughn', 'Carter', 'Jeremias',
-    'Marcos', 'Emil', 'Newton', 'Ruben', 'Ximeno', 'Rickey', 'Barry', 'Aron', 'Justus', 'Michel', 'Otavio', 'Wilfred',
-    'Paco', 'Fabian', 'Laurence', 'Felipe Jose', 'Alessio', 'Lowell', 'Mircea', 'Isaias', 'Helmut', 'Charlie',
-    'Lorenzo', 'Juan Andres', 'Lamont', 'Vern', 'Thiago', 'Peregrine', 'Joshua', 'Irving', 'Giovanni Paolo', 'Oren',
-    'Mauricio', 'Vincent', 'Fridrik', 'Farid', 'Truman', 'Ion', 'Lester', 'Minh', 'Toni', 'Taylor', 'Austin',
-    'Oscar Ivan', 'Roberto', 'Roberto Carlos', 'Rolf', 'Joel', 'Dermot', 'Stanislav', 'Graham', 'Vinicius', 'Ty',
-    'Miguel', 'Parker', 'Leonel', 'Kolby', 'Torben', 'Seamus', 'Joao Pedro', 'Sinclair',
-    'Nikos', 'Cornelius', 'Yasin', 'Terrance', 'Asher', 'Diego', 'Aziz', 'Stone', 'Juan Pablo', 'Ulric',
-    'Cristian Camilo', 'Omar', 'Daryl', 'Olivier', 'Julius', 'Simon Peter', 'Jagger', 'Volodymyr', 'Rodrigo', 'Bodhi',
-    'Raffaele', 'Greg', 'Dustin', 'Shawn', 'Jay', 'Tracy', 'Ryland', 'Fletcher', 'Talon', 'Jacob', 'Curtis', 'Josue',
-    'Rafael Eduardo', 'Nasir', 'Rupert', 'Remi', 'Leopold', 'Neal', 'Riley', 'Morgan', 'Shad', 'Lucas', 'Ludovic',
-    'Camden', 'Jerald', 'Terrence', 'Alfred', 'Trevor', 'Esteban Jose', 'Xander', 'Chance', 'Harley', 'Julian',
-    'Vincenzo', 'Elias', 'Carlos Manuel', 'Dawson', 'Millard', 'Emilio Andres', 'Gaston', 'Harold', 'Esteban', 'Mikel',
-    'Colby', 'Woodrow', 'Carl', 'Saul', 'Alden', 'Uwe', 'Solomon David', 'Hernando', 'Damon', 'Liam', 'Leif',
-    'Bruno Henrique', 'Kareem', 'Ramon', 'Melvin', 'Salvador Miguel', 'Mateo Santiago', 'Nehemiah', 'Conrad', 'Jeremy',
-    'Nathan', 'Rex', 'Pedro Henrique', 'Tate', 'Josh', 'Newell', 'Nilson', 'Tyson', 'Ivanhoe', 'Christian', 'Norwood',
-    'Yigit', 'Brody', 'Monte', 'Mikael', 'Vedad', 'Johannes', 'Drake', 'Don', 'Santiago', 'Galen', 'Darrell', 'Dave',
-    'Rocky', 'Theobald', 'Howard', 'Phoenix', 'Valentino', 'Ismael', 'Grigory', 'Vic', 'Lucas Enrique', 'Louie',
-    'Marco', 'Herman', 'Klaus', 'Gavriel', 'Elijah', 'Marcel', 'Percy', 'Mario Alberto', 'Joaquin', 'Conner',
-    'Geoffrey', 'Eugene', 'Mikhail', 'Sergio', 'Denis Alejandro', 'Pablo', 'Konnor', 'Vadim', 'Yoni', 'Justin', 'Jens',
-    'Lonnie', 'Nicolas', 'Warren', 'Mike', 'Sergio Alejandro', 'Seymour', 'Jeffery', 'Aidan', 'Reynaldo', 'Jaden',
-    'Marcelo Luis', 'Yvon', 'Lukas', 'Kenneth', 'Yoav', 'Toby', 'Troy', 'Tomasz', 'Cody', 'Leonard', 'Denver', 'Josef',
-    'Thorben', 'Kenny', 'Merrill', 'Callum', 'Reuben', 'David Alejandro', 'Nestor', 'Khalid', 'Glen', 'Dwight',
-    'Jasper', 'Kylian', 'Konstantin', 'Dakota', 'Artem', 'Fernando', 'Maddox', 'Cade', 'Preston', 'Oleg', 'Sabin',
-    'Mohsen', 'Youssef', 'Everett', 'Carlo', 'Enrique', 'Blake', 'Connor', 'Wilfried', 'Kent', 'Roscoe', 'Tadeo',
-    'Armando', 'Jerry', 'Yuriy', 'Cristian Javier', 'Giulio', 'Isidore', 'Torsten', 'Wayne', 'Arjun', 'Elliot',
-    'Leonardo', 'Lazaro', 'Heath', 'Ethan', 'Romanov', 'Atticus', 'Holden', 'Jorge Manuel', 'Murad', 'Milan', 'Michele',
-    'Hank', 'Lindon', 'Maximilian', 'Tobias', 'Claude', 'Rene', 'Nolan', 'Mark', 'Wilmer', 'Rylan', 'Hyman', 'Raul',
-    'Basil', 'Rockwell', 'Miguel Angel', 'Ennis', 'Luther', 'Monroe', 'Wellington', 'Reece', 'Xerxes', 'Ned', 'Huxley',
-    'Pablo Andres', 'Mariano', 'Otis', 'Murdock', 'Alessandro', 'Giancarlo', 'Eduardo', 'Luciano', 'Shiloh', 'Brian',
-    'Nickolas', 'Marc', 'Colin', 'Damien', 'Emmett', 'Jeffrey', 'Lawrence', 'Gabriel Lucas', 'Yoan', 'Fabio',
-    'Nathaniel', 'Raheem', 'Trenton', 'Jermaine', 'Gianluca', 'Kendall', 'Sammy', 'Wylie', 'Jonathon', 'Godfrey',
-    'Mohammed', 'Tyler', 'Wallace James', 'Humberto', 'Karlis', 'Sloan', 'Adrian', 'Collin', 'Nando', 'Pierre', 'Ernie',
-    'Valentin', 'Davis', 'Dominic', 'Watson', 'Yvan', 'Levi', 'Thurlow', 'Thor', 'Umar', 'Mohamed', 'Terence', 'Reid',
-    'Artur', 'Brock', 'Velimir', 'Dario', 'Viktor', 'Wilber', 'Noel', 'Norman', 'Yakov', 'Mordecai', 'Mack', 'Carmelo',
-    'Santiago Javier', 'Gino', 'Harris', 'Timur Bek', 'Antonio', 'Jarrett', 'Nigel', 'Kirill', 'Weston', 'Douglas',
-    'Tadgh', 'Mauricio Javier', 'German', 'Luke', 'Ellis', 'George', 'Willem', 'Dmitry', 'Vernon', 'Langston',
-    'Victoriano', 'Rowland', 'Tim', 'Michele Angelo', 'Finn', 'Owen', 'Larry', 'Kim', 'Alfie', 'Abel', 'Jesse',
-    'Princeton', 'Carlo Antonio', 'Javier', 'Sebastian Andres', 'Eliot', 'Wladimir', 'Veniamin', 'Nicolo',
-    'Karl', 'Floyd', 'Alexei', 'Silvio', 'Leo', 'Francisco Luis', 'Riccardo', 'Eduardo Rafael', 'Ivo', 'Demetrius',
-    'Dallas', 'Dalton', 'Titus', 'Osman', 'Javier Luis', 'Gale', 'Royce', 'Kasper', 'Craig', 'Andre', 'Ray', 'Xavier',
-    'Domenico', 'Nabil', 'Freddie', 'Stewart', 'Jonas', 'Patrick', 'Xzavier', 'Marco Antonio', 'Roger', 'Umberto',
-    'Kevin Alejandro', 'Sabino', 'Kirby', 'Semen', 'Julian Esteban', 'Paulino', 'Forrest', 'Julian Manuel', 'Chandler',
-    'Kendrick', 'Ross', 'Noah James', 'William', 'Ron', 'Chase', 'Achilles', 'Wilbur', 'Raylan', 'Vasil', 'Elvin',
-    'Sebastian', 'Ephraim', 'Bernardo', 'Rafael Jose', 'Yusuf', 'Luis', 'Boris', 'Gordon', 'Kerry', 'Cesar',
-    'Cristian Mateo', 'Merle', 'Jose Antonio', 'Clifford', 'Parrish', 'Primo', 'Jalen', 'Imran', 'Ward', 'Bruno',
-    'Wolfgang', 'Nick', 'Victor', 'Corey', 'Aaron', 'Easton', 'Russell', 'Alfonso Maria', 'Edgar', 'Giuseppe Antonio',
-    'Marek', 'Odell', 'Brent', 'Terrell', 'Yosef', 'Stevin', 'Hans', 'Mohammad', 'Quentin', 'Israel', 'Rogelio',
-    'Rafael Augusto', 'Palmer', 'Edison', 'Pedro Miguel', 'Usman', 'Kingsley', 'Mustafa', 'Sandeep', 'Anders',
-    'Marcelo', 'Kirk', 'Ripley', 'Wesley', 'Oswald', 'Inigo', 'Xenon', 'Arseny', 'Jorge Luiz', 'Danilo', 'Hasan', 'Tom',
-    'Vicktor', 'Lemuel', 'Boyd', 'Jayden', 'Massimiliano', 'Trace', 'Shelby', 'Brice', 'Jonathan', 'Diego Armando',
-    'Nahum', 'Lincoln', 'Rafael', 'Lachlan', 'Lorenzo Rafael', 'Jace', 'Walter', 'Turner', 'Cairo', 'Spiro', 'Akira',
-    'Winfield', 'Rusty', 'Rudolph', 'Allen', 'Yago', 'Andreas', 'Kip', 'Orval', 'Stacey', 'Casey', 'Moses', 'Timur',
-    'Mason', 'Michael', 'Neville', 'Albert', 'Liam Patrick', 'Rowan', 'Miguel Antonio', 'Antonio Miguel', 'Kyle',
-    'Valery', 'Cal', 'Ronny', 'Benson', 'Vasily', 'Jakob', 'Perry', 'Sam', 'Dominic Xavier', 'Mac', 'Rodney',
-    'Adrian Fernando', 'Amir', 'Mahmoud', 'Prince', 'Cooper', 'Justo', 'Francisco', 'Maynard', 'Selim', 'Logan',
-    'Massimo', 'Lloyd', 'Rufus', 'Bertram', 'Isaac', 'Chad', 'Paris', 'Pavel', 'Gregg', 'Daniele', 'Ludwig', 'Benjamin',
-    'Ira', 'Dion', 'Mathew', 'Stefanus', 'Mario', 'Pablo Miguel', 'Ronald', 'Norton', 'Lennard', 'Kole', 'Yannis',
-    'Arnold', 'Royal', 'Philippe', 'Reinaldo', 'Morton', 'Karim', 'Gene', 'Salvador', 'Maximilianus', 'Magnus',
-    'Manfred', 'Homer', 'Fabrizio', 'Jeremiah', 'Lewis', 'Nelson', 'Willoughby', 'Yohann', 'Barrett', 'Price',
-    'Fernando Luis', 'Teo', 'Emmanuel', 'Horace', 'Noah', 'Caio', 'Moises', 'Tariq', 'Fernando Javier',
-    'Nicolas Andres', 'Pavel Andreevich', 'Oscar', 'Axel', 'Salvatore', 'Vinnie', 'Mateo', 'Hector Luis', 'Duane',
-    'Ashton', 'Bryson', 'Joseph', 'Misael', 'Cristiano', 'Nico', 'North', 'Mateo Ricardo', 'Marlon', 'Devin',
-    'Franklin', 'Van', 'Drew', 'Ulrich', 'Sterling', 'Archie', 'Gary', 'Errol', 'Jimmy', 'Nikita', 'Fritz', 'Georgi',
-    'Fedor', 'Jamie', 'Jacques', 'Alexander', 'Luka', 'Lennox', 'Remington', 'Grayson', 'Dorian', 'Xoan', 'Markus',
-    'Sultan', 'Christophe', 'Declan', 'Reggie', 'Jean', 'Roman', 'Thatcher', 'Arlo', 'Aurelien', 'Gage', 'Neil',
-    'Oliver James', 'Yonatan', 'Rolando', 'Jacobo', 'Boston', 'Jude', 'Anthony', 'Timmothy', 'Thanasis', 'Todor',
-    'Robbie', 'Winn', 'Sergio Manuel', 'Tobin', 'Kingston', 'Hamid', 'Hermes', 'Yamil', 'Emilio', 'Filippo', 'Joey',
-    'Alexandre', 'Andre Luiz', 'Elio', 'Jared', 'Zachariah', 'Ronnie', 'Abram', 'Willy', 'Nate', 'Orson', 'Caleb',
-    'Shannon', 'Cristobal', 'Elmer', 'Ivan', 'Florian', 'Micah', 'Sean', 'Wael', 'Napoleon', 'Martin', 'Jorge Enrique',
-    'Jonah', 'Pietro Angelo', 'Samuel David', 'Hugo', 'Kaiden', 'Orlando', 'Rick', 'Stephen', 'Sergey', 'Paul', 'Daven',
-    'Emanuel',
-    'Landen', 'Hershel', 'Marco Vinicio', 'Webster', 'Brendan', 'Jackie', 'Sheridan', 'Teddy', 'Pascal', 'Tommie',
-    'Suleiman', 'Rudy', 'Giuseppe', 'Fraser', 'Dante', 'Karlo', 'Silas', 'Rahim', 'Ansel', 'Leonardo Miguel', 'Elroy',
-    'Otto', 'Cedric', 'Jonathan David', 'Leslie', 'Anton', 'Valery Ivanovich', 'Dean', 'Niall', 'Sanford', 'Hudson',
-    'Maximus', 'Clayton', 'Gabriel', 'Ace', 'Santiago David', 'Lev', 'Paxton', 'Alistair', 'Enrico', 'Jose', 'Alfonso',
-    'Mitchell', 'Wendell', 'Porter', 'Josiah', 'Tucker', 'Uriel', 'Peter', 'Salim', 'August', 'Andres Felipe', 'Leon',
-    'Seung', 'Jerome', 'Samuel', 'Miles', 'Shadrach', 'Dillon', 'Muhammad Ali', 'Omarion', 'Gonzalo Andres', 'Tasso',
-    'Cristian', 'Caspian', 'Hunter', 'Jack', 'Lane', 'Lisandro', 'Manuel Antonio', 'Augustine', 'Salvatore Angelo',
-    'Terry', 'Erling', 'David', 'Edwin', 'Claudio', 'Corbin', 'Dale', 'Gustavo Henrique', 'Leo Alexander', 'Wilhelm',
-    'Roque', 'Ford', 'Cameron', 'Jhonatan', 'Kyler', 'Lucien', 'Monty', 'Natividad', 'Rhett', 'Rodrigo Miguel', 'Ivor',
-    'Hernan', 'Remus', 'Ted', 'Thales', 'Anatoly', 'Jorge', 'Braxton', 'Ernest', 'Patricio', 'Vladimir', 'Salah',
-    'Washington', 'Kelvin', 'Reed', 'Mervin', 'Frederick', 'Jaime', 'Yuri', 'Henry', 'Philip', 'Jose Manuel', 'Maxim',
-    'Jensen', 'Tamás', 'Grover', 'Marco Aurelio', 'Kian', 'Jethro', 'Lee', 'Dylan', 'Harry', 'Charles', 'Edward',
-    'Lamar', 'Wallace', 'Timothy', 'Brett', 'Nikolai', 'Talha', 'Tobiasz', 'Herbert', 'Werner', 'Quinlan', 'Salomon',
-    'Griffin', 'Urs', 'Eli', 'Stanley', 'Wycliffe', 'Gareth', 'Luis Felipe', 'Eriksen', 'Igor', 'Duncan',
-    'Thomas James', 'Bronson', 'Jamar', 'Chaim', 'Leland', 'Tony', 'Fredrik', 'Jordan', 'Bryant', 'Darren', 'Wilson',
-    'Bowen', 'Byron', 'Cole', 'River', 'Guy', 'Pietro', 'Marvin', 'Rob', 'Frank', 'Juan Esteban',
-    'Clark', 'Shaun', 'Rafe', 'Tommy', 'Cyrus', 'Henrik', 'Daniel Felipe', 'Stefan', 'Mehmet', 'Lionel', 'Renato',
-    'Leandro Jose', 'Alonso', 'Sebastian Marco', 'Montgomery', 'Samson', 'Zachary', 'Derek', 'Theodor', 'Tiberius',
-    'Vasily Petrovich', 'Alex', 'Sylvester', 'Thaddeus', 'Kyran', 'Matthias', 'Shay', 'Nino', 'Alan', 'Ibrahim',
-    'Garrison', 'Jarvis', 'Simeon', 'Octavio', 'Matteo', 'Max', 'Jan', 'Kaden', 'Casimir', 'Kristian', 'Ulises',
-    'Julio', 'Clinton', 'Francisco Javier', 'Torin', 'Laurent', 'Bode', 'Erick', 'Steven', 'Grady', 'Jeff', 'Montague',
-    'Pete', 'Yitzhak', 'Stuart', 'Tanner', 'Donovan', 'Turhan', 'Enzo', 'Woody', 'Richie'}
+
 
 
 class CheckCharacterType(Enum):
@@ -243,13 +127,12 @@ async def check_character(character_data: CharacterData) -> CheckCharacterType:
 
 
 async def get_character():
-    male_names = MALE_NAMES.copy()
-    suffix = 0
+    male_names = load_male_names()
     attempts = 0
+
     while attempts < 50:
         if not male_names:
-            suffix += 1
-            male_names = {name + str(suffix) for name in MALE_NAMES}
+            break
 
         character_data = generate_character(male_names)
         check_type = await check_character(character_data)
@@ -257,14 +140,19 @@ async def get_character():
         match check_type:
             case CheckCharacterType.SUCCESS:
                 return character_data
+
             case CheckCharacterType.INVALID_NAME:
-                if character_data.name in male_names:
-                    male_names.remove(character_data.name)
+                male_names.discard(character_data.name)
+
             case CheckCharacterType.INVALID_MIN_PRICE:
                 pass
+
         attempts += 1
-    random_name: str = random.choice(list(male_names))
-    return generate_character({f"{random_name} {random.randint(5000, 100000)}"})
+
+    # Фоллбек — гарантированно уникальное имя
+    fallback_name = f"Player {random.randint(10_000, 1_000_000)}"
+    return generate_character({fallback_name})
+
 
 
 def character_created_message(character: CharacterData) -> str:

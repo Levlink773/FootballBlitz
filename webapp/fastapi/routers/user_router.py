@@ -7,13 +7,15 @@ from typing import List, Optional, Literal
 
 from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, Field
+from sqlalchemy import update
 from starlette.responses import JSONResponse
 
 from config import Country
 from constants import lootboxes
-from database.models.character import Character
+from database.models.character import Character, Position
 from database.models.types import TypeBox
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
+from database.session import get_session
 from logging_config import logger
 from services.character_service import CharacterService
 from services.user_service import UserService  # поправьте путь если нужно
@@ -29,12 +31,19 @@ class CharacterPublic(BaseModel):
     talent: int
     power: float
     country: Country
+    position: Position
+    squad_position: str
     # ... other character fields you want to show
 
     class Config:
         from_attributes = True
 
-
+class SquadUpdateRequest(BaseModel):
+    # Списки ID персонажів
+    gk: List[Optional[int]]
+    def_: List[Optional[int]] = Field(..., alias="def") # 'def' зарезервоване слово в Python
+    mid: List[Optional[int]]
+    att: List[Optional[int]]
 # ИЗМЕНИТЕ ЭТИ МОДЕЛИ
 class UserPublic(BaseModel):
     id: int
@@ -173,6 +182,143 @@ def user_to_dict(u: UserBot) -> dict:
     return data
 
 
+# routers/user_router.py (або де у вас цей логіка)
+
+@router.post("/{user_id}/claim-first-characters", status_code=status.HTTP_200_OK)
+async def claim_first_team_endpoint(user_id: int):
+    user = await UserService.get_user(user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.characters and len(user.characters) > 0:
+        raise HTTPException(status_code=400, detail="User already has a team")
+
+    new_characters = []
+
+    # 👇 1. Визначаємо склад команди (11 гравців)
+    # Схема: 1 GK, 3 DEF, 3 MID, 4 ATT (за вашим запитом + 1 деф для балансу)
+    required_positions = (
+            [Position.GOALKEEPER] * 1 +
+            [Position.DEFENDER] * 3 +
+            [Position.MIDFIELDER] * 3 +
+            [Position.ATTACKER] * 4
+    )
+
+    # Можна перемішати, щоб гравець не знав, хто випаде наступним
+    # random.shuffle(required_positions)
+
+    # 2. Генерація гравців згідно позицій
+    for pos in required_positions:
+        # Припускаємо, що get_character() може приймати позицію,
+        # або ми встановлюємо її вручну в character_data
+        character_data: CharacterData = await get_character()
+
+        # ВАЖЛИВО: Передаємо позицію при створенні
+        # Якщо CharacterService.create_character приймає dict або об'єкт, додайте туди поле position
+        character_data.position = pos
+
+        character: Character = await CharacterService.create_character(character_data, user.user_id)
+        new_characters.append(character)
+
+    # 3. Вибір капітана
+    new_characters.sort(key=lambda c: c.power, reverse=True)
+
+    await UserService.assign_main_character_if_none(user.user_id)
+    await UserService.edit_status_register(user_id, STATUS_USER_REGISTER.FIRST_TRAINING)
+    await UserService.add_energy_user(user.user_id, 200)
+
+    final_user = await UserService.get_user(user_id=user.user_id)
+
+    return user_to_dict_with_characters(final_user)
+
+
+# Оновлюємо серіалізатор, щоб віддавав позицію на фронт
+def user_to_dict_with_characters(u: UserBot) -> dict:
+    data = user_to_dict(u)
+    data["characters"] = [
+        {
+            "id": c.id,
+            "name": c.name,
+            "power": c.power,
+            "talent": c.talent,
+            "age": c.age,
+            "country": c.country.value if c.country else "default",
+            "position": c.position.value if c.position else "MIDFIELDER",  # <--- Додаємо
+            "squad_position": c.squad_position,
+        } for c in u.characters
+    ]
+    return data
+
+
+@router.post("/{user_id}/save-squad")
+async def save_squad_endpoint(user_id: int, squad: SquadUpdateRequest):
+    """
+    Зберігає розстановку гравців та оновлює їх позиції (Enum).
+    """
+    async for session in get_session():
+        # 1. Спочатку скидаємо позиції в схемі (squad_position) всім гравцям цього юзера.
+        # Поле position (Enum) не чіпаємо, поки не перепризначимо явно.
+        await session.execute(
+            update(Character)
+            .where(Character.characters_user_id == user_id)
+            .values(squad_position=None)
+        )
+
+        # 2. Проходимось по схемі і оновлюємо:
+        #    - squad_position (слот, наприклад "gk_0")
+        #    - position (роль, наприклад Position.GOALKEEPER)
+
+        # GK (Воротар)
+        for i, char_id in enumerate(squad.gk):
+            if char_id:
+                await session.execute(
+                    update(Character)
+                    .where(Character.id == char_id)
+                    .values(
+                        squad_position=f"gk_{i}",
+                        position=Position.GOALKEEPER  # <--- Оновлюємо роль
+                    )
+                )
+
+        # DEF (Захисники)
+        for i, char_id in enumerate(squad.def_):
+            if char_id:
+                await session.execute(
+                    update(Character)
+                    .where(Character.id == char_id)
+                    .values(
+                        squad_position=f"def_{i}",
+                        position=Position.DEFENDER  # <--- Оновлюємо роль
+                    )
+                )
+
+        # MID (Півзахисники)
+        for i, char_id in enumerate(squad.mid):
+            if char_id:
+                await session.execute(
+                    update(Character)
+                    .where(Character.id == char_id)
+                    .values(
+                        squad_position=f"mid_{i}",
+                        position=Position.MIDFIELDER  # <--- Оновлюємо роль
+                    )
+                )
+
+        # ATT (Нападники)
+        for i, char_id in enumerate(squad.att):
+            if char_id:
+                await session.execute(
+                    update(Character)
+                    .where(Character.id == char_id)
+                    .values(
+                        squad_position=f"att_{i}",
+                        position=Position.ATTACKER  # <--- Оновлюємо роль
+                    )
+                )
+
+        await session.commit()
+
+    return {"status": "ok", "message": "Squad and positions updated"}
 # ----------------- Endpoints -----------------
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)

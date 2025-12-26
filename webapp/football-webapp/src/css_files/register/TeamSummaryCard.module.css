@@ -1,0 +1,290 @@
+/* --- ✨ ГЛОБАЛЬНИЙ КОНТЕЙНЕР "ULTIMATE TEAM" --- */
+.summaryContainer {
+    /* Напівпрозорий темний фон (Deep Blue/Black) */
+    background: rgba(16, 11, 24, 0.85);
+
+    /* Текстура "соти" (Hexagons) - класика футбольних інтерфейсів */
+    background-image:
+            radial-gradient(circle at 50% 0%, rgba(118, 75, 162, 0.4) 0%, transparent 60%),
+            repeating-linear-gradient(
+                    60deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 20px
+            ),
+            repeating-linear-gradient(
+                    120deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 20px
+            );
+
+    border-radius: 24px;
+    padding: 2rem;
+    width: 95%;
+    max-width: 650px;
+
+    /* Сильне розмиття фону під карткою */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    /* Неонова рамка */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.8), /* Глибока тінь */
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1), /* Внутрішня лінія */
+            0 0 30px rgba(118, 75, 162, 0.3); /* Зовнішнє фіолетове світіння */
+
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Ефект "прожектора" зверху --- */
+.summaryContainer::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 80%; height: 200px;
+    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- ХЕДЕР --- */
+.header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.teamName {
+    font-size: 2.2rem;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 3px;
+    font-family: 'Arial Black', sans-serif; /* Більш "спортивний" шрифт */
+
+    /* Металевий текст */
+    background: linear-gradient(to bottom, #ffffff 30%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+
+/* Шестикутник для рейтингу (OVR) */
+.ovrBadge {
+    position: relative;
+    width: 70px;
+    height: 80px;
+    /* Градієнт як на картках ICON */
+    background: linear-gradient(135deg, #2c2c2c, #000000);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Золота обводка емулюється через box-shadow на контейнері, але clip-path її обрізає.
+       Тому додаємо внутрішню рамку */
+}
+
+/* Внутрішній контур */
+.ovrBadge::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: transparent;
+    border: 2px solid #ffd700;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    opacity: 0.6;
+    z-index: 1;
+}
+
+.powerValue {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 0.9;
+    z-index: 2;
+    text-shadow: 0 2px 5px black;
+}
+.powerLabel {
+    font-size: 0.75rem;
+    color: #ffd700;
+    font-weight: 700;
+    z-index: 2;
+    letter-spacing: 1px;
+}
+
+/* --- СІТКА ГРАВЦІВ --- */
+.squadGrid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px; /* Трохи щільніше */
+    margin-bottom: 2.5rem;
+}
+
+/* Картка гравця (Щит) */
+.playerSlot {
+    /* Золота база (Gold Rare) */
+    background: linear-gradient(180deg, #F8E79C 0%, #D4AF37 40%, #8B6C18 100%);
+    /* Форма щита FUT */
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+    padding: 2px; /* Це товщина рамки */
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Тінь не працює з clip-path напряму, тому використовуємо filter на батьківському елементі в JS (motion)
+       АБО просто покладаємось на внутрішній контраст */
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+}
+
+/* Внутрішній фон картки */
+.cardInner {
+    background: linear-gradient(180deg, #3d3146 0%, #1a1620 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%); /* Повторюємо форму */
+    padding: 8px 2px 12px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Спеціальний стиль для Капітана (TOTY / Blue) */
+.captainSlot {
+    background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); /* Neon Blue border */
+    transform: scale(1.08); /* Трохи більший */
+    z-index: 5;
+    filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.4));
+}
+.captainSlot .cardInner {
+    background: linear-gradient(180deg, #09203f 0%, #537895 100%); /* Blue dark bg */
+}
+
+/* Бейдж капітана */
+.captainBadge {
+    position: absolute;
+    top: 2px; right: 2px;
+    background: #ffd700;
+    color: #000;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    font-size: 11px;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    border: 2px solid white;
+}
+
+.avatarFrame img {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+}
+
+.playerName {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 95%;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+}
+
+.playerOvr {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #D4AF37; /* Gold */
+    text-shadow: 0 1px 2px black;
+}
+
+/* У капітана рейтинг білий, щоб читався на синьому */
+.captainSlot .playerOvr {
+    color: #fff;
+}
+
+/* --- КНОПКА КОНТРАКТУ --- */
+.signButton {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(90deg, #FFD700 0%, #FDB931 20%, #ffdf6e 50%, #FDB931 80%, #FFD700 100%);
+    background-size: 200% auto;
+    border: none;
+
+    /* Зробив кнопку трохи компактнішою, але ширшою */
+    padding: 0.8rem 4rem;
+
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #3d2b00;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+
+    /* Більш прямокутна, як у грі */
+    border-radius: 6px;
+
+    cursor: pointer;
+    box-shadow:
+            0 4px 0 #b8860b, /* "3D" ефект натискання */
+            0 10px 20px rgba(0,0,0,0.4);
+
+    animation: shineButton 4s infinite linear;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.signButton:active {
+    transform: translateY(4px);
+    box-shadow:
+            0 0 0 #b8860b,
+            0 2px 5px rgba(0,0,0,0.4);
+}
+
+@keyframes shineButton {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* АДАПТИВ */
+@media (max-width: 500px) {
+    .squadGrid {
+        grid-template-columns: repeat(3, 1fr); /* 3 в ряд */
+        gap: 8px;
+    }
+    .summaryContainer {
+        padding: 1rem 0.8rem;
+        width: 98%;
+    }
+    .teamName { font-size: 1.6rem; }
+
+    .avatarFrame img { width: 36px; height: 36px; }
+
+    /* Зменшуємо картки на мобільному */
+    .playerSlot {
+        /* Текст всередині треба підлаштувати */
+    }
+    .playerName { font-size: 0.6rem; }
+    .playerOvr { font-size: 0.8rem; }
+}

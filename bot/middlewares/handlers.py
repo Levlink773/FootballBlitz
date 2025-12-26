@@ -84,14 +84,14 @@ async def get_user(user_bot: User) -> UserBot | None:
                 },
                 job_id=f"reg_bonus_24h_{user.user_id}"
             )
-            await task_scheduler.schedule_task(
-                func=get_blitz_settings_keyboard,
-                delay=timedelta(hours=48),
-                kwargs={
-                    'user_id': user.user_id,
-                },
-                job_id=f"blitz_active_48h_{user.user_id}"
-            )
+            # await task_scheduler.schedule_task(
+            #     func=get_blitz_settings_keyboard,
+            #     delay=timedelta(hours=48),
+            #     kwargs={
+            #         'user_id': user.user_id,
+            #     },
+            #     job_id=f"blitz_active_48h_{user.user_id}"
+            # )
         return user
     except Exception as E:
         logging.error(E)

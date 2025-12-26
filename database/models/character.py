@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, Integer, Boolean, Enum, Float
 from sqlalchemy.orm import relationship, Mapped
-
+from enum import Enum as EnumBase
 from config import Country, Gender
 from constants import POWER_MUL, TALENT_MUL, AGE_MUL
 from database.models.reminder_character import ReminderCharacter
@@ -10,7 +10,11 @@ from database.models.reminder_character import ReminderCharacter
 from database.model_base import Base
 from database.models.transfer_character import TransferCharacter
 
-
+class Position(str, EnumBase):
+    GOALKEEPER = "GOALKEEPER"  # Воротар
+    DEFENDER = "DEFENDER"      # Захисник
+    MIDFIELDER = "MIDFIELDER"  # Півзахисник
+    ATTACKER = "ATTACKER"      # Нападник
 class Character(Base):
     __tablename__ = 'characters'
 
@@ -24,6 +28,8 @@ class Character(Base):
     power = Column(Float, default=0)
     gender = Column(Enum(Gender), nullable=False, default=Gender.MAN)
     country = Column(Enum(Country), default=Country.UKRAINE)
+    position = Column(Enum(Position), nullable=False, default=Position.MIDFIELDER)
+    squad_position = Column(String(50), nullable=True, default=None)
 
     created_at = Column(DateTime, default=datetime.datetime.now)
 

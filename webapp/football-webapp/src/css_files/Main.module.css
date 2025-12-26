@@ -210,10 +210,10 @@
 .arrowContainer {
     position: absolute;
     /* Ставимо на ту ж висоту, де приблизно кнопка завдань, але трохи нижче/вище за потреби */
-    top: 193px;
+    top: 200px;
 
     /* 🔥 КЛЮЧОВЕ ЗМІНИ: Прив'язка до центру */
-    left: -1%;
+    left: 0%;
 
     /* Зсуваємо вправо від центру, але МЕНШЕ, ніж кнопку завдань.
        Кнопка завдань має margin-left: 110px.
@@ -231,8 +231,8 @@
     left: auto;
     top: 0;
 
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 60px;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
     animation: simpleBounce 1.5s infinite;
 }
@@ -916,14 +916,14 @@
     position: absolute;
     /* inventory знаходиться на top: 193px.
        45px висота скрині + 15px відступ = ~253px */
-    top: 240px;
+    top: 280px;
 
     /* Таке саме вирівнювання, як у скрині */
-    left: -8%;
+    left: 0%;
     margin-left: 40px;
 
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 60px;
 
     display: flex;
     flex-direction: column;
@@ -953,13 +953,13 @@
 }
 
 .tutorialIcon {
-    font-size: 22px;
+    font-size: 30px;
     color: #ffffff;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));
 }
 
 .tutorialLabel {
-    font-size: 7px;
+    font-size: 10px;
     font-weight: 700;
     color: #00DDFF; /* Яскравий колір тексту */
     margin-top: -2px;

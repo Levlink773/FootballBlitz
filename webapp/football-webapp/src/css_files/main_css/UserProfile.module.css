@@ -1,265 +1,158 @@
-/* --- Анімації --- */
-@keyframes slideUpFadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-@keyframes slideUpFadeInFlex {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* --- Головний контейнер --- */
 .userProfile {
     position: absolute;
-    top: 0;
+    top: 100px;
     left: 0;
     width: 100%;
     height: 100%;
+    /* Дозволяємо кліки тільки на дочірніх елементах,
+       щоб прозорі зони пропускали кліки у гру */
     pointer-events: none;
     z-index: 5;
 
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center; /* Центруємо по горизонталі */
 }
 
-/* --- Контейнер для персонажів --- */
+/* --- Контейнер схеми (Центральна позиція) --- */
 .characterSwitcher {
+    position: relative;
+    /* Відступ зверху, щоб схема не прилипала до самого верху */
+    margin-top: 90px;
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: auto; /* 🔥 ВАЖЛИВО: Вмикаємо кліки */
+}
+
+/* --- Обгортка картинки (Аура та розміри) --- */
+.schemaWrapper {
+    position: relative;
+    width: 160px;  /* Трохи зменшив для стандарту */
+    height: 160px;
+    z-index: 5;
+    cursor: pointer;
+    border-radius: 20px;
+    /* Додаємо pointer-events тут про всяк випадок */
+    pointer-events: auto;
+}
+
+/* Аура (Світіння) */
+.schemaWrapper::before {
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: -10px;
+    border-radius: 30px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, rgba(255, 140, 0, 0.1) 60%, transparent 80%);
+    filter: blur(15px);
+    opacity: 0.6;
+    z-index: -1;
+    animation: pulseAura 3s infinite ease-in-out;
+}
+
+.schemaImage {
     width: 100%;
     height: 100%;
-    pointer-events: none;
-
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+            inset 0 0 20px rgba(0, 0, 0, 0.6),
+            0 10px 25px rgba(0, 0, 0, 0.5),
+            0 0 15px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
-/* --- Кнопка перемикання (Центр) --- */
-.switchButton {
-    position: absolute;
-    width: 56px;
-    height: 56px;
-    z-index: 10;
-
-    top: 210px;
-    left: 50%;
-
-    /* ✨ ВИПРАВЛЕННЯ ДЛЯ > 380px:
-       Було -55px (надто вліво). Ставимо -25px.
-       Тепер кнопка стоїть рівно між персонажами.
-    */
-    transform: translateX(-50%);
-    margin-left: -25px;
-
-    background: rgba(255, 255, 255, 0);
-    border: 2px solid rgba(255, 215, 0, 0);
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.35s ease-in-out;
-    pointer-events: auto;
-
-    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards;
-    opacity: 0;
+/* Ховер ефект */
+.schemaWrapper:hover .schemaImage {
+    border-color: #fff;
+    box-shadow:
+            inset 0 0 10px rgba(0,0,0,0.3),
+            0 15px 35px rgba(0,0,0,0.6),
+            0 0 30px rgba(255, 215, 0, 0.7);
 }
 
-.switchButton:hover {
-    transform: translateX(-50%) scale(1.1) rotate(180deg);
-    border-color: #a39438;
+@keyframes pulseAura {
+    0% { transform: scale(0.95); opacity: 0.4; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(0.95); opacity: 0.4; }
 }
 
-.switchButton svg, .switchButton img {
-    width: 150%;
-    height: 150%;
-    transition: transform 0.35s ease-in-out;
-}
-
-.switchButton:hover svg, .switchButton:hover img {
-    transform: rotate(180deg);
-}
-
-/* --- Другий персонаж / Тінь (Зліва) --- */
-.playerImageBack {
-    position: relative;
-    width: auto;
-    max-width: 120px;
-
-    margin-top: 156px;
-    margin-right: -25px;
-
-    z-index: 1;
-    filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.3)) brightness(0.7);
-    pointer-events: auto;
-
-    animation: slideUpFadeInFlex 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
-    opacity: 0;
-}
-
-/* --- Головний персонаж (Справа) --- */
-.playerImage {
-    position: relative;
-    width: auto;
-    max-width: 226px;
-    height: auto;
-    max-height: 256px;
-
-    margin-top: 104px;
-    margin-left: -35px;
-
-    z-index: 2;
-    filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.4));
-
-    animation: slideUpFadeInFlex 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-
-    pointer-events: auto;
-    cursor: pointer;
-}
-
-/* --- Інформаційний блок --- */
+/* --- Інфо-бокс (Знизу) --- */
 .infoBox {
-    position: absolute;
+    position: relative; /* Змінено з absolute на relative */
+    margin-top: 20px;   /* Відступ від схеми */
     width: 90%;
-    max-width: 336px;
-    height: 55px;
-    box-sizing: border-box;
+    max-width: 340px;
+    height: 60px;
 
-    left: 50%;
-    top: 295px;
-    transform: translateX(-50%);
-    z-index: 3;
-
-    background: rgba(40, 40, 40, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(20, 20, 20, 0.85); /* Більш темний фон */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 15px;
-
-    animation: slideUpFadeIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
-    opacity: 0;
-    pointer-events: auto;
+    padding: 0 20px;
+    z-index: 10;
+    pointer-events: auto; /* Вмикаємо кліки */
     cursor: pointer;
-}
-.highlightOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-    pointer-events: none;
+    transition: transform 0.2s;
 }
 
-.arrowContainer {
-    position: absolute;
-    /* Ставимо на ту ж висоту, де приблизно кнопка завдань, але трохи нижче/вище за потреби */
-    top: 180px;
-
-    /* 🔥 КЛЮЧОВЕ ЗМІНИ: Прив'язка до центру */
-    left: 50%;
-
-    /* Зсуваємо вправо від центру, але МЕНШЕ, ніж кнопку завдань.
-       Кнопка завдань має margin-left: 110px.
-       Даємо скрині margin-left: 40px.
-       Різниця 70px гарантує, що вони не злипнуться.
-       І скриня буде висіти акуратно на плечі персонажа. */
-    margin-left: 40px;
-
-    z-index: 101;
+.infoBox:active {
+    transform: scale(0.98);
 }
 
-.inventoryHintIcon {
-    position: relative;
-    /* Прибираємо старі дивні зміщення */
-    left: auto;
-    top: 0;
-
-    width: 60px;
-    height: 60px;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
-    animation: simpleBounce 1.5s infinite;
-}
-
-@keyframes simpleBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
 /* Внутрішні стилі InfoBox */
-.leftSection { display: flex; flex-direction: column; gap: 3px; }
-.nameAge { display: flex; align-items: baseline; gap: 4px; }
-.name { color: white; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); white-space: nowrap; }
-.age { color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
-.locationGroup { display: flex; align-items: center; gap: 5px; }
-.location { color: rgba(255, 255, 255, 0.9); font-size: 11px; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
-.locationIcon { width: 15px; height: 15px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
-.stats { display: flex; align-items: center; gap: 12px; }
-.stat { display: flex; align-items: center; gap: 5px; color: white; font-size: 14px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); transition: transform 0.2s ease-in-out; }
-.stat:hover { transform: scale(1.1); }
-.statIcon { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+.leftSection { display: flex; flex-direction: column; justify-content: center; }
+.nameAge { display: flex; align-items: center; gap: 6px; }
+.name { color: #FFD700; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+.locationGroup { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+.location { color: #ccc; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.locationIcon { width: 14px; height: 14px; opacity: 0.8; }
 
-/* --- 📱 АДАПТАЦІЯ ДЛЯ МАЛИХ ЕКРАНІВ (< 380px) --- */
+.stats { display: flex; align-items: center; gap: 15px; }
+.stat { display: flex; flex-direction: column; align-items: center; gap: 0px; }
+.stat span { color: white; font-size: 13px; font-weight: 700; line-height: 1; }
+.statIcon { width: 18px; height: 18px; margin-bottom: 2px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+
+/* ======================================= */
+/* 🔥 МОБІЛЬНА АДАПТАЦІЯ (Вузькі екрани)   */
+/* ======================================= */
+
 @media (max-width: 380px) {
-    /* 1. Головний персонаж */
-    .playerImage {
-        max-width: 180px;
-        margin-top: 135px;
-        margin-left: -35px;
+    .characterSwitcher {
+        margin-top: 100px; /* Піднімаємо вище */
     }
 
-    /* 2. Чорний силует (Тінь) */
-    .playerImageBack {
-        /* ✨ ЗМЕНШЕНО: Щоб він не був більшим за головного на малих екранах */
-        max-width: 110px;
-
-        margin-right: -15px;
-        margin-top: 165px;
+    .schemaWrapper {
+        width: 150px; /* Зменшуємо розмір схеми */
+        height: 150px;
     }
 
-    /* 3. Кнопка перемикання */
-    .switchButton {
-        top: 195px;
-        width: 48px;
-        height: 48px;
-
-        /* ✨ Посунув трохи правіше від попереднього варіанту (-25px замість -35px),
-           щоб кнопка була рівно між плечима */
-        margin-left: -20px;
-        margin-top: 15px;
-    }
-
-    /* 4. Інфо-бокс */
     .infoBox {
-        top: 285px;
-        height: 50px;
-        padding: 0 10px;
+        margin-top: 15px;
+        width: 95%;
+        height: 55px;
+        padding: 0 15px;
     }
 
-    .name { font-size: 13px; }
-    .age { font-size: 12px; }
-    .stats { gap: 8px; }
-    .stat { font-size: 12px; }
-    .statIcon { width: 18px; height: 18px; }
+    .name { font-size: 14px; }
+    .stats { gap: 10px; }
+    .statIcon { width: 16px; height: 16px; }
+    .stat span { font-size: 12px; }
+}
+
+@media (max-height: 600px) {
+    /* Для дуже коротких екранів */
+    .characterSwitcher { margin-top: 50px; }
+    .schemaWrapper { width: 110px; height: 110px; }
 }

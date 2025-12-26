@@ -271,3 +271,63 @@
     .characterImage { width: 100px; height: 100px; }
     .statValue { font-size: 1rem; }
 }
+
+.counterBadge {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Додайте до існуючого CSS */
+
+/* Контейнер для позиції (по центру між рейтингом і прапором) */
+.positionBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.positionIcon {
+    font-size: 1.2rem;
+    color: #ffd700;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.positionLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* Повна назва позиції поверх фото або під ним */
+.positionFullLabel {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffd700;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    z-index: 5;
+}

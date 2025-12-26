@@ -105,6 +105,7 @@ import face_dark from "./assets/public/face_dark.png";
 import chest_inventory from "./assets/public/chest.png";
 import referal_character from "./assets/public/character.png";
 import character_create_team from "./assets/public/character_create_team.png";
+import schema from "./assets/public/schema.png";
 
 
 class Config {
@@ -211,6 +212,7 @@ class Config {
         chest_inventory: chest_inventory,
         referal_character: referal_character,
         character_create_team: character_create_team,
+        schema: schema
     };
 
     // какие-то игровые настройки

@@ -1,10 +1,9 @@
-# routers/transfer_router.py
 from __future__ import annotations
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.orm import selectinload
 
 from database.models.character import Character
@@ -43,12 +42,11 @@ def transfer_to_dict(t) -> dict:
         return {}
 
     character_data = None
-    if t.character:  # Проверяем, что связь character существует
+    if t.character:
         owner_data = None
-        if t.character.owner:  # Проверяем, что у персонажа есть владелец
+        if t.character.owner:
             owner_data = {
                 "user_id": t.character.owner.user_id,
-                # Добавьте сюда другие поля UserBot, которые могут понадобиться, например, username
                 "username": getattr(t.character.owner, "username", f"user_{t.character.owner.user_id}")
             }
         character_data = {
@@ -61,7 +59,6 @@ def transfer_to_dict(t) -> dict:
             "country": t.character.country.name if t.character.country else None,
             "price": t.character.character_price,
             "owner": owner_data
-            # Добавьте сюда другие поля Character, если нужно
         }
 
     return {
@@ -70,15 +67,16 @@ def transfer_to_dict(t) -> dict:
         "price": t.price,
         "transfer_type": t.transfer_type.name if t.transfer_type is not None else None,
         "created_at": t.created_at.isoformat() if t.created_at else None,
-        "character": character_data  # <<< Главное добавление!
+        "character": character_data
     }
 
 
 # ---------- Endpoints ----------
+
 @router.get("/", response_model=List[dict])
 async def get_all_transfers():
     """
-    Возвращает все записи TransferCharacter (фильтр уже внутри сервиса — .transfer_type == TransferType.TRANSFER).
+    Возвращает все активные трансферы (игроки от пользователей).
     """
     transfers = await TransferCharacterService.get_all()
     if not transfers:
@@ -88,7 +86,30 @@ async def get_all_transfers():
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_transfer(payload: TransferCreate):
+    """
+    Виставити гравця на трансфер.
+    Перевіряє, чи не є гравець останнім у користувача.
+    """
     logger.info("create_transfer received payload: %s", payload)
+
+    async for session in get_session():
+        # 1. Знаходимо персонажа
+        char = await session.get(Character, payload.characters_id)
+        if not char:
+            raise HTTPException(status_code=404, detail="❌ Персонажа не знайдено.")
+
+        # 2. Перевіряємо кількість персонажів у власника
+        # Рахуємо, скільки всього персонажів у цього юзера
+        count_query = select(func.count(Character.id)).where(Character.characters_user_id == char.characters_user_id)
+        user_char_count = await session.scalar(count_query)
+
+        if user_char_count <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="⚠️ Ви не можете продати свого останнього гравця! Спочатку купіть нового."
+            )
+
+    # Якщо перевірка пройдена, створюємо трансфер через сервіс
     try:
         transfer = await TransferCharacterService.create(
             characters_id=payload.characters_id,
@@ -104,9 +125,9 @@ async def create_transfer(payload: TransferCreate):
 
 
 @router.get("/free_agents", response_model=List[dict])
-async def get_all_transfers():
+async def get_free_agents():
     """
-    Возвращает все записи TransferCharacter (фильтр уже внутри сервиса — .transfer_type == TransferType.TRANSFER).
+    Возвращает список свободных агентов.
     """
     transfers = await TransferCharacterService.get_all_free_agents()
     if not transfers:
@@ -126,9 +147,7 @@ async def get_transfer_by_id(transfer_id: int):
 async def instant_sell_api(payload: InstantSellRequest):
     """
     Моментальная продажа персонажа.
-    1. Проверяет, что персонаж существует и принадлежит пользователю.
-    2. Удаляет персонажа и все связанные записи тренировок.
-    3. Начисляет пользователю деньги по цене персонажа.
+    НОВА ЛОГІКА: Заборонено продавати, якщо у користувача <= 1 персонажа.
     """
     async for session in get_session():
         # Получаем персонажа
@@ -136,10 +155,23 @@ async def instant_sell_api(payload: InstantSellRequest):
         if not char:
             raise HTTPException(status_code=404, detail="❌ Персонаж не найден.")
 
-        # Проверяем наличие владельца
-        user = await session.scalar(select(UserBot).where(UserBot.user_id == char.characters_user_id))
+        # Проверяем наличие владельца и загружаем его персонажей для подсчета
+        user = await session.scalar(
+            select(UserBot)
+            .where(UserBot.user_id == char.characters_user_id)
+            .options(selectinload(UserBot.characters))
+        )
+
         if not user:
             raise HTTPException(status_code=404, detail="❌ Владелец персонажа не найден.")
+
+        # --- НОВАЯ ПРОВЕРКА ---
+        if len(user.characters) <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="⚠️ Ви не можете продати свого останнього гравця!"
+            )
+        # ----------------------
 
         fact_price = char.character_price
 
@@ -189,7 +221,6 @@ async def delete_transfer(transfer_id: int):
         ok = await TransferCharacterService.delete(transfer_id)
         if not ok:
             raise HTTPException(status_code=404, detail="Transfer not found")
-        # 204 обычно не возвращает тело
         return
     except Exception as e:
         logger.exception("delete_transfer failed: %s", e)
@@ -223,20 +254,19 @@ class WithdrawResponse(BaseModel):
     owner_id: int
 
 
-# ---------- Endpoint: купить трансфер ----------
+# ---------- Endpoint: купить трансфер (или свободного агента) ----------
 @router.post("/{transfer_id}/buy", response_model=BuyResponse)
 async def buy_transfer(transfer_id: int, payload: BuyRequest):
     buyer_id = payload.buyer_user_id
 
-    # Проверяем что трансфер существует (сервис возвращает модель TransferCharacter)
+    # Проверяем что трансфер существует
     transfer: Optional[TransferCharacter] = await TransferCharacterService.get_by_id(transfer_id)
     if not transfer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="❌ Трансфер не найден или уже продан/снят с рынка.")
 
-    # Внутри транзакции ещё раз подгружаем связанные сущности и выполняем изменения
     async for session in get_session():
-        # Подгружаем персонажа (с transfer) чтобы работать с актуальными данными
+        # Подгружаем персонажа
         char: Character = await session.scalar(
             select(Character)
             .where(Character.id == transfer.characters_id)
@@ -245,12 +275,11 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
         if not char:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="❌ Персонаж не найден.")
 
-        # Получаем свежую запись transfer (на случай гонки)
+        # Получаем свежую запись transfer
         transfer_db: TransferCharacter = await session.scalar(
             select(TransferCharacter).where(TransferCharacter.id == transfer_id)
         )
         if not transfer_db:
-            # Кто-то уже удалил трансфер
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail="❌ Трансфер уже отменён или продан.")
 
@@ -261,7 +290,7 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="❌ Ви не можете купити свого гравця.")
 
-        # Получаем покупателей и продавца
+        # Получаем покупателя со списком персонажей
         buyer: UserBot = await session.scalar(
             select(UserBot).where(UserBot.user_id == buyer_id).options(
                 selectinload(UserBot.characters),
@@ -277,22 +306,25 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
 
         price = transfer_db.price
 
-        # Проверяем средства
+        # 1. Проверяем средства
         if buyer.money < price:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="💸 Недостатньо коштів.")
 
-        # Проверка лимита персонажей (копия логики из aiogram)
-        char_count = len(buyer.characters) if buyer.characters is not None else 0
-        if (not buyer.vip_pass_is_active and char_count >= 1) or (buyer.vip_pass_is_active and char_count >= 2):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=("⚠️ Ви вже досягли максимальної кількості гравців. "
-                                        "Продайте одного з існуючих, щоб придбати нового."))
+        # 2. --- НОВАЯ ПРОВЕРКА: ЛИМИТ 11 ИГРОКОВ ---
+        # Старая логика с VIP удалена
+        current_char_count = len(buyer.characters) if buyer.characters else 0
+        if current_char_count >= 11:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="⚠️ Ви досягли ліміту в 11 гравців! 🚫 Продайте когось, щоб купити нового."
+            )
+        # -------------------------------------------
 
-        # Выполняем перевод: смена владельца
+        # Выполняем перевод
         char.characters_user_id = buyer_id
         session.add(char)
 
-        # списываем и зачисляем деньги
+        # Списываем и зачисляем деньги
         buyer.money -= price
         session.add(buyer)
 
@@ -305,7 +337,7 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
 
         await session.commit()
 
-        # Если нужно — гарантируем, что у покупателя есть основной персонаж
+        # Гарантируем, что у покупателя есть основной персонаж
         await UserService.assign_main_character_if_none(buyer_id)
 
         response = BuyResponse(
@@ -318,6 +350,8 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
             buyer_balance=buyer.money,
             seller_balance=seller.money if seller else None
         )
+
+        # Отправка уведомления продавцу (через бот)
         if seller_id and isinstance(seller_id, int):
             try:
                 await bot.send_message(
@@ -326,7 +360,8 @@ async def buy_transfer(transfer_id: int, payload: BuyRequest):
                          f"Баланс поповнено на <b>{transfer.price}</b> монет."
                 )
             except Exception as e:
-                logger.error(e)
+                logger.error(f"Failed to send notification to seller {seller_id}: {e}")
+
         return response
 
 

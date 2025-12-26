@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 
 from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
+from database.models.character import Position
 from database.models.user_bot import UserBot
 from logging_config import logger
 from .utils import (
@@ -88,6 +89,32 @@ class MatchTeamBlitz:
     def anulate_donate_energy(self) -> None:
         self.episode_donate_energy = 0
         self.text_is_send_epizode_donate_energy = False
+
+    def get_user_by_position(self, position: Position, exclude_users: list[UserBot] = []) -> Optional[UserBot]:
+        candidates = []
+        for user in self.users_in_match:
+            if user in exclude_users:
+                continue
+            # Проверяем позицию главного персонажа пользователя
+            # Предполагаем, что у UserBot есть main_character и у него поле position
+            if user.main_character and user.main_character.position == position:
+                candidates.append(user)
+
+        if not candidates:
+            return None
+
+        # Можно выбирать случайно или по силе
+        # weights = [c.main_character.power for c in candidates]
+        return random.choice(candidates)
+
+    # 👇 НОВЫЙ МЕТОД: Получить любого игрока (как раньше, но с исключением)
+    def get_random_user(self, exclude_users: list[UserBot] = []) -> Optional[UserBot]:
+        candidates = [u for u in self.users_in_match if u not in exclude_users]
+        if not candidates:
+            return None
+        # Выбираем взвешенно по силе
+        weights = [sum(c.power for c in u.characters) for u in candidates]
+        return random.choices(candidates, weights=weights, k=1)[0]
 
 @dataclass
 class BlitzMatchData:

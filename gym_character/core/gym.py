@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import Task
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, List, Dict
 
 from aiogram import Bot
 from aiogram.types import FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
@@ -24,119 +24,172 @@ from .manager import GymCharacterManager
 
 
 class Gym:
-    
     _bot: Bot = bot
-    
+
     def __init__(
-        self,
-        character: Character,
-        time_training: timedelta,
+            self,
+            characters: List[Character],  # Тепер приймаємо список!
+            time_training: timedelta,
     ) -> None:
-        self.character = character
+        self.characters = characters
         self.time_training = time_training
-        
-        self.result_training: Optional[ResultTraining] = None
-        
-    @property
-    def training_points(self) -> float:
-        return self.character.how_much_power_can_add
+
+        # Словник для зберігання результатів по кожному персонажу: {char_id: ResultTraining}
+        self.results_training: Dict[int, ResultTraining] = {}
 
     @property
     def delta_time_training(self) -> int:
         return int(self.time_training.total_seconds())
-    
-    
+
+    # Властивість для owner беремо з першого персонажа (вони всі одного власника)
+    @property
+    def owner_user_id(self) -> int:
+        if self.characters:
+            return self.characters[0].characters_user_id
+        return 0
+
     def start_training(self) -> Task:
         task_training = asyncio.create_task(
             self._wait_training(self.delta_time_training)
         )
         return task_training
 
-        
     async def _wait_training(self, time_sleep: int) -> None:
         try:
-            await UserService.add_full_count_to_gym(self.character.characters_user_id, 1)
-            await UserService.update_training_time(self.character.characters_user_id)
+            # Оновлюємо статистику користувачу (1 раз за групу)
+            if self.owner_user_id:
+                await UserService.add_full_count_to_gym(self.owner_user_id, 1)
+                await UserService.update_training_time(self.owner_user_id)
+
             await asyncio.sleep(time_sleep)
             await self._run_training()
         except asyncio.CancelledError:
-            await RemniderCharacterService.anulate_character_training_status(self.character.id)
-            await RemniderCharacterService.anulate_training_character(self.character.id)
-            
+            # При скасуванні - скасовуємо для всіх
+            for char in self.characters:
+                await RemniderCharacterService.anulate_character_training_status(char.id)
+                await RemniderCharacterService.anulate_training_character(char.id)
+
     async def _run_training(self) -> None:
-        cost_gym = 0
+        cost_gym = const_energy_by_time.get(self.time_training, 0)
+
         try:
-            cost_gym = const_energy_by_time[self.time_training]
-            chance = chance_add_point[self.time_training]
-            if not await RemniderCharacterService.character_in_training(
-                character_id=self.character.id
-            ):
-                raise ValueError("Персонаж не в тренуванні")
-            
-            if self.character.owner.vip_pass_is_active:
-                chance += CHANCE_VIP_PASS
+            # Базовий шанс для цього часу
+            base_chance = chance_add_point.get(self.time_training, 50)
 
-                
-            success = check_chance(chance)
-            self.result_training = ResultTraining.SUCCESS if success else ResultTraining.FAILURE
+            # --- ИСПРАВЛЕНИЕ ТУТ ---
+            # Замість звернення до self.characters[0].owner (що викликає помилку),
+            # отримуємо свіжого користувача через сервіс по ID.
+            is_vip = False
+            if self.owner_user_id:
+                user = await UserService.get_user(self.owner_user_id)
+                if user:
+                    is_vip = user.vip_pass_is_active
+            # -----------------------
 
-            if self.result_training == ResultTraining.SUCCESS:
-                await CharacterService.update_power(self.character, self.training_points)
-            await UserService.add_count_go_to_gym_user(
-                user_id=self.character.owner.user_id,
-                amount=1,
-            )
+            if is_vip:
+                base_chance += CHANCE_VIP_PASS
+
+            # --- ЦИКЛ ПО ВСІХ ПЕРСОНАЖАХ ---
+            for char in self.characters:
+                # Перевіряємо, чи персонаж все ще в статусі тренування в БД
+                if not await RemniderCharacterService.character_in_training(character_id=char.id):
+                    logger.warning(f"Персонаж {char.id} не в стані тренування, пропускаємо.")
+                    continue
+
+                # Розрахунок успіху для конкретного персонажа
+                success = check_chance(base_chance)
+                result = ResultTraining.SUCCESS if success else ResultTraining.FAILURE
+                self.results_training[char.id] = result
+
+                if result == ResultTraining.SUCCESS:
+                    # Розрахунок сили для конкретного персонажа
+                    points = char.how_much_power_can_add
+                    # Важливо: CharacterService.update_power повинен вміти працювати
+                    # з detached об'єктом або завантажувати його заново по ID.
+                    await CharacterService.update_power(char, points)
+
+            # Додаємо запис про похід в зал (1 раз для юзера)
+            if self.owner_user_id:
+                await UserService.add_count_go_to_gym_user(
+                    user_id=self.owner_user_id,
+                    amount=1,
+                )
+
+            # Відправляємо ОДНЕ зведене повідомлення
             await self.send_end_training_message()
-            await GymCharacterManager.remove_gym_task(self.character.id)
+
+            # Видаляємо таски з менеджера для всіх
+            for char in self.characters:
+                await GymCharacterManager.remove_gym_task(char.id)
+
         except Exception as e:
-            await UserService.add_energy_user(self.character.owner.user_id, cost_gym)
-            logger.error(f"Ошибка при выполнении тренировки: {e}")
+            # Якщо критична помилка - повертаємо енергію
+            if self.owner_user_id:
+                await UserService.add_energy_user(self.owner_user_id, cost_gym)
+            logger.error(f"Ошибка при выполнении групповой тренировки: {e}")
         finally:
-            await RemniderCharacterService.anulate_character_training_status(self.character.id)
-            await RemniderCharacterService.anulate_training_character(self.character.id)
+            # Завжди знімаємо статус тренування для всіх
+            for char in self.characters:
+                await RemniderCharacterService.anulate_character_training_status(char.id)
+                await RemniderCharacterService.anulate_training_character(char.id)
 
     async def send_end_training_message(self) -> None:
         try:
-            if not self.character:
-                raise ValueError("Персонаж не найден для отправки сообщения")
+            if not self.characters:
+                return
 
-            if self.result_training is None:
-                raise ValueError("Результат тренировки не определён")
-            points = self.training_points if self.result_training == ResultTraining.SUCCESS else 0
-            
-            message_text = TrainingTextTemplate.get_training_text(self.result_training, points)
-            
-            photo_path = f"src/{'success' if self.result_training == ResultTraining.SUCCESS else 'failure'}_training.jpg"
+            user_id = self.owner_user_id
+
+            # Формуємо текст повідомлення
+            # Якщо персонажів багато, робимо список
+            message_lines = ["🏋️‍♂️ <b>Тренування завершено!</b>\n"]
+
+            overall_success = False  # Для вибору картинки (якщо хоча б один успішний - успіх)
+
+            for char in self.characters:
+                res = self.results_training.get(char.id, ResultTraining.FAILURE)
+
+                if res == ResultTraining.SUCCESS:
+                    overall_success = True
+                    points = char.how_much_power_can_add
+                    message_lines.append(f"✅ <b>{char.name}:</b> +{points:.2f} сили")
+                else:
+                    message_lines.append(f"❌ <b>{char.name}:</b> Невдача")
+
+            final_text = "\n".join(message_lines)
+
+            # Картинка: success якщо хоч хтось прокачався, інакше failure
+            photo_path = f"src/{'success' if overall_success else 'failure'}_training.jpg"
             photo = FSInputFile(photo_path)
 
             await bot.send_photo(
-                chat_id=self.character.characters_user_id,
+                chat_id=user_id,
                 photo=photo,
-                caption=message_text,
+                caption=final_text,
                 reply_markup=InlineKeyboardMarkup(
                     inline_keyboard=[
                         [
                             InlineKeyboardButton(
                                 text="⚽ Тренуватись у WebApp",
                                 web_app=WebAppInfo(
-                                    url=f"https://football-blitz.online/trainings?user_id={self.character.characters_user_id}")
+                                    url=f"https://football-blitz.online/trainings?user_id={user_id}")
                             )
                         ]
                     ]
                 )
             )
+
+            # Відправка сокет-події
             event_payload = make_payload(
                 event_type="show_alert",
-                user_id=self.character.characters_user_id,
+                user_id=user_id,
                 payload={
-                    "message": message_text,
+                    "message": "Тренування завершено! Перевірте бот для деталей.",  # Коротке повідомлення для WebApp
                 }
             )
 
-            # Публікуємо подію в Redis
             success = await publish_event(event_payload)
             logger.info(f"Status socket on finish training: {success}")
 
         except Exception as e:
-            logger.error(f"Ошибка при отправке сообщения пользователю {self.character.name}: {e}")
-            
+            logger.error(f"Ошибка при отправке сообщения пользователю {self.owner_user_id}: {e}")

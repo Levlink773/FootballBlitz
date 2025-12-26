@@ -2,7 +2,7 @@
 .dailyTasksWrapper {
     /* Фіксуємо позицію по вертикалі, але "плаваючу" по горизонталі */
     position: absolute;
-    top: 176px;
+    top: 220px;
     right: 45px; /* 422px (ширина) - 306px (old left) - 70px (width) ≈ 45px */
 
     /* Flexbox для центрування іконки та тексту всередині блоку */
