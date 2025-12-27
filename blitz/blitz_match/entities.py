@@ -1,10 +1,10 @@
 import random
 from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from database.models.blitz_character import BlitzUser
 from database.models.blitz_team import BlitzTeam
-from database.models.character import Position
+from database.models.character import Position, Character
 from database.models.user_bot import UserBot
 from logging_config import logger
 from .utils import (
@@ -16,7 +16,6 @@ from ..services.blitz_team_service import BlitzTeamService
 
 @dataclass
 class MatchTeamBlitz:
-
     team_id: int
     goals: int = 0
 
@@ -116,9 +115,47 @@ class MatchTeamBlitz:
         weights = [sum(c.power for c in u.characters) for u in candidates]
         return random.choices(candidates, weights=weights, k=1)[0]
 
+        # 👇 НОВИЙ МЕТОД: Шукаємо серед усіх персонажів команди
+
+    def get_character_by_position(self, position: Position, exclude_chars: List[Character] = []) -> Optional[
+        Character]:
+        candidates = []
+        for user in self.users_in_match:
+            # Перебираємо ВСІХ персонажів користувача
+            for char in user.characters:
+                if char in exclude_chars:
+                    continue
+                # Якщо позиція збігається і гравець "в основі" (має squad_position)
+                if char.position == position and char.squad_position is not None:
+                    candidates.append(char)
+
+        if not candidates:
+            # Фолбек: якщо немає конкретної позиції, шукаємо будь-кого (хто не в exclude)
+            return self.get_random_character(exclude_chars)
+
+        # Вибираємо випадково, але з урахуванням сили
+        weights = [c.power for c in candidates]
+        return random.choices(candidates, weights=weights, k=1)[0]
+
+        # 👇 НОВИЙ МЕТОД: Випадковий персонаж з усієї команди
+
+    def get_random_character(self, exclude_chars: List[Character] = []) -> Optional[Character]:
+        candidates = []
+        for user in self.users_in_match:
+            for char in user.characters:
+                # Беремо тільки тих, хто в основі (squad_position не None)
+                if char not in exclude_chars and char.squad_position is not None:
+                    candidates.append(char)
+
+        if not candidates:
+            return None
+
+        weights = [c.power for c in candidates]
+        return random.choices(candidates, weights=weights, k=1)[0]
+
+
 @dataclass
 class BlitzMatchData:
-
     blitz_match_id: str
     stage: int
 
@@ -172,7 +209,6 @@ class BlitzMatchData:
 
         return first_team_chance, second_team_chance
 
-
     def get_goal_team(self) -> MatchTeamBlitz:
         values = [
             self.power_first_team,
@@ -213,13 +249,13 @@ class BlitzMatchData:
         base_power = self.first_team.team_power
         logger.info(f"Donate energy ft: {self.first_team.episode_donate_energy}")
         donate_energy_bonus = calculate_bonus_donate_energy(
-            donate_energy = self.first_team.episode_donate_energy,
-            power_club = self.first_team.team_power,
-            power_opponent_club = self.second_team.team_power,
+            donate_energy=self.first_team.episode_donate_energy,
+            power_club=self.first_team.team_power,
+            power_opponent_club=self.second_team.team_power,
         )
         power = (
-            base_power +
-            donate_energy_bonus
+                base_power +
+                donate_energy_bonus
         )
         return power
 
@@ -228,13 +264,13 @@ class BlitzMatchData:
         base_power = self.second_team.team_power
         logger.info(f"Donate energy st: {self.second_team.episode_donate_energy}")
         donate_energy_bonus = calculate_bonus_donate_energy(
-            donate_energy = self.second_team.episode_donate_energy,
-            power_club = self.second_team.team_power,
-            power_opponent_club = self.first_team.team_power,
+            donate_energy=self.second_team.episode_donate_energy,
+            power_club=self.second_team.team_power,
+            power_opponent_club=self.first_team.team_power,
         )
         power = (
-            base_power +
-            donate_energy_bonus
+                base_power +
+                donate_energy_bonus
         )
         return power
 

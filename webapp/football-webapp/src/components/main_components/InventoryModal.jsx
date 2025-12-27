@@ -11,6 +11,7 @@ import boxOpenSound from '../../assets/public/sounds/lootbox.mp3';
 import AgeIconMini from '../mini_components.jsx';
 import Confetti from "react-confetti";
 import Img77 from '../../assets/public/img65.png';
+import {LootBoxOpeningModal} from "../modal_components/LootBoxOpeningModal.jsx";
 
 // =========================================================
 // 🛠️ ЗАГАЛЬНІ КОМПОНЕНТИ ТА УТИЛІТИ
@@ -20,9 +21,14 @@ const HeaderBar = ({title}) => (
     <h2 style={{textAlign: 'center', margin: '0 0 16px', fontSize: 20, fontWeight: 700}}>{title}</h2>
 );
 
-const SecondaryButton = ({onClick, children, style={}}) => (
+const SecondaryButton = ({onClick, children, style = {}}) => (
     <button onClick={onClick} style={{
-        padding: '8px 12px', borderRadius: 8, border: '1px solid #555', background: '#333', color: 'white', cursor: 'pointer', ...style
+        padding: '8px 12px',
+        borderRadius: 8,
+        border: '1px solid #555',
+        background: '#333',
+        color: 'white',
+        cursor: 'pointer', ...style
     }}>{children}</button>
 );
 
@@ -43,7 +49,7 @@ const EquipmentSlot = ({imgSrc, altText, label}) => (
 );
 
 const AnimatedNumber = ({value}) => {
-    const {number} = useSpring({ from: {number: 0}, number: value, config: {mass: 1, tension: 20, friction: 10} });
+    const {number} = useSpring({from: {number: 0}, number: value, config: {mass: 1, tension: 20, friction: 10}});
     return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
 };
 
@@ -81,8 +87,10 @@ const saveSquadAPI = (userId, squadMap) => {
 const UserResources = ({user, onOpenReferral}) => (
     <div className={styles.resourcesBar}>
         <StatDisplay iconSrc={Config.IMAGES.coin} value={user.money ?? 0} label="Монети"/>
-        <motion.button className={styles.referralButton} onClick={onOpenReferral} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <img src={Config.IMAGES.referal_character} alt="Ref" style={{ width: '24px', height: '24px', marginRight: '4px' }} /> +
+        <motion.button className={styles.referralButton} onClick={onOpenReferral} whileHover={{scale: 1.05}}
+                       whileTap={{scale: 0.95}}>
+            <img src={Config.IMAGES.referal_character} alt="Ref"
+                 style={{width: '24px', height: '24px', marginRight: '4px'}}/> +
         </motion.button>
         <StatDisplay iconSrc={Config.IMAGES.energy} value={user.energy ?? 0} label="Енергія"/>
     </div>
@@ -93,7 +101,7 @@ const UserResources = ({user, onOpenReferral}) => (
 // =========================================================
 
 // Слот на полі
-const PitchSlot = ({ player, onClick, positionLabel, isEmpty, isSelected }) => {
+const PitchSlot = ({player, onClick, positionLabel, isEmpty, isSelected}) => {
     return (
         <motion.div
             className={`
@@ -102,13 +110,17 @@ const PitchSlot = ({ player, onClick, positionLabel, isEmpty, isSelected }) => {
                 ${isSelected ? styles.selected : ''}
             `}
             onClick={onClick}
-            whileTap={{ scale: 0.95 }}
-            animate={isSelected ? { scale: 1.15, borderColor: '#00ff88', boxShadow: '0 0 15px rgba(0, 255, 136, 0.5)' } : {}}
+            whileTap={{scale: 0.95}}
+            animate={isSelected ? {
+                scale: 1.15,
+                borderColor: '#00ff88',
+                boxShadow: '0 0 15px rgba(0, 255, 136, 0.5)'
+            } : {}}
         >
             {player ? (
                 <>
                     <div className={styles.slotPositionBadge}>{positionLabel}</div>
-                    <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.playerIconImg} />
+                    <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.playerIconImg}/>
                     <span className={styles.playerNameMini}>{player.name}</span>
                     <div className={styles.slotRating}>{Math.round(player.power)}</div>
                 </>
@@ -120,7 +132,7 @@ const PitchSlot = ({ player, onClick, positionLabel, isEmpty, isSelected }) => {
 };
 
 // Лавка запасних (горизонтальний скрол)
-const Bench = ({ players, onSelect, selectedPlayerId }) => {
+const Bench = ({players, onSelect, selectedPlayerId}) => {
     return (
         <div className={styles.benchContainer}>
             <div className={styles.sectionTitle}>Лавка запасних ({players.length})</div>
@@ -130,11 +142,12 @@ const Bench = ({ players, onSelect, selectedPlayerId }) => {
                         key={player.id}
                         className={`${styles.benchSlot} ${selectedPlayerId === player.id ? styles.selected : ''}`}
                         onClick={() => onSelect(player)}
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{scale: 0.95}}
                     >
-                        <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.benchImage} />
+                        <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.benchImage}/>
                         <div className={styles.benchInfo}>
-                            <span className={styles.benchPos}>{player.position ? player.position.substring(0,3) : 'UNK'}</span>
+                            <span
+                                className={styles.benchPos}>{player.position ? player.position.substring(0, 3) : 'UNK'}</span>
                             <span className={styles.benchOvr}>{Math.round(player.power)}</span>
                         </div>
                     </motion.div>
@@ -146,7 +159,7 @@ const Bench = ({ players, onSelect, selectedPlayerId }) => {
 };
 
 // Компонент Поля
-const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
+const SquadBoard = ({squadData, onSlotClick, selectedSlot}) => {
     const isSelected = (sec, idx) => selectedSlot && selectedSlot.type === 'field' && selectedSlot.section === sec && selectedSlot.index === idx;
 
     return (
@@ -157,7 +170,7 @@ const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
                     <span className={styles.pitchLabel}>FWD</span>
                     {squadData.att.map((p, i) => (
                         <PitchSlot key={`att-${i}`} player={p} positionLabel="FWD" isSelected={isSelected('att', i)}
-                                   onClick={() => onSlotClick('field', { section: 'att', index: i, player: p })} />
+                                   onClick={() => onSlotClick('field', {section: 'att', index: i, player: p})}/>
                     ))}
                 </div>
                 {/* MIDFIELD */}
@@ -165,7 +178,7 @@ const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
                     <span className={styles.pitchLabel}>MID</span>
                     {squadData.mid.map((p, i) => (
                         <PitchSlot key={`mid-${i}`} player={p} positionLabel="MID" isSelected={isSelected('mid', i)}
-                                   onClick={() => onSlotClick('field', { section: 'mid', index: i, player: p })} />
+                                   onClick={() => onSlotClick('field', {section: 'mid', index: i, player: p})}/>
                     ))}
                 </div>
                 {/* DEFENSE */}
@@ -173,14 +186,18 @@ const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
                     <span className={styles.pitchLabel}>DEF</span>
                     {squadData.def.map((p, i) => (
                         <PitchSlot key={`def-${i}`} player={p} positionLabel="DEF" isSelected={isSelected('def', i)}
-                                   onClick={() => onSlotClick('field', { section: 'def', index: i, player: p })} />
+                                   onClick={() => onSlotClick('field', {section: 'def', index: i, player: p})}/>
                     ))}
                 </div>
                 {/* GOALKEEPER */}
                 <div className={styles.pitchRow}>
                     <span className={styles.pitchLabel}>GK</span>
                     <PitchSlot player={squadData.gk[0]} positionLabel="GK" isSelected={isSelected('gk', 0)}
-                               onClick={() => onSlotClick('field', { section: 'gk', index: 0, player: squadData.gk[0] })} />
+                               onClick={() => onSlotClick('field', {
+                                   section: 'gk',
+                                   index: 0,
+                                   player: squadData.gk[0]
+                               })}/>
                 </div>
             </div>
         </div>
@@ -193,20 +210,25 @@ const SquadBoard = ({ squadData, onSlotClick, selectedSlot }) => {
 
 // Всередині InventoryModal.jsx
 
-const PlayerDetailView = ({ character, onClose, isMain }) => {
+const PlayerDetailView = ({character, onClose, isMain}) => {
     if (!character) return null;
 
     // Мапінг позицій
-    const posMap = { 'GOALKEEPER': 'ВОРОТАР', 'DEFENDER': 'ЗАХИСНИК', 'MIDFIELDER': 'ПІВЗАХИСНИК', 'ATTACKER': 'НАПАДНИК' };
+    const posMap = {
+        'GOALKEEPER': 'ВОРОТАР',
+        'DEFENDER': 'ЗАХИСНИК',
+        'MIDFIELDER': 'ПІВЗАХИСНИК',
+        'ATTACKER': 'НАПАДНИК'
+    };
     const positionLabel = posMap[character.position] || character.position || "ГРАВЕЦЬ";
 
     return (
         <motion.div
             className={styles.detailContainer}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: 20}}
+            transition={{duration: 0.3, ease: "easeOut"}}
         >
             {/* 1. Header */}
             <div className={styles.detailHeader}>
@@ -283,8 +305,8 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
                         <motion.div
                             key={i}
                             className={styles.emptyFeatureSlot}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            whileHover={{scale: 1.05}}
+                            whileTap={{scale: 0.95}}
                             title="Пустий слот"
                         >
                         </motion.div>
@@ -298,7 +320,7 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
 // =========================================================
 // 📦 3. ЗАГАЛЬНИЙ ІНВЕНТАР (Лутбокси)
 // =========================================================
-const GeneralInventory = ({ lootBoxes, onOpenBox, isOpening }) => (
+const GeneralInventory = ({lootBoxes, onOpenBox, isOpening}) => (
     <div className={styles.benchSection} style={{position: 'relative', top: -24}}>
         <div className={styles.divider}></div>
         <div className={styles.sectionTitle}>Інвентар клубу</div>
@@ -337,7 +359,8 @@ const ReferralView = ({user, onBack}) => {
 
     const handleCopy = () => {
         navigator.clipboard.writeText(referralLink).then(() => {
-            setIsCopied(true); setTimeout(() => setIsCopied(false), 2000);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
         });
     };
 
@@ -345,14 +368,28 @@ const ReferralView = ({user, onBack}) => {
         <div style={{padding: 16, maxWidth: 460, margin: '0 auto'}}>
             <HeaderBar title="🌀 Реферальна система"/>
             <div style={{padding: "8px 8px 0"}}>
-                <div style={{background: 'var(--surface-highlight)', border: '1px solid var(--surface-border)', borderRadius: 12, padding: "12px", margin: "16px 0", textAlign: 'center'}}>
+                <div style={{
+                    background: 'var(--surface-highlight)',
+                    border: '1px solid var(--surface-border)',
+                    borderRadius: 12,
+                    padding: "12px",
+                    margin: "16px 0",
+                    textAlign: 'center'
+                }}>
                     🔋 <strong>300 енергії</strong> та 💰 <strong>300 монет</strong>
                 </div>
                 <div style={{margin: '20px 0', display: 'flex', justifyContent: 'space-between', padding: '0 10px'}}>
                     <span>👥 Твої реферали:</span>
                     <strong>{isLoading ? "..." : referralCount}</strong>
                 </div>
-                <div style={{padding: 10, background: "rgba(0,0,0,0.2)", borderRadius: 8, wordBreak: 'break-all', textAlign: 'center', fontSize: 14}}>
+                <div style={{
+                    padding: 10,
+                    background: "rgba(0,0,0,0.2)",
+                    borderRadius: 8,
+                    wordBreak: 'break-all',
+                    textAlign: 'center',
+                    fontSize: 14
+                }}>
                     {referralLink}
                 </div>
                 <div style={{display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24}}>
@@ -373,7 +410,12 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
 
     // Дані
     const [allCharacters, setAllCharacters] = useState([]);
-    const [squadMap, setSquadMap] = useState({ gk: [null], def: [null,null,null,null], mid: [null,null,null,null], att: [null,null,null,null] });
+    const [squadMap, setSquadMap] = useState({
+        gk: [null],
+        def: [null, null, null, null],
+        mid: [null, null, null, null],
+        att: [null, null, null, null]
+    });
     const [benchPlayers, setBenchPlayers] = useState([]);
 
     // Взаємодія { type: 'field'|'bench', section?, index?, player }
@@ -387,12 +429,20 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     const [animationPhase, setAnimationPhase] = useState('idle');
     const [showConfettiHappy, setShowConfettiHappy] = useState(false);
     const [isSettingMain, setIsSettingMain] = useState(false);
+    // 🔥 ЛОГИКА ОТКРЫТИЯ БОКСА (Новая)
+    const [openingBoxType, setOpeningBoxType] = useState(null);
 
     // Confetti
     const refAnimationInstance = useRef(null);
-    const getInstance = useCallback((instance) => { refAnimationInstance.current = instance; }, []);
+    const getInstance = useCallback((instance) => {
+        refAnimationInstance.current = instance;
+    }, []);
     const fireConfetti = useCallback(() => {
-        if(refAnimationInstance.current) refAnimationInstance.current({ origin: {y: 0.6}, particleCount: 100, spread: 70 });
+        if (refAnimationInstance.current) refAnimationInstance.current({
+            origin: {y: 0.6},
+            particleCount: 100,
+            spread: 70
+        });
     }, []);
 
     // 1. INIT
@@ -401,13 +451,16 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
             setIsLoading(true);
             try {
                 const res = await fetchAllCharactersAPI(user.user_id);
-                if(res.ok) {
+                if (res.ok) {
                     const chars = await res.json();
                     setAllCharacters(chars || []);
                     initializeSquad(chars || []);
                 }
-            } catch(e) { console.error(e); }
-            finally { setIsLoading(false); }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadData();
     }, [user.user_id]);
@@ -463,9 +516,9 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
 
         const newSquad = {
             gk: [null],
-            def: [null,null,null,null],
-            mid: [null,null,null,null],
-            att: [null,null,null,null]
+            def: [null, null, null, null],
+            mid: [null, null, null, null],
+            att: [null, null, null, null]
         };
         const usedIds = new Set();
 
@@ -499,7 +552,7 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     // 3. INTERACTION (SWAP / SELECT / DETAIL)
     const handleInteraction = (type, payload) => {
         if (!selection) {
-            if (payload.player || type === 'field') setSelection({ type, ...payload });
+            if (payload.player || type === 'field') setSelection({type, ...payload});
             return;
         }
 
@@ -518,11 +571,11 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
         }
 
         // SWAP
-        performSwap(selection, { type, ...payload });
+        performSwap(selection, {type, ...payload});
     };
 
     const performSwap = (source, target) => {
-        const newSquad = { ...squadMap };
+        const newSquad = {...squadMap};
         const newBench = [...benchPlayers];
 
         const getPlayer = (loc) => loc.type === 'bench' ? loc.player : newSquad[loc.section][loc.index];
@@ -536,14 +589,14 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
             // Field <-> Bench
             if (source.type === 'bench') {
                 const idx = newBench.findIndex(p => p.id === p1.id);
-                if(idx > -1) newBench.splice(idx, 1);
+                if (idx > -1) newBench.splice(idx, 1);
                 newSquad[target.section][target.index] = p1;
-                if(p2) newBench.push(p2);
+                if (p2) newBench.push(p2);
             } else {
                 const idx = newBench.findIndex(p => p.id === p2.id);
-                if(idx > -1) newBench.splice(idx, 1);
+                if (idx > -1) newBench.splice(idx, 1);
                 newSquad[source.section][source.index] = p2;
-                if(p1) newBench.push(p1);
+                if (p1) newBench.push(p1);
             }
         }
 
@@ -563,24 +616,62 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
             if (!res.ok) throw new Error();
             onUserUpdate(await res.json());
             showAlert('Головного гравця змінено!', 'success');
-        } catch { showAlert('Помилка'); }
-        finally { setIsSettingMain(false); }
+        } catch {
+            showAlert('Помилка');
+        } finally {
+            setIsSettingMain(false);
+        }
     };
 
     // 5. LOOTBOX
     const handleOpenBox = async (type, img) => {
-        setIsOpening(true); setOpenedBoxImage(img); setAnimationPhase('idle'); setRewards(null);
-        const audio = new Audio(boxOpenSound); audio.volume = 0.5;
+        setIsOpening(true);
+        setOpenedBoxImage(img);
+        setAnimationPhase('idle');
+        setRewards(null);
+        const audio = new Audio(boxOpenSound);
+        audio.volume = 0.5;
         try {
             const promise = openLootBoxAPI(user.user_id, type);
-            setTimeout(() => { setAnimationPhase('shaking'); setTimeout(() => audio.play().catch(()=>{}), 1500); }, 200);
+            setTimeout(() => {
+                setAnimationPhase('shaking');
+                setTimeout(() => audio.play().catch(() => {
+                }), 1500);
+            }, 200);
             const updatedUser = await promise;
             setTimeout(() => {
-                setRewards({money: (updatedUser.money??0)-(user.money??0), energy: (updatedUser.energy??0)-(user.energy??0)});
-                setAnimationPhase('revealed'); fireConfetti(); setShowConfettiHappy(true);
-                setTimeout(() => { onUserUpdate(updatedUser); setRewards(null); setIsOpening(false); }, 4000);
+                setRewards({
+                    money: (updatedUser.money ?? 0) - (user.money ?? 0),
+                    energy: (updatedUser.energy ?? 0) - (user.energy ?? 0)
+                });
+                setAnimationPhase('revealed');
+                fireConfetti();
+                setShowConfettiHappy(true);
+                setTimeout(() => {
+                    onUserUpdate(updatedUser);
+                    setRewards(null);
+                    setIsOpening(false);
+                }, 4000);
             }, 2000);
-        } catch(e) { showAlert(e.message); setIsOpening(false); }
+        } catch (e) {
+            showAlert(e.message);
+            setIsOpening(false);
+        }
+    };
+    const handleOpenBoxClick = (type) => {
+        // Просто устанавливаем тип бокса, который открываем.
+        // Это триггернет рендер модалки LootBoxOpeningModal
+        setOpeningBoxType(type);
+    };
+
+    const handleBoxClose = (updatedUserData) => {
+        setOpeningBoxType(null); // Закриваємо модалку відкриття
+
+        // Якщо нам передали оновлені дані - оновлюємо глобальний стейт
+        if (updatedUserData && onUserUpdate) {
+            console.log("Updating user data after lootbox:", updatedUserData);
+            onUserUpdate(updatedUserData);
+        }
     };
 
     const lootBoxes = [
@@ -593,76 +684,110 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
         if (currentView !== 'squad') setCurrentView('squad'); else onClose();
     };
 
-    if (isLoading) return <ModalRoot onClose={onClose}><ModalBox><div>Завантаження...</div></ModalBox></ModalRoot>;
+    if (isLoading) return <ModalRoot onClose={onClose} soundOnOpen={null}><ModalBox>
+        <div>Завантаження...</div>
+    </ModalBox></ModalRoot>;
 
     return (
-        <ModalRoot onClose={onClose}>
-            <ModalBox onClose={handleBack}>
-                <ReactCanvasConfetti refConfetti={getInstance} style={{position: 'absolute', pointerEvents: 'none', width: '100%', height: '100%', top:0, left:0, zIndex: 9999}}/>
-                {showConfettiHappy && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={400} gravity={0.1} />}
+        <>
+            {/* 🔥 ЭПИЧНАЯ МОДАЛКА ОТКРЫТИЯ (Рендерится поверх всего через Portal) */}
+            {openingBoxType && (
+                <LootBoxOpeningModal
+                    boxType={openingBoxType}
+                    userId={user.user_id}
+                    onClose={handleBoxClose}
+                />
+            )}
+            <ModalRoot onClose={onClose} soundOnOpen={null}>
+                <ModalBox onClose={handleBack}>
+                    <ReactCanvasConfetti refConfetti={getInstance} style={{
+                        position: 'absolute',
+                        pointerEvents: 'none',
+                        width: '100%',
+                        height: '100%',
+                        top: 0,
+                        left: 0,
+                        zIndex: 9999
+                    }}/>
+                    {showConfettiHappy &&
+                        <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false}
+                                  numberOfPieces={400} gravity={0.1}/>}
 
-                <AnimatePresence mode="wait">
-                    {currentView === 'squad' && (
-                        <motion.div key="squad" initial={{opacity:0, x:"-20%"}} animate={{opacity:1, x:"0%"}} exit={{opacity:0, x:"-20%"}} transition={{duration:0.25}}>
-                            <div className={styles.inventoryContainer}>
-                                <UserResources user={user} onOpenReferral={() => setCurrentView('referral')} />
+                    <AnimatePresence mode="wait">
+                        {currentView === 'squad' && (
+                            <motion.div key="squad" initial={{opacity: 0, x: "-20%"}} animate={{opacity: 1, x: "0%"}}
+                                        exit={{opacity: 0, x: "-20%"}} transition={{duration: 0.25}}>
+                                <div className={styles.inventoryContainer}>
+                                    <UserResources user={user} onOpenReferral={() => setCurrentView('referral')}/>
 
-                                <div style={{textAlign:'center', marginBottom: 5, color: '#aaa', fontSize: 11}}>
-                                    Натисни для вибору, ще раз для деталей. Клік на іншого для заміни.
+                                    <div style={{textAlign: 'center', marginBottom: 5, color: '#aaa', fontSize: 11}}>
+                                        Натисни для вибору, ще раз для деталей. Клік на іншого для заміни.
+                                    </div>
+
+                                    <SquadBoard
+                                        squadData={{
+                                            gk: squadMap.gk.map(id => id ? id : null),
+                                            def: squadMap.def, mid: squadMap.mid, att: squadMap.att
+                                        }}
+                                        onSlotClick={handleInteraction}
+                                        selectedSlot={selection}
+                                    />
+
+                                    <GeneralInventory
+                                        lootBoxes={lootBoxes}
+                                        onOpenBox={(type) => handleOpenBoxClick(type)}
+                                        isOpening={!!openingBoxType} // Блокируем клики, если уже открываем
+                                    />
                                 </div>
 
-                                <SquadBoard
-                                    squadData={{
-                                        gk: squadMap.gk.map(id => id ? id : null),
-                                        def: squadMap.def, mid: squadMap.mid, att: squadMap.att
-                                    }}
-                                    onSlotClick={handleInteraction}
-                                    selectedSlot={selection}
-                                />
-
-                                <GeneralInventory lootBoxes={lootBoxes} onOpenBox={handleOpenBox} isOpening={isOpening} />
-                            </div>
-
-                            <AnimatePresence>
-                                {isOpening && (
-                                    <motion.div className={styles.animationOverlay} initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}>
-                                        <AnimatePresence>
-                                            {animationPhase !== 'revealed' && (
-                                                <motion.img src={openedBoxImage} className={styles.openingBox}
-                                                            animate={animationPhase === 'shaking' ? { rotate: [0, -5, 5, 0], scale: [1, 1.1, 1] } : {}}
-                                                />
+                                <AnimatePresence>
+                                    {isOpening && (
+                                        <motion.div className={styles.animationOverlay} initial={{opacity: 0}}
+                                                    animate={{opacity: 1}} exit={{opacity: 0}}>
+                                            <AnimatePresence>
+                                                {animationPhase !== 'revealed' && (
+                                                    <motion.img src={openedBoxImage} className={styles.openingBox}
+                                                                animate={animationPhase === 'shaking' ? {
+                                                                    rotate: [0, -5, 5, 0],
+                                                                    scale: [1, 1.1, 1]
+                                                                } : {}}
+                                                    />
+                                                )}
+                                            </AnimatePresence>
+                                            {animationPhase === 'revealed' && rewards && (
+                                                <motion.div className={styles.rewardContainer}
+                                                            animate={{scale: [0.8, 1], opacity: 1}}>
+                                                    <h2>+{rewards.money} 💰 / +{rewards.energy} ⚡</h2>
+                                                </motion.div>
                                             )}
-                                        </AnimatePresence>
-                                        {animationPhase === 'revealed' && rewards && (
-                                            <motion.div className={styles.rewardContainer} animate={{scale:[0.8, 1], opacity: 1}}>
-                                                <h2>+{rewards.money} 💰 / +{rewards.energy} ⚡</h2>
-                                            </motion.div>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        )}
 
-                    {currentView === 'detail' && selectedCharacter && (
-                        <motion.div key="detail" initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.9}} transition={{duration:0.2}}>
-                            <PlayerDetailView
-                                character={selectedCharacter}
-                                onClose={() => setCurrentView('squad')}
-                                onSetMain={handleSetMain}
-                                isSettingMain={isSettingMain}
-                                isMain={selectedCharacter.id === user.main_character_id}
-                            />
-                        </motion.div>
-                    )}
+                        {currentView === 'detail' && selectedCharacter && (
+                            <motion.div key="detail" initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}}
+                                        exit={{opacity: 0, scale: 0.9}} transition={{duration: 0.2}}>
+                                <PlayerDetailView
+                                    character={selectedCharacter}
+                                    onClose={() => setCurrentView('squad')}
+                                    onSetMain={handleSetMain}
+                                    isSettingMain={isSettingMain}
+                                    isMain={selectedCharacter.id === user.main_character_id}
+                                />
+                            </motion.div>
+                        )}
 
-                    {currentView === 'referral' && (
-                        <motion.div key="referral" initial={{opacity:0, x:"100%"}} animate={{opacity:1, x:"0%"}} exit={{opacity:0, x:"100%"}}>
-                            <ReferralView user={user} onBack={() => setCurrentView('squad')} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </ModalBox>
-        </ModalRoot>
+                        {currentView === 'referral' && (
+                            <motion.div key="referral" initial={{opacity: 0, x: "100%"}} animate={{opacity: 1, x: "0%"}}
+                                        exit={{opacity: 0, x: "100%"}}>
+                                <ReferralView user={user} onBack={() => setCurrentView('squad')}/>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </ModalBox>
+            </ModalRoot>
+        </>
     );
 };

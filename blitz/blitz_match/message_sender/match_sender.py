@@ -184,16 +184,19 @@ class BlitzMatchSender:
     async def send_event_scene(
             self,
             goal_event: TypeGoalEvent,
-            users_scene: list[UserBot] = [],
-            user_goal: Optional[UserBot] = None,
-            user_enemy: Optional[UserBot] = None,
+            users_scene: list[Character] = [],  # <-- Character
+            scorer: Optional[Character] = None,  # <-- Character
+            assistant: Optional[Character] = None,
+            user_enemy: Optional[Character] = None,
             goal_team: Optional[MatchTeamBlitz] = None,
     ) -> None:
+
         render_scene = SceneRenderer(
             match_data=self.match_data,
             goal_event=goal_event,
             users_scene=users_scene,
-            scorer=user_goal,
+            scorer=scorer,
+            assistant=assistant,
             user_enemy=user_enemy
         )
 
@@ -201,8 +204,13 @@ class BlitzMatchSender:
             event=goal_event
         )
         is_save, photo = await get_photo(patch_to_photo)
+
         text_scene = render_scene.render()
-        if user_goal:
+
+        # 🔥 ИСПРАВЛЕНИЕ ЗДЕСЬ 🔥
+        # Было: if scorer:
+        # Стало: проверяем тип события и наличие команды
+        if goal_event == TypeGoalEvent.GOAL and goal_team:
             template_score = TemplatesMatch.TEMPLATE_SCORE
             text_score = self.getter_templates.format_message(
                 template=template_score,
@@ -211,16 +219,19 @@ class BlitzMatchSender:
                 }
             )
             text_scene += f"{text_score}"
+
         await TeamBlitzMatchManager.set_match_state(
             self.match_data.blitz_match_id,
             BlitzStateData(BlitzState.GOAL if goal_event == TypeGoalEvent.GOAL else BlitzState.NO_GOAL, text_scene),
         )
         await publish_match_state(self.match_data.blitz_match_id)
+
         message_photo = await self.sender.send_messages(
             text=text_scene,
             users=self.match_data.all_users,
             photo=photo
         )
+
         if message_photo and not is_save:
             await save_photo_id(
                 patch_to_photo=patch_to_photo,

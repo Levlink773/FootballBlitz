@@ -32,7 +32,7 @@ class CharacterPublic(BaseModel):
     power: float
     country: Country
     position: Position
-    squad_position: str
+    squad_position: str | None = None
     # ... other character fields you want to show
 
     class Config:

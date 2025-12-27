@@ -38,6 +38,8 @@ export const LootBoxOpeningModal = ({ boxType, userId, onClose }) => {
     const [animationPhase, setAnimationPhase] = useState('idle'); // idle -> shaking -> revealed
     const [showConfettiHappy, setShowConfettiHappy] = useState(false);
     const [rewards, setRewards] = useState(null);
+    // 👇 1. Додаємо стейт для збереження оновленого юзера
+    const [updatedUser, setUpdatedUser] = useState(null);
 
     const getBoxImage = (type) => {
         switch (type) {
@@ -80,12 +82,15 @@ export const LootBoxOpeningModal = ({ boxType, userId, onClose }) => {
                 const oldUserDataResponse = await fetch(`${API_BASE_URL}/users/${userId}`);
                 const oldUserData = await oldUserDataResponse.json();
 
-                // 2. Відкриваємо бокс
-                const updatedUser = await openLootBoxAPI(userId, boxType);
+                // Відкриваємо бокс
+                const newUserState = await openLootBoxAPI(userId, boxType);
+
+                // 👇 2. Зберігаємо оновленого юзера в стейт
+                setUpdatedUser(newUserState);
 
                 // 3. Рахуємо різницю
-                const moneyReward = (updatedUser.money ?? 0) - (oldUserData.money ?? 0);
-                const energyReward = (updatedUser.energy ?? 0) - (oldUserData.energy ?? 0);
+                const moneyReward = (newUserState.money ?? 0) - (oldUserData.money ?? 0);
+                const energyReward = (newUserState.energy ?? 0) - (oldUserData.energy ?? 0);
 
                 setRewards({ money: moneyReward, energy: energyReward });
 
@@ -129,7 +134,7 @@ export const LootBoxOpeningModal = ({ boxType, userId, onClose }) => {
             `;
             showAlert("Нагороду зараховано! ✅", { html: htmlMessage });
         }
-        onClose();
+        onClose(updatedUser);
     };
 
     // 🔥 ПОРТАЛ: Рендеримо це прямо в body, щоб нічого не перекривало
@@ -137,7 +142,7 @@ export const LootBoxOpeningModal = ({ boxType, userId, onClose }) => {
         <div style={{
             position: 'fixed',
             inset: 0, // top: 0, left: 0, right: 0, bottom: 0
-            zIndex: 10000, // Максимально високий індекс
+            zIndex: 2147483647, // Максимально високий індекс
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

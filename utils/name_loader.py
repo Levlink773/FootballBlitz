@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-NAMES_FILE = Path("male_names_generated.json")
+BASE_DIR = Path(__file__).resolve().parent
+NAMES_FILE = BASE_DIR / "male_names_generated.json"
 
 def load_male_names() -> set[str]:
     with open(NAMES_FILE, "r", encoding="utf-8") as f:

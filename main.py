@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 import uvicorn
 from aiohttp import web
@@ -11,6 +12,7 @@ from bot.routers.router import main_router
 from bot.middlewares import handlers
 from load_utils import start_utils
 from services.user_service import UserService
+from utils.fix_and_fill_teams import process_teams
 from webapp.fastapi.app import app_fastapi
 from webhook_api.handlers.box_handler import MonoResultBox
 from webhook_api.handlers.energy_handler import MonoResultEnergy
@@ -47,6 +49,12 @@ async def main():
     await task_scheduler.start()
     await TeamBlitzMatchManager.clear_matches()
     await UserService.delete_all_bots()
+    # 👇 ЛОГІКА ПРАПОРЦЯ
+    # Перевіряємо, чи є аргумент "--fix-teams" у команді запуску
+    if "--fix-teams" in sys.argv:
+        print("🔧 Флаг --fix-teams знайдено. Запуск балансування команд...")
+        await process_teams()
+    # 👆 КІНЕЦЬ ЛОГІКИ
     await asyncio.gather(
         start_polling(),
         start_weebhook(),

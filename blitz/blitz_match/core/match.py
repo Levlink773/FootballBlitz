@@ -3,6 +3,7 @@ from asyncio import Semaphore
 from datetime import datetime, timedelta
 
 from database.models.blitz_team import BlitzTeam
+from database.models.character import Position
 from database.models.user_bot import UserBot
 from .goal_generator import GoalGenerator
 from ..constans import TIME_EVENT_DONATE_ENERGY, TIME_BLITZ_FIGHT
@@ -70,21 +71,34 @@ class BlitzMatch:
     async def no_goal_event(self) -> None:
         TYPE_EVENT = TypeGoalEvent.NO_GOAL
 
-        first_user = self.match_data.first_team.get_user_by_power()
-        second_user = self.match_data.second_team.get_user_by_power()
-        users_scene = [user for user in [first_user, second_user] if user]
+        # 1. Атакуюча команда
+        attacking_team = random.choice(self.match_data.all_teams)
+        defending_team = self.match_data.get_opposite_team(attacking_team.team_id)
+
+        # 2. Вибираємо ПЕРСОНАЖІВ (Character), а не юзерів
+        attacker_char = attacking_team.get_character_by_position(Position.ATTACKER) or \
+                        attacking_team.get_character_by_position(Position.MIDFIELDER) or \
+                        attacking_team.get_random_character()
+
+        defender_char = defending_team.get_character_by_position(Position.GOALKEEPER)
+        if not defender_char or random.random() > 0.7:
+            defender_char = defending_team.get_character_by_position(Position.DEFENDER) or \
+                            defending_team.get_random_character()
+
+        if not attacker_char or not defender_char: return
+
+        # 3. Відправляємо (тепер sender і renderer приймають Character)
         await self.match_sender.send_event_scene(
             goal_event=TYPE_EVENT,
-            users_scene=users_scene
+            scorer=attacker_char,  # Передаємо Character
+            user_enemy=defender_char,  # Передаємо Character
+            users_scene=[]
         )
-        for user in [first_user, second_user]:
-            if not user:
-                continue
 
-            await self._add_event(
-                user=user,
-                score_add=0.25
-            )
+        # 4. Нарахування балів (потрібно дістати UserBot з Character)
+        # Оскільки у нас є characters_user_id, ми можемо нарахувати бали по ID
+        await self._add_event_by_id(attacker_char.characters_user_id, 0.25)
+        await self._add_event_by_id(defender_char.characters_user_id, 0.25)
 
     async def ping_donate_energy_event(self) -> None:
         goal_time = (
@@ -95,40 +109,44 @@ class BlitzMatch:
     async def goal_event(self) -> None:
         goal_team = self.match_data.get_goal_team()
         goal_team.add_goal()
-        user_goal = goal_team.get_user_by_power()
-        if not user_goal:
-            return
+        defending_team = self.match_data.get_opposite_team(goal_team.team_id)
 
-        assist_character = goal_team.get_user_by_power(
-            no_user=user_goal
-        )
-        character_enemy = self.match_data.get_opposite_team(
-            goal_team.team_id).get_user_by_power() if random.random() > 0.5 else None
+        # Шукаємо бомбардира (Character)
+        scorer_char = goal_team.get_character_by_position(Position.ATTACKER) or \
+                      goal_team.get_character_by_position(Position.MIDFIELDER) or \
+                      goal_team.get_random_character()
+
+        if not scorer_char: return
+
+        # Шукаємо асистента (Character)
+        assistant_char = goal_team.get_character_by_position(Position.MIDFIELDER, exclude_chars=[scorer_char]) or \
+                         goal_team.get_character_by_position(Position.ATTACKER, exclude_chars=[scorer_char]) or \
+                         goal_team.get_random_character(exclude_chars=[scorer_char])
+
+        # Шукаємо жертву (Character)
+        enemy_char = defending_team.get_character_by_position(Position.GOALKEEPER)
+        if random.random() > 0.7:
+            enemy_char = defending_team.get_character_by_position(Position.DEFENDER)
+        if not enemy_char: enemy_char = defending_team.get_random_character()
+
         await self.match_sender.send_event_scene(
             goal_event=TypeGoalEvent.GOAL,
-            user_goal=user_goal,
-            goal_team=goal_team,
-            user_enemy=character_enemy
-        )
-        await self._add_event(
-            user=user_goal,
-            score_add=1
-        )
-        await BlitzUserService.add_goal_to_user(
-            user_id=user_goal.user_id,
+            scorer=scorer_char,
+            assistant=assistant_char,
+            user_enemy=enemy_char,
+            goal_team=goal_team
         )
 
-        if assist_character:
-            await self._add_event(
-                user=assist_character,
-                score_add=0.75
-            )
+        # Нарахування балів власнику персонажа
+        await self._add_event_by_id(scorer_char.characters_user_id, 1)
+        await BlitzUserService.add_goal_to_user(user_id=scorer_char.characters_user_id)
 
-    async def end_match(self) -> tuple[MatchTeamBlitz, MatchTeamBlitz]:
-        winner_match_team, required_consider_power = await self.match_data.get_winner_team()
-        await self.match_sender.send_end_match(winner_match_team, required_consider_power)
-        lose_team = self.match_data.get_opposite_team(winner_match_team.team_id)
-        return winner_match_team, lose_team
+        if assistant_char:
+            await self._add_event_by_id(assistant_char.characters_user_id, 0.75)
+
+    # Допоміжний метод для нарахування балів по ID
+    async def _add_event_by_id(self, user_id: int, score_add: float):
+        await BlitzUserService.add_score_to_user(user_id=user_id, add_score=score_add)
 
     async def _add_event(
             self,
@@ -139,3 +157,18 @@ class BlitzMatch:
             user_id=user.user_id,
             add_score=score_add
         )
+
+    async def end_match(self) -> tuple[MatchTeamBlitz, MatchTeamBlitz]:
+        """
+        Завершує матч, визначає переможця та відправляє фінальне повідомлення.
+        """
+        # 1. Визначаємо переможця (по голах або силі)
+        winner_match_team, required_consider_power = await self.match_data.get_winner_team()
+
+        # 2. Відправляємо повідомлення про кінець матчу
+        await self.match_sender.send_end_match(winner_match_team, required_consider_power)
+
+        # 3. Визначаємо команду, що програла
+        lose_team = self.match_data.get_opposite_team(winner_match_team.team_id)
+
+        return winner_match_team, lose_team
