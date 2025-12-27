@@ -42,17 +42,6 @@ const StatDisplay = ({iconNode, iconSrc, value, label}) => (
     </div>
 );
 
-const EquipmentSlot = ({imgSrc, altText, label}) => (
-    <div className={styles.equipmentSlot} title={label}>
-        <img src={imgSrc} alt={altText} className={styles.equipmentImage}/>
-    </div>
-);
-
-const AnimatedNumber = ({value}) => {
-    const {number} = useSpring({from: {number: 0}, number: value, config: {mass: 1, tension: 20, friction: 10}});
-    return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
-};
-
 // --- API ---
 const openLootBoxAPI = async (userId, boxType) => {
     const response = await fetch(`${API_BASE_URL}/users/${userId}/open-box`, {
@@ -128,33 +117,6 @@ const PitchSlot = ({player, onClick, positionLabel, isEmpty, isSelected}) => {
                 <span className={styles.emptySlotLabel}>{positionLabel}</span>
             )}
         </motion.div>
-    );
-};
-
-// Лавка запасних (горизонтальний скрол)
-const Bench = ({players, onSelect, selectedPlayerId}) => {
-    return (
-        <div className={styles.benchContainer}>
-            <div className={styles.sectionTitle}>Лавка запасних ({players.length})</div>
-            <div className={styles.benchScroll}>
-                {players.map(player => (
-                    <motion.div
-                        key={player.id}
-                        className={`${styles.benchSlot} ${selectedPlayerId === player.id ? styles.selected : ''}`}
-                        onClick={() => onSelect(player)}
-                        whileTap={{scale: 0.95}}
-                    >
-                        <img src={Config.IMAGES.avatar_uk} alt={player.name} className={styles.benchImage}/>
-                        <div className={styles.benchInfo}>
-                            <span
-                                className={styles.benchPos}>{player.position ? player.position.substring(0, 3) : 'UNK'}</span>
-                            <span className={styles.benchOvr}>{Math.round(player.power)}</span>
-                        </div>
-                    </motion.div>
-                ))}
-                {players.length === 0 && <div className={styles.emptyBenchMsg}>Лавка порожня</div>}
-            </div>
-        </div>
     );
 };
 
@@ -316,28 +278,81 @@ const PlayerDetailView = ({character, onClose, isMain}) => {
         </motion.div>
     );
 };
+// 🔥 НОВИЙ КОМПОНЕНТ: СТАТИСТИКА КОМАНДИ
+// 📊 ПАНЕЛЬ СТАТИСТИКИ (Тепер буде внизу)
+const TeamStatsPanel = ({ stats, forwardRef }) => {
+    return (
+        <div ref={forwardRef} style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '10px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            padding: '12px',
+            borderRadius: '16px',
+            marginTop: '20px',
+            marginBottom: '40px', // Відступ знизу для зручності
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+            <div style={{gridColumn: '1 / -1', textAlign: 'center', marginBottom: '5px', fontSize: '12px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px'}}>Аналітика клубу</div>
+            <StatRow label="Заг. Сила" value={stats.totalPower} icon="💪" color="#FFD700" />
+            <StatRow label="Вартість" value={`${(stats.totalPrice / 1000).toFixed(1)}k`} icon="💰" color="#4CAF50" />
+            <StatRow label="Сер. Вік" value={stats.avgAge} icon="🎂" color="#2196F3" />
+            <StatRow label="Сер. Талант" value={stats.avgTalent} icon="🌟" color="#E91E63" />
+        </div>
+    );
+};
 
+const StatRow = ({ label, value, icon, color }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '8px' }}>
+        <span style={{ fontSize: '18px' }}>{icon}</span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase' }}>{label}</span>
+            <span style={{ fontSize: '14px', fontWeight: 'bold', color: color }}>{value}</span>
+        </div>
+    </div>
+);
 // =========================================================
 // 📦 3. ЗАГАЛЬНИЙ ІНВЕНТАР (Лутбокси)
 // =========================================================
-const GeneralInventory = ({lootBoxes, onOpenBox, isOpening}) => (
+const GeneralInventory = ({ lootBoxes, onOpenBox, isOpening, onScrollDown }) => (
     <div className={styles.benchSection} style={{position: 'relative', top: -24}}>
         <div className={styles.divider}></div>
         <div className={styles.sectionTitle}>Інвентар клубу</div>
-        <div className={styles.inventoryGrid}>
+        <div className={styles.inventoryGrid} style={{ position: 'relative' }}>
             {lootBoxes.map((box, i) => (
-                <div key={`box-${i}`}
-                     className={`${styles.inventorySlot} ${styles.clickable} ${isOpening ? styles.disabled : ''}`}
-                     onClick={() => !isOpening && onOpenBox(box.type, box.image)}
-                     title={box.name}
-                >
-                    <img src={box.image} alt={box.name} className={styles.itemImage}/>
-                    <span className={styles.itemCount}>x{box.count}</span>
+                <div key={i} className={`${styles.inventorySlot} ${isOpening ? styles.disabled : ''}`} onClick={() => !isOpening && onOpenBox(box.type)}>
+                    <img src={box.image} className={styles.itemImage}/><span className={styles.itemCount}>x{box.count}</span>
                 </div>
             ))}
-            {Array.from({length: Math.max(0, 5 - lootBoxes.length)}).map((_, i) => (
-                <div key={`empty-${i}`} className={styles.inventorySlot} style={{opacity: 0.2}}/>
-            ))}
+            {/* Заповнюємо пусті слоти */}
+            {Array.from({length: Math.max(0, 5 - lootBoxes.length)}).map((_, i) => <div key={`e-${i}`} className={styles.inventorySlot} style={{opacity: 0.2}}/>)}
+
+            {/* ⬇️ СТРІЛОЧКА ВНИЗ (Кнопка для скролу) */}
+            <motion.div
+                style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    right: '5px',
+                    width: '32px',
+                    height: '32px',
+                    background: 'rgba(255, 215, 0, 0.2)',
+                    border: '1px solid rgba(255, 215, 0, 0.5)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 5
+                }}
+                animate={{ y: [0, 5, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                onClick={onScrollDown}
+                whileTap={{ scale: 0.9 }}
+            >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 10L12 15L17 10" stroke="#FFD700" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+            </motion.div>
         </div>
     </div>
 );
@@ -421,6 +436,10 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     // Взаємодія { type: 'field'|'bench', section?, index?, player }
     const [selection, setSelection] = useState(null);
     const [selectedCharacter, setSelectedCharacter] = useState(null); // Для деталей
+    // 🔥 Стан для статистики
+    const [teamStats, setTeamStats] = useState({ avgAge: 0, avgTalent: 0, totalPower: 0, totalPrice: 0 });
+    // 🔥 Ref для скролу
+    const statsRef = useRef(null);
 
     // Логіка Боксів
     const [isOpening, setIsOpening] = useState(false);
@@ -431,12 +450,45 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
     const [isSettingMain, setIsSettingMain] = useState(false);
     // 🔥 ЛОГИКА ОТКРЫТИЯ БОКСА (Новая)
     const [openingBoxType, setOpeningBoxType] = useState(null);
+    const calculateTeamStats = (chars) => {
+        if (!chars || chars.length === 0) return;
+
+        let totalAge = 0;
+        let totalTalent = 0;
+        let totalPower = 0;
+        let totalPrice = 0;
+
+        chars.forEach(c => {
+            totalAge += c.age;
+            totalTalent += c.talent;
+            totalPower += c.power;
+            const POWER_MUL = 20;
+            const TALENT_MUL = 60;
+            const AGE_MUL = 15;
+
+            // Розрахунок ціни (формула)
+            const price = (c.power * POWER_MUL) + (c.talent * TALENT_MUL) - (c.age * AGE_MUL);
+            totalPrice += Math.max(0, price); // Ціна не може бути мінусовою
+        });
+
+        setTeamStats({
+            avgAge: (totalAge / chars.length).toFixed(1),
+            avgTalent: (totalTalent / chars.length).toFixed(1),
+            totalPower: Math.round(totalPower),
+            totalPrice: Math.round(totalPrice)
+        });
+    };
 
     // Confetti
     const refAnimationInstance = useRef(null);
     const getInstance = useCallback((instance) => {
         refAnimationInstance.current = instance;
     }, []);
+    const scrollToStats = () => {
+        if (statsRef.current) {
+            statsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
     const fireConfetti = useCallback(() => {
         if (refAnimationInstance.current) refAnimationInstance.current({
             origin: {y: 0.6},
@@ -455,6 +507,7 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
                     const chars = await res.json();
                     setAllCharacters(chars || []);
                     initializeSquad(chars || []);
+                    calculateTeamStats(chars || []);
                 }
             } catch (e) {
                 console.error(e);
@@ -733,11 +786,16 @@ export const InventoryModal = ({user, onClose, onUserUpdate}) => {
                                         selectedSlot={selection}
                                     />
 
+                                    {/* 👇 Передаємо функцію скролу у GeneralInventory */}
                                     <GeneralInventory
                                         lootBoxes={lootBoxes}
-                                        onOpenBox={(type) => handleOpenBoxClick(type)}
-                                        isOpening={!!openingBoxType} // Блокируем клики, если уже открываем
+                                        onOpenBox={handleOpenBoxClick}
+                                        isOpening={!!openingBoxType}
+                                        onScrollDown={scrollToStats}
                                     />
+
+                                    {/* 🔥 Панель статистики переміщена сюди (в самий низ) */}
+                                    <TeamStatsPanel stats={teamStats} forwardRef={statsRef} />
                                 </div>
 
                                 <AnimatePresence>

@@ -35,8 +35,7 @@ export const TeamSummaryCard = ({ teamName, characters, onSignContract }) => {
     const captain = sortedChars[0];
 
     // Розрахунок середнього рейтингу команди
-    const squadRating = Math.round(characters.reduce((acc, c) => acc + c.power, 0) / characters.length);
-
+    const totalPower = characters.reduce((acc, c) => acc + c.power, 0);
     return (
         <motion.div
             className={styles.summaryContainer}
@@ -47,7 +46,7 @@ export const TeamSummaryCard = ({ teamName, characters, onSignContract }) => {
             {/* --- HEADER --- */}
             <div className={styles.header}>
                 <div className={styles.ovrBadge}>
-                    <span className={styles.powerValue}>{squadRating}</span>
+                    <span className={styles.powerValue}>{totalPower}</span>
                     <span className={styles.powerLabel}>OVR</span>
                 </div>
                 <h2 className={styles.teamName}>{teamName || "ULTIMATE XI"}</h2>

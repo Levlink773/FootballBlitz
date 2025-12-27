@@ -16,7 +16,8 @@ import {InventoryModal} from "../components/main_components/InventoryModal.jsx";
 import {API_BASE_URL, api} from "../api.js";
 
 import {ModalRoot, VipPromoModalWithTitle} from "../components/modal_components/ModalComponents.jsx";
-import { FaGraduationCap } from "react-icons/fa";
+import {FaChartLine, FaGraduationCap} from "react-icons/fa";
+import {AnalyticsModal} from "../components/modal_components/AnalyticsModal.jsx";
 
 // Компонент підказки (Інвентар)
 const HighlightArrow = ({ onClick }) => {
@@ -36,7 +37,23 @@ const HighlightArrow = ({ onClick }) => {
         </div>
     );
 };
+const AnalyticsButton = ({ onClick }) => {
+    return (
+        <div className={styles.highlightOverlay} style={{pointerEvents: 'none'}}>
+            <div
+                className={styles.analyticsContainer} // Використовуємо новий клас
+                onClick={onClick}
+                style={{pointerEvents: 'auto'}} // Вмикаємо кліки
+            >
+                {/* Іконка */}
+                <FaChartLine className={styles.analyticsIcon} />
 
+                {/* Текст у тому ж стилі, що й HELP */}
+                <span className={styles.analyticsLabel}>CLUB STATS</span>
+            </div>
+        </div>
+    );
+};
 // Компонент кнопки Туторіалу
 const TutorialButton = ({ onClick }) => {
     return (
@@ -64,6 +81,11 @@ export const Main = ({ user, setUser }) => {
     const [vipModalContent, setVipModalContent] = useState({ title: null, subtitle: null });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+
+    // Змінюємо умову відображення (тепер це кнопка аналітики)
+    // Можна показувати завжди, або тільки після реєстрації
+    const showAnalyticsBtn = user && user.status_register === "END_REGISTER";
 
     const handleTeamCreated = (updatedUser) => { setUser(updatedUser); };
     const handleCharacterClaimed = (updatedUserWithNewStatus) => { setUser(updatedUserWithNewStatus); };
@@ -203,7 +225,16 @@ export const Main = ({ user, setUser }) => {
                 {showCreateTeamModal && <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />}
                 {showGetCharacterModal && <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />}
 
-                {showHighlightArrow && <HighlightArrow onClick={openInventory} />}
+                {/* 👇 КНОПКА АНАЛІТИКИ */}
+                {showAnalyticsBtn && <AnalyticsButton onClick={() => setIsAnalyticsOpen(true)} />}
+
+                {/* 👇 МОДАЛКА АНАЛІТИКИ */}
+                {isAnalyticsOpen && (
+                    <AnalyticsModal
+                        user={user}
+                        onClose={() => setIsAnalyticsOpen(false)}
+                    />
+                )}
 
                 {showTutorialBtn && <TutorialButton onClick={handleTutorialClick} />}
 
