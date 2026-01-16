@@ -23,6 +23,7 @@ from database.models.blitz_team import BlitzTeam
 from database.models.user_bot import UserBot
 from logging_config import logger
 from services.user_service import UserService
+from services.season_pass_service import SeasonPassService
 from webapp.fastapi.publisher import publish_match_state, publish_all_matches_state, make_payloads_for_users, \
     publish_batch, _delayed_publish, _delayed_publish_all_match
 
@@ -337,6 +338,13 @@ class StartBlitz:
             asyncio.create_task(
                 BlitzAnnounceService.announce_round_results(winner_teams_stage, looser_teams_stage,
                                                             reward_energy_garanted))
+            
+            # --- СЕЗОННЫЙ ПАСС: Начисляем очки за победу в раунде (3 очка) ---
+            for win_team in winner_teams_stage:
+                for user in win_team.users:
+                    if user.user_id:
+                         asyncio.create_task(SeasonPassService.add_points(user.user_id, 3))
+
             teams = winner_teams_stage
 
         # --- ФИНАЛ ---
@@ -379,6 +387,12 @@ class StartBlitz:
 
         # 1. Начисляем рейтинг
         await self.reward_rating(final_winner, final_looser, pure_semifinal_losers)
+
+        # 1.1 Сезонный пасс за победу в финале (3 очка)
+        if final_winner.users:
+            for user in final_winner.users:
+                 if user.user_id:
+                     await SeasonPassService.add_points(user.user_id, 3)
 
         # 2. Завершаем матч и отправляем финальные payload'ы (с боксами для победителя/финалиста)
         # Убедитесь, что метод finish_match тоже обновлен (как в предыдущем ответе)

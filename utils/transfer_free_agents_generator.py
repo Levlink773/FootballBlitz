@@ -9,6 +9,7 @@ from database.models.character import Character
 from database.models.transfer_character import TransferCharacter, TransferType
 from database.session import get_session
 from utils.generate_character import get_character
+from utils.generate_free_agent import get_free_agent
 
 DEFAULT_FREE_AGENTS_COUNT = 10
 
@@ -44,57 +45,64 @@ class FreeAgentsService:
                     # затем удалить запись трансфера (если не удалена автоматически)
                     await session.delete(tr)
 
-                # --- 2) Создать новых free agents ---
-                # Генерация и вставка в БД последовательно, чтобы избежать дубликатов имён
-                attempts = 0
-                created = 0
-                # Защитный предел, чтобы не уйти в бесконечность
-                max_attempts = count * 10
+                # --- 2) Создать новых free agents (6-3-1) ---
+                # 6 Common (1-6), 3 Rare (7-8), 1 Exclusive (9)
+                
+                # Helper для создания
+                async def create_agent(min_t, max_t):
+                    attempts = 0
+                    while attempts < 10:
+                        attempts += 1
+                        char_data = await get_free_agent(min_talent=min_t, max_talent=max_t)
+                        
+                        new_char = Character(
+                            characters_user_id=None,
+                            name=char_data.name,
+                            age=char_data.age,
+                            talent=char_data.talent,
+                            power=char_data.power,
+                            gender=char_data.gender,
+                            country=char_data.country
+                        )
+                        session.add(new_char)
+                        try:
+                            await session.flush()
+                        except IntegrityError:
+                            await session.rollback()
+                            continue
+                        
+                        price = int(char_data.price) # без мультипликаторов пока, или как было * 1.0 (в исходном было *1.0 фактически, просто int())
+                        # В исходном коде: price = int(char_data.price) (без 1.3, хотя в докстринге было написано 1.3)
+                        # Оставим как в исходнике (int(char_data.price))
+                        
+                        transfer = TransferCharacter(
+                            characters_id=new_char.id,
+                            price=price,
+                            transfer_type=TransferType.FREE_AGENTS
+                        )
+                        session.add(transfer)
+                        try:
+                            await session.flush()
+                            created_transfers.append(transfer)
+                            return True
+                        except IntegrityError:
+                            await session.delete(new_char)
+                            await session.rollback()
+                            continue
+                            
+                    return False
 
-                while created < count and attempts < max_attempts:
-                    attempts += 1
-                    # get_character — асинхронная функция, возвращает CharacterData (dataclass)
-                    char_data = await get_character()
-
-                    # создаём запись Character (owner = None)
-                    new_char = Character(
-                        characters_user_id=None,
-                        name=char_data.name,
-                        age=char_data.age,
-                        talent=char_data.talent,
-                        power=char_data.power,
-                        gender=char_data.gender,
-                        country=char_data.country
-                    )
-                    session.add(new_char)
-                    try:
-                        # flush чтобы получить new_char.id
-                        await session.flush()
-                    except IntegrityError:
-                        # например, уникальное имя — пробуем дальше
-                        await session.rollback()
-                        continue
-
-                    # вычисляем цену для free agents: фактична вартість * 1.3
-                    price = int(char_data.price)
-
-                    transfer = TransferCharacter(
-                        characters_id=new_char.id,
-                        price=price,
-                        transfer_type=TransferType.FREE_AGENTS
-                    )
-                    session.add(transfer)
-                    # flush, чтобы transfer.id появился
-                    try:
-                        await session.flush()
-                    except IntegrityError:
-                        # если что-то пошло не так (маловероятно) — откатим и удалим персонажа и пробуем снова
-                        await session.delete(new_char)
-                        await session.rollback()
-                        continue
-
-                    created += 1
-                    created_transfers.append(transfer)
+                # 6 Common
+                for _ in range(6):
+                    await create_agent(1, 6)
+                
+                # 3 Rare
+                for _ in range(3):
+                    await create_agent(7, 8)
+                
+                # 1 Exclusive
+                for _ in range(1):
+                    await create_agent(9, 9)
 
                 # коммит произойдёт на выходе из context
 

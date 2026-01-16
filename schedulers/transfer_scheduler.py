@@ -20,10 +20,10 @@ class FreeAgentsScheduler:
     Запуск: await FreeAgentsScheduler().start()
     """
     # триггер, который запустит _start (можно запускать раз в сутки/при старте сервиса и т.п.)
-    default_trigger_start = CronTrigger(hour=0, minute=0)  # запускаем проверку/инициализацию ежедневно в 00:00
+    default_trigger_start = CronTrigger(hour=0, minute=0)  # запускаем ежедневно в 00:00
 
-    # триггер, который выполняет refresh_free_agents раз в неделю:
-    weekly_refresh_trigger = CronTrigger(day_of_week='sat', hour=23, minute=45)
+    # триггер, который выполняет refresh_free_agents ежедневно в 00:00
+    daily_refresh_trigger = CronTrigger(hour=0, minute=0)
 
     def __init__(self) -> None:
         self.scheduler = AsyncIOScheduler()
@@ -72,12 +72,12 @@ class FreeAgentsScheduler:
 
             self.scheduler.add_job(
                 func=self._run_refresh_safe,
-                trigger=self.weekly_refresh_trigger,
+                trigger=self.daily_refresh_trigger,
                 id=self._job_id,
                 replace_existing=True,
                 misfire_grace_time=60,
             )
-            logger.info("FreeAgents weekly job scheduled: saturday 23:15.")
+            logger.info("FreeAgents daily job scheduled: 00:00.")
         except Exception as e:
             logger.exception("Error while scheduling FreeAgents weekly job: %s", e)
 

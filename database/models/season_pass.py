@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, BigInteger, String, ForeignKey, JSON, Integer
 from sqlalchemy.orm import relationship
 
@@ -59,6 +62,11 @@ class SeasonPass(Base):
         450: 'skill_60',
         590: 'box_big_3',
     }
+    @property
+    def session_end(self):
+        # Берем текущее время + 1 месяц, и принудительно ставим 1-й день
+        return datetime.now() + relativedelta(months=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        
 
     def get_available_rewards(self) -> dict:
         """

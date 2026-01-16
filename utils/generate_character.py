@@ -74,6 +74,7 @@ def generate_talent():
 
     # Потом случайное значение из диапазона
     return random.choice(chosen_range)
+
 def generate_power() -> float:
     return random.randint(20, 100)
 

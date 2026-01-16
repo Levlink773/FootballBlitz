@@ -758,7 +758,7 @@ class OpenBoxRequest(BaseModel):
 
 
 # In a separate service file (e.g., services/box_service.py)
-async def open_box_for_webapp(user_id: int, box_type_str: str):
+async def open_box_for_webapp(user_id: int, box_type_str: str, consume_box: bool = True):
     # 1. Get user and validate box type
     user = await UserService.get_user(user_id=user_id)
     try:
@@ -766,13 +766,14 @@ async def open_box_for_webapp(user_id: int, box_type_str: str):
     except KeyError:
         raise HTTPException(status_code=400, detail="Invalid box type")
 
-    # 2. Check if user has the box
-    if box_type_enum == TypeBox.SMALL_BOX and (user.count_of_small_box or 0) <= 0:
-        raise HTTPException(status_code=400, detail="No small boxes left")
-    elif box_type_enum == TypeBox.MEDIUM_BOX and (user.count_of_medium_box or 0) <= 0:
-        raise HTTPException(status_code=400, detail="No medium boxes left")
-    elif box_type_enum == TypeBox.LARGE_BOX and (user.count_of_big_box or 0) <= 0:
-        raise HTTPException(status_code=400, detail="No large boxes left")
+    # 2. Check if user has the box (only if consuming)
+    if consume_box:
+        if box_type_enum == TypeBox.SMALL_BOX and (user.count_of_small_box or 0) <= 0:
+            raise HTTPException(status_code=400, detail="No small boxes left")
+        elif box_type_enum == TypeBox.MEDIUM_BOX and (user.count_of_medium_box or 0) <= 0:
+            raise HTTPException(status_code=400, detail="No medium boxes left")
+        elif box_type_enum == TypeBox.LARGE_BOX and (user.count_of_big_box or 0) <= 0:
+            raise HTTPException(status_code=400, detail="No large boxes left")
 
     # 3. Calculate rewards (using your existing logic)
     info_lootbox = lootboxes.get(box_type_enum)
@@ -787,12 +788,14 @@ async def open_box_for_webapp(user_id: int, box_type_str: str):
         user_id=user.user_id,
         amount_energy_add=energy_reward,
     )
-    if box_type_enum == TypeBox.LARGE_BOX:
-        await UserService.add_count_of_big_box(user.user_id, -1)
-    elif box_type_enum == TypeBox.MEDIUM_BOX:
-        await UserService.add_count_of_medium_box(user.user_id, -1)
-    elif box_type_enum == TypeBox.SMALL_BOX:
-        await UserService.add_count_of_small_box(user.user_id, -1)
+    
+    if consume_box:
+        if box_type_enum == TypeBox.LARGE_BOX:
+            await UserService.add_count_of_big_box(user.user_id, -1)
+        elif box_type_enum == TypeBox.MEDIUM_BOX:
+            await UserService.add_count_of_medium_box(user.user_id, -1)
+        elif box_type_enum == TypeBox.SMALL_BOX:
+            await UserService.add_count_of_small_box(user.user_id, -1)
     user = await UserService.get_user(user_id=user_id)
     # 5. Return the fully updated user object
     return user
@@ -861,10 +864,10 @@ async def claim_daily_box(user_id: int):
     if not user.has_free_box:
         raise HTTPException(status_code=400, detail="No free box available")
 
-    # Grant rewards: 500 money, 40 energy, 1 small box (example rewards)
-    await UserService.add_money_user(user_id, 500)
-    await UserService.add_energy_user(user_id, 40)
-    await UserService.add_count_of_small_box(user_id, 1)
+    # Grant rewards using SMALL_BOX logic (without consuming a real box)
+    # The prompt requested functionality of open_box_for_webapp, which implies opening a box.
+    # We use "SMALL_BOX" type as requested ("типа дневного бокса как ты понимаешь маленький").
+    await open_box_for_webapp(user_id, "SMALL_BOX", consume_box=False)
     
     # Set has_free_box = False
     await UserService.set_free_box_status(user_id, False)
