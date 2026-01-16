@@ -11,6 +11,7 @@ from constants import (
     CHANCE_VIP_PASS, const_energy_by_time
 )
 from database.models.character import Character
+from database.models.user_boost import BoostType
 from gym_character.templates import TrainingTextTemplate
 from gym_character.types import ResultTraining
 from loader import bot
@@ -36,6 +37,7 @@ class Gym:
 
         # Словник для зберігання результатів по кожному персонажу: {char_id: ResultTraining}
         self.results_training: Dict[int, ResultTraining] = {}
+        self.boost_multiplier: float = 1.0
 
     @property
     def delta_time_training(self) -> int:
@@ -57,9 +59,21 @@ class Gym:
     async def _wait_training(self, time_sleep: int) -> None:
         try:
             # Оновлюємо статистику користувачу (1 раз за групу)
+            # Оновлюємо статистику користувачу (1 раз за групу)
             if self.owner_user_id:
                 await UserService.add_full_count_to_gym(self.owner_user_id, 1)
                 await UserService.update_training_time(self.owner_user_id)
+
+                # Check for Boosts (Speed)
+                user = await UserService.get_user(self.owner_user_id)
+                if user and user.boost:
+                    if not user.boost.is_active:
+                         logger.info(f"Boost expired for user {self.owner_user_id}, deleting.")
+                         await UserService.delete_user_boost(self.owner_user_id)
+                    elif user.boost.effect == BoostType.TRAINING_SPEED:
+                         percent = user.boost.percent
+                         time_sleep = int(time_sleep * (1 - percent / 100))
+                         logger.info(f"Applied speed boost {percent}% for user {self.owner_user_id}. New time: {time_sleep}s")
 
             await asyncio.sleep(time_sleep)
             await self._run_training()
@@ -80,10 +94,20 @@ class Gym:
             # Замість звернення до self.characters[0].owner (що викликає помилку),
             # отримуємо свіжого користувача через сервіс по ID.
             is_vip = False
+            self.boost_multiplier = 1.0
+
             if self.owner_user_id:
                 user = await UserService.get_user(self.owner_user_id)
                 if user:
                     is_vip = user.vip_pass_is_active
+                    
+                    # Check for Boosts (Efficiency)
+                    if user.boost:
+                        if not user.boost.is_active:
+                             await UserService.delete_user_boost(self.owner_user_id)
+                        elif user.boost.effect == BoostType.TRAINING_EFFICIENCY:
+                             self.boost_multiplier = 1 + (user.boost.percent / 100)
+                             logger.info(f"Applied efficiency boost {user.boost.percent}%")
             # -----------------------
 
             if is_vip:
@@ -103,7 +127,7 @@ class Gym:
 
                 if result == ResultTraining.SUCCESS:
                     # Розрахунок сили для конкретного персонажа
-                    points = char.how_much_power_can_add
+                    points = char.how_much_power_can_add * self.boost_multiplier
                     # Важливо: CharacterService.update_power повинен вміти працювати
                     # з detached об'єктом або завантажувати його заново по ID.
                     await CharacterService.update_power(char, points)
@@ -151,7 +175,7 @@ class Gym:
 
                 if res == ResultTraining.SUCCESS:
                     overall_success = True
-                    points = char.how_much_power_can_add
+                    points = char.how_much_power_can_add * self.boost_multiplier
                     message_lines.append(f"✅ <b>{char.name}:</b> +{points:.2f} сили")
                 else:
                     message_lines.append(f"❌ <b>{char.name}:</b> Невдача")

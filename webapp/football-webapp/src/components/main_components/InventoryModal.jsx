@@ -314,48 +314,68 @@ const StatRow = ({ label, value, icon, color }) => (
 // =========================================================
 // 📦 3. ЗАГАЛЬНИЙ ІНВЕНТАР (Лутбокси)
 // =========================================================
-const GeneralInventory = ({ lootBoxes, onOpenBox, isOpening, onScrollDown }) => (
-    <div className={styles.benchSection} style={{position: 'relative', top: -24}}>
-        <div className={styles.divider}></div>
-        <div className={styles.sectionTitle}>Інвентар клубу</div>
-        <div className={styles.inventoryGrid} style={{ position: 'relative' }}>
-            {lootBoxes.map((box, i) => (
-                <div key={i} className={`${styles.inventorySlot} ${isOpening ? styles.disabled : ''}`} onClick={() => !isOpening && onOpenBox(box.type)}>
-                    <img src={box.image} className={styles.itemImage}/><span className={styles.itemCount}>x{box.count}</span>
-                </div>
-            ))}
-            {/* Заповнюємо пусті слоти */}
-            {Array.from({length: Math.max(0, 5 - lootBoxes.length)}).map((_, i) => <div key={`e-${i}`} className={styles.inventorySlot} style={{opacity: 0.2}}/>)}
+const GeneralInventory = ({ lootBoxes, onOpenBox, isOpening, onScrollDown }) => {
+    // Стан для кількості слотів (за замовчуванням перевіряємо ширину)
+    const [minSlots, setMinSlots] = useState(window.innerWidth > 385 ? 5 : 4);
 
-            {/* ⬇️ СТРІЛОЧКА ВНИЗ (Кнопка для скролу) */}
-            <motion.div
-                style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    right: '5px',
-                    width: '32px',
-                    height: '32px',
-                    background: 'rgba(255, 215, 0, 0.2)',
-                    border: '1px solid rgba(255, 215, 0, 0.5)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 5
-                }}
-                animate={{ y: [0, 5, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                onClick={onScrollDown}
-                whileTap={{ scale: 0.9 }}
-            >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 10L12 15L17 10" stroke="#FFD700" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            </motion.div>
+    useEffect(() => {
+        const handleResize = () => {
+            setMinSlots(window.innerWidth > 387 ? 5 : 4);
+        };
+
+        // Слухаємо зміну розміру вікна
+        window.addEventListener('resize', handleResize);
+
+        // Прибираємо слухач при розмонтуванні
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return (
+        <div className={styles.benchSection} style={{position: 'relative', top: -24}}>
+            <div className={styles.divider}></div>
+            <div className={styles.sectionTitle}>Інвентар клубу</div>
+            <div className={styles.inventoryGrid} style={{ position: 'relative' }}>
+                {lootBoxes.map((box, i) => (
+                    <div key={i} className={`${styles.inventorySlot} ${isOpening ? styles.disabled : ''}`} onClick={() => !isOpening && onOpenBox(box.type)}>
+                        <img src={box.image} className={styles.itemImage}/><span className={styles.itemCount}>x{box.count}</span>
+                    </div>
+                ))}
+
+                {/* Використовуємо minSlots замість фіксованого числа */}
+                {Array.from({length: Math.max(0, minSlots - lootBoxes.length)}).map((_, i) => (
+                    <div key={`e-${i}`} className={styles.inventorySlot} style={{opacity: 0.2}}/>
+                ))}
+
+                {/* ⬇️ СТРІЛОЧКА ВНИЗ */}
+                <motion.div
+                    style={{
+                        position: 'absolute',
+                        bottom: '12px',
+                        right: '5px',
+                        width: '32px',
+                        height: '32px',
+                        background: 'rgba(255, 215, 0, 0.2)',
+                        border: '1px solid rgba(255, 215, 0, 0.5)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        zIndex: 5
+                    }}
+                    animate={{ y: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    onClick={onScrollDown}
+                    whileTap={{ scale: 0.9 }}
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 10L12 15L17 10" stroke="#FFD700" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                </motion.div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // --- РЕФЕРАЛИ ---
 const ReferralView = ({user, onBack}) => {

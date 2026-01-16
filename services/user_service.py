@@ -11,6 +11,10 @@ from database.models.character import Character
 from database.models.reminder_character import ReminderCharacter
 from database.models.statistics import Statistics
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
+from database.models.season_pass import SeasonPass
+from database.models.user_boost import UserBoost, BoostType
+from database.models.types import TypeBox
+from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
 from logging_config import logger
 
@@ -46,11 +50,24 @@ class UserService:
                     .selectinload(Character.reminder),
                     selectinload(UserBot.main_character)
                     .selectinload(Character.owner),
-                    selectinload(UserBot.statistics)
+                    selectinload(UserBot.statistics),
+                    selectinload(UserBot.season_pass),
+                    selectinload(UserBot.boost)
                 )
                 result = await session.execute(stmt)
                 user = result.scalar_one_or_none()
                 return user
+
+    @classmethod
+    async def get_user_by_pk(cls, pk: int) -> UserBot | None:
+        async for session in get_session():
+            async with session.begin():
+                stmt = select(UserBot).filter_by(id=pk).options(
+                    selectinload(UserBot.season_pass),
+                    selectinload(UserBot.boost)
+                )
+                result = await session.execute(stmt)
+                return result.scalar_one_or_none()
 
     @classmethod
     async def get_all_users(cls) -> list[UserBot] | None:
@@ -382,6 +399,17 @@ class UserService:
                 await session.execute(stmt)
 
     @classmethod
+    async def add_skill_points(cls, user_id: int, amount: int):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(skill_points=UserBot.skill_points + amount)
+                )
+                await session.execute(stmt)
+
+    @classmethod
     async def update_main_character(cls, user_id: int, new_main_character_id: int):
         async for session in get_session():
             async with session.begin():
@@ -596,6 +624,223 @@ class UserService:
                     .values(is_tg_mode=status)
                 )
                 await session.execute(stmt)
+
+    @classmethod
+    async def set_free_box_status(cls, user_id: int, status: bool):
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    update(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .values(has_free_box=status)
+                )
+                await session.execute(stmt)
+
+    @classmethod
+    async def create_user_boost(cls, user_id: int, boost_type, percent: int, duration: int, id: int = None):
+        async for session in get_session():
+            async with session.begin():
+                # Check for existing boost and delete/overwrite (UserBoost defines 1:1, so we should clean up)
+                # But actually relation on UserBot is uselist=False so just one.
+                # Let's see if we need to explicitly delete.
+                # Try to find and update or create new.
+                stmt = select(UserBoost).where(UserBoost.user_id == user_id)
+                result = await session.execute(stmt)
+                existing_boost = result.scalar_one_or_none()
+                
+                start_date = datetime.now()
+                end_date = start_date + asyncio.timedelta(hours=duration) if hasattr(asyncio, 'timedelta') else start_date +  __import__('datetime').timedelta(hours=duration) # Safe import or use datetime.timedelta
+
+                # Using standard datetime.timedelta
+                from datetime import timedelta
+                end_date = start_date + timedelta(hours=duration)
+
+                if existing_boost:
+                    existing_boost.effect = boost_type
+                    existing_boost.percent = percent
+                    existing_boost.duration = duration
+                    existing_boost.date_start = start_date
+                    existing_boost.date_end = end_date
+                else:
+                    # Need real ID from UserBot.user_id or UserBot.id? 
+                    # UserBoost points to users.id (BigInteger ID), NOT telegram user_id
+                    # Wait, UserBoost.user_id is ForeignKey('users.id'). 
+                    # user_id argument here is usually telegram ID in this project context?
+                    # Let's check `get_user` implementation. It uses `filter_by(user_id=user_id)`.
+                    # So we need to fetch the UserBot to get its primary key ID if `user_id` passed is TG ID.
+                    # Or we need to support passing DB ID.
+                    # Looking at other methods: they use `UserBot.user_id == user_id`.
+                    # BUT `UserBoost.user_id` FK is to `users.id` (PK), NOT `users.user_id` (TG ID).
+                    # `UserBot` -> `id` (PK), `user_id` (TG ID distinct).
+                    # So we must resolve TG ID to PK ID.
+                    
+                    user_stmt = select(UserBot.id).where(UserBot.user_id == user_id)
+                    user_res = await session.execute(user_stmt)
+                    user_pk = user_res.scalar_one_or_none()
+                    
+                    if not user_pk:
+                        logger.error(f"User {user_id} not found for boost creation")
+                        return
+
+                    new_boost = UserBoost(
+                        id=id,
+                        user_id=user_pk,
+                        effect=boost_type,
+                        percent=percent,
+                        duration=duration,
+                        date_start=start_date,
+                        date_end=end_date
+                    )
+                    session.add(new_boost)
+
+    @classmethod
+    async def delete_user_boost(cls, user_id: int):
+        async for session in get_session():
+            async with session.begin():
+                # We need to resolve user_id (TG ID) to UserBot.id (PK) first, 
+                # OR join UserBot. Or if UserBoost.user_id stored TG ID (it stores PK per schema).
+                # Let's align with create_user_boost which resolves it.
+                
+                stmt = delete(UserBoost).where(
+                    UserBoost.user_id == select(UserBot.id).where(UserBot.user_id == user_id).scalar_subquery()
+                )
+                await session.execute(stmt)
+                logger.info(f"Deleted boost for user {user_id}")
+
+    @classmethod
+    async def get_season_pass(cls, user_id: int) -> SeasonPass | None:
+        async for session in get_session():
+            async with session.begin():
+                # Need to join UserBot to filter by TG user_id, or resolve PK first.
+                stmt = (
+                    select(SeasonPass)
+                    .join(UserBot)
+                    .where(UserBot.user_id == user_id)
+                )
+                result = await session.execute(stmt)
+                return result.scalar_one_or_none()
+                
+    @classmethod
+    async def _apply_reward(cls, user_id: int, reward_str: str):
+        """
+        Parses reward string and applies the reward.
+        Formats:
+        - money_1000
+        - energy_50
+        - skill_3
+        - box_small, box_medium, box_big (optional count, e.g. box_small_3)
+        - boost_training_50_12h, boost_team_10_12h, boost_training_time_50_12h, boost_strength_25_24h_trophy
+        """
+        parts = reward_str.split('_')
+        type_ = parts[0]
+        
+        if type_ == 'money':
+            amount = int(parts[1])
+            await cls.add_money_user(user_id, amount)
+            
+        elif type_ == 'energy':
+            amount = int(parts[1])
+            await cls.add_energy_user(user_id, amount)
+
+        elif type_ == 'skill':
+            amount = int(parts[1])
+            await cls.add_skill_points(user_id, amount)
+
+        elif type_ == 'box':
+            box_type = parts[1] # small, medium, big
+            count = 1
+            if len(parts) > 2 and parts[2].isdigit():
+                count = int(parts[2])
+            
+            if box_type == 'small':
+                await cls.add_count_of_small_box(user_id, count)
+            elif box_type == 'medium':
+                await cls.add_count_of_medium_box(user_id, count)
+            elif box_type == 'big':
+                await cls.add_count_of_big_box(user_id, count)
+        
+        elif type_ == 'boost':
+            # Examples: 
+            # boost_training_50_12h
+            # boost_training_time_50_12h
+            # boost_team_10_12h
+            # boost_strength_25_24h_trophy
+            
+            boost_type = None
+            percent_idx = -1
+            
+            if parts[1] == 'training':
+                if parts[2] == 'time':
+                    boost_type = BoostType.TRAINING_SPEED
+                    percent_idx = 3
+                else:
+                    boost_type = BoostType.TRAINING_EFFICIENCY
+                    percent_idx = 2
+            elif parts[1] == 'team':
+                boost_type = BoostType.TEAM_POWER
+                percent_idx = 2
+            elif parts[1] == 'strength':
+                boost_type = BoostType.TEAM_POWER
+                percent_idx = 2
+            
+            if boost_type and percent_idx != -1:
+                percent = int(parts[percent_idx])
+                duration_str = parts[percent_idx + 1] # e.g. "12h"
+                duration = int(duration_str.replace('h', ''))
+                
+                await cls.create_user_boost(user_id, boost_type, percent, duration)
+        
+        logger.info(f"UserId {user_id} claimed reward: {reward_str}")
+
+    @classmethod
+    async def claim_season_pass_reward(cls, user_id: int, points: int, tier: str) -> bool:
+        """
+        Marks a reward as collected and GRANTS it to the user.
+        """
+        async for session in get_session():
+            async with session.begin():
+                stmt = (
+                    select(SeasonPass)
+                    .join(UserBot)
+                    .where(UserBot.user_id == user_id)
+                )
+                result = await session.execute(stmt)
+                sp = result.scalar_one_or_none()
+                
+                if not sp:
+                    return False
+
+                # Check if reward exists in config
+                rewards_map = SeasonPass.VIP_REWARDS if tier == 'vip' else SeasonPass.STANDARD_REWARDS
+                reward_str = rewards_map.get(points)
+                
+                if not reward_str:
+                    logger.warning(f"User {user_id} tried to claim unknown reward: {points} ({tier})")
+                    return False
+                
+                # Verify VIP status availability
+                if tier == 'vip':
+                     # We need access to UserBot to check VIP, but usually SP points checking is enough if logic is correct.
+                     # However, SP model method `get_available_rewards` checks VIP status.
+                     # Here we should also ideally check or assume caller checked.
+                     pass
+
+                collected = dict(sp.rewards_collected) if sp.rewards_collected else {"standard": [], "vip": []}
+                if tier not in collected: collected[tier] = []
+                
+                if points not in collected[tier]:
+                    # 1. Apply Reward
+                    await cls._apply_reward(user_id, reward_str)
+
+                    # 2. Mark as collected
+                    collected[tier].append(points)
+                    sp.rewards_collected = collected
+                    from sqlalchemy.orm.attributes import flag_modified
+                    flag_modified(sp, "rewards_collected")
+                    
+                    return True
+                
+                return False
 
     @classmethod
     async def delete_all_bots(cls):

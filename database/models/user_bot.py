@@ -14,6 +14,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
+from database.models.user_boost import BoostType
+
 
 class STATUS_USER_REGISTER(EnumBase):
     START_REGISTER = "START_REGISTER"
@@ -41,7 +43,7 @@ class BlitzActive(EnumBase):
 class UserBot(Base):
     __tablename__ = 'users'
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     user_id = Column(BigInteger, unique=True, index=True)
     user_name = Column(String(255), index=True)
     user_full_name = Column(String(255))
@@ -94,6 +96,20 @@ class UserBot(Base):
         lazy="selectin",
         cascade="all, delete-orphan",
     )
+    season_pass = relationship(
+        "SeasonPass",
+        back_populates="user",
+        uselist=False,
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+    boost = relationship(
+        "UserBoost",
+        back_populates="user",
+        uselist=False,
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
     count_play_blitz = Column(BigInteger, default=0)
     count_rich_semi_final_blitz = Column(BigInteger, default=0)
     count_rich_final_looser_blitz = Column(BigInteger, default=0)
@@ -112,6 +128,23 @@ class UserBot(Base):
     notified_12h = Column(Boolean, default=False)
     notified_24h = Column(Boolean, default=False)
     last_training = Column(DateTime, default=datetime.datetime.now)
+    has_free_box = Column(Boolean, default=False)
+    skill_points = Column(BigInteger, default=0)
+
+    @property
+    def team_power(self) -> int:
+        """
+        Calculates the total power of the team, including active boosts.
+        Boosts:
+        - TEAM_POWER: +10% or +25% depending on the card.
+        """
+        base_power = sum(c.power for c in self.characters)
+        
+        if self.boost and self.boost.effect == BoostType.TEAM_POWER and self.boost.is_active:
+            multiplier = 1 + (self.boost.percent / 100.0)
+            return int(base_power * multiplier)
+        
+        return int(base_power)
 
     @property
     def precent_winner_matches(self) -> float:

@@ -68,6 +68,7 @@ def character_to_dict(ch: Character) -> dict:
         "power": getattr(ch, "power", None),
         "gender": getattr(ch, "gender").name if getattr(ch, "gender", None) is not None else None,
         "country": getattr(ch, "country").name if getattr(ch, "country", None) is not None else None,
+        "rarity": getattr(ch, "rarity").name if getattr(ch, "rarity", None) is not None else None,
         "created_at": getattr(ch, "created_at").isoformat() if getattr(ch, "created_at", None) else None,
         "training_key": getattr(ch, "training_key", None),
         "time_get_member_bonus": getattr(ch, "time_get_member_bonus").isoformat() if getattr(ch, "time_get_member_bonus", None) else None,

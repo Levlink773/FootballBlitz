@@ -15,7 +15,8 @@ class BlitzUserService:
                 .where(UserBot.user_id == blitz_users.user_id).options(
                     selectinload(UserBot.characters),
                     selectinload(UserBot.main_character),
-                    selectinload(UserBot.statistics)
+                    selectinload(UserBot.statistics),
+                    selectinload(UserBot.boost)
                 )
             )
             return result.scalar_one_or_none()

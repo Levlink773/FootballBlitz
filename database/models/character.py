@@ -15,6 +15,12 @@ class Position(str, EnumBase):
     DEFENDER = "DEFENDER"      # Захисник
     MIDFIELDER = "MIDFIELDER"  # Півзахисник
     ATTACKER = "ATTACKER"      # Нападник
+
+
+class CharacterRarity(EnumBase):
+    STANDARD = "STANDARD"  # Обычный
+    RARE = "RARE"          # Редкий
+    EXCLUSIVE = "EXCLUSIVE" # Эксклюзивный
 class Character(Base):
     __tablename__ = 'characters'
 
@@ -66,3 +72,24 @@ class Character(Base):
     @property
     def how_much_power_can_add(self):
         return max(1.0 * (0.2 * self.talent) * (1 - self.age * 0.02), 0) * 2
+
+    @property
+    def rarity(self) -> CharacterRarity:
+        """
+        Calculates character rarity based on talent and age.
+        
+        Logic:
+        - Talent 1-6: STANDARD
+        - Talent 7-8: RARE
+        - Talent 9: EXCLUSIVE (but if Age > 30 -> RARE)
+        """
+        if self.talent <= 6:
+            return CharacterRarity.STANDARD
+        elif 7 <= self.talent <= 8:
+            return CharacterRarity.RARE
+        elif self.talent >= 9:
+            if self.age > 30:
+                return CharacterRarity.RARE
+            return CharacterRarity.EXCLUSIVE
+        
+        return CharacterRarity.STANDARD # Fallback

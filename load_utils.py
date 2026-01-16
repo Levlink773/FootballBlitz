@@ -17,6 +17,8 @@ from schedulers.scheduler_reward_rating import SchedulerRewardRating
 from schedulers.scheduler_training import ReminderTraning
 from schedulers.scheduler_training_reminder import TrainingReminder
 from schedulers.transfer_scheduler import FreeAgentsScheduler
+from schedulers.scheduler_daily_box import DailyBoxScheduler
+from schedulers.scheduler_monthly_season import MonthlySeasonScheduler
 
 
 async def start_utils():
@@ -35,6 +37,8 @@ async def start_utils():
     await anulate_statics.start()
     await reward_rating.start()
     await train_reminder_scheduler.start()
+    await daily_box_scheduler.start()
+    await monthly_season_scheduler.start()
     # await reminder_vip_pass.start_timers()
     # await scheduler_reset_training_key.start()
     # await scheduler_training.start()
@@ -51,6 +55,8 @@ anulate_statics = AnulateStatisticsScheduler()
 reward_rating = SchedulerRewardRating()
 free_agent_scheduler = FreeAgentsScheduler()
 train_reminder_scheduler = TrainingReminder()
+daily_box_scheduler = DailyBoxScheduler()
+monthly_season_scheduler = MonthlySeasonScheduler()
 # reminder_vip_pass         = VipPassSchedulerService()
 # scheduler_reset_training_key = ResetTrainingKeyScheduler()
 

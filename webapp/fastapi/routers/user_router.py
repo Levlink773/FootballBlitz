@@ -14,6 +14,7 @@ from config import Country
 from constants import lootboxes
 from database.models.character import Character, Position
 from database.models.types import TypeBox
+from database.models.user_boost import BoostType
 from database.models.user_bot import UserBot, STATUS_USER_REGISTER
 from database.session import get_session
 from logging_config import logger
@@ -62,6 +63,7 @@ class UserPublic(BaseModel):
     precent_winner_matches: Optional[float] = 0.0
     final_winner_matches: Optional[int] = 0
     final_count_of_matches: Optional[int] = 0
+    team_power: Optional[int] = 0
 
     class Config:
         from_attributes = True
@@ -162,7 +164,43 @@ def user_to_dict(u: UserBot) -> dict:
         "main_character_id": getattr(u, "main_character_id", None),
         "status_register": getattr(u, "status_register").name if getattr(u, "status_register", None) else None,
         "count_of_training": getattr(u, "count_of_training", 0),
+        "has_free_box": getattr(u, "has_free_box", False),
+        "skill_points": getattr(u, "skill_points", 0),
+        "team_power": getattr(u, "team_power", 0),
     }
+
+    # Season Pass
+    try:
+        sp = getattr(u, "season_pass", None)
+        if sp:
+            data["season_pass"] = {
+                "id": sp.id,
+                "season_name": sp.season_name,
+                "points": sp.points,
+                "rewards_collected": sp.rewards_collected,
+                # "available_rewards": sp.get_available_rewards() # Optional, can comprise performance
+            }
+        else:
+             data["season_pass"] = None
+    except Exception:
+         data["season_pass"] = None
+
+    # Boost
+    try:
+        boost = getattr(u, "boost", None)
+        if boost:
+             data["boost"] = {
+                "id": boost.id,
+                "effect": boost.effect.name if boost.effect else None,
+                "percent": boost.percent,
+                "duration": boost.duration,
+                "is_active": boost.is_active,
+                "date_end": boost.date_end.isoformat() if boost.date_end else None
+             }
+        else:
+             data["boost"] = None
+    except Exception:
+         data["boost"] = None
 
     # небольшие удобства
     try:
@@ -799,9 +837,99 @@ async def set_main_character(user_id: int, body: SetMainCharacterRequest):
 
     user.main_character_id = body.character_id
     await UserService.update_main_character(user.user_id, body.character_id)
+    
+    updated_user = await UserService.get_user(user_id=user_id)
+    return user_to_dict(updated_user)
 
-    # Повертаємо оновлений об'єкт користувача
-    return user_to_dict(user)  # Використовуємо ваш існуючий серіалізатор
+
+# --- Daily Box Endpoints ---
+
+@router.get("/{user_id}/daily-box/status", response_model=dict)
+async def get_daily_box_status(user_id: int):
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"has_free_box": user.has_free_box}
+
+
+@router.post("/{user_id}/daily-box/claim", response_model=dict)
+async def claim_daily_box(user_id: int):
+    user = await UserService.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not user.has_free_box:
+        raise HTTPException(status_code=400, detail="No free box available")
+
+    # Grant rewards: 500 money, 40 energy, 1 small box (example rewards)
+    await UserService.add_money_user(user_id, 500)
+    await UserService.add_energy_user(user_id, 40)
+    await UserService.add_count_of_small_box(user_id, 1)
+    
+    # Set has_free_box = False
+    await UserService.set_free_box_status(user_id, False)
+
+    updated_user = await UserService.get_user(user_id)
+    return user_to_dict(updated_user)
+
+
+# --- Season Pass Endpoints ---
+
+class ClaimRewardRequest(BaseModel):
+    points: int
+    tier: Literal['standard', 'vip']
+
+@router.get("/{user_id}/season-pass", response_model=dict)
+async def get_season_pass_info(user_id: int):
+    sp = await UserService.get_season_pass(user_id)
+    if not sp: # If no SP exists, maybe create on fly or return empty
+        # Typically SP might be created on user reg or handled. 
+        # For now return None or 404
+        return {"season_pass": None}
+    
+    return {
+        "season_pass": {
+            "id": sp.id,
+            "season_name": sp.season_name,
+            "points": sp.points,
+            "rewards_collected": sp.rewards_collected,
+            "available_rewards": sp.get_available_rewards()
+        }
+    }
+
+@router.post("/{user_id}/season-pass/claim", response_model=dict)
+async def claim_season_pass_reward(user_id: int, body: ClaimRewardRequest):
+    success = await UserService.claim_season_pass_reward(user_id, body.points, body.tier)
+    if not success:
+         raise HTTPException(status_code=400, detail="Claim failed: Reward unavailable or already collected")
+    
+    # Return updated SP info
+    updated_user = await UserService.get_user(user_id)
+    # We can return full user or just SP info. 
+    # Let's return full user dict as usual for consistency
+    return user_to_dict(updated_user)
+
+
+# --- Boost Endpoints ---
+
+class ActivateBoostRequest(BaseModel):
+    boost_type: str # e.g. "TRAINING_EFFICIENCY"
+    percent: int
+    duration: int # hours
+
+@router.post("/{user_id}/boost/activate", response_model=dict)
+async def activate_boost(user_id: int, body: ActivateBoostRequest):
+    try:
+        b_type = BoostType[body.boost_type]
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid boost type")
+        
+    await UserService.create_user_boost(user_id, b_type, body.percent, body.duration)
+    
+    updated_user = await UserService.get_user(user_id)
+    return user_to_dict(updated_user)
+
+
 
 
 @router.get(

@@ -36,9 +36,8 @@ class MatchTeamBlitz:
     @property
     def team_power(self) -> int:
         return sum(
-            character.power
+            user.team_power
             for user in self.users_in_match
-            for character in user.characters
         )
 
     @property
@@ -70,7 +69,7 @@ class MatchTeamBlitz:
             return None
 
         # Теперь длины совпадают
-        weights = [sum(c.power for c in user.characters) for user in filtered_users]
+        weights = [user.team_power for user in filtered_users]
 
         selected_user = random.choices(filtered_users, weights=weights, k=1)[0]
         return selected_user
@@ -111,8 +110,8 @@ class MatchTeamBlitz:
         candidates = [u for u in self.users_in_match if u not in exclude_users]
         if not candidates:
             return None
-        # Выбираем взвешенно по силе
-        weights = [sum(c.power for c in u.characters) for u in candidates]
+        # Выбираємо взвешенно по силе
+        weights = [u.team_power for u in candidates]
         return random.choices(candidates, weights=weights, k=1)[0]
 
         # 👇 НОВИЙ МЕТОД: Шукаємо серед усіх персонажів команди
