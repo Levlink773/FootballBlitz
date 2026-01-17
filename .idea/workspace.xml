@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 66">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/InventoryModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/InventoryModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +55,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "e324728f",
     "last_opened_file_path": "/Users/devlink007/PycharmProjects/FootballBlitz/utils",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
