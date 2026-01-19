@@ -167,23 +167,71 @@ def user_to_dict(u: UserBot) -> dict:
         "has_free_box": getattr(u, "has_free_box", False),
         "skill_points": getattr(u, "skill_points", 0),
         "team_power": getattr(u, "team_power", 0),
+        "skill_points": getattr(u, "skill_points", 0),
+        "team_power": getattr(u, "team_power", 0),
     }
+
+    # Calculate Avg Age and Avg Talent
+    characters = getattr(u, "characters", [])
+    if characters:
+        total_age = sum(c.age for c in characters)
+        total_talent = sum(c.talent for c in characters)
+        data["avg_age"] = round(total_age / len(characters), 1)
+        data["avg_talent"] = round(total_talent / len(characters), 1)
+    else:
+        data["avg_age"] = 0
+        data["avg_talent"] = 0
 
     # Season Pass
     try:
+        from database.models.season_pass import SeasonPass
         sp = getattr(u, "season_pass", None)
+        
+        # Prepare Config
+        sp_config = {
+            "standard": SeasonPass.STANDARD_REWARDS,
+            "vip": SeasonPass.VIP_REWARDS
+        }
+
         if sp:
             data["season_pass"] = {
                 "id": sp.id,
                 "season_name": sp.season_name,
                 "points": sp.points,
                 "rewards_collected": sp.rewards_collected,
-                # "available_rewards": sp.get_available_rewards() # Optional, can comprise performance
+                "config": sp_config,
+                "end_date": sp.session_end.isoformat()
             }
         else:
-             data["season_pass"] = None
+             # Even if user has no pass entity, we send structure so frontend can render the roadmap (with 0 progress)
+             # Default end date: 1st of next month
+             from datetime import datetime
+             from dateutil.relativedelta import relativedelta
+             next_month = datetime.now() + relativedelta(months=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+             
+             data["season_pass"] = {
+                "id": None,
+                "season_name": "Current Season",
+                "points": 0,
+                "rewards_collected": {"standard": [], "vip": []},
+                "config": sp_config,
+                "end_date": next_month.isoformat()
+            }
     except Exception:
-         data["season_pass"] = None
+         # Fallback but try to send config if possible
+         try:
+             from database.models.season_pass import SeasonPass
+             data["season_pass"] = {
+                "id": None,
+                "points": 0,
+                "rewards_collected": {"standard": [], "vip": []},
+                "config": {
+                    "standard": SeasonPass.STANDARD_REWARDS,
+                    "vip": SeasonPass.VIP_REWARDS
+                }
+             }
+         except:
+             data["season_pass"] = None
 
     # Boost
     try:
@@ -221,6 +269,35 @@ def user_to_dict(u: UserBot) -> dict:
 
 
 # routers/user_router.py (або де у вас цей логіка)
+
+from fastapi import APIRouter, HTTPException, status, Query, Body
+
+# ... (rest of imports)
+
+@router.post("/{user_id}/season-pass/claim", status_code=status.HTTP_200_OK)
+async def claim_season_pass_reward(
+    user_id: int, 
+    points_milestone: int | str = Body(...),
+    tier: str = Body(...)
+):
+    """
+    Claim a season pass reward.
+    """
+    logger.info(f"USER {user_id} CLAIM REQUEST: milestone={points_milestone}, tier={tier}")
+    
+    # Ensure int
+    milestone = int(points_milestone)
+    
+    from services.season_pass_service import SeasonPassService
+    success = await SeasonPassService.claim_reward(user_id, milestone, tier)
+    
+    if not success:
+        logger.warning(f"Claim failed for user {user_id}: milestone {milestone}, tier {tier}")
+        raise HTTPException(status_code=400, detail="Failed to claim reward (locked, already collected, or invalid)")
+        
+    user = await UserService.get_user(user_id=user_id)
+    return user_to_dict(user)
+
 
 @router.post("/{user_id}/claim-first-characters", status_code=status.HTTP_200_OK)
 async def claim_first_team_endpoint(user_id: int):
@@ -287,6 +364,134 @@ def user_to_dict_with_characters(u: UserBot) -> dict:
     ]
     return data
 
+
+@router.get("/general-stats")
+async def get_league_general_stats():
+    """
+    Возвращает 3 главных показателя для таба Статистика:
+    1. Самая сильная команда (по team_power)
+    2. Самый сильный игрок (по character.power)
+    3. Самая дорогая команда (сумма character_price всех персонажей)
+    """
+    users = await UserService.get_all_users()
+
+    if not users:
+        return {}
+
+    # 1. Самая сильная команда
+    # Используем property team_power из модели UserBot
+    strongest_team_user = max(users, key=lambda u: u.team_power, default=None)
+
+    # 2. Самый сильный персонаж во всей игре
+    # Нам нужно пройтись по всем юзерам и их персонажам
+    best_char_entry = None
+    max_char_power = -1.0
+
+    for u in users:
+        for c in u.characters:
+            if c.power > max_char_power:
+                max_char_power = c.power
+                best_char_entry = {"user": u, "char": c}
+
+    # 3. Самая дорогая команда
+    # Суммируем character_price (property модели Character)
+    def get_team_price(u):
+        return sum(c.character_price for c in u.characters)
+
+    expensive_team_user = max(users, key=get_team_price, default=None)
+
+    # Формируем ответ
+    return {
+        "strongest_team": {
+            "team_name": strongest_team_user.team_name if strongest_team_user else "N/A",
+            "user_name": strongest_team_user.user_name if strongest_team_user else "N/A",
+            "value": strongest_team_user.team_power if strongest_team_user else 0,
+            "avatar_icon": "⚡"  # Можно заменить на URL картинки
+        },
+        "strongest_player": {
+            "character_name": best_char_entry["char"].name if best_char_entry else "N/A",
+            "team_name": best_char_entry["user"].team_name if best_char_entry else "N/A",
+            "value": round(max_char_power, 1) if best_char_entry else 0,
+            "avatar_icon": "⭐"
+        },
+        "expensive_team": {
+            "team_name": expensive_team_user.team_name if expensive_team_user else "N/A",
+            "value": int(get_team_price(expensive_team_user)) if expensive_team_user else 0,
+            "avatar_icon": "💎"
+        }
+    }
+
+
+@router.get("/leaderboard")
+async def get_leaderboard(user_id: int, sort_by: str = Query("seasonal", enum=["seasonal", "win_rate", "streak"])):
+    """
+    sort_by:
+      - seasonal: по user.season_pass.points (или user.points)
+      - win_rate: по проценту побед
+      - streak: по сериям побед (если есть поле, иначе по победам в блице)
+    """
+    users = await UserService.get_all_users()
+    if not users:
+        return {"top_three": [], "user_position": None}
+
+    # 1. СОРТИРОВКА
+    if sort_by == "seasonal":
+        # Сортируем по очкам сезонного пасса (если есть) или общим очкам
+        # Предполагаем, что points это сезонные очки
+        sorted_users = sorted(users, key=lambda u: u.points, reverse=True)
+        value_key = "points"
+        unit = "PTS"
+
+    elif sort_by == "win_rate":
+        # Сортируем по win_rate property
+        sorted_users = sorted(users, key=lambda u: u.precent_winner_matches, reverse=True)
+        value_key = "precent_winner_matches"
+        unit = "%"
+
+    else:  # streak (или просто кол-во побед в блицах как заглушка)
+        sorted_users = sorted(users, key=lambda u: u.final_winner_matches, reverse=True)
+        value_key = "final_winner_matches"
+        unit = "WINS"
+
+    # 2. ФОРМИРОВАНИЕ ТОП-3
+    top_three_data = []
+    for idx, u in enumerate(sorted_users[:3]):
+        val = getattr(u, value_key, 0)
+        # Если это property (как win_rate), getattr сработает, если поле класса - тоже.
+        # Для win_rate нужно вызвать property, если это объект ORM, но тут мы уже отсортировали.
+
+        top_three_data.append({
+            "rank": idx + 1,
+            "user_id": u.user_id,
+            "user_name": u.user_name,
+            "team_name": u.team_name,
+            "value": val,
+            "unit": unit
+        })
+
+    # 3. ПОИСК ПОЗИЦИИ ТЕКУЩЕГО ИГРОКА
+    user_position_data = None
+    try:
+        # Находим индекс юзера в отсортированном списке
+        user_index = next(i for i, u in enumerate(sorted_users) if u.user_id == user_id)
+        u_obj = sorted_users[user_index]
+        val = getattr(u_obj, value_key, 0)
+
+        user_position_data = {
+            "rank": user_index + 1,  # +1 потому что индекс с 0
+            "user_id": u_obj.user_id,
+            "user_name": u_obj.user_name,
+            "team_name": u_obj.team_name,
+            "value": val,
+            "unit": unit
+        }
+    except StopIteration:
+        user_position_data = None
+
+    return {
+        "top_three": top_three_data,
+        "user_position": user_position_data
+    }
 
 @router.post("/{user_id}/save-squad")
 async def save_squad_endpoint(user_id: int, squad: SquadUpdateRequest):

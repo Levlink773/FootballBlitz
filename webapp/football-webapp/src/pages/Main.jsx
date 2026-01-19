@@ -1,97 +1,266 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../css_files/Main.module.css';
-import {Header} from "../components/Header.jsx";
-import {VipBanner} from "../components/main_components/VipBanner.jsx";
-import {UserProfile} from "../components/main_components/UserProfile.jsx";
-import {DailyTasks} from "../components/main_components/DailyTasks.jsx";
-import {StatsPanel} from "../components/main_components/StatsPanel.jsx";
-import {NavigationBar} from "../components/NavigationBar.jsx";
+import { Header } from "../components/Header.jsx";
+import { NavigationBar } from "../components/NavigationBar.jsx";
 import Config from "../config.js";
 import EventCard from "../components/main_components/EventCard.jsx";
-import {CreateTeamModal} from "../components/register/CreateModalTeamName.jsx";
-import {GetFirstCharacterModal} from "../components/register/GetFirstCharacterModal.jsx";
-import {showAlert, showInfoModal} from "../alertService.jsx";
-import {VipBannerActive} from "../components/main_components/VipBannerActive.jsx";
-import {InventoryModal} from "../components/main_components/InventoryModal.jsx";
-import {API_BASE_URL, api} from "../api.js";
+import { StatsPanel } from "../components/main_components/StatsPanel.jsx";
+import { VipBannerActive } from "../components/main_components/VipBannerActive.jsx"; // Якщо використовується десь всередині
 
-import {ModalRoot, VipPromoModalWithTitle} from "../components/modal_components/ModalComponents.jsx";
-import {FaChartLine, FaGraduationCap} from "react-icons/fa";
-import {AnalyticsModal} from "../components/modal_components/AnalyticsModal.jsx";
+// Registation/Modal components
+import { CreateTeamModal } from "../components/register/CreateModalTeamName.jsx";
+import { GetFirstCharacterModal } from "../components/register/GetFirstCharacterModal.jsx";
+import { showAlert, showInfoModal } from "../alertService.jsx";
+import { InventoryModal } from "../components/main_components/InventoryModal.jsx";
+import { API_BASE_URL, api } from "../api.js";
+import { ModalRoot, VipPromoModalWithTitle } from "../components/modal_components/ModalComponents.jsx";
+import { SeasonPassBanner } from "../components/main_components/SeasonPassBanner.jsx";
+import { SeasonPassPage } from "./SeasonPassPage.jsx";
 
-// Компонент підказки (Інвентар)
-const HighlightArrow = ({ onClick }) => {
+// Icons
+import {FaBolt, FaStar, FaBirthdayCake, FaShieldAlt, FaUsers, FaCheckCircle, FaDumbbell} from "react-icons/fa";
+import TrainingBlock from "../components/main_components/TrainingBlock.jsx";
+
+// --- NEW COMPONENT: Compact Team Stats ---
+// --- NEW COMPONENT: Compact Team Stats ---
+const TeamStatsCompact = ({ user }) => {
+    if (!user) return null;
+
+    const teamName = user.team_name || "My Team";
+    const teamPower = user.team_power || 0;
+    const avgAge = user.avg_age || 0;
+    const avgTalent = user.avg_talent || 0;
+
     return (
-        <div className={styles.highlightOverlay} style={{pointerEvents: 'none'}}>
-            <div
-                className={styles.arrowContainer}
-                onClick={onClick}
-                style={{pointerEvents: 'auto', cursor: 'pointer'}}
-            >
-                <img
-                    src={Config.IMAGES.chest_inventory}
-                    alt="Inventory"
-                    className={styles.inventoryHintIcon}
-                />
+        <div className={styles.teamStatsCompactWrapper}>
+            {/* LEFT: Identity (Icon + Name) */}
+            <div className={styles.tscHeader}>
+                <div className={styles.tscAvatarContainer}>
+                    {/* Використовуємо іконку команди замість картинки */}
+                    <FaUsers />
+                </div>
+                <div className={styles.tscNameContainer}>
+                    <span className={styles.tscLabel}>TEAM</span>
+                    <h3 className={styles.tscTeamName}>{teamName}</h3>
+                </div>
+            </div>
+
+            {/* RIGHT: Stats Grid */}
+            <div className={styles.tscGrid}>
+                {/* Power */}
+                <div className={styles.tscStatBox}>
+                    <div className={styles.tscIconBox} style={{ color: '#FFD700' }}>
+                        <FaBolt />
+                    </div>
+                    <span className={styles.tscStatValue}>{teamPower}</span>
+                    <span className={styles.tscStatLabel}>PWR</span>
+                </div>
+
+                {/* Talent */}
+                <div className={styles.tscStatBox}>
+                    <div className={styles.tscIconBox} style={{ color: '#00F2FF' }}>
+                        <FaStar />
+                    </div>
+                    <span className={styles.tscStatValue}>{avgTalent}</span>
+                    <span className={styles.tscStatLabel}>TLN</span>
+                </div>
+
+                {/* Age */}
+                <div className={styles.tscStatBox}>
+                    <div className={styles.tscIconBox} style={{ color: '#FF00FF' }}>
+                        <FaBirthdayCake />
+                    </div>
+                    <span className={styles.tscStatValue}>{avgAge}</span>
+                    <span className={styles.tscStatLabel}>AGE</span>
+                </div>
             </div>
         </div>
     );
 };
-const AnalyticsButton = ({ onClick }) => {
-    return (
-        <div className={styles.highlightOverlay} style={{pointerEvents: 'none'}}>
-            <div
-                className={styles.analyticsContainer} // Використовуємо новий клас
-                onClick={onClick}
-                style={{pointerEvents: 'auto'}} // Вмикаємо кліки
-            >
-                {/* Іконка */}
-                <FaChartLine className={styles.analyticsIcon} />
 
-                {/* Текст у тому ж стилі, що й HELP */}
-                <span className={styles.analyticsLabel}>CLUB STATS</span>
-            </div>
-        </div>
-    );
-};
-// Компонент кнопки Туторіалу
-const TutorialButton = ({ onClick }) => {
+// --- NEW COMPONENT: Daily Goals (Box + Task) ---
+const DailyGoalSection = ({ user, onUserUpdate }) => {
+    const [timeLeft, setTimeLeft] = useState("");
+    const [taskClaiming, setTaskClaiming] = useState(false);
+
+    // 1. Logic for Daily Box Timer (Count down to 22:00)
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const target = new Date();
+            target.setHours(22, 0, 0, 0); // 22:00
+
+            // If it's already past 22:00, target is tomorrow 22:00
+            if (now > target) {
+                target.setDate(target.getDate() + 1);
+            }
+
+            const diff = target - now;
+            if (diff <= 0) return "00:00:00";
+
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / 1000 / 60) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+
+        setTimeLeft(calculateTimeLeft()); // Initial call
+
+        return () => clearInterval(timer);
+    }, []);
+
+    const handleBoxClick = async () => {
+        if (!user.has_free_box) {
+            showInfoModal({ text: `Daily Box refresh at 22:00!\nTime left: ${timeLeft}`, image: Config.IMAGES.box_small });
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}/daily-box/claim`, {
+                method: 'POST'
+            });
+            if (res.ok) {
+                const updatedUser = await res.json();
+                onUserUpdate(updatedUser);
+                showInfoModal({ text: "You opened Daily Box!", image: Config.IMAGES.box_small });
+            } else {
+                const err = await res.json();
+                showAlert(err.detail);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    // 2. Logic for Task (Conduct 3 Training)
+    // Assuming backend: user.count_go_to_gym tracks progress
+    const trainingsDone = user.count_go_to_gym || 0;
+    const trainingTarget = 3;
+    const progressPercent = Math.min((trainingsDone / trainingTarget) * 100, 100);
+    // Check if reward is already claimed (check statistics array)
+    const isTaskClaimed = user.statistics?.some(s => s.stat_type === "CONDUCT_3_TRAINING");
+    const isTaskReady = trainingsDone >= trainingTarget && !isTaskClaimed;
+
+    const handleTaskClick = async () => {
+        if (isTaskClaimed) return; // Do nothing if done
+        if (!isTaskReady) {
+            // Optional: Navigate to Training screen
+            showAlert("Go to Training Center to complete this task!");
+            return;
+        }
+
+        setTaskClaiming(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/education/tasks/claim`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user.user_id,
+                    stat_type: "CONDUCT_3_TRAINING"
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                showInfoModal({ text: data.message, image: Config.IMAGES.energy_medium }); // Assuming energy reward
+
+                // Refresh user to update statistics list
+                const userRes = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
+                if (userRes.ok) onUserUpdate(await userRes.json());
+            } else {
+                showAlert("Error claiming reward");
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setTaskClaiming(false);
+        }
+    };
+    // Додаємо клас .ready, якщо бокс доступний
+    const boxReadyClass = user.has_free_box ? styles.ready : '';
+
     return (
-        <div
-            className={styles.tutorialContainer}
-            onClick={onClick}
-        >
-            <FaGraduationCap className={styles.tutorialIcon} />
-            <span className={styles.tutorialLabel}>HELP</span>
+        <div className={styles.dailyGoalsWrapper}>
+            {/* LEFT: DAILY BOX (Gold/Blue Style) */}
+            <div
+                className={`${styles.dailyCardBase} ${styles.dailyBoxCard} ${boxReadyClass}`}
+                onClick={handleBoxClick}
+            >
+                <div className={styles.boxFrame}>
+                    <img src={Config.IMAGES.box_mini} alt="Box" className={styles.boxImage} />
+                </div>
+
+                <div className={styles.boxTextWrapper}>
+                    <div className={styles.boxLabel}>DAILY LOOT</div>
+                    {user.has_free_box ? (
+                        <div className={styles.claimText}>OPEN</div>
+                    ) : (
+                        <div className={styles.boxTimer}>{timeLeft}</div>
+                    )}
+                </div>
+            </div>
+
+            {/* RIGHT: MAIN TASK (Cyan/Blue Style) */}
+            <div
+                className={`${styles.dailyCardBase} ${styles.dailyTaskCard}`}
+                onClick={handleTaskClick}
+                style={{ filter: isTaskClaimed ? 'grayscale(0.6)' : 'none' }}
+            >
+                <div className={styles.taskHeader}>
+                    {/* Використовуємо жовтий колір іконки для контрасту на синьому */}
+                    <FaDumbbell className={styles.taskIcon} style={{ color: isTaskReady ? '#00FF88' : '#00F2FF'}} />
+                    <div className={styles.taskTitle}>
+                        {isTaskClaimed ? "MISSION COMPLETE" : "GYM CONTRACT"}
+                    </div>
+                </div>
+
+                {!isTaskClaimed ? (
+                    <>
+                        <div className={styles.taskProgressContainer}>
+                            <div className={styles.taskProgressFill} style={{ width: `${progressPercent}%` }}></div>
+                        </div>
+                        <div className={styles.taskFooter}>
+                            <div className={styles.taskStatus}>
+                                {isTaskReady ?
+                                    <span style={{color:'#00FF88', textShadow: '0 0 5px #00FF88'}}>CLAIM REWARD</span> :
+                                    `${trainingsDone}/${trainingTarget} TRAININGS`
+                                }
+                            </div>
+                            <div className={styles.taskReward}>
+                                +50⚡
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    // Стан виконаного завдання
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <FaCheckCircle style={{ color: '#00FF88', fontSize: '16px' }} />
+                        <span style={{ fontFamily: 'Exo 2', fontWeight: 800, color: '#fff', fontSize: '12px' }}>DONE</span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
 
 export const Main = ({ user, setUser }) => {
-    const vip_pass_status = user?.vip_pass_is_active;
-
-    const showHighlightArrow = user && user.status_register === "END_REGISTER";
-    const showTutorialBtn = user && (user.count_of_training < 3);
-
     const [isInventoryOpen, setIsInventoryOpen] = useState(false);
-
-    // Стейт для VIP модалки
     const [isVipPromoOpen, setIsVipPromoOpen] = useState(false);
-    // 🔥 Стейт для динамічного тексту модалки
     const [vipModalContent, setVipModalContent] = useState({ title: null, subtitle: null });
-
     const [isLoading, setIsLoading] = useState(false);
-    const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
 
-    // Змінюємо умову відображення (тепер це кнопка аналітики)
-    // Можна показувати завжди, або тільки після реєстрації
-    const showAnalyticsBtn = user && user.status_register === "END_REGISTER";
+    // Стани модалок
+    const showCreateTeamModal = user && user.status_register === "CREATE_TEAM";
+    const showGetCharacterModal = user && user.status_register === "GET_FIRST_CHARACTER";
+    const [isSeasonPassOpen, setIsSeasonPassOpen] = useState(false);
 
     const handleTeamCreated = (updatedUser) => { setUser(updatedUser); };
     const handleCharacterClaimed = (updatedUserWithNewStatus) => { setUser(updatedUserWithNewStatus); };
-
-    const showCreateTeamModal = user && user.status_register === "CREATE_TEAM";
-    const showGetCharacterModal = user && user.status_register === "GET_FIRST_CHARACTER";
 
     useEffect(() => {
         const updateUserStatus = async () => {
@@ -101,32 +270,12 @@ export const Main = ({ user, setUser }) => {
                     showInfoModal({ image: Config.IMAGES.main_info, text: msg });
                 } catch (error) {
                     console.error("Failed to update user status:", error);
-                    showAlert("Не вдалося оновити ваш статус. Спробуйте перезавантажити сторінку.");
                 }
             }
         };
         updateUserStatus();
     }, [user]);
 
-    const handleTutorialClick = async () => {
-        try {
-            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'TRANSFER' })
-            });
-
-            if (!res.ok) throw new Error('Помилка оновлення статусу');
-
-            const updatedUser = await res.json();
-            setUser(updatedUser);
-        } catch (e) {
-            console.error(e);
-            showAlert("Щось пішло не так при запуску навчання.");
-        }
-    };
-
-    // 🔥 Функція відкриття модалки з кастомним текстом
     const openVipModal = (title = null, subtitle = null) => {
         setVipModalContent({ title, subtitle });
         setIsVipPromoOpen(true);
@@ -141,11 +290,11 @@ export const Main = ({ user, setUser }) => {
         setIsVipPromoOpen(false);
         try {
             let response;
-            const data = {userId: user.user_id};
+            const data = { userId: user.user_id };
 
             switch (productType) {
                 case 'vip':
-                    response = await api.createVipPayment({...data, price: item.price, type: item.type});
+                    response = await api.createVipPayment({ ...data, price: item.price, type: item.type });
                     break;
                 default:
                     throw new Error("Unknown product type");
@@ -164,15 +313,13 @@ export const Main = ({ user, setUser }) => {
         }
     };
 
-    const date = new Date(user.vip_pass_expiration_date);
-    const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-
     const openInventory = () => setIsInventoryOpen(true);
     const closeInventory = () => setIsInventoryOpen(false);
+
+    // Логіка завершення реєстрації
     useEffect(() => {
         if (user && user.status_register === 'HOME') {
             const finishRegistration = async () => {
-                // 1. Показуємо фінальну модалку
                 const msg = `
 🔹 Тренер:
 Навчання завершено — чудова робота! 🎉
@@ -183,7 +330,6 @@ export const Main = ({ user, setUser }) => {
                     text: msg
                 });
 
-                // 2. Змінюємо статус на END_REGISTER
                 try {
                     const res = await fetch(`${API_BASE_URL}/users/${user.user_id}/status`, {
                         method: 'PATCH',
@@ -194,59 +340,28 @@ export const Main = ({ user, setUser }) => {
                     if (res.ok) {
                         const updatedUser = await res.json();
                         setUser(updatedUser);
-
-                        // 👇👇👇 ДОДАНО ВИКЛИК РЕФЕРАЛЬНОЇ НАГОРОДИ 👇👇👇
-                        try {
-                            // Викликаємо нагороду "у фоні", не блокуючи інтерфейс, якщо станеться помилка
-                            await fetch(`${API_BASE_URL}/users/${user.user_id}/trigger-referral-reward`, {
-                                method: 'POST'
-                            });
-                            console.log("Referral reward triggered successfully");
-                        } catch (refError) {
-                            // Логуємо помилку, але не зупиняємо роботу додатку,
-                            // бо користувач вже завершив реєстрацію
-                            console.error("Failed to trigger referral reward:", refError);
-                        }
-                        // 👆👆👆 КІНЕЦЬ ДОДАНОГО КОДУ 👆👆👆
                     }
                 } catch (e) {
                     console.error("Error finishing registration:", e);
                 }
             };
-
             finishRegistration();
         }
     }, [user, setUser]);
+
     return (
         <div className={styles.page}>
             <img className={styles.pageBackgroundBlur} src={Config.IMAGES.background} alt="" />
 
             <div className={styles.mainContainer} data-modal-root>
+                {/* Global Modals */}
                 {showCreateTeamModal && <CreateTeamModal user={user} onTeamCreated={handleTeamCreated} />}
                 {showGetCharacterModal && <GetFirstCharacterModal user={user} onCharacterClaimed={handleCharacterClaimed} />}
 
-                {/* 👇 КНОПКА АНАЛІТИКИ */}
-                {showAnalyticsBtn && <AnalyticsButton onClick={() => setIsAnalyticsOpen(true)} />}
-
-                {/* 👇 МОДАЛКА АНАЛІТИКИ */}
-                {isAnalyticsOpen && (
-                    <AnalyticsModal
-                        user={user}
-                        onClose={() => setIsAnalyticsOpen(false)}
-                    />
-                )}
-
-                {showTutorialBtn && <TutorialButton onClick={handleTutorialClick} />}
-
                 {isInventoryOpen && (
-                    <InventoryModal
-                        user={user}
-                        onClose={closeInventory}
-                        onUserUpdate={setUser}
-                    />
+                    <InventoryModal user={user} onClose={closeInventory} onUserUpdate={setUser} />
                 )}
 
-                {/* 🔥 Модалка покупки VIP з динамічним контентом */}
                 {isVipPromoOpen && (
                     <ModalRoot>
                         <VipPromoModalWithTitle
@@ -258,40 +373,52 @@ export const Main = ({ user, setUser }) => {
                     </ModalRoot>
                 )}
 
-                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background" />
-                <Header user={user} />
-
-                {vip_pass_status ? (
-                    <VipBannerActive expiryDate={formattedDate} />
-                ) : (
-                    <div
-                        onClick={() => openVipModal()}
-                        // 🔥 ВИПРАВЛЕННЯ НИЖЧЕ:
-                        style={{
-                            cursor: "pointer",
-                            width: "100%",
-                            position: "relative", // Обов'язково для роботи zIndex
-                            zIndex: 10            // Піднімаємо банер над профілем
-                        }}
-                        title="Придбати VIP статус"
-                    >
-                        <VipBanner />
-                    </div>
+                {isSeasonPassOpen && (
+                    <SeasonPassPage
+                        user={user}
+                        setUser={setUser}
+                        onClose={() => setIsSeasonPassOpen(false)}
+                        onOpenVip={() => openVipModal("VIP Pass", "Get exclusive rewards and benefits!")}
+                    />
                 )}
 
-                <UserProfile
-                    user={user}
-                    onUserUpdate={setUser}
-                    onOpenInventory={openInventory}
-                    onOpenVipModal={openVipModal} // 🔥 Передаємо функцію вниз
-                />
+                <img className={styles.backgroundImage} src={Config.IMAGES.background} alt="background" />
 
-                <DailyTasks />
-                <div className={styles.eventCardWrapperEventMain}>
-                    <EventCard user={user} onUserUpdate={setUser} />
+                {/* 1. Header (Resources) */}
+                <Header user={user} />
+
+                {/* SCROLLABLE CONTENT AREA */}
+                <div className={styles.scrollableContent}>
+
+                    {/* 2. Season Pass Banner */}
+                    <div
+                        onClick={() => setIsSeasonPassOpen(true)}
+                        className={styles.bannerWrapper}
+                        style={{ minHeight: '120px', marginBottom: '20px' }}
+                    >
+                        <SeasonPassBanner user={user} />
+                    </div>
+
+                    {/* 3. Team Stats Compact */}
+                    <TeamStatsCompact user={user} />
+
+                    {/* 4. Activity Block (Event Card) */}
+                    <div className={styles.eventCardWrapperEventMain}>
+                        <EventCard user={user} onUserUpdate={setUser} />
+                    </div>
+
+                    {/* 5. NEW: Daily Goal Section (Box & Task) */}
+                    <DailyGoalSection user={user} onUserUpdate={setUser} />
+
+                    {/* 6. Bottom Stats */}
+                    <TrainingBlock user={user} onUserUpdate={setUser} />
+
+                    {/* Spacer */}
+                    <div style={{ height: '100px' }}></div>
                 </div>
-                <StatsPanel user={user} />
-                <NavigationBar user={user}/>
+
+                {/* 6. Navigation Bar */}
+                <NavigationBar user={user} />
             </div>
         </div>
     );

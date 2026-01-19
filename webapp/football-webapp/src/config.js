@@ -106,6 +106,9 @@ import chest_inventory from "./assets/public/chest.png";
 import referal_character from "./assets/public/character.png";
 import character_create_team from "./assets/public/character_create_team.png";
 import schema from "./assets/public/schema.png";
+import boost_training from "./assets/public/boost_training.png";
+import boost_team from "./assets/public/boost_team.png";
+import boost_strength from "./assets/public/boost_strength.png";
 
 
 class Config {
@@ -212,7 +215,10 @@ class Config {
         chest_inventory: chest_inventory,
         referal_character: referal_character,
         character_create_team: character_create_team,
-        schema: schema
+        schema: schema,
+        boost_training: boost_training,
+        boost_team: boost_team,
+        boost_strength: boost_strength,
     };
 
     // какие-то игровые настройки

@@ -1,7 +1,8 @@
 // src/App.jsx
-import {useEffect, useState} from "react";
-import {BrowserRouter, Route, Routes, useLocation, useNavigate} from "react-router-dom";
-import {Main} from "./pages/Main.jsx";
+import React from 'react';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Main } from "./pages/Main.jsx";
 import TrainingRoomCard from "./pages/Training.jsx";
 import TournamentCard from "./pages/Tournament.jsx";
 import RatingCard from "./pages/Rating.jsx";
@@ -9,8 +10,9 @@ import ShopCard from "./pages/Shop.jsx";
 import TransferCard from "./pages/Transfer.jsx";
 import MatchCard from "./pages/Match.jsx";
 import EducationCard from "./pages/EducationCentere.jsx";
-import {API_BASE_URL} from "./api.js";
-import {useGuide} from "./components/register/context/GuideContext.jsx";
+import { API_BASE_URL } from "./api.js";
+import { useGuide } from "./components/register/context/GuideContext.jsx";
+import LeaguePage from "./pages/LeaguePage.jsx";
 
 function AppContent() {
     const [user, setUser] = useState(null);
@@ -122,6 +124,8 @@ function AppContent() {
             <Route path="/transfer" element={<TransferCard user={user} setUser={setUser} />} />
             <Route path="/match" element={<MatchCard user={user} setUser={setUser} />} />
             <Route path="/education_centre" element={<EducationCard user={user} setUser={setUser} />} />
+            {/* 2. ДОБАВЛЯЕМ МАРШРУТ ДЛЯ ЛИГИ */}
+            <Route path="/league" element={<LeaguePage user={user} setUser={setUser} />} />
         </Routes>
     );
 }

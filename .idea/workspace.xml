@@ -5,7 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 66">
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/boost_strength.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/boost_team.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/boost_training.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/league/LeagueLeaderboard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/league/LeagueRegisterButton.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/league/LeagueStats.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/league/SeasonHeader.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/components/main_components/TrainingBlock.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/league/League.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/league/LeagueRegisterButton.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/league/SeasonHeader.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/main_css/SeasonPassBanner.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/main_css/TrainingBlock.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/LeaguePage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/SeasonPassPage.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/load_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/season_pass_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/season_pass_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/fastapi/routers/user_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/css_files/Main.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/pages/Main.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,25 +69,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.app.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.test_base64.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "e324728f",
-    "last_opened_file_path": "/Users/devlink007/PycharmProjects/FootballBlitz/utils",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_base64.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;detached&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/devlink007/PycharmProjects/FootballBlitz/utils&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/utils" />

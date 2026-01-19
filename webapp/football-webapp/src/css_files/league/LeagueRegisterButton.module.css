@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&display=swap');
+
+/* Головний контейнер (Компактна кнопка-картка) */
+.registerContainer {
+    width: 100%;
+    height: 60px; /* Компактна висота */
+
+    /* Темний метал/скло */
+    background: linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(40, 40, 60, 0.95) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3); /* Золота рамка */
+    border-radius: 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+
+    box-shadow:
+            inset 0 0 15px rgba(255, 215, 0, 0.1), /* Внутрішнє світіння */
+            0 4px 10px rgba(0,0,0,0.5);
+
+    transition: all 0.2s ease;
+    margin-bottom: 10px; /* Відступ від списку ліг */
+}
+
+.registerContainer:active {
+    transform: scale(0.98);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* Блік */
+.sheen {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    transform: skewX(-20deg);
+    animation: metalSheen 5s infinite;
+    pointer-events: none;
+}
+
+@keyframes metalSheen {
+    0%, 80% { left: -100%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { left: 200%; opacity: 0; }
+}
+
+/* Ліва секція (Інфо) */
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.statusLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.detailsRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timeBox, .playersBox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.iconSmall {
+    font-size: 10px;
+    color: #FFD700;
+}
+
+/* Права секція (Кнопка) */
+.actionSection {
+    display: flex;
+    align-items: center;
+}
+
+.actionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 11px;
+    text-transform: uppercase;
+
+    transition: all 0.2s ease;
+}
+
+/* Специфічні стилі кнопок */
+.btnRegister {
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    color: #4D3300;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.btnDone {
+    background: rgba(0, 242, 255, 0.15);
+    border: 1px solid #00F2FF;
+    color: #00F2FF;
+}
+
+.btnLocked {
+    background: rgba(255, 255, 255, 0.1);
+    color: #888;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.costBadge {
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.loadingText {
+    color: #888;
+    font-size: 12px;
+    text-align: center;
+    padding: 10px;
+}

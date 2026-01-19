@@ -1,8 +1,9 @@
-import {createRoot} from 'react-dom/client'
+import React from 'react';
+import { createRoot } from 'react-dom/client'
 import './index.css';
-import {BrowserRouter} from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import AppContent from "./App.jsx";
-import {GuideProvider} from "./components/register/context/GuideContext.jsx";
+import { GuideProvider } from "./components/register/context/GuideContext.jsx";
 
 const originalLog = console.log;
 
@@ -19,7 +20,7 @@ console.log = (...args) => {
 createRoot(document.getElementById('root')).render(
     <BrowserRouter>
         <GuideProvider>
-            <AppContent/>
+            <AppContent />
         </GuideProvider>
     </BrowserRouter>,
 )

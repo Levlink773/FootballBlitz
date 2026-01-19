@@ -19,6 +19,7 @@ from schedulers.scheduler_training_reminder import TrainingReminder
 from schedulers.transfer_scheduler import FreeAgentsScheduler
 from schedulers.scheduler_daily_box import DailyBoxScheduler
 from schedulers.scheduler_monthly_season import MonthlySeasonScheduler
+from schedulers.scheduler_ensure_season_pass import EnsureSeasonPassScheduler
 
 
 async def start_utils():
@@ -39,6 +40,9 @@ async def start_utils():
     await train_reminder_scheduler.start()
     await daily_box_scheduler.start()
     await monthly_season_scheduler.start()
+    # Run the One-Time Check for missing passes
+    await ensure_season_pass_scheduler.start()
+
     # await reminder_vip_pass.start_timers()
     # await scheduler_reset_training_key.start()
     # await scheduler_training.start()
@@ -57,7 +61,9 @@ free_agent_scheduler = FreeAgentsScheduler()
 train_reminder_scheduler = TrainingReminder()
 daily_box_scheduler = DailyBoxScheduler()
 monthly_season_scheduler = MonthlySeasonScheduler()
+ensure_season_pass_scheduler = EnsureSeasonPassScheduler()
 # reminder_vip_pass         = VipPassSchedulerService()
 # scheduler_reset_training_key = ResetTrainingKeyScheduler()
+
 
 # scheduler_training = SchedulerRegisterTraining()

@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&display=swap');
+
+/* --- ГОЛОВНИЙ КОНТЕЙНЕР (METAЛІЧНА ПАНЕЛЬ) --- */
+.seasonHeaderWrapper {
+    width: 95%;
+    height: 50px; /* Компактна висота */
+    margin: 0 auto 15px auto; /* Центрування */
+    position: relative;
+    top: 70px; /* Відступ від головного Header */
+    z-index: 5;
+
+    /* Глибокий темний метал */
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+
+    /* Фізична рамка з фаскою */
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    /* Тіні для об'єму (Вдавлена панель або випукла консоль) */
+    box-shadow:
+            inset 1px 1px 0px rgba(255, 255, 255, 0.3), /* Світлий кант зверху */
+            inset -1px -1px 0px rgba(0, 0, 0, 0.6),    /* Темна тінь знизу */
+            0 10px 20px rgba(0, 0, 0, 0.4);            /* Зовнішня тінь */
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    overflow: hidden;
+}
+
+/* Ефект бліку металу */
+.sheen {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transform: skewX(-25deg);
+    animation: metalSheen 8s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes metalSheen {
+    0%, 80% { left: -100%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { left: 200%; opacity: 0; }
+}
+
+/* --- 1. ЛІВИЙ БЛОК: СЕЗОН (AQUA ACCENT) --- */
+.seasonInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.seasonLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: #00F2FF; /* Неоновий ціан */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+}
+
+.seasonValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+}
+
+.hash {
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+    margin-right: 2px;
+}
+
+/* --- 2. ЦЕНТРАЛЬНИЙ БЛОК: ТАЙМЕР (ВДАВЛЕНИЙ ЕКРАН) --- */
+.timerContainer {
+    background: rgba(0, 0, 0, 0.3); /* Темний фон екрану */
+    border-radius: 8px;
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.6); /* Внутрішня тінь */
+}
+
+.timerLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 8px;
+    color: #8899a6;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.timerIcon {
+    font-size: 8px;
+    color: #FFD700;
+}
+
+.timerValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.5px;
+    /* Ефект цифрового годинника */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* --- 3. ПРАВИЙ БЛОК: РАНГ (GOLD ACCENT) --- */
+.rankInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.rankLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: #FFD700; /* Золото */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.pointsValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+}
+
+.rankIcon {
+    font-size: 12px;
+    color: #FFD700;
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.6));
+}

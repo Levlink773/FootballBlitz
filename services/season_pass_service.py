@@ -40,13 +40,89 @@ class SeasonPassService:
                 
                 if result.rowcount == 0:
                     # 3. If update failed (no row), insert new one
-                    # We can assume season_name is null or default for now, or fetch active season logic later
                     stmt_insert = (
                         insert(SeasonPass)
                         .values(user_id=user_pk, points=points)
                     )
-                    # Handle potential race condition if needed, strictly speaking insert on conflict do update 
-                    # is better but for now simple fallback is okay or usage of 'merge'
                     session.add(SeasonPass(user_id=user_pk, points=points))
                 
                 logger.info(f"Added {points} season points to user {user_id} (PK: {user_pk})")
+
+    @classmethod
+    async def claim_reward(cls, user_id: int, points_milestone: int, tier: str) -> bool:
+        """
+        :param user_id: Telegram User ID
+        :param points_milestone: The point milestone to claim (e.g. 20, 40)
+        :param tier: 'standard' or 'vip'
+        """
+        async for session in get_session():
+            async with session.begin():
+                # 1. Fetch SeasonPass + UserBot (to check VIP status)
+                # Use selectinload to eagerly load the user relationship
+                from sqlalchemy.orm import selectinload
+                stmt = (
+                    select(SeasonPass)
+                    .join(UserBot)
+                    .where(UserBot.user_id == user_id)
+                    .options(selectinload(SeasonPass.user))
+                )
+                
+                result = await session.execute(stmt)
+                sp = result.scalar_one_or_none()
+                
+                if not sp:
+                    logger.warning(f"SeasonPass not found for user {user_id}")
+                    return False
+
+                # 2. Check if locked
+                if sp.points < points_milestone:
+                    return False
+                
+                # 3. Check if already collected
+                rewards = sp.rewards_collected or {"standard": [], "vip": []}
+                # Ensure dict structure
+                if "standard" not in rewards: rewards["standard"] = []
+                if "vip" not in rewards: rewards["vip"] = []
+                
+                if points_milestone in rewards[tier]:
+                    return False # Already collected
+
+                # 4. Check VIP status if tier is vip
+                if tier == 'vip':
+                     if not sp.user or not sp.user.vip_pass_is_active:
+                         return False
+                
+                # 5. Get reward string
+                reward_map = SeasonPass.VIP_REWARDS if tier == 'vip' else SeasonPass.STANDARD_REWARDS
+                reward_str = reward_map.get(points_milestone)
+                
+                if not reward_str:
+                    return False
+                
+                # 6. Apply reward
+                from services.user_service import UserService
+                await UserService._apply_reward(user_id, reward_str)
+                
+                # 7. Update Collected
+                rewards[tier].append(points_milestone)
+                
+                # Force update the JSON column
+                stmt_update = (
+                    update(SeasonPass)
+                    .where(SeasonPass.id == sp.id)
+                    .values(rewards_collected=rewards)
+                )
+                await session.execute(stmt_update)
+                
+                return True
+
+    @classmethod
+    async def get_pass_info(cls, user_id: int):
+        from database.models.season_pass import SeasonPass
+        async for session in get_session():
+            async with session.begin():
+                stmt = select(SeasonPass).join(UserBot).where(UserBot.user_id == user_id)
+                result = await session.execute(stmt)
+                sp = result.scalar_one_or_none()
+                return sp
+

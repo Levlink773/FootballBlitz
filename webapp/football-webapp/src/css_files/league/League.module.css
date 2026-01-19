@@ -1,0 +1,503 @@
+/* src/css_files/league/League.module.css */
+
+/* --- Анімації (з твого прикладу) --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px) translateX(-50%); }
+    to { opacity: 1; transform: translateY(0) translateX(-50%); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 15px rgba(166, 36, 222, 0.4); opacity: 0.8; }
+    50% { box-shadow: 0 0 25px rgba(166, 36, 222, 0.6); opacity: 1; }
+}
+
+/* --- Основний контейнер сторінки --- */
+.leagueContainer {
+    position: absolute;
+    /* Відступ зверху враховує Header (60px) + SeasonHeader (64px) + відступи */
+    top: 135px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 95%; /* Ширина як у SeasonHeader */
+    max-width: 400px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.6s ease-out forwards;
+    z-index: 5;
+    padding-bottom: 80px; /* Місце для NavigationBar */
+}
+
+/* --- ПЕРЕМИКАЧ ТАБІВ --- */
+.tabContainer {
+    width: 100%;
+    display: flex;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(166, 36, 222, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.tabButton {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    cursor: pointer;
+
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Активний стан табу */
+.activeTab {
+    background: linear-gradient(90deg, #A624DE 0%, #d624de 100%);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(166, 36, 222, 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.tabButton:not(.activeTab):hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- ОСНОВНИЙ БОКС (ListBox з твого прикладу) --- */
+.contentBox {
+    width: 100%;
+    /* Адаптивна висота */
+    min-height: 400px;
+    height: auto;
+
+    /* Твій фірмовий темний градієнт */
+    background: linear-gradient(180deg, rgba(45, 25, 65, 0.85) 0%, rgba(30, 30, 30, 0.9) 100%);
+
+    border-radius: 15px;
+    /* Фіолетова рамка */
+    border: 1px solid #A624DE;
+
+    padding: 15px;
+    box-sizing: border-box;
+    position: relative;
+    top: -10px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ефект світіння навколо боксу */
+.contentBox::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 17px;
+    outline: 4px solid #A624DE;
+    filter: blur(8px);
+    z-index: -1;
+    animation: pulseGlow 5s infinite ease-in-out;
+}
+
+/* Заглушка для контенту (поки пусто) */
+.placeholderText {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ... (предыдущие стили container, tabs, box остаются) ... */
+
+/* --- STATISTICS TAB --- */
+.statsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 5px; /* Для скроллбара */
+}
+
+.statCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* Темный стеклянный фон */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 12px;
+
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+
+    /* Внутренняя тень для объема */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.statCard:hover {
+    transform: scale(1.02);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Цветные акценты для разных типов */
+.cardPower { border-left: 4px solid #FFD700; } /* Золото */
+.cardPlayer { border-left: 4px solid #00F2FF; } /* Циан */
+.cardRich { border-left: 4px solid #F700FF; } /* Маджента */
+
+/* Блик */
+.statCard::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -50%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-20deg);
+    animation: statSheen 4s infinite;
+}
+
+@keyframes statSheen {
+    0%, 70% { left: -50%; }
+    100% { left: 150%; }
+}
+
+/* Левая часть: Иконка и Лейбл */
+.statInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.statIconBox {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.statTexts {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.statMainName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+
+    /* Обрезаем длинные имена */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.statSubName {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    color: #bbb;
+}
+
+/* Правая часть: Значение */
+.statValueBox {
+    text-align: right;
+}
+
+.statValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.statUnit {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Специфичные цвета текста значений */
+.valPower { color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+.valPlayer { color: #00F2FF; text-shadow: 0 0 10px rgba(0, 242, 255, 0.6); }
+.valRich { color: #F700FF; text-shadow: 0 0 10px rgba(247, 0, 255, 0.6); }
+
+/* ... попередні стилі (leagueContainer, tabButton, contentBox) ... */
+
+/* --- LEADERBOARD SECTION --- */
+.leaderboardSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 55px;
+}
+
+/* Фільтри (Pills) */
+.filterRow {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.filterPill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 6px 12px;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.activePill {
+    background: #A624DE;
+    border-color: #F700FF;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(166, 36, 222, 0.5);
+}
+
+/* --- PODIUM (ТОП 3) --- */
+.podiumContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+
+    /* БУЛО: margin-top: 10px; */
+    /* СТАЛО: Прибираємо верхній відступ, щоб підтягнути подіум до фільтрів */
+    margin-top: 0;
+
+    /* Можна трохи зменшити висоту самого простору подіума, якщо треба ще компактніше */
+    height: 150px; /* Було 160px */
+    position: relative;
+}
+
+.podiumPlace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 1-ше місце (Центр) */
+.place1 {
+    order: 2; /* По центру */
+    z-index: 2;
+    transform: translateY(-10px) scale(1.1);
+}
+
+/* 2-ге місце (Зліва) */
+.place2 {
+    order: 1;
+    opacity: 0.9;
+    transform: translateY(0) scale(0.9);
+}
+
+/* 3-тє місце (Справа) */
+.place3 {
+    order: 3;
+    opacity: 0.8;
+    transform: translateY(10px) scale(0.85);
+}
+
+/* Аватар/Корона */
+.avatarWrapper {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.crownIcon {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    color: #FFD700;
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+    animation: floatCrown 2s infinite ease-in-out;
+}
+
+@keyframes floatCrown {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-3px); }
+}
+
+.podiumAvatar {
+    width: 50px; height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #333, #111);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* Кольори рамок */
+.place1 .podiumAvatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+.place2 .podiumAvatar { border-color: #C0C0C0; box-shadow: 0 0 10px rgba(192, 192, 192, 0.3); }
+.place3 .podiumAvatar { border-color: #CD7F32; box-shadow: 0 0 10px rgba(205, 127, 50, 0.3); }
+
+/* Інфо про гравця на подіумі */
+.podiumInfo {
+    text-align: center;
+    background: rgba(0,0,0,0.6);
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(4px);
+    width: 90px;
+}
+
+.podiumName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.podiumTeam {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: #aaa;
+    margin-bottom: 2px;
+}
+
+.podiumValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.valGold { color: #FFD700; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+.valSilver { color: #C0C0C0; }
+.valBronze { color: #CD7F32; }
+
+
+/* --- STICKY USER ROW (Твоя позиція) --- */
+.stickyUserRow {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+
+    height: 54px;
+    background: linear-gradient(90deg, #1a0b2e 0%, #2d1b4e 100%);
+    border: 1px solid #A624DE;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+
+    box-shadow:
+            0 4px 15px rgba(0,0,0,0.5),
+            0 0 10px rgba(166, 36, 222, 0.3); /* Фіолетове світіння */
+    z-index: 10;
+
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.rankBadge {
+    background: #A624DE;
+    color: #fff;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    min-width: 30px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    flex: 1;
+}
+
+.userName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.teamName {
+    font-size: 10px;
+    color: #bbb;
+}
+
+.userValueBox {
+    text-align: right;
+}
+
+.userValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #00F2FF;
+    text-shadow: 0 0 8px rgba(0, 242, 255, 0.5);
+}
+
+.userUnit {
+    font-size: 8px;
+    color: rgba(255,255,255,0.5);
+}
