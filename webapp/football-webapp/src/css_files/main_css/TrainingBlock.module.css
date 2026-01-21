@@ -1,300 +1,174 @@
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
 
-/* --- MAIN CONTAINER (ARMORED CONSOLE STYLE) --- */
+/* --- MAIN WRAPPER (Blue Steel Slab) --- */
 .wrapper {
-    width: 95%;
-    /* Глибокий метал: Суміш темного океану і графіту */
-    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-
-    /* Фізична рамка з фаскою (Bevel) */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 18px; /* Трохи більш "технічний" радіус */
-
-    margin-bottom: 10px;
     position: relative;
-    top: 67px;
+    width: 95%;
+    height: auto;
+
+    background: linear-gradient(135deg, #0D47A1 0%, #1976D2 40%, #1565C0 60%, #0a2f6b 100%);
+    border-radius: 12px; /* Трохи менший радіус */
+
+    border-top: 1px solid rgba(128, 222, 234, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+
+    box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 5px 0 #052c52, /* Менша товщина 3D */
+            0 10px 20px rgba(0, 0, 0, 0.6);
+
+    /* 🔥 МЕНШІ ВІДСТУПИ ВСЕРЕДИНІ */
+    padding: 6px 8px; /* Було 8px 10px */
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    top: 50px;
     z-index: 5;
     overflow: hidden;
-
-    /* ВАЖКА ГЛИБИНА */
-    box-shadow:
-            inset 1px 1px 0px rgba(255, 255, 255, 0.2), /* Верхній світлий кант */
-            inset -1px -1px 0px rgba(0, 0, 0, 0.5),    /* Нижня темна тінь */
-            0 10px 30px rgba(0, 0, 0, 0.5),            /* Тінь від самого приладу */
-            0 0 0 1px rgba(0, 0, 0, 0.2);              /* Тонкий контур */
-
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: box-shadow 0.3s ease;
 }
 
-/* Текстура "Tech Mesh" (сітка) на фоні */
-.wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+.wrapperActive {
+    box-shadow: inset 0 0 20px rgba(0, 229, 255, 0.2), 0 5px 0 #052c52, 0 0 25px rgba(0, 229, 255, 0.4);
+    border-color: #00E5FF;
+}
+
+/* Background Grid */
+.bgLines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-image:
-            linear-gradient(rgba(15, 32, 39, 0.7) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(15, 32, 39, 0.7) 1px, transparent 1px);
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 20px 20px;
-    opacity: 0.3;
-    pointer-events: none;
-    z-index: 1;
+    pointer-events: none; z-index: 0;
 }
 
-/* Металевий блік зверху */
 .wrapper::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 40%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
-    pointer-events: none;
-    border-radius: 16px 16px 0 0;
-    z-index: 2;
+    content: ''; position: absolute; top: -50%; left: -150%; width: 60%; height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-30deg); animation: steelSheen 8s infinite ease-in-out;
+    mix-blend-mode: overlay; pointer-events: none;
 }
+@keyframes steelSheen { 0%, 80% { left: -150%; } 100% { left: 200%; } }
 
-/* --- HEADER (DISPLAY PANEL) --- */
+/* --- HEADER --- */
 .header {
-    height: 36px; /* Трохи вище для солідності */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 12px;
-    cursor: pointer;
-
-    /* Темніша підкладка "екрану" */
-    background: rgba(0, 0, 0, 0.3);
+    /* 🔥 МЕНШІ ВІДСТУПИ У ШАПЦІ */
+    padding-bottom: 4px; /* Було 6px */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2); /* Внутрішня глибина */
-
+    margin-bottom: 4px; /* Було 6px */
     position: relative;
-    z-index: 3;
+    z-index: 2;
 }
 
-/* Активний стан: Плазмове перевантаження */
-.activeHeader {
-    background: linear-gradient(90deg, #00F260, #0575E6, #FFFFFF, #00F260);
-    background-size: 300% 100%;
-    animation: plasmaRush 2s linear infinite;
-    border-bottom: 1px solid #fff;
-    cursor: default;
-    box-shadow: 0 0 20px rgba(0, 242, 96, 0.5); /* Зелене світіння */
-}
+.headerLeft { display: flex; align-items: center; gap: 6px; } /* Менший gap */
 
-@keyframes plasmaRush {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
-.headerLeft {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* --- ICON (JEWEL BUTTON) --- */
-.iconCircle {
-    width: 24px; height: 24px;
+.iconBox {
+    width: 24px; height: 24px; /* Ще менша іконка (було 28px) */
     border-radius: 6px;
-
-    /* Виглядає як скляна кнопка з підсвіткою */
-    background: linear-gradient(135deg, #2c3e50 0%, #000 100%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: inset 0 0 5px rgba(0, 242, 255, 0.5);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00F2FF; /* Неоновий ціан */
-    font-size: 11px;
-    z-index: 5;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #4FC3F7;
+    display: flex; justify-content: center; align-items: center;
+    color: #4FC3F7; font-size: 11px;
+    box-shadow: 0 0 10px rgba(79, 195, 247, 0.2);
 }
 
 .pulse {
-    /* Активна іконка: Палаючий реактор */
-    background: #fff;
-    color: #000;
-    box-shadow: 0 0 10px #00F2FF, 0 0 20px #00F260;
-    border-color: #00F2FF;
-    animation: bouncePulse 0.8s infinite;
+    background: #00E5FF; color: #000; box-shadow: 0 0 15px #00E5FF; animation: pulseAnim 1s infinite;
+}
+@keyframes pulseAnim { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+.titleBlock { display: flex; flex-direction: column; }
+.titleLabel { font-size: 6px; color: #81D4FA; font-weight: 700; letter-spacing: 1px; font-family: 'Inter', sans-serif; line-height: 1; margin-bottom: 1px; }
+.mainTitle {
+    font-family: 'Exo 2', sans-serif; font-size: 12px; font-weight: 900; color: #fff; /* Менший шрифт */
+    text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); line-height: 1;
 }
 
-@keyframes bouncePulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
+/* Timer */
+.timerContainer {
+    background: rgba(0, 0, 0, 0.4); padding: 1px 5px; border-radius: 4px;
+    border: 1px solid rgba(0, 229, 255, 0.3); display: flex; align-items: center; gap: 3px;
 }
+.timerIcon { color: #00E5FF; font-size: 8px; animation: spin 4s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.timerText { font-family: 'Chakra Petch', monospace; font-size: 10px; font-weight: 700; color: #E1F5FE; }
 
-.statusText {
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 900;
-    font-size: 11px;
-    color: #E0FFFF; /* Світлий ціан */
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.6); /* Ефект LED світіння */
-    letter-spacing: 1px;
-}
-
-/* --- TIMER (Digital Readout) --- */
-.timerBadge {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 3px 10px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 242, 255, 0.3); /* Тонка неонова рамка */
-    color: #00F2FF;
-
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 900;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    /* Вдавлений екранчик */
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.activeHeader .timerBadge {
-    background: #00F260;
-    color: #004b6b;
-    border-color: #fff;
-    box-shadow: 0 0 10px #fff;
-    animation: shakeTimer 2s infinite;
-}
-
-@keyframes shakeTimer {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-2deg); }
-    75% { transform: rotate(2deg); }
-}
-
-/* --- PROGRESS BAR (Energy Tube) --- */
-.progressBar {
-    position: absolute;
-    bottom: 0; left: 0;
+/* --- PROGRESS BAR --- */
+.progressRail {
     width: 100%;
-    height: 4px;
-    background: #000;
-    z-index: 10;
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+    height: 2px; /* Тонший бар (було 3px) */
+    background: rgba(0, 0, 0, 0.4); border-radius: 1px;
+    margin-bottom: 4px; /* Менший відступ */
+    overflow: hidden; position: relative; z-index: 2;
+}
+.progressBeam {
+    height: 100%; background: linear-gradient(90deg, #00E5FF, #2979FF);
+    box-shadow: 0 0 5px #00E5FF; transition: width 1s linear;
 }
 
-.progressFill {
-    height: 100%;
-    background: linear-gradient(90deg, #00F2FF, #00F260, #00F2FF);
-    background-size: 200% 100%;
-    animation: plasmaFlow 1.5s linear infinite;
-    box-shadow: 0 0 8px rgba(0, 242, 255, 0.8);
-    transition: width 1s linear;
-}
-@keyframes plasmaFlow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
-/* --- OPTIONS GRID (Recessed Control Bay) --- */
+/* --- OPTIONS GRID --- */
 .optionsGrid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    padding: 8px;
-    /* Більш темний фон для контрасту з кнопками */
-    background: rgba(0, 0, 0, 0.2);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    /* Внутрішня тінь зверху, ніби панель втоплена */
-    box-shadow: inset 0 10px 10px -10px rgba(0,0,0,0.5);
+    gap: 4px;
+    position: relative; z-index: 2;
 }
 
-/* --- BUTTONS (Physical Metal Keys) --- */
+/* Option Button */
 .optionBtn {
-    /* Темний метал */
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.2) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    height: 44px; /* Трохи вищі для "ваги" */
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    /* 🔥 СУПЕР КОМПАКТНІ ВІДСТУПИ */
+    padding: 4px 1px; /* Було 5px 2px */
 
-    cursor: pointer;
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-
-    /* 3D ЕФЕКТ КНОПКИ (Випукла) */
-    box-shadow:
-            inset 1px 1px 0 rgba(255, 255, 255, 0.2), /* Блік на грані */
-            0 4px 0 rgba(0, 20, 30, 0.6),             /* "Товщина" кнопки знизу */
-            0 5px 10px rgba(0,0,0,0.3);               /* Тінь */
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px; /* Мінімальний зазор */
+    cursor: pointer; transition: all 0.1s ease; position: relative; overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 0 rgba(0,0,0,0.3);
 }
 
-/* Натискання кнопки */
 .optionBtn:active {
-    transform: translateY(4px); /* Кнопка втискається */
-    box-shadow:
-            inset 0 0 10px rgba(0,0,0,0.5),
-            0 0 0 rgba(0, 20, 30, 0.6); /* Товщина зникає */
-    border-color: rgba(255,255,255,0.1);
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3), 0 1px 0 rgba(0,0,0,0.3);
 }
 
-/* АКТИВНА КНОПКА (Locked & Glowing) */
 .disabledOption {
-    /* Яскравий аква-градієнт */
-    background: linear-gradient(135deg, #11998e 0%, #00F2FF 100%) !important;
-
-    /* Світіння замість тіні */
-    border: 1px solid #fff !important;
-    cursor: default;
-    transform: translateY(2px); /* Трохи втоплена */
-
-    /* Ефект неонового блоку */
-    box-shadow:
-            inset 0 0 15px rgba(255,255,255,0.6),
-            0 0 15px rgba(0, 242, 255, 0.6) !important;
+    opacity: 0.5; pointer-events: none; filter: grayscale(0.5);
+    background: rgba(13, 71, 161, 0.6); border-color: rgba(0, 229, 255, 0.2); animation: pulseOpacity 2s infinite;
 }
+@keyframes pulseOpacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
 
-/* LABEL */
+/* Content styling */
 .optLabel {
     font-family: 'Exo 2', sans-serif;
-    font-size: 8px;
-    color: #8899a6; /* Сірий метал */
-    text-transform: uppercase;
-    font-weight: 800;
-    line-height: 1;
-    margin-bottom: 3px;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.5); /* Вдавлений текст */
+    font-size: 7px; /* Було 8px */
+    font-weight: 800; color: #fff; text-transform: uppercase;
+    margin-bottom: 1px;
 }
 
-.optionBtn:hover .optLabel { color: #fff; }
-.disabledOption .optLabel { color: #00332a; text-shadow: none; }
-
-/* --- STATS ROW --- */
-.statsRow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: 100%;
-    line-height: 1;
-}
+.optValues { display: flex; flex-direction: column; align-items: center; gap: 0px; line-height: 1; }
 
 .optTime {
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 900;
-    font-size: 11px;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 9px; /* Було 10px */
+    font-weight: 700; color: #81D4FA;
 }
 
 .optCost {
     font-family: 'Exo 2', sans-serif;
-    font-weight: 800;
-    font-size: 9px;
-    color: #FFD700;
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.6); /* Золоте світіння */
-    display: flex;
-    align-items: center;
-    gap: 1px;
+    font-size: 7px; /* Було 8px */
+    font-weight: 700; color: #FFD700;
+    display: flex; align-items: center; gap: 1px;
 }
 
-.disabledOption .optTime { color: #004b6b; text-shadow: none; }
-.disabledOption .optCost { color: #00332a; text-shadow: none; }
+.btnGlow {
+    position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent);
+    opacity: 0; transition: opacity 0.2s;
+}
+.optionBtn:hover .btnGlow { opacity: 1; }

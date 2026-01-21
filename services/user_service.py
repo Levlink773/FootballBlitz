@@ -82,7 +82,8 @@ class UserService:
                     .selectinload(Character.reminder),
                     selectinload(UserBot.main_character)
                     .selectinload(Character.owner),
-                    selectinload(UserBot.statistics)
+                    selectinload(UserBot.statistics),
+                    selectinload(UserBot.season_pass),
                 )
                 result = await session.execute(stmt)
                 return list(result.unique().scalars().all())
@@ -844,43 +845,56 @@ class UserService:
 
     @classmethod
     async def delete_all_bots(cls):
-        """
-        Видаляє всіх користувачів, у яких is_bot = True, разом із залежними даними.
-        """
-        print("🗑️ Починаю видалення всіх ботів...")
+        print("🗑️ Начинаю глубокую очистку ботов...")
 
         async for session in get_session():
             async with session.begin():
-                # 1. Знаходимо ID всіх ботів
-                bots_stmt = select(UserBot.user_id).where(UserBot.is_bot.is_(True))
+                # 1. Получаем И внутренний ID (id), И телеграм ID (user_id)
+                # Это критически важно, так как разные таблицы ссылаются на разные поля
+                bots_stmt = select(UserBot.id, UserBot.user_id).where(UserBot.is_bot.is_(True))
                 result = await session.execute(bots_stmt)
-                bot_ids = result.scalars().all()
+                bots = result.all()  # Список кортежей [(id, user_id), ...]
 
-                if not bot_ids:
-                    print("🤷 Боти не знайдені.")
+                if not bots:
+                    print("✅ Ботов не найдено.")
                     return
 
-                # 2. Видаляємо записи з blitz_users (участь у турнірах)
-                # Це вирішує помилку blitz_users_ibfk_3
+                # Разделяем на два списка для удобства
+                bot_db_ids = [b.id for b in bots]  # [1, 2, 3...]
+                bot_tg_ids = [b.user_id for b in bots]  # [1000001, 1000002...]
+
+                print(f"Обнаружено {len(bots)} ботов. Удаляю зависимости...")
+
+                # 2. Удаляем SeasonPass (Ссылается на users.id -> используем bot_db_ids)
                 await session.execute(
-                    delete(BlitzUser).where(BlitzUser.user_id.in_(bot_ids))
+                    delete(SeasonPass).where(SeasonPass.user_id.in_(bot_db_ids))
                 )
 
-                # 3. Видаляємо записи з characters (персонажі)
-                # Це вирішує помилку characters_ibfk_1
-                # Важливо: Якщо у Character є свої залежності (наприклад, Reminder),
-                # їх теж треба видалити або налаштувати ON DELETE CASCADE в базі.
+                # 3. Удаляем BlitzUser (Ссылается на users.user_id -> используем bot_tg_ids)
+                # (Если таблица использует users.id - поменяйте на bot_db_ids)
+                try:
+                    await session.execute(
+                        delete(BlitzUser).where(BlitzUser.user_id.in_(bot_tg_ids))
+                    )
+                except Exception:
+                    pass
+
+                # 4. Удаляем Characters (ОШИБКА БЫЛА ТУТ)
+                # Ссылается на users.user_id -> используем bot_tg_ids
                 await session.execute(
-                    delete(Character).where(Character.characters_user_id.in_(bot_ids))
+                    delete(Character).where(Character.characters_user_id.in_(bot_tg_ids))
                 )
 
-                # 4. Видаляємо саму статистику (якщо є Statistics)
-                # await session.execute(
-                #    delete(Statistics).where(Statistics.user_id.in_(bot_ids))
-                # )
+                # Удаляем Статистику (обычно ссылается на users.id)
+                # await session.execute(delete(Statistics).where(Statistics.user_id.in_(bot_db_ids)))
 
-                # 5. Нарешті видаляємо самих ботів
-                stmt = delete(UserBot).where(UserBot.user_id.in_(bot_ids))
-                await session.execute(stmt)
+                # 5. 🔥 ВАЖНО: Применяем удаление зависимостей перед удалением юзеров
+                await session.flush()
 
-        print(f"💀 Успішно видалено {len(bot_ids)} ботів та пов'язані дані.")
+                # 6. Удаляем самих пользователей (по их внутреннему ID)
+                print(f"Удаляю {len(bots)} пользователей...")
+                await session.execute(
+                    delete(UserBot).where(UserBot.id.in_(bot_db_ids))
+                )
+
+                print("✅ Успешно очищено.")

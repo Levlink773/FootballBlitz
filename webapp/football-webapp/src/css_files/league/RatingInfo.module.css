@@ -1,0 +1,161 @@
+/* src/css_files/league/RatingInfo.module.css */
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.title {
+    color: white;
+    font-size: 18px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    text-align: center;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.infoBox {
+    width: 100%;
+    flex: 1; /* Займає весь доступний простір */
+    overflow-y: auto; /* Скрол всередині */
+
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    box-sizing: border-box;
+
+    color: white;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+/* Скроллбар */
+.infoBox::-webkit-scrollbar { width: 4px; }
+.infoBox::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+.infoBox::-webkit-scrollbar-thumb { background: #A624DE; border-radius: 2px; }
+
+.introText, .resetInfo, .footerText {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.pointsSection {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    width: 100%;
+    margin: 5px 0;
+    gap: 5px;
+    background: rgba(255,255,255,0.05);
+    padding: 10px 0;
+    border-radius: 8px;
+}
+
+.pointItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.pointItem img {
+    width: 28px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.highlightText {
+    color: #F700FF;
+    font-weight: 700;
+}
+
+.rewardsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Дві колонки */
+    gap: 6px;
+    width: 100%;
+}
+
+.rewardRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px 8px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.rewardPlace { color: rgba(255, 255, 255, 0.7); }
+
+.rewardValues { display: flex; gap: 6px; }
+
+.rewardItem { display: flex; align-items: center; gap: 2px; }
+.rewardItem img { width: 10px; height: 10px; }
+
+.rewardAmountCoin { color: #FFD700; }
+.rewardAmountEnergy { color: #00F2FF; }
+
+.formulaBox {
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px dashed #A624DE;
+    margin: 10px 0;
+}
+
+.formulaBox code {
+    display: block;
+    margin-top: 5px;
+    color: #F700FF;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+/* Кнопка Назад */
+.backButtonContainer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.backText {
+    color: #F700FF;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Exo 2', sans-serif;
+    text-transform: uppercase;
+}
+
+.arrowIcon {
+    width: 30px;
+    height: auto;
+}

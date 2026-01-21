@@ -1,264 +1,263 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
 
-/* --- MAIN WRAPPER (HEAVY IRON TOKEN) --- */
+/* --- ULTIMATE GOLDEN SLAB --- */
 .wrapper {
     position: relative;
-    width: 93%;
-    height: 90px;
-    top: -18px;
+    width: 95%;
+    height: 65px; /* Висота 69px */
+    top: -25px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    /* 1. МАТЕРІАЛ: Темна, насичена бронза/золото (Iron Gold) */
-    background: linear-gradient(180deg, #f3c640 0%, #ffdc2e 40%, #bf7d01 100%);
+    /* 🔥 REAL GOLD GRADIENT: Складний діагональний градієнт з різкими бліками */
+    /* Імітує відполірований метал, що відбиває горизонт */
+    background: linear-gradient(
+            135deg,
+            #8f6B29 0%,   /* Глибока тінь зліва-зверху */
+            #FDE08D 25%,  /* Яскравий блік */
+            #DF9F28 50%,  /* Основний тон золота */
+            #FDE08D 75%,  /* Другий блік */
+            #8f6B29 100%  /* Глибока тінь справа-знизу */
+    );
 
-    border-radius: 16px;
+    border-radius: 14px;
 
-    /* 2. ГРАНІ ЖЕТОНА (Bevels & Thickness) */
-    /* Верхня грань - світло, Нижня грань - тінь, Зовнішня - товщина */
-    border-top: 1px solid rgba(255, 255, 255, 0.6);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    /* 🔥 HEAVY METAL BEVELS: Відчуття товстого, важкого злитка */
+    /* Яскравий білий кант зверху, темний знизу */
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
 
     box-shadow:
-        /* Внутрішній відблиск металу по краю (Highlighter) */
-            inset 0 1px 0 rgba(255, 255, 255, 0.5),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-                /* Жорстка товщина металу (3D стінка) */
-            0 8px 0 #88592e,
-                /* Тінь на фоні */
-            0 20px 30px rgba(0, 0, 0, 0.6);
+        /* Внутрішній різкий блік по верхньому краю */
+            inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                /* Внутрішня тінь знизу для глибини */
+            inset 0 -2px 5px rgba(0, 0, 0, 0.4),
+                /* Фізична товщина металу (темна бронза) */
+            0 4px 0 #5a3f1a,
+                /* М'яка тінь від злитка на фоні */
+            0 10px 20px rgba(0, 0, 0, 0.4);
 
-    padding: 0 20px;
+    padding: 6px 12px 6px 16px;
     box-sizing: border-box;
     cursor: pointer;
     overflow: hidden;
-    transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
     z-index: 10;
+    margin-bottom: 10px;
 }
 
-/* Текстура шліфованого металу */
-.wrapper::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.05) 0px,
-            rgba(255, 255, 255, 0.05) 1px,
-            transparent 1px,
-            transparent 3px
-    );
-    mix-blend-mode: overlay;
-    opacity: 0.6;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Блік, що пробігає (металевий блиск) */
-.wrapper::after {
-    content: '';
-    position: absolute;
-    top: -50%; left: -150%;
-    width: 60%; height: 200%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
-    transform: skewX(-30deg);
-    animation: metalSheen 6s infinite ease-in-out;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-    z-index: 1;
-}
-
-@keyframes metalSheen {
-    0%, 80% { left: -150%; }
-    100% { left: 150%; }
-}
-
-/* Ефект натискання (Важкий хід кнопки) */
+/* Ефект натискання: злиток вдавлюється */
 .wrapper:active {
-    transform: translateY(6px);
+    transform: translateY(4px);
     box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.3),
-            0 2px 0 #4B3621, /* Тінь зменшується */
-            0 4px 10px rgba(0, 0, 0, 0.5);
+            inset 0 1px 2px rgba(0, 0, 0, 0.2), /* Тінь потрапляє всередину */
+            0 0px 0 #5a3f1a, /* Товщина зникає */
+            0 2px 5px rgba(0,0,0,0.5); /* Тінь зменшується */
 }
 
-/* --- DECORATIVE RIVETS (Болти по кутах) --- */
-/* Це додає індустріальності і відчуття заліза */
-.leftSection, .iconSection {
-    position: relative;
-    z-index: 2;
+/* Texture (Brushed Metal) - трохи посилена */
+.wrapper::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 4px);
+    opacity: 0.8; mix-blend-mode: overlay; pointer-events: none;
 }
 
-/* Створюємо ілюзію болтів через CSS */
-.wrapper .rivet {
-    position: absolute;
-    width: 8px; height: 8px;
-    background: radial-gradient(circle, #E6CFA0 10%, #805500 90%);
-    border-radius: 50%;
-    box-shadow:
-            inset 0 1px 2px rgba(255,255,255,0.8),
-            0 1px 1px rgba(0,0,0,0.8);
-    z-index: 2;
+/* Sheen (Рухомий блік) */
+.wrapper::after {
+    content: ''; position: absolute; top: -50%; left: -150%; width: 40%; height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8) 30%, transparent 60%);
+    transform: skewX(-35deg); animation: sheen 6s infinite ease-in-out; pointer-events: none;
+    mix-blend-mode: overlay;
 }
-/* Позиції болтів */
-.wrapper .rivet.tl { top: 8px; left: 8px; }
-.wrapper .rivet.tr { top: 8px; right: 8px; }
-.wrapper .rivet.bl { bottom: 8px; left: 8px; }
-.wrapper .rivet.br { bottom: 8px; right: 8px; }
+@keyframes sheen { 0%, 85% { left: -150%; } 100% { left: 250%; } }
 
-
-/* --- LEFT CONTENT (Engraved Zone) --- */
-.leftSection {
+/* --- CONTENT SECTION (Left) --- */
+.contentSection {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
     flex: 1;
-    padding-left: 8px;
+    gap: 4px;
+    z-index: 2;
 }
 
-.headerRow {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* BADGE (Metal Plate) */
-.seasonBadge {
-    /* Виглядає як прикручена червона табличка */
-    background: linear-gradient(180deg, #B71C1C 0%, #7F0000 100%);
-    border: 1px solid #FF8A80;
-    border-bottom: 2px solid #4A0000;
-    border-radius: 4px;
-    padding: 2px 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-}
-
-.seasonText {
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-    color: #fff;
-    text-shadow: 0 1px 1px #000;
-}
-
-.title {
-    font-family: 'Exo 2', sans-serif;
-    font-size: 21px;
-    color: #FFF8E1;
-    text-transform: uppercase;
-    font-weight: 900;
-    font-style: italic;
-    /* Глибоке вдавлення тексту (Engraved effect) */
-    text-shadow:
-            0px -1px 0px rgba(0,0,0,0.7), /* Тінь зверху (всередині) */
-            0px 1px 0px rgba(255,255,255,0.4); /* Світло знизу (кромка) */
-}
-
-/* TIMER ZONE (Recessed Screen) */
-.infoRow {
+/* TOP ROW: Badge + Timer */
+.topMetaRow {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 2px;
+}
+
+/* 🔥 ENGRAVED EFFECT FOR TEXT */
+/* Текст виглядає вирізьбленим у золоті */
+.seasonBadge {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    color: #422a1a; /* Темно-коричневий (колір заглиблення) */
+    text-transform: uppercase;
+    /* Внутрішня тінь зверху, світлий кант знизу */
+    text-shadow: 0 1px 1px rgba(255,255,255,0.6), 0 -1px 1px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
 }
 
 .timerBox {
-    /* Цей блок виглядає вдавленим у метал */
-    background: #1a1005; /* Дуже темний */
+    /* Втоплений екранчик */
+    background: rgba(48, 30, 18, 0.4);
+    padding: 2px 6px;
     border-radius: 4px;
-    padding: 3px 8px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    /* Inset shadows створюють глибину "колодязя" */
-    box-shadow:
-            inset 0 2px 4px rgba(0,0,0,0.8),
-            inset 0 -1px 0 rgba(255,255,255,0.1);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    gap: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
 }
 
-.timerIcon { font-size: 10px; color: #FFC107; }
-.timerText {
+.timerIcon { font-size: 10px; color: #FFD700; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5)); }
+.timerBox span {
     font-family: 'Chakra Petch', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    color: #FFD54F;
-    letter-spacing: 1px;
-}
-.timerLabel {
-    font-size: 9px; font-weight: 800; color: #5D4037;
-    text-transform: uppercase; font-family: 'Exo 2', sans-serif;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
 }
 
-/* PROGRESS BAR (Glass Tube embedded in metal) */
+/* ACTION ROW */
+.actionRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-right: 5px;
+}
+
+/* Progress Bar Group */
+.progressWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 10px;
+}
+
 .progressBarContainer {
     width: 100%;
-    max-width: 200px;
-    height: 18px;
-    background-color: #2b1d11; /* Темне дно канавки */
-    border-radius: 10px;
-    position: relative;
-    /* Дуже сильна внутрішня тінь для ефекту канавки */
-    box-shadow:
-            inset 0 3px 6px rgba(0,0,0,0.9),
-            0 1px 0 rgba(255,255,255,0.2); /* Нижній блік на металі */
+    height: 9px;
+    background: #3e2723; /* Темна канавка */
+    border-radius: 6px;
+    /* Глибока внутрішня тінь */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
     overflow: hidden;
-    margin-top: 5px;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.3);
 }
 
 .progressBarFill {
     height: 100%;
-    /* Сяюча "плазма" або рідина */
-    background: linear-gradient(180deg, #00E5FF 0%, #2979FF 50%, #00B0FF 100%);
-    width: 0%;
-    border-radius: 10px;
-    /* Внутрішній об'єм рідини */
-    box-shadow:
-            inset 0 2px 5px rgba(255,255,255,0.6), /* Блік на склі зверху */
-            inset 0 -2px 5px rgba(0,0,0,0.4),
-            0 0 10px rgba(0, 198, 255, 0.6); /* Зовнішнє світіння */
-    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
+    background: linear-gradient(90deg, #00B0FF, #00E5FF 50%, #80D8FF);
+    border-radius: 6px;
+    box-shadow: 0 0 8px #00E5FF, inset 0 1px 2px rgba(255,255,255,0.4);
+    transition: width 0.5s ease;
 }
 
-/* Бульбашки/текстура рідини */
-.progressBarFill::after {
-    content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
-    background-image: radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px);
-    background-size: 6px 6px;
-    opacity: 0.5;
-}
-
-.progressText {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 10px; color: #fff; font-weight: 900;
+/* XP Text - також гравіювання */
+.xpText {
     font-family: 'Exo 2', sans-serif;
-    text-shadow: 0 0 4px rgba(0,0,0,1);
-    z-index: 3;
+    font-size: 9px;
+    font-weight: 800;
+    color: #422a1a;
+    text-align: right;
+    width: 100%;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.5), 0 -1px 0 rgba(0,0,0,0.2);
 }
 
-/* RIGHT SECTION */
-.iconSection {
+/* Rewards Button (CTA) - GLASS/GEM */
+.rewardsBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
+    backdrop-filter: blur(4px);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 0 10px rgba(255, 223, 89, 0.3);
+    transition: all 0.2s;
+}
+.wrapper:hover .rewardsBtn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.1));
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+.rewardsBtn span {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.arrowIcon {
+    font-size: 10px;
+    color: #FFD700;
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.7));
+    animation: bounceRight 1.5s infinite;
+}
+
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(2px); }
+}
+
+/* --- RIGHT SECTION (Trophy) --- */
+.trophySection {
     position: relative;
-    width: 80px; height: 80px;
-    display: flex; justify-content: center; align-items: center;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 5;
 }
 
-/* Кубок стоїть на поверхні */
-.passIcon {
-    width: 65px; height: auto;
-    /* Чітка тінь внизу, ніби він стоїть на столі */
-    filter: drop-shadow(0 10px 5px rgba(0,0,0,0.6));
-    animation: floatIcon 4s ease-in-out infinite;
+.trophyIcon {
+    font-size: 50px;
+    /* Тінь від кубка на золотій поверхні */
+    filter: drop-shadow(0 8px 4px rgba(0,0,0,0.4));
+    transform: rotate(5deg);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes floatIcon {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-3px); } /* Легкий рух, він важкий */
-    100% { transform: translateY(0); }
+.wrapper:hover .trophyIcon {
+    transform: rotate(0deg) scale(1.1);
 }
+
+/* PREMIUM GLOW */
+.glowEffect {
+    position: absolute;
+    width: 140%; height: 140%;
+    background: radial-gradient(circle, rgba(255, 226, 74, 0.7) 0%, rgba(255, 160, 0, 0.3) 50%, transparent 70%);
+    opacity: 0.8;
+    z-index: -1;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Rivets (Заклепки) */
+.rivet {
+    position: absolute; width: 4px; height: 4px;
+    background: radial-gradient(circle at 30% 30%, #fff, #d4af37 40%, #6d4c1f 100%);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    opacity: 0.9;
+}
+.tl { top: 5px; left: 5px; }
+.tr { top: 5px; right: 5px; }
+.bl { bottom: 5px; left: 5px; }
+.br { bottom: 5px; right: 5px; }

@@ -3,9 +3,8 @@ import styles from '../../css_files/main_css/TrainingBlock.module.css';
 import Config from "../../config.js";
 import { API_BASE_URL } from "../../api.js";
 import { showAlert, showInfoModal } from "../../alertService.jsx";
-import { FaDumbbell, FaBolt } from "react-icons/fa";
+import { FaDumbbell, FaBolt, FaStopwatch } from "react-icons/fa"; // Додав FaStopwatch
 
-// Training Options Configuration
 const TRAINING_OPTIONS = [
     { id: 1, duration: '30m', seconds: 1800, cost: 10, label: 'Light' },
     { id: 2, duration: '1h', seconds: 3600, cost: 20, label: 'Medium' },
@@ -20,7 +19,6 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
         totalTime: 0
     });
 
-    // 1. Check Status on Load
     useEffect(() => {
         if (!user?.user_id) return;
         const fetchStatus = async () => {
@@ -47,7 +45,6 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
         fetchStatus();
     }, [user]);
 
-    // 2. Timer Logic
     useEffect(() => {
         let interval;
         if (trainingState.isActive && trainingState.timeLeft > 0) {
@@ -63,7 +60,6 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
         return () => clearInterval(interval);
     }, [trainingState.isActive]);
 
-    // Helper: Format Seconds to HH:MM:SS
     const formatTime = (sec) => {
         const h = Math.floor(sec / 3600);
         const m = Math.floor((sec % 3600) / 60);
@@ -72,21 +68,17 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
         return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
-    // Calculate Progress Percentage
     const progressPercent = trainingState.isActive
         ? Math.max(0, Math.min(100, ((trainingState.totalTime - trainingState.timeLeft) / trainingState.totalTime) * 100))
         : 0;
 
-    // Handle Click (Start or Check Status)
     const handleOptionClick = async (opt) => {
-        // --- LOGIC CHANGE: If active, show alert and stop ---
         if (trainingState.isActive) {
             const minutesLeft = Math.ceil(trainingState.timeLeft / 60);
-            showAlert(`Training is currently in progress! Please wait ${minutesLeft} minutes.`);
+            showAlert(`Training in progress! Wait ${minutesLeft} min.`);
             return;
         }
 
-        // --- Standard Start Logic ---
         try {
             const res = await fetch(`${API_BASE_URL}/training/start`, {
                 method: 'POST',
@@ -113,7 +105,7 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
             const uRes = await fetch(`${API_BASE_URL}/users/${user.user_id}`);
             if (uRes.ok) onUserUpdate(await uRes.json());
 
-            showInfoModal({ text: `Training Started: ${opt.label}`, image: Config.IMAGES.training_info });
+            showInfoModal({ text: `Started: ${opt.label}`, image: Config.IMAGES.training_info });
 
         } catch (e) {
             showAlert(e.message);
@@ -121,56 +113,62 @@ const TrainingBlock = ({ user, onUserUpdate }) => {
     };
 
     return (
-        <div className={styles.wrapper}>
+        <div className={`${styles.wrapper} ${trainingState.isActive ? styles.wrapperActive : ''}`}>
+            {/* Background Texture */}
+            <div className={styles.bgLines}></div>
 
-            {/* HEADER */}
-            <div className={`${styles.header} ${trainingState.isActive ? styles.activeHeader : ''}`}>
+            {/* HEADER PANEL */}
+            <div className={styles.header}>
                 <div className={styles.headerLeft}>
-                    <div className={`${styles.iconCircle} ${trainingState.isActive ? styles.pulse : ''}`}>
+                    <div className={`${styles.iconBox} ${trainingState.isActive ? styles.pulse : ''}`}>
                         <FaDumbbell />
                     </div>
-                    <span className={styles.statusText}>
-                        {trainingState.isActive ? 'TRAINING IN PROGRESS' : 'TRAINING CENTER'}
-                    </span>
+                    <div className={styles.titleBlock}>
+                        <span className={styles.titleLabel}>SYSTEM STATUS</span>
+                        <span className={styles.mainTitle}>
+                            {trainingState.isActive ? 'TRAINING ACTIVE' : 'TRAINING CENTER'}
+                        </span>
+                    </div>
                 </div>
 
                 <div className={styles.headerRight}>
                     {trainingState.isActive && (
-                        <div className={styles.timerBadge}>
-                            {formatTime(trainingState.timeLeft)}
+                        <div className={styles.timerContainer}>
+                            <FaStopwatch className={styles.timerIcon} />
+                            <span className={styles.timerText}>{formatTime(trainingState.timeLeft)}</span>
                         </div>
                     )}
                 </div>
-
-                {/* Progress Bar */}
-                {trainingState.isActive && (
-                    <div className={styles.progressBar}>
-                        <div
-                            className={styles.progressFill}
-                            style={{ width: `${progressPercent}%` }}
-                        />
-                    </div>
-                )}
             </div>
 
-            {/* OPTIONS GRID - Always visible now */}
+            {/* PROGRESS BAR (Only if active) */}
+            <div className={styles.progressRail}>
+                <div
+                    className={styles.progressBeam}
+                    style={{ width: trainingState.isActive ? `${progressPercent}%` : '0%', opacity: trainingState.isActive ? 1 : 0.3 }}
+                ></div>
+            </div>
+
+            {/* OPTIONS GRID */}
             <div className={styles.optionsGrid}>
                 {TRAINING_OPTIONS.map((opt) => (
                     <div
                         key={opt.id}
-                        // Add 'disabledOption' class if training is active
                         className={`${styles.optionBtn} ${trainingState.isActive ? styles.disabledOption : ''}`}
                         onClick={() => handleOptionClick(opt)}
                     >
                         <span className={styles.optLabel}>{opt.label}</span>
-                        <span className={styles.optTime}>{opt.duration}</span>
-                        <span className={styles.optCost}>
-                            {Math.abs(opt.cost)} <FaBolt style={{fontSize: 9}}/>
-                        </span>
+                        <div className={styles.optValues}>
+                            <span className={styles.optTime}>{opt.duration}</span>
+                            <span className={styles.optCost}>
+                                {opt.cost} <FaBolt style={{fontSize: 8}}/>
+                            </span>
+                        </div>
+                        {/* Decorative glow for button */}
+                        <div className={styles.btnGlow}></div>
                     </div>
                 ))}
             </div>
-
         </div>
     );
 };

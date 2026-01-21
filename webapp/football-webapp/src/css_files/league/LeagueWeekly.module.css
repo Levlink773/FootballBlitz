@@ -1,0 +1,170 @@
+/* src/css_files/league/LeagueWeekly.module.css */
+
+.weeklyContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Фільтри (Топ гравці / Вінрейт) */
+.subFilterRow {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.subFilter {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Exo 2', sans-serif;
+}
+
+.activeSub {
+    background: #A624DE;
+    color: #fff;
+    border-color: #F700FF;
+    box-shadow: 0 0 10px rgba(166, 36, 222, 0.4);
+}
+
+/* Список */
+.listWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Скрол вже є у батьківського контейнера, тому тут просто виводимо список */
+}
+
+/* Елемент рейтингу */
+.ratingItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+
+    /* Темніший фон, щоб виділятися */
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    box-sizing: border-box;
+
+    animation: slideIn 0.4s ease-out forwards;
+    animation-delay: calc(var(--delay-index) * 50ms);
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.rankInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.rankNumber {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    min-width: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+.rankIcon {
+    width: 20px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.rankName {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+}
+
+.rankScoreContainer {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.rankScore {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: #fff;
+}
+
+.scoreUnit {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.statusText {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+    font-size: 12px;
+}
+
+/* ... (існуючі стилі) ... */
+
+/* Кнопка "Як це працює" */
+.howToContainer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    margin-top: auto; /* Притискає до низу, якщо є місце */
+}
+
+.howToText {
+    color: #F700FF;
+    font-size: 12px;
+    font-weight: 700;
+    text-shadow: 0 0 5px rgba(247, 0, 255, 0.5);
+    text-transform: uppercase;
+    font-family: 'Exo 2', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.howToContainer:hover .howToText {
+    text-shadow: 0 0 10px rgba(247, 0, 255, 0.8);
+    transform: scale(1.02);
+}
+
+.arrowIconSmall {
+    width: 24px;
+    height: auto;
+    opacity: 0.8;
+}

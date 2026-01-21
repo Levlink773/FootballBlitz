@@ -4,6 +4,8 @@ from database.models.transfer_character import TransferCharacter
 def get_base():
     from database.model_base import Base
     from database.models.user_bot import UserBot
+    from database.models.user_boost import UserBoost
+    from database.models.season_pass import SeasonPass
     from database.models.character import Character
     from database.models.item import Item
     from database.models.reminder_character import ReminderCharacter

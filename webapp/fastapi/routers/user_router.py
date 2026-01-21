@@ -422,68 +422,86 @@ async def get_league_general_stats():
     }
 
 
+# ... твої імпорти
+
 @router.get("/leaderboard")
 async def get_leaderboard(user_id: int, sort_by: str = Query("seasonal", enum=["seasonal", "win_rate", "streak"])):
-    """
-    sort_by:
-      - seasonal: по user.season_pass.points (или user.points)
-      - win_rate: по проценту побед
-      - streak: по сериям побед (если есть поле, иначе по победам в блице)
-    """
     users = await UserService.get_all_users()
     if not users:
         return {"top_three": [], "user_position": None}
 
-    # 1. СОРТИРОВКА
+    # 1. СОРТУВАННЯ (Без змін)
     if sort_by == "seasonal":
-        # Сортируем по очкам сезонного пасса (если есть) или общим очкам
-        # Предполагаем, что points это сезонные очки
-        sorted_users = sorted(users, key=lambda u: u.points, reverse=True)
+        sorted_users = sorted(users, key=lambda u: u.season_pass.points, reverse=True)
         value_key = "points"
         unit = "PTS"
-
     elif sort_by == "win_rate":
-        # Сортируем по win_rate property
         sorted_users = sorted(users, key=lambda u: u.precent_winner_matches, reverse=True)
         value_key = "precent_winner_matches"
         unit = "%"
-
-    else:  # streak (или просто кол-во побед в блицах как заглушка)
+    else:
         sorted_users = sorted(users, key=lambda u: u.final_winner_matches, reverse=True)
         value_key = "final_winner_matches"
         unit = "WINS"
 
-    # 2. ФОРМИРОВАНИЕ ТОП-3
+    total_players = len(sorted_users)
+
+    # 2. ФОРМУВАННЯ ТОП-3 (Без змін)
     top_three_data = []
     for idx, u in enumerate(sorted_users[:3]):
-        val = getattr(u, value_key, 0)
-        # Если это property (как win_rate), getattr сработает, если поле класса - тоже.
-        # Для win_rate нужно вызвать property, если это объект ORM, но тут мы уже отсортировали.
-
+        if value_key == 'points':
+            val = u.season_pass.points
+        else:
+            val = getattr(u, value_key, 0)
         top_three_data.append({
             "rank": idx + 1,
             "user_id": u.user_id,
             "user_name": u.user_name,
             "team_name": u.team_name,
             "value": val,
-            "unit": unit
+            "unit": unit,
+            "points": u.season_pass.points
         })
 
-    # 3. ПОИСК ПОЗИЦИИ ТЕКУЩЕГО ИГРОКА
+    # 3. ПОЗИЦІЯ ЮЗЕРА + ЗОНА (ОНОВЛЕНО)
     user_position_data = None
     try:
-        # Находим индекс юзера в отсортированном списке
         user_index = next(i for i, u in enumerate(sorted_users) if u.user_id == user_id)
         u_obj = sorted_users[user_index]
         val = getattr(u_obj, value_key, 0)
 
+        rank = user_index + 1
+
+        # --- ЛОГІКА ЗОН (15% - 70% - 15%) ---
+        # Вираховуємо процентиль (де гравець знаходиться від 0 до 1)
+        # 0.0 - це топ 1, 1.0 - це останній
+        percentile = user_index / total_players
+
+        zone = "RETENTION"  # За замовчуванням - збереження (середина)
+        message = "Стабільність — ознака майстерності. Ти в безпеці! 🛡️"
+
+        # Топ 15% (0.0 - 0.15)
+        if percentile <= 0.15:
+            zone = "PROMOTION"
+            message = "Ти в топі! Утримуй позицію для підвищення! 🚀"
+
+        # Нижні 15% (0.85 - 1.0)
+        # Важливо: якщо гравців мало (наприклад < 10), зона вильоту може бути замалою.
+        # Але математично це коректно.
+        elif percentile >= 0.85:
+            zone = "DEMOTION"
+            message = "Обережно! Ти в зоні вильоту! Потрібна перемога! ⚠️"
+
         user_position_data = {
-            "rank": user_index + 1,  # +1 потому что индекс с 0
+            "rank": rank,
             "user_id": u_obj.user_id,
             "user_name": u_obj.user_name,
             "team_name": u_obj.team_name,
             "value": val,
-            "unit": unit
+            "unit": unit,
+            "zone": zone,  # <--- Нове поле
+            "zone_msg": message,  # <--- Нове поле
+            "points": u_obj.season_pass.points,
         }
     except StopIteration:
         user_position_data = None

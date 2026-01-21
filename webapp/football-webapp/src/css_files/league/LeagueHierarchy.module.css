@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&display=swap');
+
+.hierarchyWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.1); /* Розділювач від лідерборду */
+}
+
+.sectionTitle {
+    text-align: center;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+/* Список ліг */
+.leaguesList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.leagueCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+
+    transition: all 0.3s ease;
+}
+
+/* Активна картка (де знаходиться юзер) */
+.activeCard {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+    transform: scale(1.02);
+    border-width: 1px;
+}
+
+.iconBox {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    filter: drop-shadow(0 0 5px currentColor);
+}
+
+.nameBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.leagueName {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.currentBadge {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    background: #A624DE;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 0 8px #A624DE;
+}
+
+/* --- БЛОК ПРАВИЛ --- */
+.rulesContainer {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.ruleTitle {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    color: #fff;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.ruleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.ruleIcon {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.ruleText {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #ccc;
+}
+
+.infoNote {
+    margin-top: 8px;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-style: italic;
+}

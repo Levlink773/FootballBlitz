@@ -159,14 +159,12 @@ const LeagueRegisterButton = ({ user, onUserUpdate }) => {
     // --- RENDER LOGIC ---
     if (isLoading) return <div className={styles.loadingText}>Завантаження...</div>;
 
-    // Data prep
     const blitzTime = blitzInfo?.info?.blitz_time || "15:00";
     const playersRegistered = blitzInfo?.info?.participants_count || 0;
     const maxPlayers = blitzInfo?.info?.max_participants || 16;
     const registrationCost = blitzInfo?.info?.cost || 30;
 
-    // Status Determination
-    let status = 'WAITING'; // WAITING, ACTIVE_NOT_REG, ACTIVE_REG, REGISTERED, CLOSED
+    let status = 'WAITING';
     if (isBlitzActive) {
         status = isRegistered ? 'ACTIVE_REG' : 'ACTIVE_NOT_REG';
     } else if (isRegistered) {
@@ -177,37 +175,49 @@ const LeagueRegisterButton = ({ user, onUserUpdate }) => {
         status = 'CLOSED';
     }
 
-    return (
-        <div className={styles.registerContainer} onClick={handleRegisterClick}>
+    // Визначаємо додатковий клас для контейнера, якщо гра активна
+    const containerClass = (status === 'ACTIVE_REG')
+        ? `${styles.registerContainer} ${styles.registerContainerActive}`
+        : styles.registerContainer;
 
-            {/* Ліва частина: Інфо про статус */}
+    return (
+        <div className={containerClass} onClick={handleRegisterClick}>
+
+            {/* Ліва частина */}
             <div className={styles.infoSection}>
                 <div className={styles.statusLabel}>
-                    {status === 'ACTIVE_REG' && <span style={{color: '#00FF88'}}>БЛІЦ ТРИВАЄ!</span>}
+                    {status === 'ACTIVE_REG' && (
+                        <span className={styles.statusLive}>
+                            <span className={styles.liveDot}></span> БЛІЦ ТРИВАЄ!
+                        </span>
+                    )}
                     {status === 'ACTIVE_NOT_REG' && <span style={{color: '#FF4444'}}>ТРИВАЄ (Ви не у грі)</span>}
                     {status === 'REGISTERED' && <span style={{color: '#00F2FF'}}>ВИ ЗАРЕЄСТРОВАНІ</span>}
                     {status === 'WAITING' && <span style={{color: '#FFD700'}}>РЕЄСТРАЦІЯ ВІДКРИТА</span>}
                     {status === 'CLOSED' && <span style={{color: '#888'}}>НЕМАЄ ТУРНІРІВ</span>}
                 </div>
 
-                {status === 'WAITING' || status === 'REGISTERED' ? (
-                    <div className={styles.detailsRow}>
+                {/* Показуємо таймер і гравців, якщо чекаємо або граємо */}
+                {(status === 'WAITING' || status === 'REGISTERED' || status === 'ACTIVE_REG') ? (
+                    <div className={styles.detailsRow} style={status === 'ACTIVE_REG' ? {borderColor: '#00FF88', background: 'rgba(0, 255, 136, 0.1)'} : {}}>
                         <div className={styles.timeBox}>
-                            <FaClock className={styles.iconSmall} />
-                            {formatTime(secondsRemaining)}
+                            <FaClock className={styles.iconSmall} style={status === 'ACTIVE_REG' ? {color: '#00FF88'} : {}} />
+                            {/* Якщо активний, можна писати "LIVE" або час */}
+                            {status === 'ACTIVE_REG' || status === 'ACTIVE_NOT_REG' ? "LIVE" : formatTime(secondsRemaining)}
                         </div>
                         <div className={styles.playersBox}>
-                            <FaBolt className={styles.iconSmall} />
+                            <FaBolt className={styles.iconSmall} style={status === 'ACTIVE_REG' ? {color: '#00FF88'} : {}} />
                             {playersRegistered}/{maxPlayers}
                         </div>
                     </div>
                 ) : null}
             </div>
 
-            {/* Права частина: Кнопка дії */}
+            {/* Права частина */}
             <div className={styles.actionSection}>
                 {status === 'ACTIVE_REG' && (
-                    <div className={styles.actionButton}>
+                    // 🔥 ТУТ ВИКОРИСТОВУЄМО НОВИЙ КЛАС .btnPlay
+                    <div className={`${styles.actionButton} ${styles.btnPlay}`}>
                         <FaGamepad /> ГРАТИ
                     </div>
                 )}
@@ -234,7 +244,6 @@ const LeagueRegisterButton = ({ user, onUserUpdate }) => {
                 )}
             </div>
 
-            {/* Декоративний блік */}
             <div className={styles.sheen}></div>
         </div>
     );

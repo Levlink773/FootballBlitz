@@ -32,6 +32,16 @@ class STATUS_USER_REGISTER(EnumBase):
     FORGOT_TRAINING = "FORGOT_TRAINING"
     HOME = "HOME"
 
+class LeagueEnum(str, EnumBase):
+    BRONZE = "BRONZE"      # 1
+    SILVER = "SILVER"      # 2
+    GOLD = "GOLD"          # 3
+    PLATINUM = "PLATINUM"  # 4
+    DIAMOND = "DIAMOND"    # 5
+    MASTER = "MASTER"      # 6
+    GRAND = "GRAND"        # 7
+    LEGENDARY = "LEGENDARY"# 8
+    WORLD = "WORLD"        # 9
 
 class BlitzActive(EnumBase):
     ACTIVE = "ACTIVE"
@@ -110,6 +120,7 @@ class UserBot(Base):
         lazy="selectin",
         cascade="all, delete-orphan",
     )
+    league: Mapped[LeagueEnum] = mapped_column(Enum(LeagueEnum), default=LeagueEnum.BRONZE)
     count_play_blitz = Column(BigInteger, default=0)
     count_rich_semi_final_blitz = Column(BigInteger, default=0)
     count_rich_final_looser_blitz = Column(BigInteger, default=0)

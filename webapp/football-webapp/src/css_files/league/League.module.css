@@ -10,27 +10,49 @@
     0%, 100% { box-shadow: 0 0 15px rgba(166, 36, 222, 0.4); opacity: 0.8; }
     50% { box-shadow: 0 0 25px rgba(166, 36, 222, 0.6); opacity: 1; }
 }
-
 /* --- Основний контейнер сторінки --- */
 .leagueContainer {
+    /* 🔥 БЫЛО: position: fixed; */
+    /* СТАЛО: absolute. Теперь он позиционируется относительно .mainContainer */
     position: absolute;
-    /* Відступ зверху враховує Header (60px) + SeasonHeader (64px) + відступи */
+
+    /* Верхний отступ от начала блока 650px */
     top: 135px;
+
+    /* 🔥 БЫЛО: height: calc(100dvh - 220px); */
+    /* СТАЛО: Привязываем низ к футеру.
+       Если высота родителя 650px, а футер ~85px, то ставим bottom: 85px.
+       Браузер сам посчитает высоту блока между top и bottom. */
+    bottom: 85px;
+    height: auto;
+
+    /* Центрирование по горизонтали внутри родителя */
     left: 50%;
     transform: translateX(-50%);
 
-    width: 95%; /* Ширина як у SeasonHeader */
+    width: 95%;
     max-width: 400px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+
     animation: fadeIn 0.6s ease-out forwards;
     z-index: 5;
-    padding-bottom: 80px; /* Місце для NavigationBar */
+
+    overflow: hidden;
 }
 
+/* Додатково: Адаптація для дуже високих екранів,
+   якщо ви хочете, щоб список не був занадто довгим */
+@media (min-height: 850px) {
+    .leagueContainer {
+        /* Трохи опускаємо контейнер або збільшуємо відступ знизу,
+           щоб зберегти баланс */
+        bottom: 100px;
+    }
+}
 /* --- ПЕРЕМИКАЧ ТАБІВ --- */
 .tabContainer {
     width: 100%;
@@ -40,6 +62,10 @@
     padding: 4px;
     border: 1px solid rgba(166, 36, 222, 0.3);
     backdrop-filter: blur(5px);
+
+    /* Таби мають фіксований розмір і не стискаються */
+    flex-shrink: 0;
+    z-index: 6;
 }
 
 .tabButton {
@@ -49,7 +75,6 @@
     outline: none;
     background: transparent;
     cursor: pointer;
-
     font-family: 'Exo 2', sans-serif;
     font-weight: 800;
     font-size: 12px;
@@ -61,7 +86,6 @@
     overflow: hidden;
 }
 
-/* Активний стан табу */
 .activeTab {
     background: linear-gradient(90deg, #A624DE 0%, #d624de 100%);
     color: #fff;
@@ -74,29 +98,39 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* --- ОСНОВНИЙ БОКС (ListBox з твого прикладу) --- */
+/* --- ОСНОВНИЙ БОКС З КОНТЕНТОМ --- */
 .contentBox {
     width: 100%;
-    /* Адаптивна висота */
-    min-height: 400px;
-    height: auto;
 
-    /* Твій фірмовий темний градієнт */
+    /* 🔥 КРИТИЧНІ ВЛАСТИВОСТІ ДЛЯ СКРОЛУ: */
+    flex: 1; /* Займає весь доступний простір, що залишився */
+    min-height: 0; /* Магічний фікс для Flexbox, щоб скрол працював всередині */
+
+    /* Скрол тільки тут */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+
     background: linear-gradient(180deg, rgba(45, 25, 65, 0.85) 0%, rgba(30, 30, 30, 0.9) 100%);
-
     border-radius: 15px;
-    /* Фіолетова рамка */
     border: 1px solid #A624DE;
 
-    padding: 15px;
+    padding: 10px;
+    /* Відступ знизу, щоб останній елемент не прилипав */
+    padding-bottom: 20px;
+
     box-sizing: border-box;
     position: relative;
-    top: -10px;
     display: flex;
     flex-direction: column;
 }
 
-/* Ефект світіння навколо боксу */
+/* Стилізація скролбару */
+.contentBox::-webkit-scrollbar { width: 4px; }
+.contentBox::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 2px; }
+.contentBox::-webkit-scrollbar-thumb { background: #A624DE; border-radius: 2px; }
+
+/* Ефект світіння */
 .contentBox::before {
     content: '';
     position: absolute;
@@ -108,7 +142,6 @@
     animation: pulseGlow 5s infinite ease-in-out;
 }
 
-/* Заглушка для контенту (поки пусто) */
 .placeholderText {
     flex: 1;
     display: flex;
@@ -130,9 +163,8 @@
     flex-direction: column;
     gap: 12px;
     width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    padding-right: 5px; /* Для скроллбара */
+    /* Висота регулюється батьком, тут 100% не обов'язково, але можна */
+    overflow-y: visible; /* Скролить батько (.contentBox) */
 }
 
 .statCard {
@@ -266,7 +298,14 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding-bottom: 55px;
+
+    /* 🔥 БУЛО: height: 100%; */
+    /* СТАЛО: min-height: fit-content; або прибрати зовсім.
+       Це дозволить списку нормально скролитися всередині contentBox. */
+    min-height: 0;
+    flex: 1;
+
+    padding-bottom: 10px;
 }
 
 /* Фільтри (Pills) */
@@ -425,14 +464,17 @@
 
 /* --- STICKY USER ROW (Твоя позиція) --- */
 .stickyUserRow {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    right: 15px;
+    position: relative;
+    /* margin-top видаляємо або залишаємо мінімальним, бо це частина списку */
+    margin-top: 5px;
 
-    height: 54px;
-    background: linear-gradient(90deg, #1a0b2e 0%, #2d1b4e 100%);
-    border: 1px solid #A624DE;
+    height: 60px; /* Трохи вищий для деталей */
+
+    /* Скляний ефект */
+    background: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
 
     display: flex;
@@ -440,13 +482,120 @@
     justify-content: space-between;
     padding: 0 12px;
 
-    box-shadow:
-            0 4px 15px rgba(0,0,0,0.5),
-            0 0 10px rgba(166, 36, 222, 0.3); /* Фіолетове світіння */
-    z-index: 10;
-
-    animation: slideUp 0.5s ease-out forwards;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    z-index: 50;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
+
+/* Кольорові індикатори зліва (border-left) */
+.rowPromotion { border-left: 4px solid #00FF88; background: linear-gradient(90deg, rgba(0, 255, 136, 0.1), rgba(20,20,30,0.9)); }
+.rowDemotion  { border-left: 4px solid #FF4444; background: linear-gradient(90deg, rgba(255, 68, 68, 0.1), rgba(20,20,30,0.9)); }
+.rowRetention { border-left: 4px solid #FFD700; background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(20,20,30,0.9)); }
+
+/* Ранг (#105) */
+.rankBadge {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    color: #fff;
+    min-width: 35px;
+    text-align: center;
+    margin-right: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Інфо про юзера (Центр) */
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    gap: 2px;
+}
+
+.userNameRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.userName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+/* Бейдж Ліги */
+.leagueBadge {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+    color: #ccc;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.teamName {
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Права частина (Очки + Зона) */
+.statsRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: right;
+}
+
+.userValueBox {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.userValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.userUnit {
+    font-size: 8px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+}
+
+/* Іконка зони (Стрілочка/Щит) */
+.zoneIconBox {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Кольори тексту значень та іконок */
+.textGreen { color: #00FF88; }
+.textRed   { color: #FF4444; }
+.textGold  { color: #FFD700; }
 
 @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
@@ -500,4 +649,24 @@
 .userUnit {
     font-size: 8px;
     color: rgba(255,255,255,0.5);
+}
+.leagueBadgeContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    margin-top: 2px;
+    padding: 1px 6px;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    width: fit-content;
 }

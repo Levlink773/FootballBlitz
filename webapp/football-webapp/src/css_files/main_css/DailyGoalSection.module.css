@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
+
+.wrapper {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    position: relative;
+    top: 60px; /* Позиціонування як було */
+    z-index: 5;
+}
+
+/* --- COMMON CARD BASE --- */
+.card {
+    flex: 1;
+    height: 74px; /* Висота як у пасса */
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* 3D Shadows */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.card:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* Texture overlay */
+.card::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
+    opacity: 0.6; mix-blend-mode: overlay; pointer-events: none;
+}
+
+/* --- GOLD CARD (DAILY BOX) --- */
+.goldCard {
+    /* 🔥 Той самий градієнт, що у Season Pass */
+    background: linear-gradient(135deg, #8f6B29 0%, #FDE08D 25%, #DF9F28 50%, #FDE08D 75%, #8f6B29 100%);
+
+    /* Фаски */
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow:
+            inset 0 1px 1px rgba(255, 255, 255, 0.9),
+            inset 0 -2px 5px rgba(0, 0, 0, 0.4),
+            0 4px 0 #5a3f1a, /* Товщина золота */
+            0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cardReady {
+    animation: pulseGold 2s infinite;
+}
+@keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+/* --- BLUE CARD (TASK) --- */
+.blueCard {
+    /* 🔥 Той самий градієнт, що у Team Stats */
+    background: linear-gradient(135deg, #0D47A1 0%, #1976D2 40%, #42A5F5 50%, #1565C0 60%, #0a2f6b 100%);
+
+    /* Фаски */
+    border-top: 1px solid rgba(128, 222, 234, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            inset 0 -5px 10px rgba(0,0,0,0.3),
+            0 4px 0 #052c52, /* Товщина сталі */
+            0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* --- HEADER STYLES --- */
+.cardHeader {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px; z-index: 2;
+}
+
+.iconBoxGold {
+    width: 24px; height: 24px;
+    background: rgba(66, 42, 26, 0.3);
+    border-radius: 6px; display: flex; justify-content: center; align-items: center;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.goldIcon { color: #fff; font-size: 12px; }
+
+.iconBoxBlue {
+    width: 24px; height: 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px; display: flex; justify-content: center; align-items: center;
+    border: 1px solid rgba(0, 229, 255, 0.3);
+}
+.blueIcon { color: #00E5FF; font-size: 12px; }
+
+.cardTitleGold {
+    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 10px; color: #422a1a;
+    text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.cardTitleBlue {
+    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 10px; color: #E1F5FE;
+    text-transform: uppercase; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+}
+
+/* --- BODY STYLES --- */
+.cardBody, .taskBody {
+    display: flex; flex-direction: column; justify-content: center; height: 30px; z-index: 2;
+}
+
+/* Timer Display (Engraved Screen) */
+.timerDisplay {
+    font-family: 'Chakra Petch', monospace; font-size: 14px; font-weight: 700; color: #fff;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.15); border-radius: 4px; padding: 2px 0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Open Button */
+.claimBtn {
+    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 11px; color: #fff;
+    background: linear-gradient(180deg, #4CAF50, #2E7D32);
+    text-align: center; padding: 4px 0; border-radius: 6px;
+    text-transform: uppercase; border: 1px solid #81C784;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Progress Bar */
+.progressTrack {
+    width: 100%; height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); overflow: hidden; margin-bottom: 4px;
+}
+.progressFill {
+    height: 100%; background: linear-gradient(90deg, #00E5FF, #2979FF);
+    box-shadow: 0 0 5px #00E5FF; transition: width 0.5s ease;
+}
+
+.taskMeta {
+    display: flex; justify-content: space-between; align-items: center;
+}
+.taskStatus { font-family: 'Chakra Petch', sans-serif; font-size: 10px; color: #B3E5FC; font-weight: 700; }
+.rewardTag { font-family: 'Exo 2', sans-serif; font-size: 9px; color: #FFD700; font-weight: 800; }
+
+.doneState {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: #00E676; font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 12px;
+}
+
+/* Rivets (Заклепки) */
+.rivet, .rivetBlue {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%; opacity: 0.8;
+}
+.rivet { background: #5a3f1a; box-shadow: inset 0 1px 1px rgba(255,255,255,0.6); }
+.rivetBlue { background: #0D47A1; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
+
+.tl { top: 5px; left: 5px; } .tr { top: 5px; right: 5px; }
+.bl { bottom: 5px; left: 5px; } .br { bottom: 5px; right: 5px; }
