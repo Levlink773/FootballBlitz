@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
+
+/* --- MAIN WRAPPER (Deep Premium Green) --- */
+.wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+
+    /* 🔥 ЗМІНЕНО: Ще компактніша висота (115px) */
+    min-height: 115px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    /* Gradient Background */
+    background: linear-gradient(180deg, #052e05 0%, #0d460d 40%, #1b5e20 100%);
+
+    border-radius: 14px; /* Трохи менший радіус */
+
+    /* Borders */
+    border-top: 1px solid rgba(105, 240, 174, 0.4);
+    border-bottom: 3px solid rgba(0, 0, 0, 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+    box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 8px 20px rgba(0, 0, 0, 0.8),
+            0 0 12px rgba(27, 94, 32, 0.3);
+
+    /* 🔥 ЗМІНЕНО: Дуже компактні відступи */
+    padding: 8px 15px;
+
+    box-sizing: border-box;
+    margin-top: 20px;
+    margin-bottom: 30px;
+
+    z-index: 5;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    top: 20px;
+}
+
+.wrapperActive {
+    box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.2), 0 0 30px rgba(0, 230, 118, 0.3);
+    border-color: #00e676;
+}
+
+/* Background Grid */
+.bgLines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image:
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none; z-index: 0;
+}
+
+/* Sheen Effect */
+.wrapper::after {
+    content: ''; position: absolute; top: -50%; left: -150%; width: 60%; height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: skewX(-30deg); animation: sheen 8s infinite ease-in-out;
+    pointer-events: none;
+}
+@keyframes sheen { 0%, 80% { left: -150%; } 100% { left: 200%; } }
+
+/* --- HEADER --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* 🔥 ЗМІНЕНО: Менші відступи для шапки */
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.headerLeft { display: flex; align-items: center; gap: 8px; }
+
+.iconBox {
+    /* 🔥 ЗМІНЕНО: Менша іконка (26px) */
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #00e676;
+    display: flex; justify-content: center; align-items: center;
+    color: #00e676; font-size: 12px;
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.1);
+}
+
+.pulse {
+    background: #00e676; color: #000;
+    box-shadow: 0 0 12px #00e676;
+    animation: pulseAnim 1.5s infinite;
+}
+@keyframes pulseAnim { 0% { transform: scale(1); box-shadow: 0 0 8px #00e676; } 50% { transform: scale(1.05); box-shadow: 0 0 15px #00e676; } 100% { transform: scale(1); box-shadow: 0 0 8px #00e676; } }
+
+.titleBlock { display: flex; flex-direction: column; justify-content: center; }
+.titleLabel { font-size: 7px; color: #b9f6ca; font-weight: 700; letter-spacing: 1px; margin-bottom: 0px; text-transform: uppercase; line-height: 1; }
+/* 🔥 ЗМІНЕНО: Менший шрифт заголовка */
+.mainTitle {
+    font-family: 'Exo 2', sans-serif; font-size: 14px; font-weight: 900; color: #fff;
+    text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.6); line-height: 1.2;
+}
+
+/* Timer */
+.timerContainer {
+    background: rgba(0, 0, 0, 0.5); padding: 2px 8px; border-radius: 4px;
+    border: 1px solid rgba(0, 230, 118, 0.4); display: flex; align-items: center; gap: 5px;
+}
+.timerIcon { color: #00e676; font-size: 10px; animation: spin 4s linear infinite; }
+.timerText { font-family: 'Chakra Petch', monospace; font-size: 12px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* --- PROGRESS BAR --- */
+.progressRail {
+    width: 100%;
+    /* 🔥 ЗМІНЕНО: Тонша лінія прогресу (4px) */
+    height: 4px;
+    background: rgba(0, 0, 0, 0.5); border-radius: 2px;
+    margin-bottom: 6px;
+    overflow: hidden; position: relative; z-index: 2;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.progressBeam {
+    height: 100%;
+    background: linear-gradient(90deg, #00e676, #ffeb3b);
+    box-shadow: 0 0 8px #00e676;
+    transition: width 1s linear;
+}
+
+/* --- OPTIONS GRID --- */
+.optionsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px; /* Менший зазор */
+    position: relative; z-index: 2;
+    flex-grow: 1;
+}
+
+/* Option Button */
+.optionBtn {
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+
+    /* 🔥 ЗМІНЕНО: Мінімальний паддінг */
+    padding: 4px 2px;
+
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+}
+
+.optionBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #00e676;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 10px rgba(0, 230, 118, 0.2);
+}
+
+.optionBtn:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.disabledOption {
+    opacity: 0.4; pointer-events: none; filter: grayscale(0.8);
+    border-color: transparent;
+}
+
+/* Content styling */
+.optLabel {
+    font-family: 'Exo 2', sans-serif;
+    /* 🔥 ЗМІНЕНО: Менший шрифт (9px) */
+    font-size: 9px;
+    font-weight: 800; color: #e8f5e9; text-transform: uppercase;
+    margin-bottom: 1px; letter-spacing: 0.5px;
+}
+
+.optValues { display: flex; flex-direction: column; align-items: center; gap: 0px; }
+
+.optTime {
+    font-family: 'Chakra Petch', sans-serif;
+    /* 🔥 ЗМІНЕНО: Менший шрифт (12px) */
+    font-size: 12px;
+    font-weight: 700; color: #69f0ae;
+    line-height: 1.2;
+}
+
+.optCost {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px; /* Менший шрифт */
+    font-weight: 700; color: #FFD700;
+    display: flex; align-items: center; gap: 2px;
+}

@@ -1,33 +1,428 @@
 /* src/css_files/profile/Profile.module.css */
 
-/* Контейнер для контента профиля */
-.profileContainer {
-    /* Занимает все доступное пространство между хедером и навбаром */
-    flex: 1;
+:root {
+    --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    /* Більш глибокий фон для карток */
+    --surface-dark: linear-gradient(180deg, rgba(30, 35, 50, 0.7) 0%, rgba(10, 15, 20, 0.85) 100%);
+    /* Ефект "вдавленості" для слотів */
+    --surface-inset: rgba(0, 0, 0, 0.3);
+    --border-color: rgba(255, 255, 255, 0.12);
+    /* Яскравіший сірий для текстів */
+    --text-muted: #cbd5e1;
+}
 
-    /* Включаем скролл, если контент не влезает */
+.profileContainer {
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 55px 8px 80px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 5;
+    top: 20px;
+}
 
-    /* Отступы */
-    padding: 20px 15px;
-    padding-bottom: 100px; /* Чтобы контент не перекрывался навбаром при скролле */
+/* --- HEADER (Mini) --- */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Трохи більше відступ від аватара */
+    background: linear-gradient(145deg, rgba(30, 35, 55, 0.95), rgba(5, 10, 20, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 15px rgba(0,0,0,0.6);
+    border-radius: 14px;
+    padding: 8px 10px;
+    position: relative;
+    overflow: hidden;
 
+    /* 🔥 ВАЖЛИВО: Додаємо відступ справа, щоб текст імені не наліз на нову кнопку VIP */
+    padding-right: 90px;
+}
+
+/* Аватар */
+.avatarWrapper {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.vipBorder {
+    border-color: #FFD700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+/* Інфо про юзера */
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центруємо ім'я по вертикалі, якщо бейджів мало */
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.userName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 15px; /* Трохи збільшив для кращого вигляду */
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.badgesRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 16px; /* Щоб блок не схлопувався, якщо VIP винесено */
+}
+
+/* --- VIP КНОПКА (ЗАГАЛЬНА) --- */
+.vipBadgeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px; /* Більш скруглена */
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    letter-spacing: 0.5px;
+}
+
+/* --- ACTIVE VIP (Залишаємо маленьким під ніком, або адаптуємо за бажанням) --- */
+.vipActive {
+    padding: 3px 8px;
+    font-size: 9px;
+    background: var(--gold-gradient);
+    color: #3f2e00;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 215, 0, 0.5);
+}
+.vipActive:hover { transform: scale(1.05); }
+
+/* --- 🔥🔥🔥 INACTIVE VIP (НОВИЙ СТИЛЬ) 🔥🔥🔥 */
+.vipInactive {
+    /* Вириваємо з потоку (не під нікнеймом) */
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    /* Робимо великою і помітною */
+    height: 32px;
+    padding: 0 14px;
+    font-size: 11px;
+
+    /* Стиль "Скляна Золота Кнопка" */
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 140, 0, 0.25) 100%);
+    color: #FFD700;
+    border: 1px solid rgba(255, 215, 0, 0.6);
+    box-shadow:
+            0 4px 10px rgba(0,0,0,0.5), /* Тінь */
+            inset 0 1px 0 rgba(255, 255, 255, 0.2), /* Верхній блік */
+            inset 0 0 10px rgba(255, 215, 0, 0.1); /* Внутрішнє світіння */
+
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    animation: goldPulse 2.5s infinite ease-in-out;
+}
+
+.vipInactive:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.4));
+    color: #fff;
+    border-color: #FFD700;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes goldPulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.8); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); border-color: rgba(255, 215, 0, 0.4); }
+}
+
+/* --- Brain Badge --- */
+.brainBadge {
+    /* Якщо VIP винесено, цей бейдж залишається під ніком */
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(236, 72, 153, 0.2));
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    color: #f9a8d4;
+}
+
+/* --- ЗАГАЛЬНІ КАРТКИ (Ultra Compact) --- */
+.card {
+    /* Градієнт для глибини замість плоского кольору */
+    background: var(--surface-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.15); /* Підсвітка зверху */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3); /* Тінь знизу */
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    /* Потужніша тінь для відриву від фону */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.sectionTitle {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #94a3b8; /* Замінено #64748b на світліший */
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.sectionTitle svg {
+    width: 12px; height: 12px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+
+/* --- СТАТИСТИКА (Tiny Horizontal) --- */
+.statsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.statItem {
+    /* Ефект "вдавленості" */
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.3); /* Тінь зверху */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Підсвітка знизу */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+
+    border-radius: 6px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    height: 32px;
+}
+
+.statItem svg {
+    width: 12px !important;
+    height: 12px !important;
+    opacity: 0.9; /* Трохи яскравіше */
+    margin: 0;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+}
+
+.statTextWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 0.9;
+}
+
+.statValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.statLabel {
+    font-size: 7px;
+    text-transform: uppercase;
+    color: #a0aec0; /* Світліший сірий */
+    font-weight: 700;
+    margin-top: 1px;
+}
+
+.accentGreen { color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
+.accentBlue { color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
+.accentGold { color: #facc15; text-shadow: 0 0 8px rgba(250, 204, 21, 0.4); }
+
+/* --- ІНВЕНТАР (Mini Grid) --- */
+.inventoryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 6px;
+}
+
+.inventorySlot {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    /* Глибокий темний слот */
+    background: radial-gradient(circle at center, rgba(30,30,40,0.4), rgba(10,10,15,0.8));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* "Поличка" */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.7); /* Сильна внутрішня тінь */
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.1s;
+}
+.inventorySlot:active { transform: scale(0.98); }
+
+.itemImage {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    z-index: 1;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); /* Тінь від предмета */
+}
+.itemCount {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.6);
+    color: #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.emptySlot {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    aspect-ratio: 1 / 1;
+}
+
+/* --- ТРОФЕЇ (Compact) --- */
+.trophyContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+}
+
+.trophyIconBox {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    /* Ефект 3D бейджа */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
+}
+
+.goldBox { background: linear-gradient(135deg, #FFD700, #d48900); color: #3f2e00; }
+.silverBox { background: linear-gradient(135deg, #f1f5f9, #94a3b8); color: #334155; }
+.bronzeBox { background: linear-gradient(135deg, #fbbf24, #92400e); color: #451a03; }
+.medalBox { background: linear-gradient(135deg, #60a5fa, #1e40af); color: white; }
+
+.trophyInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    gap: 1px;
+}
+
+.trophyTitle {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.trophyDesc {
+    font-size: 9px;
+    color: var(--text-muted); /* #cbd5e1 - набагато яскравіше */
+    line-height: 1.1;
+}
+
+.rankBadge {
+    font-size: 8px;
+    font-weight: 800;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #f1f5f9;
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+/* --- РЕФЕРАЛИ (Mini) --- */
+.refContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-
-    position: relative;
-    z-index: 5;
+    gap: 5px;
 }
-
-/* Временный стиль для заголовка (можно удалить потом) */
-.tempTitle {
-    color: white;
-    font-family: 'Exo 2', sans-serif;
-    font-size: 24px;
+.refInfo {
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-muted); /* #cbd5e1 */
+    line-height: 1.2;
+}
+.refLinkBox {
+    background: rgba(0,0,0,0.4);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    padding: 4px 6px;
+    border-radius: 5px;
+    width: 100%;
+    font-family: monospace;
+    font-size: 9px;
+    color: #facc15;
+    border: 1px dashed rgba(255, 215, 0, 0.3);
+    text-align: center;
+}
+.copyButton {
+    background: var(--gold-gradient);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #2a1a00;
     font-weight: 800;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    margin-top: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 10px;
+    height: 28px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 3D кнопка */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+    transition: all 0.1s;
+}
+.copyButton:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
 }

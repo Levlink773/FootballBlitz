@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useMemo} from 'react';
 
-// --- Імпорты всех картинок ---
+// --- Imports (Images) ---
 import Img55 from '../../assets/public/img55.png';
 import Img56 from '../../assets/public/img56.png';
 import Img57 from '../../assets/public/img57.png';
@@ -37,10 +37,7 @@ import {
 } from "../../api.js";
 import {showAlert} from "../../alertService.jsx";
 
-/// --- Constants & Configuration ---
-
-// A "hack" as the backend doesn't provide image URLs.
-// This approach is kept as is.
+// --- Constants & Config ---
 const ALL_IMAGES = {
     playerSets: [
         { cardBackground: Img55, avatar: Img59, flag: Img60, stat1Icon: Img56, stat2Icon: Img57, priceIcon: Img58 },
@@ -51,13 +48,13 @@ const ALL_IMAGES = {
     genericCdm: Card,
 };
 
-// Centralized texts for easy management and potential translation
 const TEXTS = {
     pageTitle: 'Трансферний центр',
+    tabTransfers: 'Трансферний ринок',
+    tabAgents: 'Вільні агенти',
     myTeamSection: 'Моя команда',
-    marketSection: 'Трансферний ринок',
-    freeAgentsSection: 'Вільні агенти',
-    addPlayer: 'Додати гравця',
+    marketSection: 'Ринок гравців',
+    addPlayer: 'Додати',
     sellerLabel: 'Продавець:',
     buyButton: 'Купити',
     sellButton: 'Продати',
@@ -66,6 +63,7 @@ const TEXTS = {
     addPlayerHint: 'Поповнити команду новим талантом',
     noPlayersInTeam: 'У вашій команді ще немає гравців',
     remove_from_sale: "Зняти",
+    refreshTimerLabel: "Оновлення списку через:",
     alt: {
         cardBg: (name) => `Фон картки гравця ${name}`,
         avatar: (name) => `Аватар гравця ${name}`,
@@ -75,14 +73,48 @@ const TEXTS = {
     },
 };
 
-// --- Helper Functions ---
-
+// --- Helpers ---
 const formatPrice = (value) => {
     if (typeof value !== 'number' || !isFinite(value)) return 'N/A';
     return new Intl.NumberFormat('uk-UA').format(Math.round(value));
 };
 
-// --- Reusable UI Components ---
+// --- Sub-Components ---
+
+const CountdownTimer = () => {
+    const [timeLeft, setTimeLeft] = useState('');
+
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const midnight = new Date(now);
+            midnight.setHours(24, 0, 0, 0); // Next midnight (00:00:00)
+            const diff = midnight - now;
+
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            const pad = (num) => num.toString().padStart(2, '0');
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        };
+
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+
+        setTimeLeft(calculateTimeLeft()); // Init call
+
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className={styles.timerWrapper}>
+            <div className={styles.timerLabel}>{TEXTS.refreshTimerLabel}</div>
+            <div className={styles.timerDigits}>{timeLeft}</div>
+        </div>
+    );
+};
 
 const LoadingSpinner = () => (
     <div className={styles.statusContainer}>
@@ -102,20 +134,11 @@ const SectionHeader = ({ title }) => (
 );
 
 const AddPlayerCard = ({ onClick }) => (
-    <div
-        className={styles.addPlayerCard}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        aria-label={TEXTS.addPlayerHint}
-        title={TEXTS.addPlayerHint}
-    >
+    <div className={styles.addPlayerCard} onClick={onClick} role="button">
         <span className={styles.addPlayerPlus}>+</span>
         <span className={styles.addPlayerText}>{TEXTS.addPlayer}</span>
     </div>
 );
-
-// --- Player Card Components ---
 
 const MiniPlayerCard = React.memo(({ player, onCardClick }) => (
     <article className={styles.miniCard} onClick={() => onCardClick(player)}>
@@ -126,21 +149,15 @@ const MiniPlayerCard = React.memo(({ player, onCardClick }) => (
             <p className={styles.miniPosition}>{player.position}</p>
         </div>
         <div className={styles.miniStats}>
-            <div title={`Сила: ${player.stats.value1}`}>
-                <img src={player.images.stat1Icon} alt={TEXTS.alt.statIcon('Сила')} />
-                <span>{player.stats.value1}</span>
-            </div>
-            <div title={`Талант: ${player.stats.value2}`}>
-                <img src={player.images.stat2Icon} alt={TEXTS.alt.statIcon('Талант')} />
-                <span>{player.stats.value2}</span>
-            </div>
+            <div><img src={player.images.stat1Icon} alt="" /><span>{player.stats.value1}</span></div>
+            <div><img src={player.images.stat2Icon} alt="" /><span>{player.stats.value2}</span></div>
         </div>
         <div className={styles.miniPrice}>
-            <img src={player.images.priceIcon} alt={TEXTS.alt.priceIcon} />
+            <img src={player.images.priceIcon} alt="" />
             <span>{formatPrice(player.price)}</span>
         </div>
         <button className={styles.miniSellButton} onClick={(e) => {
-            e.stopPropagation(); // Prevent card click when button is clicked
+            e.stopPropagation();
             onCardClick(player);
         }}>
             {player.transfer ? TEXTS.remove_from_sale : TEXTS.sellButton}
@@ -154,48 +171,31 @@ const PlayerCard = React.memo(({ player, index, onCardClick }) => (
         style={{ animationDelay: `${index * 70}ms` }}
         onClick={() => onCardClick(player)}
     >
-        <img src={player.images.cardBackground} className={styles.cardBg} alt={TEXTS.alt.cardBg(player.name)} />
-        <img src={player.images.avatar} className={styles.cardAvatar} alt={TEXTS.alt.avatar(player.name)} />
-        <img src={player.images.flag} className={styles.cardFlag} alt={TEXTS.alt.flag('країни')} />
-
+        <img src={player.images.cardBackground} className={styles.cardBg} alt="" />
+        <img src={player.images.avatar} className={styles.cardAvatar} alt="" />
+        <img src={player.images.flag} className={styles.cardFlag} alt="" />
         <div className={styles.cardInfo}>
             <h4 className={styles.cardName}>{player.name}</h4>
             <p className={styles.cardPosition}>{player.position}</p>
         </div>
-
         <div className={styles.cardStats}>
-            <div>
-                <img src={player.images.stat1Icon} alt={TEXTS.alt.statIcon('Сила')} />
-                <span>{player.stats.value1}</span>
-            </div>
-            <div>
-                <img src={player.images.stat2Icon} alt={TEXTS.alt.statIcon('Талант')} />
-                <span>{player.stats.value2}</span>
-            </div>
+            <div><img src={player.images.stat1Icon} alt="" /><span>{player.stats.value1}</span></div>
+            <div><img src={player.images.stat2Icon} alt="" /><span>{player.stats.value2}</span></div>
         </div>
-
-        <p className={styles.cardSeller}>
-            {TEXTS.sellerLabel} <span>{player.seller ?? '—'}</span>
-        </p>
-
+        <p className={styles.cardSeller}>{TEXTS.sellerLabel} <span>{player.seller ?? '—'}</span></p>
         <div className={styles.cardFooter}>
             <div className={styles.cardPrice}>
-                <img src={player.images.priceIcon} alt={TEXTS.alt.priceIcon} />
+                <img src={player.images.priceIcon} alt="" />
                 <span>{formatPrice(player.price)}</span>
             </div>
         </div>
     </article>
 ));
 
-
-// --- Grid Components ---
-
 const MyTeamGrid = ({ team, onPlayerClick, onAddPlayer }) => (
     <div className={styles.myTeamGrid}>
         {team.length > 0 ? (
-            team.map(player => (
-                <MiniPlayerCard key={player.characterId} player={player} onCardClick={onPlayerClick} />
-            ))
+            team.map(player => <MiniPlayerCard key={player.characterId} player={player} onCardClick={onPlayerClick} />)
         ) : (
             <div className={styles.noPlayersText}>{TEXTS.noPlayersInTeam}</div>
         )}
@@ -206,20 +206,15 @@ const MyTeamGrid = ({ team, onPlayerClick, onAddPlayer }) => (
 const MarketGrid = ({ players, onPlayerClick, startIndex = 0 }) => (
     <div className={styles.marketGrid}>
         {players.map((player, index) => (
-            <PlayerCard
-                key={player.id}
-                player={player}
-                index={startIndex + index}
-                onCardClick={onPlayerClick}
-            />
+            <PlayerCard key={player.id} player={player} index={startIndex + index} onCardClick={onPlayerClick} />
         ))}
     </div>
 );
 
-
 // --- Main Component ---
 
 export default function TransferOption({ user, onUserUpdate }) {
+    const [activeTab, setActiveTab] = useState('market'); // 'market' | 'agents'
     const [myTeam, setMyTeam] = useState([]);
     const [transfers, setTransfers] = useState([]);
     const [freeAgents, setFreeAgents] = useState([]);
@@ -230,6 +225,8 @@ export default function TransferOption({ user, onUserUpdate }) {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const userId = user?.user_id;
+
+    // --- Data Fetching ---
     const fetchUser = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/users/${userId}`);
@@ -257,68 +254,47 @@ export default function TransferOption({ user, onUserUpdate }) {
                 fetch(`${API_BASE_URL}/transfers/free_agents`)
             ]);
 
-            if (!myTeamRes.ok || !transfersRes.ok || !freeAgentsRes.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!myTeamRes.ok || !transfersRes.ok || !freeAgentsRes.ok) throw new Error('Network response error');
 
             const myTeamData = await myTeamRes.json();
             const transfersData = await transfersRes.json();
             const freeAgentsData = await freeAgentsRes.json();
 
-            // ✨ КРОК 1: Створюємо карту для швидкого пошуку трансферів по ID персонажа
+            // Mappers
             const transfersMap = new Map();
-            transfersData.forEach(transfer => {
-                if (transfer.character) {
-                    transfersMap.set(transfer.character.id, transfer);
-                }
-            });
+            transfersData.forEach(t => { if (t.character) transfersMap.set(t.character.id, t); });
 
-            // ✨ КРОК 2: Оновлюємо функцію мапінгу, щоб вона використовувала карту
             const mapCharacterToCard = (character, index) => {
                 if (!character) return null;
                 const imageSet = ALL_IMAGES.playerSets[index % ALL_IMAGES.playerSets.length];
-                const transferInfo = transfersMap.get(character.id); // Шукаємо трансфер
-
+                const transferInfo = transfersMap.get(character.id);
                 return {
-                    id: character.id,
-                    characterId: character.id,
-                    name: character.name || 'Невідомий',
-                    position: 'Нападник',
-                    age: character.age,
-                    power: Math.round(character.power || 0),
-                    talent: character.talent,
+                    id: character.id, characterId: character.id,
+                    name: character.name || 'Невідомий', position: 'Нападник',
+                    age: character.age, power: Math.round(character.power || 0), talent: character.talent,
                     price: character.character_price || 0,
                     stats: { value1: Math.round(character.power || 0), value2: character.talent || 0 },
                     images: { ...imageSet, cdm: ALL_IMAGES.genericCdm },
                     owner: { user_id: userId, username: user.username, user_name: user.username },
-                    isTeamMember: true,
-                    transfer: transferInfo || null, // <-- ❗️ ВАЖЛИВО: Додаємо інформацію про трансфер!
+                    isTeamMember: true, transfer: transferInfo || null,
                 };
             };
 
             const mapTransferToCard = (apiItem, index) => {
-                // Ця функція залишається без змін
                 const character = apiItem.character;
                 if (!character) return null;
                 const imageSet = ALL_IMAGES.playerSets[index % ALL_IMAGES.playerSets.length];
                 return {
-                    id: apiItem.id,
-                    characterId: character.id,
-                    name: character.name || 'Невідомий',
-                    position: 'Нападник',
-                    seller: character.owner?.username || 'Система',
-                    price: apiItem.price,
-                    age: character.age,
-                    power: Math.round(character.power || 0),
-                    talent: character.talent,
+                    id: apiItem.id, characterId: character.id,
+                    name: character.name || 'Невідомий', position: 'Нападник',
+                    seller: character.owner?.username || 'Система', price: apiItem.price,
+                    age: character.age, power: Math.round(character.power || 0), talent: character.talent,
                     stats: { value1: Math.round(character.power || 0), value2: character.talent || 0 },
                     images: { ...imageSet, cdm: ALL_IMAGES.genericCdm },
-                    owner: character.owner,
-                    transfer: apiItem,
+                    owner: character.owner, transfer: apiItem,
                 };
             };
 
-            // ✨ КРОК 3: Тепер дані вашої команди будуть коректними
             setMyTeam(myTeamData.map(mapCharacterToCard).filter(Boolean));
             setTransfers(transfersData.map(mapTransferToCard).filter(Boolean));
             setFreeAgents(freeAgentsData.map(mapTransferToCard).filter(Boolean));
@@ -331,20 +307,13 @@ export default function TransferOption({ user, onUserUpdate }) {
         }
     }, [userId]);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    useEffect(() => { fetchData(); }, [fetchData]);
 
-    const closeModal = () => {
-        setSelectedPlayer(null);
-        setModalView('closed');
-    };
+    // --- Handlers ---
+    const closeModal = () => { setSelectedPlayer(null); setModalView('closed'); };
+    const handlePlayerClick = (player) => { setSelectedPlayer(player); setModalView('details'); };
 
-    const handlePlayerClick = (player) => {
-        setSelectedPlayer(player);
-        setModalView('details');
-    };
-
+    // Transaction handlers (Sell, Buy, Remove, Instant Sell) - reusing existing logic
     const handleSellConfirm = async (price) => {
         if (!selectedPlayer) return;
         setIsProcessing(true);
@@ -352,12 +321,7 @@ export default function TransferOption({ user, onUserUpdate }) {
             await postPlayerToTransfer(selectedPlayer.id, price);
             await fetchData();
             closeModal();
-        } catch (error) {
-            console.error("Sell error:", error);
-            showAlert(error.message);
-        } finally {
-            setIsProcessing(false);
-        }
+        } catch (error) { showAlert(error.message); } finally { setIsProcessing(false); }
     };
 
     const handleRemoveFromSale = async () => {
@@ -367,63 +331,32 @@ export default function TransferOption({ user, onUserUpdate }) {
             await removePlayerFromTransfer(selectedPlayer.transfer.id);
             await fetchData();
             closeModal();
-        } catch (error) {
-            console.error("Remove from sale error:", error);
-            showAlert(error.message);
-        } finally {
-            setIsProcessing(false);
-        }
+        } catch (error) { showAlert(error.message); } finally { setIsProcessing(false); }
     };
 
     const handleInstantSell = async () => {
         if (!selectedPlayer) return;
-        const confirmSell = window.confirm(`Ви впевнені, що хочете миттєво продати ${selectedPlayer.name}?`);
-        if (!confirmSell) return;
-
+        if (!window.confirm(`Ви впевнені, що хочете миттєво продати ${selectedPlayer.name}?`)) return;
         setIsProcessing(true);
         try {
             const result = await instantSellPlayer(selectedPlayer.id);
             showAlert(result.message);
-            await fetchData();
-            await fetchUser()
-            closeModal();
-        } catch (error) {
-            console.error("Instant sell error:", error);
-            showAlert(error.message);
-        } finally {
-            setIsProcessing(false);
-        }
+            await fetchData(); await fetchUser(); closeModal();
+        } catch (error) { showAlert(error.message); } finally { setIsProcessing(false); }
     };
+
     const handleBuy = async () => {
-        if (!selectedPlayer || !selectedPlayer.transfer) {
-            showAlert("Помилка: гравець або трансфер не вибрані.");
-            return;
-        }
-
-        const confirmBuy = window.confirm(`Ви впевнені, що хочете купити ${selectedPlayer.name} за ${selectedPlayer.price} монет?`);
-        if (!confirmBuy) return;
-
+        if (!selectedPlayer?.transfer) return;
+        if (!window.confirm(`Купити ${selectedPlayer.name} за ${selectedPlayer.price} монет?`)) return;
         setIsProcessing(true);
         try {
-            const transferId = selectedPlayer.transfer.id;
-            const result = await buyPlayerFromTransfer(transferId, userId);
-
-            showAlert(result.message); // Показуємо повідомлення з бекенда
-
-            // Оновлюємо всі дані на сторінці
-            await fetchData();
-            await fetchUser(); // Оновлюємо баланс користувача
-
-            closeModal(); // Закриваємо модальне вікно
-
-        } catch (error) {
-            console.error("Buy error:", error);
-            showAlert(error.message); // Показуємо помилку з бекенда
-        } finally {
-            setIsProcessing(false);
-        }
+            const result = await buyPlayerFromTransfer(selectedPlayer.transfer.id, userId);
+            showAlert(result.message);
+            await fetchData(); await fetchUser(); closeModal();
+        } catch (error) { showAlert(error.message); } finally { setIsProcessing(false); }
     };
 
+    // --- Render ---
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorDisplay message={error} />;
 
@@ -431,28 +364,57 @@ export default function TransferOption({ user, onUserUpdate }) {
         <main className={styles.pageWrapper}>
             <h1 className={styles.pageTitle}>{TEXTS.pageTitle}</h1>
 
-            <SectionHeader title={TEXTS.myTeamSection} />
-            <MyTeamGrid
-                team={myTeam}
-                onPlayerClick={handlePlayerClick}
-                onAddPlayer={() => console.log("Open 'Add Player' modal or page")}
-            />
+            {/* --- Tabs Navigation --- */}
+            <div className={styles.tabsContainer}>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'market' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('market')}
+                >
+                    {TEXTS.tabTransfers}
+                </button>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'agents' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('agents')}
+                >
+                    {TEXTS.tabAgents}
+                </button>
+            </div>
 
-            {transfers.length > 0 && (
-                <>
-                    <SectionHeader title={TEXTS.marketSection} />
-                    <MarketGrid players={transfers} onPlayerClick={handlePlayerClick} />
-                </>
+            {/* --- Tab Content: Market & My Team --- */}
+            {activeTab === 'market' && (
+                <div className={styles.tabContent}>
+                    <SectionHeader title={TEXTS.myTeamSection} />
+                    <MyTeamGrid team={myTeam} onPlayerClick={handlePlayerClick} onAddPlayer={() => {}} />
+
+                    {transfers.length > 0 && (
+                        <>
+                            <SectionHeader title={TEXTS.marketSection} />
+                            <MarketGrid players={transfers} onPlayerClick={handlePlayerClick} />
+                        </>
+                    )}
+                    {transfers.length === 0 && (
+                        <div className={styles.noDataPlaceholder}>На ринку зараз немає пропозицій</div>
+                    )}
+                </div>
             )}
 
-            {freeAgents.length > 0 && (
-                <>
-                    <SectionHeader title={TEXTS.freeAgentsSection} />
-                    <MarketGrid players={freeAgents} onPlayerClick={handlePlayerClick} startIndex={transfers.length} />
-                </>
+            {/* --- Tab Content: Free Agents --- */}
+            {activeTab === 'agents' && (
+                <div className={styles.tabContent}>
+                    <CountdownTimer />
+
+                    {freeAgents.length > 0 ? (
+                        <>
+                            {/* Added margin top via CSS for separation */}
+                            <MarketGrid players={freeAgents} onPlayerClick={handlePlayerClick} startIndex={0} />
+                        </>
+                    ) : (
+                        <div className={styles.noDataPlaceholder}>Агенти зараз недоступні</div>
+                    )}
+                </div>
             )}
 
-            {/* --- Modal Rendering Logic --- */}
+            {/* --- Modals --- */}
             {modalView === 'details' && selectedPlayer && (
                 <ModalRoot>
                     <PlayerModal

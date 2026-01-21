@@ -13,6 +13,8 @@ import EducationCard from "./pages/EducationCentere.jsx";
 import { API_BASE_URL } from "./api.js";
 import { useGuide } from "./components/register/context/GuideContext.jsx";
 import LeaguePage from "./pages/LeaguePage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import TeamCard from "./pages/TeamPage.jsx";
 
 function AppContent() {
     const [user, setUser] = useState(null);
@@ -126,6 +128,8 @@ function AppContent() {
             <Route path="/education_centre" element={<EducationCard user={user} setUser={setUser} />} />
             {/* 2. ДОБАВЛЯЕМ МАРШРУТ ДЛЯ ЛИГИ */}
             <Route path="/league" element={<LeaguePage user={user} setUser={setUser} />} />
+            <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} />} />
+            <Route path="/team" element={<TeamCard user={user} setUser={setUser} />} />
         </Routes>
     );
 }
