@@ -1,12 +1,15 @@
 from __future__ import annotations
+
+from enum import Enum
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy import select, delete, func
 from sqlalchemy.orm import selectinload
 
-from database.models.character import Character
+from config import Country, Gender
+from database.models.character import Character, Position, CharacterRarity
 from database.models.training import CharacterJoinTraining
 from database.models.transfer_character import TransferType, TransferCharacter
 from database.models.user_bot import UserBot
@@ -36,6 +39,48 @@ class InstantSellRequest(BaseModel):
     character_id: int = Field(..., description="ID персонажа для моментальной продажи")
 
 
+# Enum для полів сортування
+class SortField(str, Enum):
+    PRICE = "price"
+    POWER = "power"
+    TALENT = "talent"
+    AGE = "age"
+    CREATED_AT = "created_at"  # Час створення (для "закінчується час")
+
+
+# Enum для напрямку сортування
+class SortOrder(str, Enum):
+    ASC = "asc"
+    DESC = "desc"
+
+
+# Клас для параметрів фільтрації (використовується через Depends)
+class TransferFilterParams(BaseModel):
+    price_min: Optional[int] = Query(None, ge=0, description="Мінімальна ціна")
+    price_max: Optional[int] = Query(None, ge=0, description="Максимальна ціна")
+
+    power_min: Optional[float] = Query(None, ge=0, description="Мінімальна сила")
+    power_max: Optional[float] = Query(None, ge=0, description="Максимальна сила")
+
+    talent_min: Optional[int] = Query(None, ge=0, description="Мінімальний талант")
+    talent_max: Optional[int] = Query(None, ge=0, description="Максимальний талант")
+
+    age_min: Optional[int] = Query(None, ge=0, description="Мінімальний вік")
+    age_max: Optional[int] = Query(None, ge=0, description="Максимальний вік")
+
+    position: Optional[Position] = Query(None, description="Позиція гравця")
+    country: Optional[Country] = Query(None, description="Країна")
+    gender: Optional[Gender] = Query(None, description="Стать")
+
+    # Сортування
+    sort_by: Optional[SortField] = Query(None, description="Поле сортування")
+    sort_order: SortOrder = Query(SortOrder.ASC, description="Напрямок сортування (asc/desc)")
+
+    # Пагінація
+    limit: int = Query(50, ge=1, le=100, description="Кількість записів")
+    offset: int = Query(0, ge=0, description="Зсув")
+    rarity: Optional[CharacterRarity] = Query(None, description="Рідкість гравця (STANDARD, RARE, EXCLUSIVE)")
+
 # ---------- Сериализатор ----------
 def transfer_to_dict(t) -> dict:
     if not t:
@@ -47,7 +92,7 @@ def transfer_to_dict(t) -> dict:
         if t.character.owner:
             owner_data = {
                 "user_id": t.character.owner.user_id,
-                "username": getattr(t.character.owner, "username", f"user_{t.character.owner.user_id}")
+                "username": getattr(t.character.owner, "user_name", f"user_{t.character.owner.user_id}")
             }
         character_data = {
             "id": t.character.id,
@@ -58,7 +103,9 @@ def transfer_to_dict(t) -> dict:
             "gender": t.character.gender.name if t.character.gender else None,
             "country": t.character.country.name if t.character.country else None,
             "price": t.character.character_price,
-            "owner": owner_data
+            "owner": owner_data,
+            # 🔥 ВАЖЛИВО: rarity це property, яка повертає Enum, тому беремо .name
+            "rarity": getattr(t.character, "rarity").name if getattr(t.character, "rarity", None) is not None else "STANDARD",
         }
 
     return {
@@ -74,11 +121,30 @@ def transfer_to_dict(t) -> dict:
 # ---------- Endpoints ----------
 
 @router.get("/", response_model=List[dict])
-async def get_all_transfers():
+async def get_all_transfers(params: TransferFilterParams = Depends()):
     """
-    Возвращает все активные трансферы (игроки от пользователей).
+    Возвращает список трансферов с учетом фильтров.
     """
-    transfers = await TransferCharacterService.get_all()
+    # ❌ БЫЛО: transfers = await TransferCharacterService.get_all()
+
+    # ✅ СТАЛО: Передаем params в метод get_filtered
+    transfers = await TransferCharacterService.get_filtered(TransferType.TRANSFER, params)
+
+    if not transfers:
+        return []
+    return [transfer_to_dict(t) for t in transfers]
+
+
+@router.get("/free_agents", response_model=List[dict])
+async def get_free_agents(params: TransferFilterParams = Depends()):
+    """
+    Возвращает свободных агентов с учетом фильтров.
+    """
+    # ❌ БЫЛО: transfers = await TransferCharacterService.get_all_free_agents()
+
+    # ✅ СТАЛО:
+    transfers = await TransferCharacterService.get_filtered(TransferType.FREE_AGENTS, params)
+
     if not transfers:
         return []
     return [transfer_to_dict(t) for t in transfers]
@@ -124,15 +190,15 @@ async def create_transfer(payload: TransferCreate):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/free_agents", response_model=List[dict])
-async def get_free_agents():
-    """
-    Возвращает список свободных агентов.
-    """
-    transfers = await TransferCharacterService.get_all_free_agents()
-    if not transfers:
-        return []
-    return [transfer_to_dict(t) for t in transfers]
+# @router.get("/free_agents", response_model=List[dict])
+# async def get_free_agents():
+#     """
+#     Возвращает список свободных агентов.
+#     """
+#     transfers = await TransferCharacterService.get_all_free_agents()
+#     if not transfers:
+#         return []
+#     return [transfer_to_dict(t) for t in transfers]
 
 
 @router.get("/{transfer_id}", response_model=dict)

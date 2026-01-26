@@ -4,41 +4,35 @@
 .wrapper {
     position: relative;
     width: 95%;
-    height: 65px; /* Висота 69px */
+    height: 65px;
     top: -25px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    /* 🔥 REAL GOLD GRADIENT: Складний діагональний градієнт з різкими бліками */
-    /* Імітує відполірований метал, що відбиває горизонт */
+    /* 🔥 REAL GOLD GRADIENT */
     background: linear-gradient(
             135deg,
-            #8f6B29 0%,   /* Глибока тінь зліва-зверху */
-            #FDE08D 25%,  /* Яскравий блік */
-            #DF9F28 50%,  /* Основний тон золота */
-            #FDE08D 75%,  /* Другий блік */
-            #8f6B29 100%  /* Глибока тінь справа-знизу */
+            #8f6B29 0%,
+            #FDE08D 25%,
+            #DF9F28 50%,
+            #FDE08D 75%,
+            #8f6B29 100%
     );
 
     border-radius: 14px;
 
-    /* 🔥 HEAVY METAL BEVELS: Відчуття товстого, важкого злитка */
-    /* Яскравий білий кант зверху, темний знизу */
+    /* 🔥 HEAVY METAL BEVELS */
     border-top: 1px solid rgba(255, 255, 255, 0.8);
     border-left: 1px solid rgba(255, 255, 255, 0.4);
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
     border-right: 1px solid rgba(0, 0, 0, 0.2);
 
     box-shadow:
-        /* Внутрішній різкий блік по верхньому краю */
             inset 0 1px 1px rgba(255, 255, 255, 0.9),
-                /* Внутрішня тінь знизу для глибини */
             inset 0 -2px 5px rgba(0, 0, 0, 0.4),
-                /* Фізична товщина металу (темна бронза) */
             0 4px 0 #5a3f1a,
-                /* М'яка тінь від злитка на фоні */
             0 10px 20px rgba(0, 0, 0, 0.4);
 
     padding: 6px 12px 6px 16px;
@@ -50,16 +44,16 @@
     margin-bottom: 10px;
 }
 
-/* Ефект натискання: злиток вдавлюється */
+/* Ефект натискання */
 .wrapper:active {
     transform: translateY(4px);
     box-shadow:
-            inset 0 1px 2px rgba(0, 0, 0, 0.2), /* Тінь потрапляє всередину */
-            0 0px 0 #5a3f1a, /* Товщина зникає */
-            0 2px 5px rgba(0,0,0,0.5); /* Тінь зменшується */
+            inset 0 1px 2px rgba(0, 0, 0, 0.2),
+            0 0px 0 #5a3f1a,
+            0 2px 5px rgba(0,0,0,0.5);
 }
 
-/* Texture (Brushed Metal) - трохи посилена */
+/* Texture (Brushed Metal) */
 .wrapper::before {
     content: ''; position: absolute; inset: 0;
     background: repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 4px);
@@ -92,21 +86,17 @@
     gap: 8px;
 }
 
-/* 🔥 ENGRAVED EFFECT FOR TEXT */
-/* Текст виглядає вирізьбленим у золоті */
 .seasonBadge {
     font-family: 'Exo 2', sans-serif;
     font-weight: 900;
     font-size: 13px;
-    color: #422a1a; /* Темно-коричневий (колір заглиблення) */
+    color: #422a1a;
     text-transform: uppercase;
-    /* Внутрішня тінь зверху, світлий кант знизу */
     text-shadow: 0 1px 1px rgba(255,255,255,0.6), 0 -1px 1px rgba(0,0,0,0.3);
     letter-spacing: 0.5px;
 }
 
 .timerBox {
-    /* Втоплений екранчик */
     background: rgba(48, 30, 18, 0.4);
     padding: 2px 6px;
     border-radius: 4px;
@@ -147,9 +137,8 @@
 .progressBarContainer {
     width: 100%;
     height: 9px;
-    background: #3e2723; /* Темна канавка */
+    background: #3e2723;
     border-radius: 6px;
-    /* Глибока внутрішня тінь */
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
     overflow: hidden;
     position: relative;
@@ -164,19 +153,19 @@
     transition: width 0.5s ease;
 }
 
-/* XP Text - також гравіювання */
-.xpText {
+.xpStatusText {
     font-family: 'Exo 2', sans-serif;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
     color: #422a1a;
-    text-align: right;
-    width: 100%;
-    text-shadow: 0 1px 1px rgba(255,255,255,0.5), 0 -1px 0 rgba(0,0,0,0.2);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+    margin-top: 2px;
 }
 
-/* Rewards Button (CTA) - GLASS/GEM */
+/* Rewards Button */
 .rewardsBtn {
+    position: relative;
+    top: -10px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -215,41 +204,124 @@
     50% { transform: translateX(2px); }
 }
 
-/* --- RIGHT SECTION (Trophy) --- */
-.trophySection {
+/* --- RIGHT SECTION (REWARD FRAME) --- */
+/* Контейнер для правой части */
+.rewardPreviewSection {
     position: relative;
-    width: 50px;
-    height: 50px;
+    width: 60px; /* Фиксированная ширина, достаточная для рамки 46px */
+    height: 100%;
+    display: flex;
+    justify-content: center; /* Центрируем рамку внутри секции */
+    align-items: center;
+    z-index: 5;
+    margin-right: 5px; /* Общий отступ секции от правого края */
+}
+
+/* Свечение */
+.glowEffect {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 215, 0, 0.4) 40%, transparent 70%);
+    opacity: 0.6;
+    z-index: -1;
+    mix-blend-mode: overlay;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    from { transform: scale(0.8); opacity: 0.4; }
+    to { transform: scale(1.1); opacity: 0.7; }
+}
+
+/* Сама рамка (Слот) */
+.rewardFrame {
+    position: relative;
+    width: 46px;
+    height: 46px;
+
+    background: radial-gradient(circle at center, #5e4026 0%, #2b1d12 100%);
+    border-radius: 10px;
+
+    border: 1px solid rgba(255, 230, 100, 0.4);
+    box-shadow:
+            inset 0 0 8px rgba(0,0,0,0.9),
+            0 0 0 1px rgba(66, 42, 26, 0.8),
+            0 4px 8px rgba(0,0,0,0.3);
+
+    display: flex;
+    justify-content: center; /* Центрирование иконки по горизонтали */
+    align-items: center;     /* Центрирование иконки по вертикали */
+    z-index: 10;
+    transition: transform 0.2s ease;
+    /* Убрали margin-right, который смещал центр! */
+}
+
+/* Эффекты рамки */
+.rewardFrame::before {
+    content: ''; position: absolute; inset: 0; border-radius: 10px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%); z-index: 1;
+}
+.rewardFrame::after {
+    content: ''; position: absolute; inset: 0; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.2) 100%);
+    pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
+}
+
+.wrapper:hover .rewardFrame {
+    transform: scale(1.08);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 0 0 0 1px rgba(255, 215, 0, 0.8), 0 8px 15px rgba(0,0,0,0.4);
+}
+
+/* Иконка внутри рамки */
+/* Иконка внутри рамки */
+.rewardIconFloating {
+    /* Было 32px, увеличиваем до 40px */
+    width: 70px;
+    height: 70px;
+    margin-right: 5px;
+
+    z-index: 2;
+    /* Немного усилим тень, так как объект стал больше */
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.7));
+    animation: float 3s ease-in-out infinite;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 5;
 }
 
-.trophyIcon {
-    font-size: 50px;
-    /* Тінь від кубка на золотій поверхні */
-    filter: drop-shadow(0 8px 4px rgba(0,0,0,0.4));
-    transform: rotate(5deg);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.rewardIconFloating img,
+.rewardIconFloating svg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block; /* Убирает лишние отступы у картинок */
 }
 
-.wrapper:hover .trophyIcon {
-    transform: rotate(0deg) scale(1.1);
-}
-
-/* PREMIUM GLOW */
-.glowEffect {
+/* Бейдж с количеством */
+.rewardQtyBadge {
     position: absolute;
-    width: 140%; height: 140%;
-    background: radial-gradient(circle, rgba(255, 226, 74, 0.7) 0%, rgba(255, 160, 0, 0.3) 50%, transparent 70%);
-    opacity: 0.8;
-    z-index: -1;
-    mix-blend-mode: screen;
-    pointer-events: none;
+    bottom: -5px;
+    right: -5px;
+    background: linear-gradient(180deg, #ff5252, #d32f2f);
+    color: white;
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+    z-index: 15;
 }
 
-/* Rivets (Заклепки) */
+/* Анимация парения */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(3deg); } /* Чуть уменьшили амплитуду для маленькой иконки */
+}
+
+/* Заклепки */
 .rivet {
     position: absolute; width: 4px; height: 4px;
     background: radial-gradient(circle at 30% 30%, #fff, #d4af37 40%, #6d4c1f 100%);

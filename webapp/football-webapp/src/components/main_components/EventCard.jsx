@@ -126,6 +126,8 @@ const Title = styled.div`
     align-items: baseline;
     justify-content: center;
     gap: 8px;
+    position: relative;
+    left: -20px;
     @media (max-width: 360px) { font-size: 16px; }
 
     span {
@@ -142,6 +144,8 @@ const CountdownWrapper = styled.div`
     padding: 4px 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 6px;
+    position: relative;
+    left: -20px;
 `;
 
 const CountdownText = styled.div`
@@ -213,6 +217,8 @@ const RegistrationStatus = styled.div`
     padding: 3px 10px;
     border-radius: 10px;
     border: 1px solid rgba(46, 204, 113, 0.4);
+    position: relative;
+    left: -20px;
 `;
 
 const NotRegisteredMessage = styled.div`

@@ -419,23 +419,54 @@ export function PlayerModal({
                                 onClose,
                                 isProcessing = false,
                             }) {
-    // ... (useEffect для Escape залишається без змін) ...
     useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                onClose();
-            }
+            if (event.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
 
-    const statItemStyle = {
-        display: "contents"
+    // --- 🔥 КОНФІГУРАЦІЯ РІДКОСТІ (STYLES) ---
+    const getRarityConfig = (rarity) => {
+        switch (rarity) {
+            case 'EXCLUSIVE':
+                return {
+                    label: 'Ексклюзив',
+                    color: '#d500f9', // Яскравий фіолетовий
+                    gradient: 'linear-gradient(135deg, rgba(213, 0, 249, 0.15), transparent)',
+                    border: '2px solid #d500f9',
+                    shadow: '0 0 20px rgba(213, 0, 249, 0.6)',
+                    textShadow: '0 0 10px rgba(213, 0, 249, 0.8)'
+                };
+            case 'RARE':
+                return {
+                    label: 'Рідкісний',
+                    color: '#ff9100', // Насичений помаранчевий
+                    gradient: 'linear-gradient(135deg, rgba(255, 145, 0, 0.15), transparent)',
+                    border: '2px solid #ff9100',
+                    shadow: '0 0 15px rgba(255, 145, 0, 0.5)',
+                    textShadow: '0 0 8px rgba(255, 145, 0, 0.6)'
+                };
+            case 'STANDARD':
+            default:
+                return {
+                    label: 'Звичайний',
+                    color: '#90a4ae', // Сіро-блакитний
+                    gradient: 'linear-gradient(135deg, rgba(144, 164, 174, 0.1), transparent)',
+                    border: '2px solid #546e7a',
+                    shadow: '0 0 10px rgba(84, 110, 122, 0.3)',
+                    textShadow: 'none'
+                };
+        }
     };
-    const statLabelStyle = {color: "var(--text-secondary)", fontWeight: 500, fontSize: 13}; // Трохи зменшив шрифт
+    console.log("player: ", player);
+
+    // Отримуємо стилі для поточного гравця
+    const rarityStyle = getRarityConfig(player.rarity);
+
+    const statItemStyle = { display: "contents" };
+    const statLabelStyle = { color: "var(--text-secondary)", fontWeight: 500, fontSize: 13 };
     const statValueStyle = {
         fontWeight: 700,
         fontSize: 14,
@@ -444,66 +475,108 @@ export function PlayerModal({
     };
 
     return (
-        <Box style={{padding: 16}} onClose={onClose}>
-            <HeaderBar title="Інформація про гравця"/>
+        <Box style={{ padding: 16 }} onClose={onClose}>
+            <HeaderBar title="Інформація про гравця" />
 
-            <div style={{display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap"}}>
-                {/* Зображення */}
-                <div style={{flex: "0 0 auto", width: 80, maxWidth: "30%", boxSizing: "border-box"}}>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+
+                {/* --- ЗОБРАЖЕННЯ З ЕФЕКТОМ РІДКОСТІ --- */}
+                <div style={{ flex: "0 0 auto", width: 80, maxWidth: "30%", boxSizing: "border-box" }}>
                     <motion.img
-                        src={player.images.avatar || "/assets/img172.png"}
+                        src={player.images?.avatar || "/assets/img172.png"}
                         alt={player.name}
                         style={{
                             width: "100%",
                             height: "auto",
                             borderRadius: 12,
-                            border: "2px solid var(--glow-primary)",
-                            boxShadow: `0 0 15px -2px var(--glow-primary)`,
+                            // 🔥 Застосовуємо стилі рідкості
+                            border: rarityStyle.border,
+                            boxShadow: rarityStyle.shadow,
                             display: "block",
                         }}
-                        initial={{opacity: 0, scale: 0.8}}
-                        animate={{opacity: 1, scale: 1}}
-                        transition={{delay: 0.1}}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1 }}
                     />
                 </div>
 
-                {/* Текстова інформація */}
-                <div style={{flex: "1 1 60%", minWidth: 140, boxSizing: "border-box"}}>
-                    <div style={{fontSize: 18, fontWeight: 800, lineHeight: 1.2}}>{player.name || "—"}</div>
-                    <div style={{
-                        color: "var(--text-secondary)",
-                        marginTop: 2,
-                        fontSize: 13,
-                        fontStyle: 'italic'
-                    }}>{player.position || "—"}</div>
+                {/* --- ТЕКСТОВА ІНФОРМАЦІЯ --- */}
+                <div style={{ flex: "1 1 60%", minWidth: 140, boxSizing: "border-box" }}>
 
+                    {/* Ім'я */}
+                    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.2 }}>
+                        {player.name || "—"}
+                    </div>
+
+                    {/* Позиція та Рідкість */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        marginTop: 4
+                    }}>
+                        <div style={{
+                            color: "var(--text-secondary)",
+                            fontSize: 13,
+                            fontStyle: 'italic'
+                        }}>
+                            {player.position || "—"}
+                        </div>
+
+                        {/* 🔥 Бейджик рідкості */}
+                        <div style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                            textTransform: 'uppercase',
+                            color: '#000', // Чорний текст для контрасту
+                            backgroundColor: rarityStyle.color,
+                            boxShadow: rarityStyle.shadow
+                        }}>
+                            {rarityStyle.label}
+                        </div>
+                    </div>
+
+                    {/* Блок статів з градієнтом рідкості */}
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: "1fr auto",
-                        gap: "4px 10px", // Зменшені відступи
+                        gap: "4px 10px",
                         marginTop: 10,
                         alignItems: "center",
-                        background: "rgba(255,255,255,0.03)", // Легка підкладка
+                        // 🔥 Легкий градієнт фону залежно від рідкості
+                        background: rarityStyle.gradient,
+                        border: `1px solid ${rarityStyle.color}40`, // Напівпрозора рамка
                         padding: 8,
                         borderRadius: 8
                     }}>
-                        <div style={statItemStyle}><span style={statLabelStyle}>Вік:</span><span
-                            style={statValueStyle}>{player.age ?? "—"}</span></div>
-                        <div style={statItemStyle}><span style={statLabelStyle}>Сила:</span><span
-                            style={statValueStyle}>{player.power ?? "—"}</span></div>
-                        <div style={statItemStyle}><span style={statLabelStyle}>Талант:</span><span
-                            style={statValueStyle}>{player.talent ?? "—"}</span></div>
+                        <div style={statItemStyle}>
+                            <span style={statLabelStyle}>Вік:</span>
+                            <span style={statValueStyle}>{player.age ?? "—"}</span>
+                        </div>
+                        <div style={statItemStyle}>
+                            <span style={statLabelStyle}>Сила:</span>
+                            <span style={statValueStyle}>{player.power ?? "—"}</span>
+                        </div>
+                        <div style={statItemStyle}>
+                            <span style={statLabelStyle}>Талант:</span>
+                            {/* Підсвітка таланту кольором рідкості */}
+                            <span style={{...statValueStyle, color: rarityStyle.color}}>
+                                {player.talent ?? "—"}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Блок кнопок (винесений на нову строку для надійності) */}
+                {/* --- БЛОК КНОПОК --- */}
                 <div style={{
                     marginTop: 8,
                     width: "100%",
                     display: "flex",
                     gap: 8,
                     alignItems: "center",
-                    flexWrap: "wrap", // 🔥 Дозволяє перенос кнопок
+                    flexWrap: "wrap",
                     justifyContent: "space-between"
                 }}>
                     {isOwner ? (
@@ -513,23 +586,17 @@ export function PlayerModal({
                                     onClick={onRemoveFromSale}
                                     variant="danger"
                                     disabled={isProcessing}
-                                    style={{width: "100%"}} // Кнопка на всю ширину
+                                    style={{ width: "100%" }}
                                 >
                                     {isProcessing ? 'Знімаємо...' : 'Зняти з продажу'}
                                 </GradientButton>
                             ) : (
-                                // 🔥 ВИПРАВЛЕНО: Прибрано right: 60 і position: relative
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '8px',
-                                    width: '100%',
-                                    flexWrap: 'wrap' // Адаптивність кнопок
-                                }}>
+                                <div style={{ display: 'flex', gap: '8px', width: '100%', flexWrap: 'wrap' }}>
                                     <GradientButton
                                         onClick={onSell}
                                         variant="alt"
                                         disabled={isProcessing}
-                                        style={{flex: "1 1 120px", fontSize: 13}} // Мінімальна ширина
+                                        style={{ flex: "1 1 120px", fontSize: 13 }}
                                     >
                                         На ринок
                                     </GradientButton>
@@ -537,7 +604,7 @@ export function PlayerModal({
                                         onClick={onInstantSell}
                                         variant="danger"
                                         disabled={isProcessing}
-                                        style={{flex: "1 1 120px", fontSize: 13}}
+                                        style={{ flex: "1 1 120px", fontSize: 13 }}
                                     >
                                         Швидкий продаж
                                     </GradientButton>
@@ -546,15 +613,11 @@ export function PlayerModal({
                         </>
                     ) : (
                         <>
-                            <GradientButton onClick={onBuy} disabled={isProcessing} style={{flexGrow: 1}}>
+                            <GradientButton onClick={onBuy} disabled={isProcessing} style={{ flexGrow: 1 }}>
                                 {isProcessing ? 'Купуємо...' : 'Купити'}
                             </GradientButton>
-                            <div style={{
-                                fontSize: 13,
-                                color: "var(--text-secondary)",
-                                whiteSpace: "nowrap"
-                            }}>
-                                @{player.seller || player.owner.username || "—"}
+                            <div style={{ fontSize: 13, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                                @{player.seller || player.owner?.user_name || "—"}
                             </div>
                         </>
                     )}

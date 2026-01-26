@@ -52,7 +52,7 @@ class UserService:
                     .selectinload(Character.owner),
                     selectinload(UserBot.statistics),
                     selectinload(UserBot.season_pass),
-                    selectinload(UserBot.boost)
+                    selectinload(UserBot.boosts)
                 )
                 result = await session.execute(stmt)
                 user = result.scalar_one_or_none()
@@ -406,7 +406,9 @@ class UserService:
                 stmt = (
                     update(UserBot)
                     .where(UserBot.user_id == user_id)
-                    .values(skill_points=UserBot.skill_points + amount)
+                    .values(
+                        skill_points=func.coalesce(UserBot.skill_points, 0) + amount
+                    )
                 )
                 await session.execute(stmt)
 
@@ -638,59 +640,78 @@ class UserService:
                 await session.execute(stmt)
 
     @classmethod
-    async def create_user_boost(cls, user_id: int, boost_type, percent: int, duration: int, id: int = None):
+    async def activate_boost_from_inventory(cls, user_id: int, boost_id: int):
+        from datetime import datetime, timedelta
+
         async for session in get_session():
             async with session.begin():
-                # Check for existing boost and delete/overwrite (UserBoost defines 1:1, so we should clean up)
-                # But actually relation on UserBot is uselist=False so just one.
-                # Let's see if we need to explicitly delete.
-                # Try to find and update or create new.
-                stmt = select(UserBoost).where(UserBoost.user_id == user_id)
-                result = await session.execute(stmt)
-                existing_boost = result.scalar_one_or_none()
-                
-                start_date = datetime.now()
-                end_date = start_date + asyncio.timedelta(hours=duration) if hasattr(asyncio, 'timedelta') else start_date +  __import__('datetime').timedelta(hours=duration) # Safe import or use datetime.timedelta
+                # 1. Знаходимо предмет в інвентарі (використовуємо PK)
+                inventory_item = await session.get(UserBoost, boost_id)
 
-                # Using standard datetime.timedelta
-                from datetime import timedelta
-                end_date = start_date + timedelta(hours=duration)
+                if not inventory_item or inventory_item.is_active or inventory_item.count <= 0:
+                    return "ITEM_NOT_FOUND"
+
+                    # 2. 🔥 ПЕРЕВІРКА: Чи є вже активний буст?
+                # Якщо хоча б один буст активний - забороняємо
+                stmt_active = select(UserBoost).where(
+                    UserBoost.user_id == inventory_item.user_id,
+                    UserBoost.is_active == True
+                )
+                active_boost = (await session.execute(stmt_active)).scalar_one_or_none()
+
+                if active_boost:
+                    # Перевіряємо, чи не закінчився він по часу (на всяк випадок)
+                    if active_boost.date_end and active_boost.date_end > datetime.now():
+                        return "ALREADY_ACTIVE"  # <--- Повертаємо код помилки
+                    else:
+                        # Якщо час вийшов, але він висить як активний - видаляємо його
+                        await session.delete(active_boost)
+
+                # 3. Якщо активних немає - створюємо новий
+                new_active = UserBoost(
+                    user_id=inventory_item.user_id,
+                    effect=inventory_item.effect,
+                    percent=inventory_item.percent,
+                    duration=inventory_item.duration,
+                    is_active=True,
+                    count=1,
+                    date_end=datetime.now() + timedelta(hours=inventory_item.duration)
+                )
+                session.add(new_active)
+
+                # 4. Списуємо з інвентарю
+                inventory_item.count -= 1
+                if inventory_item.count <= 0:
+                    await session.delete(inventory_item)
+
+                return "SUCCESS"
+    @classmethod
+    async def add_boost_to_inventory(cls, user_id: int, effect: BoostType, percent: int, duration: int, count: int = 1):
+        async for session in get_session():
+            async with session.begin():
+                # 1. Ищем, есть ли уже такой СТАК в инвентаре (неактивный)
+                stmt = select(UserBoost).where(
+                    UserBoost.user_id == user_id,
+                    UserBoost.effect == effect,
+                    UserBoost.percent == percent,
+                    UserBoost.duration == duration,
+                    UserBoost.is_active == False  # Ищем только в инвентаре
+                )
+                existing_boost = await session.scalar(stmt)
 
                 if existing_boost:
-                    existing_boost.effect = boost_type
-                    existing_boost.percent = percent
-                    existing_boost.duration = duration
-                    existing_boost.date_start = start_date
-                    existing_boost.date_end = end_date
+                    # Если есть - просто увеличиваем счетчик
+                    existing_boost.count += count
                 else:
-                    # Need real ID from UserBot.user_id or UserBot.id? 
-                    # UserBoost points to users.id (BigInteger ID), NOT telegram user_id
-                    # Wait, UserBoost.user_id is ForeignKey('users.id'). 
-                    # user_id argument here is usually telegram ID in this project context?
-                    # Let's check `get_user` implementation. It uses `filter_by(user_id=user_id)`.
-                    # So we need to fetch the UserBot to get its primary key ID if `user_id` passed is TG ID.
-                    # Or we need to support passing DB ID.
-                    # Looking at other methods: they use `UserBot.user_id == user_id`.
-                    # BUT `UserBoost.user_id` FK is to `users.id` (PK), NOT `users.user_id` (TG ID).
-                    # `UserBot` -> `id` (PK), `user_id` (TG ID distinct).
-                    # So we must resolve TG ID to PK ID.
-                    
-                    user_stmt = select(UserBot.id).where(UserBot.user_id == user_id)
-                    user_res = await session.execute(user_stmt)
-                    user_pk = user_res.scalar_one_or_none()
-                    
-                    if not user_pk:
-                        logger.error(f"User {user_id} not found for boost creation")
-                        return
-
+                    # Если нет - создаем новый
                     new_boost = UserBoost(
-                        id=id,
-                        user_id=user_pk,
-                        effect=boost_type,
+                        user_id=user_id,
+                        effect=effect,
                         percent=percent,
                         duration=duration,
-                        date_start=start_date,
-                        date_end=end_date
+                        is_active=False,  # Кладем в инвентарь
+                        date_end=None,
+                        count=count
                     )
                     session.add(new_boost)
 
@@ -720,25 +741,19 @@ class UserService:
                 )
                 result = await session.execute(stmt)
                 return result.scalar_one_or_none()
-                
+
     @classmethod
     async def _apply_reward(cls, user_id: int, reward_str: str):
         """
         Parses reward string and applies the reward.
-        Formats:
-        - money_1000
-        - energy_50
-        - skill_3
-        - box_small, box_medium, box_big (optional count, e.g. box_small_3)
-        - boost_training_50_12h, boost_team_10_12h, boost_training_time_50_12h, boost_strength_25_24h_trophy
         """
         parts = reward_str.split('_')
         type_ = parts[0]
-        
+
         if type_ == 'money':
             amount = int(parts[1])
             await cls.add_money_user(user_id, amount)
-            
+
         elif type_ == 'energy':
             amount = int(parts[1])
             await cls.add_energy_user(user_id, amount)
@@ -748,30 +763,30 @@ class UserService:
             await cls.add_skill_points(user_id, amount)
 
         elif type_ == 'box':
-            box_type = parts[1] # small, medium, big
+            box_type = parts[1]  # small, medium, big
             count = 1
             if len(parts) > 2 and parts[2].isdigit():
                 count = int(parts[2])
-            
+
             if box_type == 'small':
                 await cls.add_count_of_small_box(user_id, count)
             elif box_type == 'medium':
                 await cls.add_count_of_medium_box(user_id, count)
             elif box_type == 'big':
                 await cls.add_count_of_big_box(user_id, count)
-        
+
         elif type_ == 'boost':
-            # Examples: 
+            # Logic for Boosts
+            # Formats:
             # boost_training_50_12h
             # boost_training_time_50_12h
-            # boost_team_10_12h
-            # boost_strength_25_24h_trophy
-            
+
             boost_type = None
             percent_idx = -1
-            
+
+            # Определяем тип буста
             if parts[1] == 'training':
-                if parts[2] == 'time':
+                if len(parts) > 2 and parts[2] == 'time':
                     boost_type = BoostType.TRAINING_SPEED
                     percent_idx = 3
                 else:
@@ -781,16 +796,25 @@ class UserService:
                 boost_type = BoostType.TEAM_POWER
                 percent_idx = 2
             elif parts[1] == 'strength':
-                boost_type = BoostType.TEAM_POWER
+                # 🔥 ИСПРАВЛЕНИЕ ОШИБКИ: Тут было TEAM_POWER, меняем на STRENGTH
+                boost_type = BoostType.STRENGTH
                 percent_idx = 2
-            
+
             if boost_type and percent_idx != -1:
                 percent = int(parts[percent_idx])
-                duration_str = parts[percent_idx + 1] # e.g. "12h"
+                duration_str = parts[percent_idx + 1]  # e.g. "12h"
                 duration = int(duration_str.replace('h', ''))
-                
-                await cls.create_user_boost(user_id, boost_type, percent, duration)
-        
+
+                # 🔥 ИЗМЕНЕНИЕ: Кладем в инвентарь вместо активации
+                # Используем метод, который мы написали в предыдущем ответе
+                await cls.add_boost_to_inventory(
+                    user_id=user_id,
+                    effect=boost_type,
+                    percent=percent,
+                    duration=duration,
+                    count=1
+                )
+
         logger.info(f"UserId {user_id} claimed reward: {reward_str}")
 
     @classmethod

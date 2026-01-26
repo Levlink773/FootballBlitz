@@ -1,32 +1,36 @@
 import datetime
-from enum import Enum as PyEnum
-from sqlalchemy import Column, BigInteger, ForeignKey, Integer, Enum, DateTime
+from sqlalchemy import Column, BigInteger, ForeignKey, Integer, Enum, DateTime, Boolean
 from sqlalchemy.orm import relationship
-
 from database.model_base import Base
+from enum import Enum as PyEnum
 
 
 class BoostType(PyEnum):
     TRAINING_EFFICIENCY = "TRAINING_EFFICIENCY"
     TEAM_POWER = "TEAM_POWER"
     TRAINING_SPEED = "TRAINING_SPEED"
+    STRENGTH = "STRENGTH"
 
 
 class UserBoost(Base):
     __tablename__ = 'user_boosts'
 
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, index=True, autoincrement=True)
-    user_id = Column(BigInteger, ForeignKey('users.id'), unique=True, nullable=False)
-    
-    effect = Column(Enum(BoostType), nullable=False)
-    percent = Column(Integer, nullable=False)  # e.g., 50 for +50%
-    duration = Column(Integer, nullable=False) # Duration in hours (stored for reference)
-    
-    date_start = Column(DateTime, default=datetime.datetime.now)
-    date_end = Column(DateTime, nullable=False)
+    user_id = Column(BigInteger, ForeignKey('users.user_id'), nullable=False)  # Обратите внимание, обычно users.user_id
 
-    user = relationship("UserBot", back_populates="boost")
+    effect = Column(Enum(BoostType), nullable=False)
+    percent = Column(Integer, nullable=False)
+    duration = Column(Integer, nullable=False)  # Длительность в часах (справочно для инвентаря)
+
+    # 🔥 ИЗМЕНЕНИЯ:
+    is_active = Column(Boolean, nullable=False, default=False)  # False = в инвентаре
+    date_end = Column(DateTime, nullable=True)  # Nullable, т.к. в инвентаре нет даты конца
+    count = Column(Integer, default=1)  # Чтобы стакать одинаковые бусты (x5, x10)
+
+    user = relationship("UserBot", back_populates="boosts")  # Изменили на boosts (множественное число)
 
     @property
-    def is_active(self) -> bool:
-        return datetime.datetime.now() < self.date_end
+    def is_expired(self) -> bool:
+        if not self.is_active or not self.date_end:
+            return False
+        return datetime.datetime.now() > self.date_end

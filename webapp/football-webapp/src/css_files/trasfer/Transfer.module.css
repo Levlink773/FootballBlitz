@@ -282,3 +282,148 @@
     .cardStats { top: 44px; }
     .cardSeller { top: 58px; }
 }
+
+/* --- Filter Section --- */
+.filterButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+}
+
+.filterButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #f8ba19;
+    color: #f8ba19;
+}
+
+/* Filter Modal Styles */
+.filterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: white;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filterLabel {
+    font-size: 12px;
+    color: #a0a0a0;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.filterRow {
+    display: flex;
+    gap: 10px;
+    width: 100%; /* Гарантуємо, що рядок займає всю ширину */
+}
+
+.filterInput {
+    flex: 1; /* Рівномірний розподіл простору */
+    min-width: 0; /* 🔥 ВАЖЛИВО: дозволяє елементу стискатися, якщо місця мало */
+
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 10px; /* Трохи скорегували відступи */
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+
+    /* 🔥 ГОЛОВНЕ ВИПРАВЛЕННЯ: включаємо padding у ширину елемента */
+    box-sizing: border-box;
+}
+
+.filterInput:focus {
+    border-color: #f8ba19;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.filterSelect {
+    width: 100%;
+    /* 🔥 Теж додаємо box-sizing */
+    box-sizing: border-box;
+
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+
+    /* Прибираємо стандартний стиль селекту в деяких браузерах */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Додаємо свою стрілочку (опціонально, щоб виглядало гарно) */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 10px auto;
+}
+
+.filterSelect option {
+    background: #1a1a1a;
+    color: white;
+}
+
+/* --- ПРИБИРАЄМО СТРІЛОЧКИ (SPINNERS) В INPUT NUMBER --- */
+/* Chrome, Safari, Edge, Opera */
+.filterInput::-webkit-outer-spin-button,
+.filterInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+.filterInput[type=number] {
+    -moz-appearance: textfield;
+}
+
+.filterActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.applyBtn {
+    flex: 1;
+    background: linear-gradient(180deg, #fbf21b 0%, #f8ba19 100%);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    color: black;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.resetBtn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+.resetBtn:hover { background: rgba(255, 255, 255, 0.2); }

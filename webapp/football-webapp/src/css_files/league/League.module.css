@@ -670,3 +670,411 @@
 
     width: fit-content;
 }
+
+/* --- TEAM RANKINGS LIST --- */
+.rankingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rankingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: transform 0.2s ease;
+}
+
+.rankingRow:hover {
+    background: rgba(40, 40, 50, 0.8);
+    transform: translateX(2px);
+}
+
+.rankSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 40px;
+}
+
+.rankNum {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    font-size: 14px;
+    width: 25px;
+}
+
+.leagueIcon {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.teamInfoSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+}
+
+.teamNameList {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.userNameList {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: #aaa;
+}
+
+.valueSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: right;
+}
+
+.teamValue {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    color: #00F2FF;
+    font-size: 12px;
+}
+
+.zoneIndicator {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Inter:wght@400;600&display=swap');
+
+/* --- MAIN CONTAINER --- */
+.statsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+.placeholderText {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px;
+}
+
+/* --- STAT CARDS (Top) --- */
+.statCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.statCard:active {
+    transform: scale(0.98);
+}
+
+.statCard:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* Card Accents */
+.cardPower { border-left: 4px solid #FFD700; }
+.cardPlayer { border-left: 4px solid #00F2FF; }
+.cardRich { border-left: 4px solid #F700FF; }
+
+/* Sheen Animation */
+.statCard::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -50%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-20deg);
+    animation: statSheen 4s infinite;
+    pointer-events: none;
+}
+
+@keyframes statSheen {
+    0%, 70% { left: -50%; }
+    100% { left: 150%; }
+}
+
+.statInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.statIconBox {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.statTexts {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.statMainName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.statSubName {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    color: #bbb;
+}
+
+.statValueBox {
+    text-align: right;
+}
+
+.statValue {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.statUnit {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.valPower { color: #FFD700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+.valPlayer { color: #00F2FF; text-shadow: 0 0 8px rgba(0, 242, 255, 0.4); }
+.valRich { color: #F700FF; text-shadow: 0 0 8px rgba(247, 0, 255, 0.4); }
+
+/* --- RANKINGS LIST --- */
+.tableHeader {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ccc;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 5px;
+}
+
+.rankingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rankNum {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    font-size: 14px;
+    width: 25px;
+}
+
+.leagueIcon {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.teamNameList {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.youBadge {
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background: rgba(0, 242, 255, 0.2);
+    color: #00F2FF;
+}
+
+.userNameList {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: #aaa;
+}
+
+.valueSection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: right;
+}
+
+.ptsValue {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    color: #A624DE;
+    font-size: 14px;
+    text-shadow: 0 0 5px rgba(166, 36, 222, 0.4);
+}
+
+.ptsLabel {
+    font-size: 7px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 700;
+}
+
+.zoneIconWrapper {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* --- MODAL STYLES (For use inside Box) --- */
+
+.modalHeaderBox {
+    padding: 16px 20px 10px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 10px;
+}
+
+.modalTitle {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    font-size: 16px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.modalScrollArea {
+    padding: 0 15px 20px 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modalScrollArea::-webkit-scrollbar { width: 4px; }
+.modalScrollArea::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+.modalScrollArea::-webkit-scrollbar-thumb { background: #A624DE; border-radius: 2px; }
+
+.modalRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.modalRow:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.modalRank {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    color: #777;
+    width: 30px;
+    font-size: 14px;
+}
+
+.modalInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.modalName {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.modalSub {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: #aaa;
+}
+
+.modalValue {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    text-align: right;
+    min-width: 60px;
+}
+

@@ -166,6 +166,31 @@
     backdrop-filter: blur(3px);
 }
 
+.slotStandard {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Рідкісний (Rare) - Оранжевий */
+.slotRare {
+    border-color: #f59e0b !important; /* Amber-500 */
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    background: rgba(245, 158, 11, 0.15); /* Легкий фон */
+}
+
+/* Ексклюзивний (Exclusive) - Фіолетовий */
+.slotExclusive {
+    border-color: #d946ef !important; /* Fuchsia-500 */
+    box-shadow: 0 0 10px rgba(217, 70, 239, 0.8);
+    background: rgba(217, 70, 239, 0.15); /* Легкий фон */
+    animation: pulseExclusive 3s infinite ease-in-out;
+}
+
+@keyframes pulseExclusive {
+    0% { box-shadow: 0 0 5px rgba(217, 70, 239, 0.6); }
+    50% { box-shadow: 0 0 12px rgba(217, 70, 239, 1); }
+    100% { box-shadow: 0 0 5px rgba(217, 70, 239, 0.6); }
+}
+
 .playerSlot.empty {
     border-style: dashed;
     background: rgba(0, 0, 0, 0.2);
@@ -190,7 +215,7 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid white;
+    border: none;
 }
 
 .slotPositionBadge {
@@ -536,4 +561,125 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px dashed rgba(255, 255, 255, 0.2);
     border-radius: 8px;
+}
+
+/* Базові змінні для кожного типу */
+.rarityStandard {
+    --card-border: #94a3b8; /* Сірий */
+    --card-glow: rgba(148, 163, 184, 0.4);
+    --card-bg-gradient: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --badge-bg: rgba(148, 163, 184, 0.15);
+    --badge-text: #cbd5e1;
+}
+
+.rarityRare {
+    --card-border: #f59e0b; /* Оранжевий/Золотий */
+    --card-glow: rgba(245, 158, 11, 0.5);
+    --card-bg-gradient: linear-gradient(180deg, #451a03 0%, #1c1917 100%);
+    --badge-bg: rgba(245, 158, 11, 0.2);
+    --badge-text: #fbbf24;
+}
+
+.rarityExclusive {
+    --card-border: #d946ef; /* Фіолетовий/Неон */
+    --card-glow: rgba(217, 70, 239, 0.6);
+    --card-bg-gradient: linear-gradient(180deg, #2e1065 0%, #020617 100%);
+    --badge-bg: rgba(217, 70, 239, 0.2);
+    --badge-text: #e879f9;
+}
+
+/* Модифікований контейнер детального перегляду */
+.detailContainer {
+    width: 100%;
+    max-width: 360px;
+
+    /* 🔥 Використовуємо змінні рідкості */
+    background: var(--card-bg-gradient);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 0 30px var(--card-glow), inset 0 0 20px rgba(0,0,0,0.5);
+
+    border-radius: 24px;
+    padding: 20px;
+    position: relative;
+    color: white;
+    transition: all 0.3s ease;
+    overflow: hidden; /* Щоб відблиски не вилазили */
+}
+
+/* Ефект переливання для Ексклюзиву */
+.rarityExclusive .detailContainer::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(transparent, rgba(217, 70, 239, 0.1), transparent 30%);
+    animation: rotateGlow 4s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes rotateGlow {
+    100% { transform: rotate(360deg); }
+}
+
+/* Бейдж позиції адаптований під рідкість */
+.detailPositionBadge {
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    border: 1px solid var(--card-border);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px var(--card-glow);
+}
+
+/* Світіння аватара */
+.avatarGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    width: 120px;
+    height: 120px;
+
+    /* 🔥 Світіння кольором рідкості */
+    background: radial-gradient(circle, var(--card-border) 0%, transparent 70%);
+
+    filter: blur(20px);
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* Рамка аватара */
+.avatarImg {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+
+    /* 🔥 Рамка кольором рідкості */
+    border: 2px solid var(--card-border);
+    box-shadow: 0 0 15px var(--card-glow);
+
+    background: #1a1a1a;
+    position: relative;
+    z-index: 2;
+}
+
+/* Текстовий бейдж рідкості */
+.rarityBadge {
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 4px;
+    color: var(--card-border);
+    text-shadow: 0 0 5px var(--card-glow);
+    text-align: center;
+    border-bottom: 1px solid var(--card-border);
+    display: inline-block;
+    padding-bottom: 2px;
 }

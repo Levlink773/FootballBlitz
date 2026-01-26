@@ -113,13 +113,21 @@ class UserBot(Base):
         lazy="selectin",
         cascade="all, delete-orphan",
     )
-    boost = relationship(
+    boosts = relationship(
         "UserBoost",
         back_populates="user",
-        uselist=False,
         lazy="selectin",
         cascade="all, delete-orphan",
     )
+
+    # Хелпер, чтобы быстро найти активный буст (если нужен один активный за раз)
+    @property
+    def active_boost(self):
+        for b in self.boosts:
+            if b.is_active and not b.is_expired:
+                return b
+        return None
+
     league: Mapped[LeagueEnum] = mapped_column(Enum(LeagueEnum), default=LeagueEnum.BRONZE)
     count_play_blitz = Column(BigInteger, default=0)
     count_rich_semi_final_blitz = Column(BigInteger, default=0)
@@ -149,12 +157,24 @@ class UserBot(Base):
         Boosts:
         - TEAM_POWER: +10% or +25% depending on the card.
         """
+        # 1. Рахуємо базову силу
         base_power = sum(c.power for c in self.characters)
-        
-        if self.boost and self.boost.effect == BoostType.TEAM_POWER and self.boost.is_active:
-            multiplier = 1 + (self.boost.percent / 100.0)
+
+        # 2. 🔥 ВИПРАВЛЕННЯ: Шукаємо активний буст у списку self.boosts
+        active_boost = None
+
+        # Перевіряємо, чи є список бустів (щоб уникнути помилок, якщо lazy load не спрацював)
+        if hasattr(self, 'boosts') and self.boosts:
+            for b in self.boosts:
+                if b.is_active:
+                    active_boost = b
+                    break
+
+        # 3. Застосовуємо ефект, якщо знайшли потрібний буст
+        if active_boost and active_boost.effect == BoostType.TEAM_POWER:
+            multiplier = 1 + (active_boost.percent / 100.0)
             return int(base_power * multiplier)
-        
+
         return int(base_power)
 
     @property

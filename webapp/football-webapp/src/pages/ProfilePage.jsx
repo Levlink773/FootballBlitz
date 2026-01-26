@@ -9,11 +9,13 @@ import profileStyles from '../css_files/profile/Profile.module.css';
 // Icons
 import {
     FaGamepad, FaTrophy, FaPercentage, FaGlobeAmericas,
-    FaCrown, FaBrain, FaMedal, FaArrowUp, FaArrowDown, FaShieldAlt, FaListOl, FaUserFriends
+    FaCrown, FaBrain, FaMedal, FaArrowUp, FaArrowDown, FaShieldAlt, FaListOl, FaUserFriends,
+    FaBolt, FaClock, FaDumbbell, FaUsers // Додали іконки для бустів
 } from 'react-icons/fa';
 
 import { LootBoxOpeningModal } from "../components/modal_components/LootBoxOpeningModal.jsx";
 import { ModalRoot, VipPromoModalWithTitle } from "../components/modal_components/ModalComponents.jsx";
+import { BoostActivationModal } from "../components/modal_components/BoostActivationModal.jsx";
 
 const ProfilePage = ({ user, setUser }) => {
     // --- STATE ---
@@ -21,11 +23,15 @@ const ProfilePage = ({ user, setUser }) => {
     const [isCopied, setIsCopied] = useState(false);
     const [openingBoxType, setOpeningBoxType] = useState(null);
     const [isVipPromoOpen, setIsVipPromoOpen] = useState(false);
+    const [selectedBoost, setSelectedBoost] = useState(null);
 
     // 🔥 State for Weekly/Seasonal Rank
     const [userRank, setUserRank] = useState(null);
-    const [totalUsers, setTotalUsers] = useState(0); // Useful for "Top X% calculations" if needed later
+    const [totalUsers, setTotalUsers] = useState(0);
     const [rankLoading, setRankLoading] = useState(true);
+
+    // 🔥 State для таймера активного буста
+    const [boostTimeLeft, setBoostTimeLeft] = useState('');
 
     // --- EFFECTS ---
     useEffect(() => {
@@ -36,108 +42,76 @@ const ProfilePage = ({ user, setUser }) => {
                 .then(data => setReferralCount(data.count || 0))
                 .catch(err => console.error("Ref load error:", err));
 
-            // 🔥 2. Load Leaderboard Position (Updated to use your Python endpoint)
-            // Endpoint: /ranking/my-position?user_id=...&rating_type=seasonal
+            // 2. Load Leaderboard Position
             fetch(`${API_BASE_URL}/users/ranking/my-position?user_id=${user.user_id}&rating_type=seasonal`)
-                .then(res => {
-                    if (!res.ok) throw new Error("Rank fetch failed");
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    // Python backend returns: { position: int, total_users: int, ... }
                     setUserRank(data.position);
                     setTotalUsers(data.total_users);
                 })
-                .catch(err => {
-                    console.error("Rank error:", err);
-                    setUserRank(null);
-                })
+                .catch(err => console.error("Rank error:", err))
                 .finally(() => setRankLoading(false));
         }
     }, [user?.user_id]);
 
-    // --- HANDLERS ---
-    const handleCopyLink = () => {
-        const link = `https://t.me/football_blitz_bot?start=ref_${user?.user_id}`;
-        navigator.clipboard.writeText(link).then(() => {
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
-        });
-    };
+    // 🔥 TIMER EFFECT FOR ACTIVE BOOST
+    useEffect(() => {
+        // user.boost - це об'єкт активного буста з бекенду (якщо є)
+        const activeBoost = user.boost;
 
-    const handleBoxClick = (type) => {
-        setOpeningBoxType(type);
-    };
-
-    const handleBoxClose = (updatedUserData) => {
-        setOpeningBoxType(null);
-        if (updatedUserData && setUser) {
-            setUser(updatedUserData);
+        if (!activeBoost || !activeBoost.date_end) {
+            setBoostTimeLeft('');
+            return;
         }
-    };
 
-    const handleVipClick = () => setIsVipPromoOpen(true);
-    const handlePurchase = (type, option) => {
-        console.log("Buying VIP:", type, option);
-        setIsVipPromoOpen(false);
-    };
+        const updateTimer = () => {
+            const now = new Date();
+            const end = new Date(activeBoost.date_end);
+            const diff = end - now;
+
+            if (diff <= 0) {
+                setBoostTimeLeft('00:00');
+                // Тут можна перезапитати дані юзера, щоб буст зник
+                return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+            // Якщо годин багато, показуємо ч г. хв, інакше хв:сек
+            setBoostTimeLeft(`${hours}г ${minutes}хв`);
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 60000); // Оновлюємо раз на хвилину
+        return () => clearInterval(interval);
+
+    }, [user.boost]);
+
 
     // --- HELPERS ---
-
-    // Zone Icon Helper (Optional: Keep if you still use zones, otherwise user defaults)
     const getZoneInfo = (rank) => {
-        // Simple logic: Top 3 are promotion, rest are retention for now
         if (rank && rank <= 3) return { icon: <FaArrowUp />, color: '#00ff88', label: 'Лідери' };
         return { icon: <FaShieldAlt />, color: '#a0a0a0', label: 'Ліга' };
     };
-
     const zoneData = getZoneInfo(userRank);
 
-    // 🔥 UPDATED LOGIC FOR WEEKLY TROPHIES
-    const getWeeklyTrophyContent = (rank) => {
-        if (rankLoading) return { icon: "...", style: "", title: "Завантаження...", desc: "Оновлення даних" };
-
-        // No Rank or Error
-        if (!rank) return {
-            icon: <FaMedal />,
-            style: profileStyles.medalBox,
-            title: "Новачок",
-            desc: "Зіграйте матч, щоб потрапити в рейтинг!"
-        };
-
-        // 1st Place - Gold
-        if (rank === 1) return {
-            icon: <FaTrophy />,
-            style: profileStyles.goldBox,
-            title: "Тижневий Чемпіон",
-            desc: "Ви на вершині лідерборду! Так тримати!"
-        };
-
-        // 2nd Place - Silver
-        if (rank === 2) return {
-            icon: <FaTrophy />,
-            style: profileStyles.silverBox,
-            title: "Срібний Призер",
-            desc: "Лише один крок до першого місця."
-        };
-
-        // 3rd Place - Bronze
-        if (rank === 3) return {
-            icon: <FaTrophy />,
-            style: profileStyles.bronzeBox,
-            title: "Бронзовий Призер",
-            desc: "Ви в еліті! Чудовий результат."
-        };
-
-        // 4th Place and below - Medal + Motivation
-        return {
-            icon: <FaMedal />,
-            style: profileStyles.medalBox,
-            title: `Місце #${rank}`,
-            desc: "Продовжуйте перемагати, щоб увійти в Топ-3!"
-        };
+    // Helper for Boost Icon/Name
+    const getBoostDisplayInfo = (type) => {
+        if (type.includes('TRAINING')) return { icon: <FaDumbbell color="#FFD700"/>, name: "Training Boost" };
+        if (type.includes('TEAM')) return { icon: <FaUsers color="#00F2FF"/>, name: "Team Power" };
+        if (type.includes('STRENGTH')) return { icon: <FaBolt color="#FF4444"/>, name: "Strength" };
+        return { icon: <FaTrophy color="#FFD700"/>, name: "Boost" };
     };
 
+    const getWeeklyTrophyContent = (rank) => {
+        if (rankLoading) return { icon: "...", style: "", title: "Завантаження...", desc: "Оновлення даних" };
+        if (!rank) return { icon: <FaMedal />, style: profileStyles.medalBox, title: "Новачок", desc: "Зіграйте матч!" };
+        if (rank === 1) return { icon: <FaTrophy />, style: profileStyles.goldBox, title: "Тижневий Чемпіон", desc: "Ви на вершині лідерборду!" };
+        if (rank === 2) return { icon: <FaTrophy />, style: profileStyles.silverBox, title: "Срібний Призер", desc: "Лише один крок до 1-го місця." };
+        if (rank === 3) return { icon: <FaTrophy />, style: profileStyles.bronzeBox, title: "Бронзовий Призер", desc: "Ви в еліті!" };
+        return { icon: <FaMedal />, style: profileStyles.medalBox, title: `Місце #${rank}`, desc: "Продовжуйте перемагати!" };
+    };
     const trophyData = getWeeklyTrophyContent(userRank);
 
     // --- DATA ---
@@ -147,7 +121,13 @@ const ProfilePage = ({ user, setUser }) => {
         { type: 'LARGE_BOX', count: user.count_of_big_box || 0, image: Config.IMAGES.box_premium }
     ].filter(box => box.count > 0);
 
-    // Stats Object
+    const getBoostImage = (type) => {
+        if (type.includes('TRAINING')) return Config.IMAGES.boost_training;
+        if (type.includes('TEAM')) return Config.IMAGES.boost_team;
+        if (type.includes('STRENGTH')) return Config.IMAGES.boost_strength;
+        return Config.IMAGES.trophy;
+    };
+
     const stats = {
         matches: user.final_count_of_matches || 0,
         winRate: user.precent_winner_matches ? `${user.precent_winner_matches}%` : '0%',
@@ -162,24 +142,56 @@ const ProfilePage = ({ user, setUser }) => {
         subtitle: user.vip_pass_is_active ? `Активний до: ${new Date(user.vip_pass_expiration_date).toLocaleDateString()}` : "Максимальні бонуси для твоєї кар'єри"
     };
 
+    const inventoryBoosts = (user.inventory_boosts || []).map(b => ({
+        type: 'boost',
+        id: b.id,
+        boostType: b.type,
+        count: b.count,
+        percent: b.percent,
+        duration: b.duration,
+        image: getBoostImage(b.type),
+        name: `Boost +${b.percent}%`
+    }));
+
+    const inventoryItems = [...lootBoxes, ...inventoryBoosts];
+
+    // --- HANDLERS ---
+    const handleCopyLink = () => {
+        const link = `https://t.me/football_blitz_bot?start=ref_${user?.user_id}`;
+        navigator.clipboard.writeText(link).then(() => { setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); });
+    };
+    const handleBoxClick = (type) => { setOpeningBoxType(type); };
+    const handleBoxClose = (updatedUserData) => {
+        setOpeningBoxType(null);
+        if (updatedUserData && setUser) setUser(updatedUserData);
+    };
+    const handleVipClick = () => setIsVipPromoOpen(true);
+    const handlePurchase = (type, option) => { console.log("Buying VIP:", type, option); setIsVipPromoOpen(false); };
+    const handleItemClick = (item) => {
+        if (item.type === 'box') setOpeningBoxType(item.subType);
+        else if (item.type === 'boost') setSelectedBoost(item);
+    };
+    const handleActivateBoost = async (boostItem) => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/users/${user.user_id}/boost/activate?boost_id=${boostItem.id}`, { method: 'POST' });
+            if (res.ok) {
+                const updatedUser = await res.json();
+                setUser(updatedUser);
+            }
+        } catch (e) { console.error(e); }
+    };
+
     return (
         <div className={styles.page}>
             <img className={styles.pageBackgroundBlur} src={Config.IMAGES.rating_background} alt="" />
 
-            {/* Modals */}
-            {openingBoxType && (
-                <LootBoxOpeningModal boxType={openingBoxType} userId={user.user_id} onClose={handleBoxClose} />
-            )}
-            {isVipPromoOpen && (
-                <ModalRoot onClose={() => setIsVipPromoOpen(false)}>
-                    <VipPromoModalWithTitle
-                        onClose={() => setIsVipPromoOpen(false)}
-                        onSubscribe={(option) => handlePurchase('vip', option)}
-                        title={vipModalContent.title}
-                        subtitle={vipModalContent.subtitle}
-                    />
-                </ModalRoot>
-            )}
+            {openingBoxType && <LootBoxOpeningModal boxType={openingBoxType} userId={user.user_id} onClose={handleBoxClose} />}
+            {isVipPromoOpen && <ModalRoot onClose={() => setIsVipPromoOpen(false)}>
+                <VipPromoModalWithTitle onClose={() => setIsVipPromoOpen(false)} onSubscribe={(option) => handlePurchase('vip', option)} title={vipModalContent.title} subtitle={vipModalContent.subtitle} />
+            </ModalRoot>}
+            {selectedBoost && <ModalRoot onClose={() => setSelectedBoost(null)}>
+                <BoostActivationModal boost={selectedBoost} onClose={() => setSelectedBoost(null)} onActivate={handleActivateBoost} hasActiveBoost={!!(user.boost && user.boost.is_active)} />
+            </ModalRoot>}
 
             <div className={styles.mainContainer}>
                 <Header user={user} />
@@ -203,7 +215,56 @@ const ProfilePage = ({ user, setUser }) => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* 🔥🔥🔥 ACTIVE BOOST BANNER (Compact V2) 🔥🔥🔥 */}
+                        {user.boost && user.boost.is_active && (
+                            <div className={profileStyles.activeBoostCard}>
+                                <div className={profileStyles.boostInfoLeft}>
+                                    <div className={profileStyles.boostIconBox}>
+                                        {/* 🔥 Зменшили іконку до 10px */}
+                                        {React.cloneElement(getBoostDisplayInfo(user.boost.effect).icon, { size: 10 })}
+                                    </div>
+                                    <div className={profileStyles.boostTexts}>
+                                        <div className={profileStyles.boostTitle}>
+                                            {getBoostDisplayInfo(user.boost.effect).name} +{user.boost.percent}%
+                                        </div>
+                                        {/* boostDesc схований через CSS */}
+                                    </div>
+                                </div>
+                                <div className={profileStyles.boostTimer}>
+                                    {/* 🔥 Зменшили годинник до 9px */}
+                                    <FaClock color="#4ade80" size={9} />
+                                    <span className={profileStyles.timerText}>{boostTimeLeft}</span>
+                                </div>
+                            </div>
+                        )}
+                        {/* -------------------------------------------------- */}
+
                     </div>
+
+                    {/*/!* 🔥🔥🔥 НОВИЙ БЛОК: ACTIVE BOOST BANNER 🔥🔥🔥 *!/*/}
+                    {/*/!* Відображається тільки якщо є активний буст *!/*/}
+                    {/*{user.boost && user.boost.is_active && (*/}
+                    {/*    <div className={profileStyles.activeBoostCard}>*/}
+                    {/*        <div className={profileStyles.boostInfoLeft}>*/}
+                    {/*            <div className={profileStyles.boostIconBox}>*/}
+                    {/*                {getBoostDisplayInfo(user.boost.effect).icon}*/}
+                    {/*            </div>*/}
+                    {/*            <div className={profileStyles.boostTexts}>*/}
+                    {/*                <div className={profileStyles.boostTitle}>*/}
+                    {/*                    {getBoostDisplayInfo(user.boost.effect).name} +{user.boost.percent}%*/}
+                    {/*                </div>*/}
+                    {/*                <div className={profileStyles.boostDesc}>Активний ефект</div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className={profileStyles.boostTimer}>*/}
+                    {/*            <FaClock color="#4ade80" size={12} />*/}
+                    {/*            <span className={profileStyles.timerText}>{boostTimeLeft}</span>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
+                    {/* -------------------------------------------------- */}
+
 
                     {/* 2. STATISTICS */}
                     <div className={profileStyles.card}>
@@ -237,7 +298,6 @@ const ProfilePage = ({ user, setUser }) => {
                                     <span className={profileStyles.statLabel}>Ліга</span>
                                 </div>
                             </div>
-                            {/* Rank Stat */}
                             <div className={profileStyles.statItem}>
                                 <FaListOl color="#fff" />
                                 <div className={profileStyles.statTextWrapper}>
@@ -245,13 +305,10 @@ const ProfilePage = ({ user, setUser }) => {
                                     <span className={profileStyles.statLabel}>Місце</span>
                                 </div>
                             </div>
-                            {/* Zone Stat (Visual only now) */}
                             <div className={profileStyles.statItem} style={{ borderColor: stats.zone.color, borderWidth: '1px', borderStyle: 'solid', background: `${stats.zone.color}15` }}>
                                 <span style={{ color: stats.zone.color, fontSize: '10px' }}>{stats.zone.icon}</span>
                                 <div className={profileStyles.statTextWrapper}>
-                                    <span className={profileStyles.statValue} style={{ color: stats.zone.color, fontSize: '10px' }}>
-                                        {stats.zone.label}
-                                    </span>
+                                    <span className={profileStyles.statValue} style={{ color: stats.zone.color, fontSize: '10px' }}>{stats.zone.label}</span>
                                     <span className={profileStyles.statLabel}>Статус</span>
                                 </div>
                             </div>
@@ -262,44 +319,40 @@ const ProfilePage = ({ user, setUser }) => {
                     <div className={profileStyles.card}>
                         <div className={profileStyles.sectionTitle}>Інвентар</div>
                         <div className={profileStyles.inventoryGrid}>
-                            {lootBoxes.map((box, idx) => (
-                                <div key={idx} className={profileStyles.inventorySlot} onClick={() => handleBoxClick(box.type)}>
-                                    <img src={box.image} alt={box.type} className={profileStyles.itemImage} />
-                                    <span className={profileStyles.itemCount}>x{box.count}</span>
+                            {inventoryItems.map((item, idx) => (
+                                <div key={idx} className={profileStyles.inventorySlot} onClick={() => handleItemClick(item)}>
+                                    <img src={item.image} alt={item.name} className={profileStyles.itemImage} />
+                                    <span className={profileStyles.itemCount}>x{item.count}</span>
+                                    {item.type === 'boost' && (
+                                        <div style={{
+                                            position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)',
+                                            fontSize: '8px', background: 'rgba(0,0,0,0.6)', padding: '1px 4px', borderRadius: '4px',
+                                            color: '#00ff88', whiteSpace: 'nowrap'
+                                        }}>
+                                            {item.percent}% / {item.duration}h
+                                        </div>
+                                    )}
                                 </div>
                             ))}
-                            {Array.from({ length: Math.max(0, 7 - lootBoxes.length) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 7 - inventoryItems.length) }).map((_, i) => (
                                 <div key={`empty-${i}`} className={profileStyles.emptySlot}></div>
                             ))}
                         </div>
                     </div>
 
-                    {/* 🔥 4. WEEKLY RANKING (UPDATED) */}
+                    {/* 4. WEEKLY RANKING */}
                     <div className={profileStyles.card}>
                         <div className={profileStyles.sectionTitle}>
                             <FaTrophy style={{ marginRight: 6, color: '#FFD700' }} /> Тижневий Рейтинг
                         </div>
-
                         <div className={profileStyles.trophyContainer}>
-                            {/* Icon Box (Gold/Silver/Bronze/Medal) */}
                             <div className={`${profileStyles.trophyIconBox} ${trophyData.style}`}>
                                 {trophyData.icon}
                             </div>
-
-                            {/* Text Info */}
                             <div className={profileStyles.trophyInfo}>
-                                <div className={profileStyles.trophyTitle}>
-                                    {trophyData.title}
-                                </div>
-                                <div className={profileStyles.trophyDesc}>
-                                    {trophyData.desc}
-                                </div>
-                                {/* Optional: Show Rank Number if not top 3 */}
-                                {userRank > 3 && (
-                                    <div className={profileStyles.rankBadge}>
-                                        RANK: #{userRank} / {totalUsers}
-                                    </div>
-                                )}
+                                <div className={profileStyles.trophyTitle}>{trophyData.title}</div>
+                                <div className={profileStyles.trophyDesc}>{trophyData.desc}</div>
+                                {userRank > 3 && <div className={profileStyles.rankBadge}>RANK: #{userRank} / {totalUsers}</div>}
                             </div>
                         </div>
                     </div>
@@ -313,15 +366,10 @@ const ProfilePage = ({ user, setUser }) => {
                             <div className={profileStyles.refInfo}>
                                 +300 <span style={{ color: '#FFD700' }}>монет</span> та енергії. Друзів: <span style={{ color: '#00ff88', fontWeight: 'bold' }}>{referralCount}</span>
                             </div>
-                            <div className={profileStyles.refLinkBox}>
-                                https://t.me/football_blitz_bot?start=ref_{user.user_id}
-                            </div>
-                            <button className={profileStyles.copyButton} onClick={handleCopyLink}>
-                                {isCopied ? "Скопійовано! ✅" : "Копіювати посилання"}
-                            </button>
+                            <div className={profileStyles.refLinkBox}>https://t.me/football_blitz_bot?start=ref_{user.user_id}</div>
+                            <button className={profileStyles.copyButton} onClick={handleCopyLink}>{isCopied ? "Скопійовано! ✅" : "Копіювати посилання"}</button>
                         </div>
                     </div>
-
                 </div>
                 <NavigationBar />
             </div>

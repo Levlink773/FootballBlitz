@@ -1,5 +1,191 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
 
+/* --- 0. GLOBAL ANIMATIONS --- */
+@keyframes liquidFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes bladeSheen {
+    0% {
+        transform: translateX(-150%) skewX(-25deg);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(250%) skewX(-25deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(250%) skewX(-25deg);
+        opacity: 0;
+    }
+}
+
+@keyframes superPulseReady {
+    0% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+        transform: scale(1);
+    }
+
+    70% {
+        box-shadow: 0 0 20px 10px rgba(212, 175, 55, 0);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+        transform: scale(1);
+    }
+}
+
+@keyframes sheenFlow {
+    0% {
+        left: -100%;
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    50% {
+        left: 200%;
+        opacity: 0.5;
+    }
+
+    100% {
+        left: 200%;
+        opacity: 0;
+    }
+}
+
+@keyframes superSheenFlow {
+    0% {
+        left: -120%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    40% {
+        left: 220%;
+        opacity: 0.8;
+    }
+
+    100% {
+        left: 220%;
+        opacity: 0;
+    }
+}
+
+@keyframes pulseGlowGold {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.8);
+    }
+
+    70% {
+        box-shadow: 0 0 20px 10px rgba(255, 215, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+@keyframes pulseReadyGold {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+        border-color: #FFFF00;
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+@keyframes textGlitch {
+
+    0%,
+    100% {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 215, 0, 0.8);
+        opacity: 1;
+    }
+
+    50% {
+        text-shadow: 2px 0 5px red, -2px 0 5px blue;
+        opacity: 0.8;
+    }
+}
+
+/* Анимация легкого покачивания для 3D иконок */
+@keyframes float3D {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-4px) rotate(2deg);
+    }
+}
+
+@keyframes blinkTimer {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@keyframes toxicPulse {
+    0% {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 0 rgba(255, 255, 255, 0);
+        border-color: rgba(150, 255, 150, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 35px rgba(0, 255, 0, 0.7), inset 0 0 20px rgba(200, 255, 200, 0.4);
+        border-color: #ffffff;
+        text-shadow: 0 0 10px #fff;
+    }
+
+    100% {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 0 rgba(255, 255, 255, 0);
+        border-color: rgba(150, 255, 150, 0.4);
+    }
+}
+
+
+/* --- 1. LAYOUT WRAPPER --- */
 .wrapper {
     width: 95%;
     display: flex;
@@ -7,156 +193,640 @@
     gap: 12px;
     margin-bottom: 20px;
     position: relative;
-    top: 60px; /* Позиціонування як було */
+    top: 60px;
     z-index: 5;
 }
 
-/* --- COMMON CARD BASE --- */
+/* --- 2. CARD BASE STYLES --- */
 .card {
     flex: 1;
-    height: 74px; /* Висота як у пасса */
+    height: 74px;
     border-radius: 14px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    /* Дозволяємо 3D іконкам виходити за межі */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 12px;
+    /* Center content vertically */
+    padding: 2px 12px 18px 12px;
+    /* Shifted up by 8px (Top 2, Bottom 18) */
     cursor: pointer;
-    transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
-
-    /* 3D Shadows */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    backface-visibility: hidden;
 }
 
 .card:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transform: translateY(3px) scale(0.98) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Texture overlay */
 .card::before {
-    content: ''; position: absolute; inset: 0;
-    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
-    opacity: 0.6; mix-blend-mode: overlay; pointer-events: none;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0, rgba(255, 255, 255, 0.07) 1px, transparent 1px, transparent 4px);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 14px;
+    /* Важливо для заокруглення текстури */
 }
 
-/* --- GOLD CARD (DAILY BOX) --- */
+/* --- 3. SPECIFIC CARD STYLES --- */
 .goldCard {
-    /* 🔥 Той самий градієнт, що у Season Pass */
-    background: linear-gradient(135deg, #8f6B29 0%, #FDE08D 25%, #DF9F28 50%, #FDE08D 75%, #8f6B29 100%);
+    background: radial-gradient(ellipse at center top, rgba(255, 255, 200, 0.6) 0%, transparent 50%), linear-gradient(180deg, #DAA520 0%, #B8860B 40%, #3E1C00 100%);
+    border-top: 1px solid rgba(255, 255, 150, 0.8);
+    border-bottom: 2px solid #2a1200;
+    border-left: 1px solid rgba(218, 165, 32, 0.3);
+    border-right: 1px solid rgba(218, 165, 32, 0.3);
+    box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.2), 0 10px 25px rgba(0, 0, 0, 0.7);
+}
 
-    /* Фаски */
+.goldCard.cardReady {
+    animation: pulseReadyGold 2s infinite;
+    border-color: #FFFF00;
+}
+
+.superGoldCard {
+    position: relative;
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 1px, transparent 1px, transparent 3px), linear-gradient(110deg, #4b2e05 0%, #b8860b 20%, #ffd700 40%, #fffacd 50%, #ffd700 60%, #b8860b 80%, #4b2e05 100%);
+    background-size: 300% 300%;
+    animation: liquidFlow 6s ease infinite;
     border-top: 1px solid rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-    box-shadow:
-            inset 0 1px 1px rgba(255, 255, 255, 0.9),
-            inset 0 -2px 5px rgba(0, 0, 0, 0.4),
-            0 4px 0 #5a3f1a, /* Товщина золота */
-            0 10px 20px rgba(0, 0, 0, 0.4);
+    border-bottom: 3px solid #2a1b00;
+    border-left: 1px solid rgba(184, 134, 11, 0.5);
+    border-right: 1px solid rgba(184, 134, 11, 0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(75, 46, 5, 0.6);
 }
 
-.cardReady {
-    animation: pulseGold 2s infinite;
-}
-@keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-/* --- BLUE CARD (TASK) --- */
-.blueCard {
-    /* 🔥 Той самий градієнт, що у Team Stats */
-    background: linear-gradient(135deg, #0D47A1 0%, #1976D2 40%, #42A5F5 50%, #1565C0 60%, #0a2f6b 100%);
-
-    /* Фаски */
-    border-top: 1px solid rgba(128, 222, 234, 0.8);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.6);
-    box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.3),
-            inset 0 -5px 10px rgba(0,0,0,0.3),
-            0 4px 0 #052c52, /* Товщина сталі */
-            0 10px 20px rgba(0, 0, 0, 0.4);
+.superGoldCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+    filter: blur(5px);
+    animation: bladeSheen 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
 }
 
-/* --- HEADER STYLES --- */
+.superGoldCard.superTaskReady {
+    animation: liquidFlow 2s linear infinite, superPulseReady 2s infinite;
+    border-color: #fff;
+    filter: brightness(1.1);
+}
+
+.superGoldCard.superTaskReady::after {
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.4) 70%, transparent 100%);
+    animation: superSheenFlow 1.5s infinite ease-out;
+    filter: drop-shadow(0 0 10px white);
+}
+
+/* --- 4. HEADER & ICONS --- */
 .cardHeader {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 4px; z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+    /* Small gap instead of auto */
+    z-index: 4;
 }
 
 .iconBoxGold {
-    width: 24px; height: 24px;
-    background: rgba(66, 42, 26, 0.3);
-    border-radius: 6px; display: flex; justify-content: center; align-items: center;
-    border: 1px solid rgba(255,255,255,0.2);
+    width: 23px;
+    height: 23px;
+    background: radial-gradient(circle at center, rgba(139, 69, 19, 0.4) 0%, #1a0f00 80%);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: inset 0 0 10px #000, 0 4px 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    top: 5px;
+    /* Shifted down by 5px */
+    z-index: 5;
 }
-.goldIcon { color: #fff; font-size: 12px; }
 
-.iconBoxBlue {
-    width: 24px; height: 24px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 6px; display: flex; justify-content: center; align-items: center;
-    border: 1px solid rgba(0, 229, 255, 0.3);
+.iconBoxGold::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(5px);
+    opacity: 0.6;
 }
-.blueIcon { color: #00E5FF; font-size: 12px; }
+
+.goldIcon {
+    color: #FFD700;
+    font-size: 12px;
+    filter: drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.5)) drop-shadow(0 2px 0 #b8860b) drop-shadow(0 3px 0 #8b4513) drop-shadow(0 6px 6px rgba(0, 0, 0, 0.8));
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+.card:active .goldIcon {
+    transform: translateY(0px);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)) drop-shadow(0 1px 0 #b8860b) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+}
 
 .cardTitleGold {
-    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 10px; color: #422a1a;
-    text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 11px;
+    color: #FFF8DC;
+    text-transform: uppercase;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.5);
+    z-index: 5;
 }
 
-.cardTitleBlue {
-    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 10px; color: #E1F5FE;
-    text-transform: uppercase; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+/* --- 5. BODY & CONTENT (ОНОВЛЕНО ЦЕНТРУВАННЯ) --- */
+.cardBody,
+.taskBody {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Центруємо по вертикалі */
+    align-items: center;
+    /* Центруємо по горизонталі */
+    /* Removed flex-grow: 1 to allow centering in parent */
+    z-index: 4;
+    position: relative;
+    width: 100%;
+    /* Ensure full width */
 }
 
-/* --- BODY STYLES --- */
-.cardBody, .taskBody {
-    display: flex; flex-direction: column; justify-content: center; height: 30px; z-index: 2;
+.taskBody {
+    top: 10px;
 }
 
-/* Timer Display (Engraved Screen) */
-.timerDisplay {
-    font-family: 'Chakra Petch', monospace; font-size: 14px; font-weight: 700; color: #fff;
-    text-align: center;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-    background: rgba(0,0,0,0.15); border-radius: 4px; padding: 2px 0;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+/* --- 🔥🔥🔥 НОВІ СТИЛІ ДЛЯ 3D ДЕКОРАЦІЙ 🔥🔥🔥 --- */
+
+/* Спільний стиль для обох 3D іконок */
+.decoration3DLeft,
+.decoration3DRight {
+    position: absolute;
+    left: 120px;
+    top: 5px;
+    z-index: 20;
+    /* Поверх усього */
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+    /* Глибока тінь */
+    animation: float3D 4s ease-in-out infinite alternate;
+    /* Легке погойдування */
+    pointer-events: none;
+    /* Щоб не заважали клікам */
 }
 
-/* Open Button */
+/* 3D Подарунок на лівій картці */
+.decoration3DLeft {
+    width: 45px;
+    height: 45px;
+    top: 22px;
+    /* Позиція по вертикалі біля кнопки */
+    right: 10px;
+    /* Позиція справа */
+    transform: rotate(10deg);
+    /* Легкий нахил для динаміки */
+}
+
+/* 3D Гантеля/Трофей на правій картці */
+.decoration3DRight {
+    width: 28px;
+    height: 28px;
+    bottom: -4px;
+    /* Опустили ниже (было 8px) */
+    right: 8px;
+    transform: rotate(-5deg);
+}
+
+
+/* --- 6. BUTTONS --- */
+
+/* TOXIC EMERALD GLASS STYLE */
 .claimBtn {
-    font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 11px; color: #fff;
-    background: linear-gradient(180deg, #4CAF50, #2E7D32);
-    text-align: center; padding: 4px 0; border-radius: 6px;
-    text-transform: uppercase; border: 1px solid #81C784;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    position: relative;
+    width: 90%;
+    /* Ширина відносно батьківського контейнера */
+    max-width: 100px;
+    height: 27px;
+    top: -4px;
+    right: 1px;
+    /* Видалено жорсткі left/top, тепер центрується через flex у .cardBody */
+    margin-top: auto;
+    margin-bottom: auto;
+
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(180deg, rgba(150, 255, 150, 0.7) 0%, rgba(0, 220, 50, 0.8) 40%, rgba(0, 100, 20, 0.9) 100%);
+    backdrop-filter: blur(6px);
+    display: flex;
+    /* Для центрування тексту */
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 2px solid rgba(0, 80, 0, 0.8);
+    animation: toxicPulse 2s infinite ease-in-out;
+    transition: all 0.2s ease-out;
+    z-index: 10;
 }
 
-/* Progress Bar */
-.progressTrack {
-    width: 100%; height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); overflow: hidden; margin-bottom: 4px;
+.claimBtn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    transform: skewX(-20deg);
+    animation: sheenFlow 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    mix-blend-mode: overlay;
 }
-.progressFill {
-    height: 100%; background: linear-gradient(90deg, #00E5FF, #2979FF);
-    box-shadow: 0 0 5px #00E5FF; transition: width 0.5s ease;
+
+.claimBtn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-1px);
+}
+
+.claimBtn:active {
+    transform: translateY(2px);
+    border-bottom-width: 0px;
+    background: linear-gradient(180deg, #00b300 0%, #004d00 100%);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* CLAIM Task Btn (в модалці) */
+.claimTaskBtn {
+    position: relative;
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    color: #3E1C00;
+    background: linear-gradient(180deg, #FFFFE0 0%, #FFD700 40%, #DAA520 100%);
+    border: none;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.9);
+    border-bottom: 3px solid #8B4513;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.6);
+    transition: all 0.1s;
+    animation: pulseGlowGold 2.5s infinite;
+}
+
+.claimTaskBtn:hover,
+.claimBtn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.9);
+}
+
+.claimTaskBtn span {
+    display: block;
+    animation: floatText 2s infinite ease-in-out;
+}
+
+/* --- 7. UTILS --- */
+.expandBtnGold {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 26px;
+    height: 26px;
+    background: rgba(62, 28, 0, 0.7);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFD700;
+    font-size: 13px;
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    box-shadow: inset 0 0 5px rgba(255, 215, 0, 0.3);
+    cursor: pointer;
+    z-index: 25;
+    /* Вище за 3D іконку */
+}
+
+.timerDisplay {
+    font-family: 'Chakra Petch', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFD700;
+    text-align: center;
+    background: rgba(62, 28, 0, 0.7);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 6px;
+    padding: 5px 10px;
+    /* Трохи більше відступів */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(62, 28, 0, 0.9);
+}
+
+.timerDisplay::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #FFD700;
+    border-radius: 50%;
+    margin-right: 8px;
+    box-shadow: 0 0 8px #FFD700;
+    animation: blinkTimer 1s infinite;
+}
+
+/* --- 8. PROGRESS & CONTENT STYLES --- */
+.progressTrackGold {
+    width: 100%;
+    height: 6px;
+    background: rgba(62, 28, 0, 0.6);
+    border-radius: 3px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    overflow: hidden;
+    margin-bottom: 4px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.progressFillGold {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FF8C00);
+    box-shadow: 0 0 10px #FFD700, inset 0 1px 1px rgba(255, 255, 255, 0.7);
+    transition: width 0.5s ease;
 }
 
 .taskMeta {
-    display: flex; justify-content: space-between; align-items: center;
-}
-.taskStatus { font-family: 'Chakra Petch', sans-serif; font-size: 10px; color: #B3E5FC; font-weight: 700; }
-.rewardTag { font-family: 'Exo 2', sans-serif; font-size: 9px; color: #FFD700; font-weight: 800; }
-
-.doneState {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    color: #00E676; font-family: 'Exo 2', sans-serif; font-weight: 900; font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
-/* Rivets (Заклепки) */
-.rivet, .rivetBlue {
-    position: absolute; width: 3px; height: 3px; border-radius: 50%; opacity: 0.8;
+.taskStatusDark {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 10px;
+    color: #3E1C00;
+    font-weight: 800;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
-.rivet { background: #5a3f1a; box-shadow: inset 0 1px 1px rgba(255,255,255,0.6); }
-.rivetBlue { background: #0D47A1; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
 
-.tl { top: 5px; left: 5px; } .tr { top: 5px; right: 5px; }
-.bl { bottom: 5px; left: 5px; } .br { bottom: 5px; right: 5px; }
+.rewardTagDark {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    color: #8B4513;
+    font-weight: 800;
+}
+
+.taskStatusGold {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 10px;
+    color: #3E1C00;
+    font-weight: 700;
+}
+
+.doneStateDark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #3E1C00;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.checkIconDark {
+    color: #228B22;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.7));
+}
+
+.doneStateReadyBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(180deg, #fffce0 0%, #ffd700 100%);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 215, 0, 0.5);
+    color: #3E1C00;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    animation: pulseGlowGold 2s infinite;
+}
+
+.giftIconReady {
+    color: #FF4500;
+    filter: drop-shadow(0 0 5px #FFD700);
+    font-size: 16px;
+}
+
+.readyTextGlitch {
+    animation: textGlitch 1.5s infinite alternate;
+}
+
+.rivet {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    opacity: 0.8;
+    background: #FFD700;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(0, 0, 0, 0.5);
+    z-index: 5;
+}
+
+.tl {
+    top: 6px;
+    left: 6px;
+}
+
+.tr {
+    top: 6px;
+    right: 6px;
+}
+
+.bl {
+    bottom: 6px;
+    left: 6px;
+}
+
+.br {
+    bottom: 6px;
+    right: 6px;
+}
+
+
+/* --- MODAL (БЕЗ ЗМІН) --- */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalContent {
+    background: linear-gradient(135deg, #0f2e15 0%, #05140a 100%);
+    width: 90%;
+    max-width: 360px;
+    border-radius: 16px;
+    border: 1px solid rgba(118, 255, 3, 0.3);
+    box-shadow: 0 0 50px rgba(118, 255, 3, 0.15);
+    padding: 20px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modalTitle {
+    font-family: 'Exo 2', sans-serif;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.closeModalBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.taskItem {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.taskItem.doneReady {
+    border: 1px solid #FFD700;
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0));
+    box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.05);
+}
+
+.taskHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.taskIcon {
+    font-size: 20px;
+    color: #76FF03;
+}
+
+.taskItem.doneReady .taskIcon {
+    color: #FFD700;
+    filter: drop-shadow(0 0 8px #FFD700);
+}
+
+.taskDesc {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    color: #F1F8E9;
+    flex: 1;
+}
+
+.claimedBadge {
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 6px;
+}
+
+/* --- 🔥🔥🔥 НОВІ СТИЛІ ДЛЯ 3D ДЕКОРАЦІЙ 🔥🔥🔥 --- */
+
+/* Анимация легкого покачивания (общая) */
+@keyframes float3DGeneric {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-3px) rotate(3deg);
+    }
+}
+
+/* Стиль для подарка ВНУТРИ кнопки OPEN */
+.giftInBtn {
+    width: 20px;
+    /* Сделали маленьким */
+    height: 20px;
+    /* Сделали маленьким */
+    margin-left: 8px;
+    /* Отступ от текста OPEN */
+    margin-top: 4px;
+    /* Опустили на пару пикселей вниз */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    /* Небольшая тень */
+    animation: float3DGeneric 3s ease-in-out infinite alternate;
+    /* Легкое дыхание */
+    pointer-events: none;
+}
+
+
+/* Стиль только для ПРАВОЙ 3D иконки (Гантеля/Кубок) - оставляем как было */
+.decoration3DRight {
+    position: absolute;
+    z-index: 20;
+    width: 28px;
+    height: 28px;
+    bottom: -4px;
+    right: 8px;
+    transform: rotate(-5deg);
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+    animation: float3D 4s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+/* Старый стиль .decoration3DLeft больше не нужен и удален */

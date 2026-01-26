@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800;900&family=Chakra+Petch:wght@600;700&display=swap');
+
+.wrapper {
+    position: relative;
+    top: 35px;
+    width: 97%;
+    height: 88px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+    /* --- 🔥 DEEP OBSIDIAN PURPLE BACKGROUND 🔥 --- */
+    /* Глубокий градиент: от темного фиолетово-пепельного к черной бездне */
+    background: linear-gradient(160deg, rgba(30, 25, 45, 0.9) 0%, rgba(8, 7, 12, 0.95) 100%);
+
+    /* Блюр оставляем, он добавляет матовости стеклу */
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border-radius: 20px;
+
+    /* Бордеры чуть подкрашиваем в фиолетовый спектр для гармонии */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(180, 160, 255, 0.15); /* Слабый фиолетовый блик сверху */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+
+    /* Тени теперь с легким фиолетовым подтоном (Mystic Glow) */
+    box-shadow:
+            inset 0 0 40px rgba(100, 50, 255, 0.03), /* Еле заметное фиолетовое нутро */
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 15px 40px -10px rgba(5, 0, 15, 0.9), /* Тень под блоком почти черная */
+            0 0 0 1px rgba(0, 0, 0, 1);
+
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 16px;
+
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    z-index: 5;
+}
+
+/* Ховер ефект */
+.wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            inset 0 0 50px rgba(120, 60, 255, 0.08), /* При наведении фиолетовый оживает */
+            inset 0 1px 0 rgba(255, 255, 255, 0.25),
+            0 20px 50px -5px rgba(0, 0, 0, 0.95);
+}
+
+.wrapper:active {
+    transform: scale(0.98);
+}
+
+/* --- СЕТОЧКА (GRID) --- */
+.wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* Сетка чуть менее яркая, чтобы не перебивать глубокий фон */
+    background-image:
+            linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- ШИММЕР (БЛИК) --- */
+.wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.05),
+            rgba(200, 180, 255, 0.1), /* Блик тоже слегка сиреневый */
+            rgba(255, 255, 255, 0.05),
+            transparent
+    );
+    transform: skewX(-25deg);
+    animation: holoSheen 6s infinite ease-in-out;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 1;
+}
+
+@keyframes holoSheen {
+    0% { left: -100%; opacity: 0; }
+    20% { opacity: 1; }
+    50% { left: 200%; opacity: 0; }
+    100% { left: 200%; opacity: 0; }
+}
+
+/* --- ICON SECTION --- */
+.iconContainer {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Фон иконки тоже подгоняем под обсидиан */
+    background: radial-gradient(circle at center, #2a2442, #050505);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+            inset 0 0 15px rgba(0, 0, 0, 1),
+            0 0 15px rgba(100, 50, 255, 0.1); /* Внешнее свечение иконки */
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.iconInner {
+    font-size: 28px;
+    color: #fff;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    display: flex;
+    transition: transform 0.3s ease;
+}
+
+.wrapper:hover .iconInner {
+    transform: scale(1.1);
+}
+
+/* --- INFO SECTION --- */
+.infoContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    z-index: 2;
+}
+
+.leagueName {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(150, 100, 255, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.rankInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 13px;
+    color: #E0E0FA; /* Чуть теплее белый */
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.5px;
+}
+
+.rankValue {
+    font-weight: 800;
+    font-size: 15px;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 2px 2px rgba(0,0,0,1);
+}
+
+.dot {
+    width: 4px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 50%;
+}
+
+.miniZoneText {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #fff;
+    /* Кнопка зоны тоже в фиолетовых тонах */
+    background: rgba(120, 50, 255, 0.15);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(150, 100, 255, 0.3);
+    text-shadow: 0 0 5px rgba(150, 100, 255, 0.6);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    letter-spacing: 1px;
+}
+
+.motivationText {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #a09cb8; /* Фиолетово-серый */
+    font-weight: 500;
+    font-style: italic;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 210px;
+    opacity: 0.8;
+}
+
+/* --- ARROW --- */
+.arrowContainer {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 2;
+}
+
+.wrapper:hover .arrowContainer {
+    background: #9d4eff; /* Яркий фиолетовый неон */
+    color: #fff;
+    border-color: #9d4eff;
+    transform: translateX(4px);
+    box-shadow: 0 0 15px rgba(157, 78, 255, 0.6);
+}

@@ -88,6 +88,7 @@ class Character(Base):
         elif 7 <= self.talent <= 8:
             return CharacterRarity.RARE
         elif self.talent >= 9:
+            print("Exclusive talent")
             if self.age > 30:
                 return CharacterRarity.RARE
             return CharacterRarity.EXCLUSIVE

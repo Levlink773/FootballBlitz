@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime
 import random
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict, Any
 
 from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, Field
@@ -132,9 +132,14 @@ class ReferralCountResponse(BaseModel):
     count: int
 
 # ----------------- helper сериализатор -----------------
+from datetime import datetime  # <--- 1. Убедитесь, что этот импорт есть вверху файла
+
+
 def user_to_dict(u: UserBot) -> dict:
     if u is None:
         return {}
+
+    # Основные данные
     data = {
         "id": getattr(u, "id", None),
         "user_id": getattr(u, "user_id", None),
@@ -167,9 +172,43 @@ def user_to_dict(u: UserBot) -> dict:
         "has_free_box": getattr(u, "has_free_box", False),
         "skill_points": getattr(u, "skill_points", 0),
         "team_power": getattr(u, "team_power", 0),
-        "skill_points": getattr(u, "skill_points", 0),
-        "team_power": getattr(u, "team_power", 0),
     }
+
+    # --- 2. НОВАЯ ЛОГИКА БУСТОВ (Гибридная) ---
+    active_boost_data = None
+    inventory_list = []
+
+    # Берем список всех бустов (и активных, и в инвентаре)
+    all_boosts = getattr(u, "boosts", [])
+
+    for b in all_boosts:
+        if b.is_active:
+            # Если активен, проверяем срок действия
+            if b.date_end and b.date_end > datetime.now():
+                active_boost_data = {
+                    "id": b.id,
+                    "effect": b.effect.name,
+                    "percent": b.percent,
+                    "duration": b.duration,
+                    "date_end": b.date_end.isoformat(),
+                    "is_active": True
+                }
+        else:
+            # Если не активен — это инвентарь
+            if b.count > 0:
+                inventory_list.append({
+                    "id": b.id,
+                    "type": b.effect.name,
+                    "percent": b.percent,
+                    "duration": b.duration,
+                    "count": b.count,
+                    "is_active": False
+                })
+
+    # Записываем результат в словарь data
+    data["boost"] = active_boost_data  # Текущий активный буст
+    data["inventory_boosts"] = inventory_list  # Список бустов в сумке
+    # ------------------------------------------
 
     # Calculate Avg Age and Avg Talent
     characters = getattr(u, "characters", [])
@@ -186,8 +225,7 @@ def user_to_dict(u: UserBot) -> dict:
     try:
         from database.models.season_pass import SeasonPass
         sp = getattr(u, "season_pass", None)
-        
-        # Prepare Config
+
         sp_config = {
             "standard": SeasonPass.STANDARD_REWARDS,
             "vip": SeasonPass.VIP_REWARDS
@@ -203,13 +241,10 @@ def user_to_dict(u: UserBot) -> dict:
                 "end_date": sp.session_end.isoformat()
             }
         else:
-             # Even if user has no pass entity, we send structure so frontend can render the roadmap (with 0 progress)
-             # Default end date: 1st of next month
-             from datetime import datetime
-             from dateutil.relativedelta import relativedelta
-             next_month = datetime.now() + relativedelta(months=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-             
-             data["season_pass"] = {
+            from dateutil.relativedelta import relativedelta
+            next_month = datetime.now() + relativedelta(months=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+            data["season_pass"] = {
                 "id": None,
                 "season_name": "Current Season",
                 "points": 0,
@@ -218,10 +253,9 @@ def user_to_dict(u: UserBot) -> dict:
                 "end_date": next_month.isoformat()
             }
     except Exception:
-         # Fallback but try to send config if possible
-         try:
-             from database.models.season_pass import SeasonPass
-             data["season_pass"] = {
+        try:
+            from database.models.season_pass import SeasonPass
+            data["season_pass"] = {
                 "id": None,
                 "points": 0,
                 "rewards_collected": {"standard": [], "vip": []},
@@ -229,32 +263,18 @@ def user_to_dict(u: UserBot) -> dict:
                     "standard": SeasonPass.STANDARD_REWARDS,
                     "vip": SeasonPass.VIP_REWARDS
                 }
-             }
-         except:
-             data["season_pass"] = None
+            }
+        except:
+            data["season_pass"] = None
 
-    # Boost
-    try:
-        boost = getattr(u, "boost", None)
-        if boost:
-             data["boost"] = {
-                "id": boost.id,
-                "effect": boost.effect.name if boost.effect else None,
-                "percent": boost.percent,
-                "duration": boost.duration,
-                "is_active": boost.is_active,
-                "date_end": boost.date_end.isoformat() if boost.date_end else None
-             }
-        else:
-             data["boost"] = None
-    except Exception:
-         data["boost"] = None
+    # (!!!) СТАРЫЙ БЛОК TRY/EXCEPT ДЛЯ BOOST ЗДЕСЬ БОЛЬШЕ НЕ НУЖЕН, МЫ ЕГО ЗАМЕНИЛИ ВЫШЕ
 
-    # небольшие удобства
+    # Небольшие удобства
     try:
         data["vip_pass_is_active"] = u.vip_pass_is_active
     except Exception:
         data["vip_pass_is_active"] = False
+
     try:
         data["precent_winner_matches"] = u.precent_winner_matches
     except Exception:
@@ -266,8 +286,6 @@ def user_to_dict(u: UserBot) -> dict:
         data["team_name_user"] = data["team_name"]
 
     return data
-
-
 # routers/user_router.py (або де у вас цей логіка)
 
 from fastapi import APIRouter, HTTPException, status, Query, Body
@@ -309,7 +327,6 @@ async def claim_first_team_endpoint(user_id: int):
         raise HTTPException(status_code=400, detail="User already has a team")
 
     new_characters = []
-
     # 👇 1. Визначаємо склад команди (11 гравців)
     # Схема: 1 GK, 3 DEF, 3 MID, 4 ATT (за вашим запитом + 1 деф для балансу)
     required_positions = (
@@ -420,6 +437,117 @@ async def get_league_general_stats():
             "avatar_icon": "💎"
         }
     }
+
+
+@router.get("/rankings/power")
+async def get_power_rankings(limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Возвращает список команд, отсортированный по силе (team_power) по убыванию.
+    """
+    users = await UserService.get_all_users()
+
+    if not users:
+        return []
+
+    # Сортируем пользователей по team_power от большего к меньшему
+    sorted_users = sorted(users, key=lambda u: u.team_power, reverse=True)
+
+    # Берем срез [0:limit]
+    top_users = sorted_users[:limit]
+
+    # Формируем список для фронтенда
+    result = []
+    for index, user in enumerate(top_users):
+        result.append({
+            "rank": index + 1,
+            "team_name": user.team_name,
+            "user_name": user.user_name,
+            "value": user.team_power,  # Это PWR
+            "user_id": str(user.id)  # Полезно, чтобы подсвечивать "YOU"
+        })
+
+    return result
+
+
+# --- 2. ТОП КОМАНД ПО СТОИМОСТИ ($$$) ---
+@router.get("/rankings/value")
+async def get_value_rankings(limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Возвращает список команд, отсортированный по суммарной стоимости персонажей.
+    """
+    users = await UserService.get_all_users()
+
+    if not users:
+        return []
+
+    # Хелпер для подсчета стоимости (тот же, что и в general-stats)
+    def get_team_price(u):
+        return sum(c.character_price for c in u.characters)
+
+    # Сортируем
+    sorted_users = sorted(users, key=get_team_price, reverse=True)
+    top_users = sorted_users[:limit]
+
+    result = []
+    for index, user in enumerate(top_users):
+        total_price = get_team_price(user)
+        result.append({
+            "rank": index + 1,
+            "team_name": user.team_name,
+            "user_name": user.user_name,
+            "value": int(total_price),  # Это $ VALUE
+            "user_id": str(user.id)
+        })
+
+    return result
+
+
+# --- 3. ТОП ИГРОКОВ (RATING) ---
+# Если у тебя есть отдельный роутер для market, помести это туда,
+# или оставь здесь, но измени путь в JS fetch запросе.
+@router.get("/rankings/top-players")  # Или /market/top-players
+async def get_player_rankings(limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Возвращает список самых сильных персонажей среди ВСЕХ пользователей.
+    """
+    users = await UserService.get_all_users()
+
+    if not users:
+        return []
+
+    # Нам нужно собрать "плоский" список всех персонажей всех юзеров
+    all_characters = []
+
+    for user in users:
+        for char in user.characters:
+            all_characters.append({
+                "character_obj": char,
+                "owner_team": user.team_name,
+                "owner_user": user.user_name
+            })
+
+    # Сортируем этот огромный список по силе персонажа
+    sorted_chars = sorted(
+        all_characters,
+        key=lambda item: item["character_obj"].power,
+        reverse=True
+    )
+
+    # Берем топ
+    top_chars = sorted_chars[:limit]
+
+    result = []
+    for index, entry in enumerate(top_chars):
+        char = entry["character_obj"]
+        result.append({
+            "rank": index + 1,
+            "character_name": char.name,  # Имя игрока (Ronaldo, etc)
+            "team_name": entry["owner_team"],  # Команда владельца
+            "user_name": entry["owner_user"],
+            "value": round(char.power, 1)  # Это RATING
+        })
+
+    return result
 
 
 # ... твої імпорти
@@ -580,6 +708,46 @@ async def save_squad_endpoint(user_id: int, squad: SquadUpdateRequest):
         await session.commit()
 
     return {"status": "ok", "message": "Squad and positions updated"}
+
+
+@router.get("/team-rankings")
+async def get_team_rankings(user_id: int):
+    """
+    Повертає повний список команд, відсортований за РАНГОМ (Очками),
+    а не за ціною.
+    """
+    users = await UserService.get_all_users()
+    if not users:
+        return []
+
+    # 1. Сортуємо за очками (від найбільшого до найменшого)
+    # Якщо у вас очки в u.points, замініть u.season_pass.points на u.points
+    sorted_users = sorted(users, key=lambda u: u.season_pass.points, reverse=True)
+
+    total_players = len(sorted_users)
+    rankings = []
+
+    for idx, u in enumerate(sorted_users):
+        # Логіка зон (Топ 15% - підвищення, Низ 15% - пониження)
+        percentile = idx / total_players
+        zone = "RETENTION"
+
+        if percentile <= 0.15:
+            zone = "PROMOTION"
+        elif percentile >= 0.85:
+            zone = "DEMOTION"
+
+        rankings.append({
+            "rank": idx + 1,
+            "user_id": u.user_id,
+            "user_name": u.user_name,
+            "team_name": u.team_name,
+            "points": u.season_pass.points,  # 🔥 Віддаємо очки замість ціни
+            "league": u.league.value if u.league else "BRONZE",
+            "zone": zone
+        })
+    print('TeamRankings: ', rankings)
+    return rankings
 # ----------------- Endpoints -----------------
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
@@ -1083,15 +1251,14 @@ async def claim_daily_box(user_id: int):
     user = await UserService.get_user(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    if not user.has_free_box:
-        raise HTTPException(status_code=400, detail="No free box available")
 
-    # Grant rewards using SMALL_BOX logic (without consuming a real box)
-    # The prompt requested functionality of open_box_for_webapp, which implies opening a box.
-    # We use "SMALL_BOX" type as requested ("типа дневного бокса как ты понимаешь маленький").
+    # 🔥 ОБОВ'ЯЗКОВО РОЗКОМЕНТУЙТЕ ЦЮ ПЕРЕВІРКУ
+    # if not user.has_free_box:
+    #     raise HTTPException(status_code=400, detail="No free box available")
+
+    # Grant rewards...
     await open_box_for_webapp(user_id, "SMALL_BOX", consume_box=False)
-    
+
     # Set has_free_box = False
     await UserService.set_free_box_status(user_id, False)
 
@@ -1138,20 +1305,17 @@ async def claim_season_pass_reward(user_id: int, body: ClaimRewardRequest):
 
 # --- Boost Endpoints ---
 
-class ActivateBoostRequest(BaseModel):
-    boost_type: str # e.g. "TRAINING_EFFICIENCY"
-    percent: int
-    duration: int # hours
-
 @router.post("/{user_id}/boost/activate", response_model=dict)
-async def activate_boost(user_id: int, body: ActivateBoostRequest):
-    try:
-        b_type = BoostType[body.boost_type]
-    except KeyError:
-        raise HTTPException(status_code=400, detail="Invalid boost type")
-        
-    await UserService.create_user_boost(user_id, b_type, body.percent, body.duration)
-    
+async def activate_boost(user_id: int, boost_id: int = Query(...)):
+    result = await UserService.activate_boost_from_inventory(user_id, boost_id)
+
+    if result == "ITEM_NOT_FOUND":
+        raise HTTPException(status_code=404, detail="Буст не знайдено або він закінчився")
+
+    if result == "ALREADY_ACTIVE":
+        raise HTTPException(status_code=409, detail="У вас вже діє активний буст! Дочекайтесь його завершення.")
+
+    # Якщо SUCCESS
     updated_user = await UserService.get_user(user_id)
     return user_to_dict(updated_user)
 

@@ -27,7 +27,26 @@ const saveSquadAPI = (userId, squadMap) => {
     });
 };
 
-// --- КОМПОНЕНТ ДЕТАЛЕЙ (MODAL) ---
+const getCharacterRarityInfo = (character) => {
+    const { talent, age } = character;
+
+    // EXCLUSIVE LOGIC
+    if (talent >= 9) {
+        if (age > 30) {
+            return { type: 'RARE', label: 'RARE CARD', styleClass: styles.rarityRare };
+        }
+        return { type: 'EXCLUSIVE', label: 'EXCLUSIVE CARD', styleClass: styles.rarityExclusive };
+    }
+
+    // RARE LOGIC
+    if (talent >= 7 && talent <= 8) {
+        return { type: 'RARE', label: 'RARE CARD', styleClass: styles.rarityRare };
+    }
+
+    // STANDARD LOGIC
+    return { type: 'STANDARD', label: 'STANDARD CARD', styleClass: styles.rarityStandard };
+};
+
 const PlayerDetailView = ({ character, onClose, isMain }) => {
     if (!character) return null;
 
@@ -39,6 +58,9 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
     };
     const positionLabel = posMap[character.position] || character.position || "ГРАВЕЦЬ";
 
+    // 2. Отримуємо інфо про рідкість
+    const rarityInfo = getCharacterRarityInfo(character);
+
     return (
         <motion.div
             className={styles.modalBackdrop}
@@ -47,14 +69,16 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
             exit={{ opacity: 0 }}
             onClick={onClose}
         >
+            {/* 3. Додаємо клас рідкості до контейнера */}
             <motion.div
-                className={styles.detailContainer}
+                className={`${styles.detailContainer} ${rarityInfo.styleClass}`}
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Header */}
                 <div className={styles.detailHeader}>
                     <button className={styles.backButton} onClick={onClose}>
                         ‹ Команда
@@ -64,6 +88,7 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
                     </div>
                 </div>
 
+                {/* Hero Section */}
                 <div className={styles.heroSection}>
                     <div className={styles.equipColumn}>
                         <div className={styles.equipSlot} title="Футболка">
@@ -75,6 +100,9 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
                     </div>
 
                     <div className={styles.avatarContainer}>
+                        {/* 4. Додаємо бейдж рідкості над аватаром */}
+                        <div className={styles.rarityBadge}>{rarityInfo.label}</div>
+
                         <div className={styles.avatarGlow}></div>
                         <img
                             src={Config.IMAGES.avatar_uk}
@@ -97,6 +125,7 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
                     </div>
                 </div>
 
+                {/* Stats */}
                 <div className={styles.statsContainer}>
                     <div className={styles.statCard}>
                         <img src={Config.IMAGES.arm} alt="Power" style={{ width: 20, marginBottom: 4 }} />
@@ -131,9 +160,35 @@ const PlayerDetailView = ({ character, onClose, isMain }) => {
 // --- UI Components ---
 
 const PitchSlot = ({ player, onClick, positionLabel, isSelected }) => {
+
+    // Логіка визначення класу рідкості для іконки на полі
+    let rarityClass = '';
+
+    if (player) {
+        const { talent, age } = player;
+
+        // EXCLUSIVE: Талант 9+, вік <= 30
+        if (talent >= 9 && age <= 30) {
+            rarityClass = styles.slotExclusive;
+        }
+        // RARE: Талант 7-8 АБО (Талант 9+ і вік > 30)
+        else if ((talent >= 7 && talent <= 8) || (talent >= 9 && age > 30)) {
+            rarityClass = styles.slotRare;
+        }
+        // STANDARD: Всі інші
+        else {
+            rarityClass = styles.slotStandard;
+        }
+    }
+
     return (
         <motion.div
-            className={`${styles.playerSlot} ${!player ? styles.empty : ''} ${isSelected ? styles.selected : ''}`}
+            className={`
+                ${styles.playerSlot} 
+                ${!player ? styles.empty : ''} 
+                ${isSelected ? styles.selected : ''} 
+                ${rarityClass} 
+            `}
             onClick={onClick}
             whileTap={{ scale: 0.95 }}
         >

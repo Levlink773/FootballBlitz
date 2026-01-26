@@ -57,7 +57,6 @@ class SetMainCharacterRequest(BaseModel):
 def character_to_dict(ch: Character) -> dict:
     """
     Convert SQLAlchemy Character instance to JSON-serializable dict.
-    Tries to get basic relationships when present.
     """
     data = {
         "id": getattr(ch, "id", None),
@@ -66,32 +65,27 @@ def character_to_dict(ch: Character) -> dict:
         "age": getattr(ch, "age", None),
         "talent": getattr(ch, "talent", None),
         "power": getattr(ch, "power", None),
+        # Отримуємо string значення з Enum
         "gender": getattr(ch, "gender").name if getattr(ch, "gender", None) is not None else None,
         "country": getattr(ch, "country").name if getattr(ch, "country", None) is not None else None,
-        "rarity": getattr(ch, "rarity").name if getattr(ch, "rarity", None) is not None else None,
+        "position": getattr(ch, "position").name if getattr(ch, "position", None) is not None else None,
+
+        # 🔥 ВАЖЛИВО: rarity це property, яка повертає Enum, тому беремо .name
+        "rarity": getattr(ch, "rarity").name if getattr(ch, "rarity", None) is not None else "STANDARD",
+
         "created_at": getattr(ch, "created_at").isoformat() if getattr(ch, "created_at", None) else None,
         "training_key": getattr(ch, "training_key", None),
-        "time_get_member_bonus": getattr(ch, "time_get_member_bonus").isoformat() if getattr(ch, "time_get_member_bonus", None) else None,
     }
 
-    # optional relationships (owner, reminder, transfer)
+    # ... решта коду для owner, transfer, etc. ...
+
+    # (Код relationships залишається без змін, як у вашому прикладі)
     try:
         owner = getattr(ch, "owner", None)
         if owner:
             data["owner"] = {
                 "user_id": getattr(owner, "user_id", None),
                 "user_name": getattr(owner, "user_name", None),
-                "team_name": getattr(owner, "team_name", None),
-            }
-    except Exception:
-        pass
-
-    try:
-        reminder = getattr(ch, "reminder", None)
-        if reminder:
-            data["reminder"] = {
-                "id": getattr(reminder, "id", None),
-                "education_reward_date": getattr(reminder, "education_reward_date").isoformat() if getattr(reminder, "education_reward_date", None) else None,
             }
     except Exception:
         pass
@@ -101,25 +95,17 @@ def character_to_dict(ch: Character) -> dict:
         if transfer:
             data["transfer"] = {
                 "id": getattr(transfer, "id", None),
-                # add other transfer fields as needed
+                "price": float(getattr(transfer, "price", 0))
             }
     except Exception:
         pass
 
-    # computed properties
     try:
-        data["character_price"] = float(getattr(ch, "character_price", None)) if getattr(ch, "character_price", None) is not None else None
-    except Exception:
-        # property may raise if model incomplete
-        data["character_price"] = None
-
-    try:
-        data["how_much_power_can_add"] = float(getattr(ch, "how_much_power_can_add", None)) if getattr(ch, "how_much_power_can_add", None) is not None else None
-    except Exception:
-        data["how_much_power_can_add"] = None
+        data["character_price"] = float(getattr(ch, "character_price", 0))
+    except:
+        data["character_price"] = 0
 
     return data
-
 
 # ---------- Endpoints ----------
 

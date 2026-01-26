@@ -22,6 +22,7 @@ import {FaBolt, FaStar, FaBirthdayCake, FaShieldAlt, FaUsers, FaCheckCircle, FaD
 import TrainingBlock from "../components/main_components/TrainingBlock.jsx";
 import TeamStatsCompact from "../components/main_components/TeamStatsCompact.jsx";
 import DailyGoalSection from "../components/main_components/DailyGoalSection.jsx";
+import LeaguePreviewBlock from "../components/main_components/LeaguePreviewBlock.jsx";
 
 // --- NEW COMPONENT: Compact Team Stats ---
 // --- NEW COMPONENT: Compact Team Stats ---
@@ -40,20 +41,6 @@ export const Main = ({ user, setUser }) => {
 
     const handleTeamCreated = (updatedUser) => { setUser(updatedUser); };
     const handleCharacterClaimed = (updatedUserWithNewStatus) => { setUser(updatedUserWithNewStatus); };
-
-    useEffect(() => {
-        const updateUserStatus = async () => {
-            if (user?.status_register === 'FIRST_TRAINING') {
-                try {
-                    const msg = `🔹 Тренер:\nЦе головне меню. Але час не чекає! Тисни Ок -> «Тренування» і починаємо!`;
-                    showInfoModal({ image: Config.IMAGES.main_info, text: msg });
-                } catch (error) {
-                    console.error("Failed to update user status:", error);
-                }
-            }
-        };
-        updateUserStatus();
-    }, [user]);
 
     const openVipModal = (title = null, subtitle = null) => {
         setVipModalContent({ title, subtitle });
@@ -97,7 +84,7 @@ export const Main = ({ user, setUser }) => {
 
     // Логіка завершення реєстрації
     useEffect(() => {
-        if (user && user.status_register === 'HOME') {
+        if (user && user.status_register === 'FIRST_TRAINING') {
             const finishRegistration = async () => {
                 const msg = `
 🔹 Тренер:
@@ -189,8 +176,8 @@ export const Main = ({ user, setUser }) => {
                     {/* 5. NEW: Daily Goal Section (Box & Task) */}
                     <DailyGoalSection user={user} onUserUpdate={setUser} />
 
-                    {/* 6. Bottom Stats */}
-                    <TrainingBlock user={user} onUserUpdate={setUser} />
+                    {/* 🔥 НОВИЙ БЛОК ЛІГИ (Замість тренування/чату) */}
+                    <LeaguePreviewBlock user={user} />
 
                     {/* Spacer */}
                     <div style={{ height: '100px' }}></div>

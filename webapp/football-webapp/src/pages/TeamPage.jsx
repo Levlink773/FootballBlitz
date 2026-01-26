@@ -24,7 +24,7 @@ export default function TeamCard({ user, setUser }) {
             case 'hub':
             default:
                 // 👇 Передаем user, так как TeamHub делает запросы к API
-                return <TeamHub user={user} />;
+                return <TeamHub user={user} onUserUpdate={setUser} />;
         }
     };
 

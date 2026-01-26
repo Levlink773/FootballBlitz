@@ -79,7 +79,7 @@ const getRewardModalData = (rewardStr) => {
 };
 
 // Helper to extract info from reward string (FOR CARD DISPLAY)
-const parseReward = (rewardStr) => {
+export const parseReward = (rewardStr) => {
     // Повертаємо об'єкт із додатковим полем 'subtitle'
     if (!rewardStr) return { type: 'unknown', qty: '', subtitle: null, icon: <FaBoxOpen color="#ccc" /> };
 
@@ -164,7 +164,11 @@ const parseReward = (rewardStr) => {
         return {
             type: 'skill',
             qty: fmt(parts[1]),
-            icon: <GiBrain style={{ color: '#ff9ff3', filter: 'drop-shadow(0 0 5px #ff9ff3)', marginLeft: '5px' }} />
+            icon: <img
+                src={Config.IMAGES.trophy}
+                alt="coins"
+                style={{ width: '80%', height: '80%', objectFit: 'contain', filter: 'drop-shadow(0 4px 4px rgba(0,0,0,0.5))', marginLeft: '8px' }}
+            />
         };
     }
 

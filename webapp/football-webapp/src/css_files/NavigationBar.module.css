@@ -1,301 +1,284 @@
-
-
-/* Переменные для быстрого изменения */
 :root {
-    --nav-max-width: 420px;
-    --nav-height: 75px;
-    --nav-bg: rgba(45, 45, 45, 0.6);
-    --accent-glow: rgba(20, 255, 236, 0.7);
+    --nav-width: 100%;
+    --nav-max-width: 400px;
+    --nav-height: 76px;
+
+    /* Цвета */
+    --gem-blue-top: #0078d7;
+    --gem-blue-mid: #005a9e;
+    --gem-blue-bot: #003366;
+
+    --gem-gold-top: #ffd700;
+    --gem-gold-mid: #ffa500;
+    --gem-gold-bot: #b8860b;
+
+    --mat-dark: #0a0c12;
+    --gloss-shine: rgba(255, 255, 255, 0.75);
 }
 
+/* --- ГЛАВНЫЙ КОНТЕЙНЕР --- */
 .navigationBar {
-    /* ... ваші параметри ... */
     position: absolute;
-    bottom: 5px;
+    bottom: 10px;
     left: 50%;
-    transform: translateX(-50%);
-    width: min(92%, var(--nav-max-width));
+    transform: translateX(-50%) perspective(1000px) rotateX(10deg);
+    width: var(--nav-width);
     max-width: var(--nav-max-width);
+    height: var(--nav-height);
+
+    background: linear-gradient(180deg, #2c2f3a 0%, #0a0c12 100%);
+    border-radius: 24px;
+
+    /* Тень и блики корпуса */
+    box-shadow:
+            0 20px 40px -10px rgba(0,0,0,0.9),
+            inset 0 1px 1px rgba(255,255,255,0.2);
+
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 3px solid rgba(0,0,0,0.6);
+
     z-index: 1000;
-
-    height: var(--nav-height);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    padding: 0 10px;
-
-    background: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    animation: fadeIn 0.45s ease-out forwards;
-
-    /* 🔥 ГОЛОВНЕ ВИПРАВЛЕННЯ 🔥 */
-    /* Видаліть overflow-x: auto або hidden */
-
-    /* overflow-x: auto;  <-- ЦЕЙ РЯДОК ВБИВАВ СТРІЛКУ */
-
-    /* Додайте це, щоб дозволити стрілці "вилетіти" за межі блоку */
-    overflow: visible !important;
-
-    /* Прибираємо скрол тач, бо скролу більше немає */
-    /* -webkit-overflow-scrolling: touch; */
+    padding: 4px 2px;
+    overflow: visible;
+    animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-/* Контейнер для одной кнопки (иконка + текст) */
-.navItem {
+.buttonsContainer {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-
-    /* Флекс: элементы могут сужаться, но сохраняют минимальную область для касания */
-    flex: 1 1 0;
-    min-width: 48px; /* поддерживаем удобный размер для тача */
+    align-items: center;
     height: 100%;
-
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.85);
-    font-family: 'Inter', sans-serif;
-    position: relative;
-    -webkit-tap-highlight-color: transparent;
-    transition: all 0.22s ease;
-    padding: 8px 6px;
+    z-index: 2;
+    gap: 0; /* Стыкуем кнопки плотно */
 }
 
-/* Стили для иконки */
-.navIcon {
-    width: 28px;
-    height: 28px;
-    margin-bottom: 6px;
-    filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
-    transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.22s;
-}
-
-/* Стили для текста под иконкой */
-.navLabel {
-    font-size: 10px;
-    font-weight: 600;
-    transition: color 0.2s ease, opacity 0.2s ease;
-    white-space: nowrap;
-}
-
-/* Hover / active states */
-.navItem:hover { color: #ffffff; }
-.navItem:hover .navIcon { transform: scale(1.08); }
-.navItem.active { color: #ffffff; }
-.navItem.active .navLabel { font-weight: 700; }
-.navItem.active .navIcon {
-    transform: translateY(-5px) scale(1.15);
-    filter: drop-shadow(0px 0px 10px rgba(0, 255, 255, 0.7)) drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
-}
-
-/* Highlighted state */
-.navItem.highlighted {
-    position: relative;
-    border-radius: 16px;
-    box-shadow: 0 0 18px 4px var(--accent-glow), 0 0 30px 6px rgba(20, 255, 236, 0.5);
-    transition: box-shadow 0.32s ease-in-out;
-}
-
-.navItem.highlighted::before {
-    content: '';
+/* --- СВЕТ ПОД КНОПКАМИ --- */
+.lightSource {
     position: absolute;
-    top: -45px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 28px;
-    height: 14px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M2 2L12 10L22 2' stroke='%2300DDFF' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    filter: drop-shadow(0px 4px 6px rgba(0, 221, 255, 0.7));
-    animation: point-down 2s infinite ease-in-out;
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-@keyframes point-down {
-    0%, 100% { transform: translate(-50%, 0); opacity: 0.8; filter: drop-shadow(0px 4px 6px rgba(0, 221, 255, 0.7)); }
-    50% { transform: translate(-50%, 10px); opacity: 1; filter: drop-shadow(0px 6px 12px rgba(0, 221, 255, 0.9)); }
-}
-
-.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-/* ----------------- RESPONSIVE RULES ----------------- */
-
-/* Small tablets and large phones: скрываем часть текста, немного уменьшаем иконки */
-@media (max-width: 360px) {
-    :root { --nav-height: 68px; }
-    .navigationBar { padding: 0 8px; }
-    .navIcon { width: 24px; height: 24px; margin-bottom: 4px; }
-    .navLabel { display: none; }
-    .navItem { padding: 6px; min-width: 44px; }
-}
-
-/* Very small phones: ещё компактнее; если нужно — включаем горизонтальный скролл */
-@media (max-width: 330px) {
-    :root { --nav-height: 64px; }
-    .navigationBar { width: calc(100% - 12px); }
-    .navIcon { width: 22px; height: 22px; }
-    .navItem { min-width: 42px; padding: 6px 4px; }
-}
-
-/* Если вы хотите вернуть старое поведение (позиционирование по абсолют и top:543px),
-   просто переопределите стиль в родительском компоненте или измените position на absolute и top на желаемый. */
-
-/* Accessibility: ensure focus styles are visible */
-.navItem:focus { outline: 2px solid rgba(0, 221, 255, 0.25); outline-offset: 2px; border-radius: 12px; }
-
-/* Fallback for browsers that hide scrollbars: show indicator via gradient */
-.navigationBar::after {
-    content: '';
-    position: absolute;
-    right: 8px;
-    top: 0;
-    bottom: 0;
-    width: 18px;
-    pointer-events: none;
-    background: linear-gradient(to left, rgba(0,0,0,0.25), rgba(0,0,0,0));
-    border-radius: 25px;
-    display: none; /* показ по желанию, можно включить для подсказки скролла */
-}
-
-/* Додаємо затемнення на весь екран */
-.guideOverlay {
-    position: fixed;
-    top: 0;
+    bottom: 4px;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.85); /* Сильне затемнення (85%) */
-    z-index: 9000; /* Дуже високий шар */
-    pointer-events: all; /* Блокує кліки всюди, крім виділеного елемента */
-    backdrop-filter: blur(3px); /* Легке розмиття фону для акценту */
-    animation: fadeIn 0.3s ease-out forwards;
-}
-
-.navigationBar {
-    /* ... (Ваші попередні стилі залишаються) ... */
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(92%, var(--nav-max-width));
-    max-width: var(--nav-max-width);
-
-    /* 🔥 ВАЖЛИВО: Коли гайд активний, навігація має бути вище за оверлей */
-    z-index: 9001;
-
-    height: var(--nav-height);
+    width: calc(100% / 5);
+    height: 40%;
+    pointer-events: none;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    padding: 0 10px;
-
-    background: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    animation: fadeIn 0.45s ease-out forwards;
-    overflow-x: auto;
+    justify-content: center;
+    align-items: flex-end;
+    filter: blur(12px);
 }
 
-/* ... (navItem, navIcon, navLabel залишаються без змін) ... */
+.lightPlasma {
+    width: 60%;
+    height: 20px;
+    background: var(--gem-blue-top);
+    box-shadow: 0 0 15px var(--gem-blue-top);
+    border-radius: 50% 50% 0 0;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
 
+/* --- КНОПКИ --- */
 .navItem {
-    /* ... ваші стилі ... */
+    position: relative;
+    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    flex: 1 1 0;
-    min-width: 48px;
-    height: 100%;
-    background: none;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+    background: transparent;
     border: none;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.85);
-    font-family: 'Inter', sans-serif;
-    position: relative;
-    transition: all 0.22s ease;
-    padding: 8px 6px;
-    /* Важливо для z-index */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+    margin: 0;
+}
+
+/* --- 🔥 РАЗДЕЛИТЕЛИ (ВЕРТИКАЛЬНЫЕ ЛИНИИ) 🔥 --- */
+/* Рисуем линию справа у всех кнопок, кроме последней */
+.navItem:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 25%; /* Линия не на всю высоту, чтобы было аккуратно */
+    height: 50%;
+    width: 1px;
+    /* Градиент: прозрачный край -> белый центр -> прозрачный край */
+    background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 20%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.1) 80%,
+            transparent 100%
+    );
+    /* Тень справа создает эффект углубления */
+    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
     z-index: 1;
 }
 
-/* Стиль для елементів, які НЕ підсвічені під час гайда (робимо їх тьмяними) */
-.navItem.dimmed {
-    opacity: 0.15;
-    pointer-events: none;
-    filter: grayscale(100%);
-}
 
-/* 🔥 Яскраве виділення потрібної кнопки */
-.navItem.highlighted {
+/* --- 3D КАМЕНЬ --- */
+.iconContainer3D {
     position: relative;
-    z-index: 9002; /* Вище за Overlay і сам NavigationBar */
-    border-radius: 16px;
+    width: 44px;
+    height: 40px;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
 
-    /* Яскраве світіння */
+    background: linear-gradient(180deg, var(--gem-blue-mid) 0%, var(--gem-blue-bot) 100%);
+
+    border-top: 1px solid rgba(255,255,255,0.4);
+    border-bottom: 2px solid rgba(0,0,0,0.3);
     box-shadow:
-            0 0 0 2px #fff, /* Біла обводка */
-            0 0 20px 5px var(--accent-glow), /* Основне світіння */
-            0 0 50px 10px rgba(20, 255, 236, 0.4); /* Широке розсіяне світіння */
+            0 3px 8px rgba(0,0,0,0.5),
+            inset 0 -4px 8px rgba(0,0,0,0.3);
 
-    background-color: rgba(40, 40, 40, 1); /* Непрозорий фон, щоб перекрити затемнення */
-    color: #fff;
-    transform: scale(1.05); /* Трохи збільшуємо */
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease;
 }
 
-.navItem.highlighted .navIcon {
-    filter: drop-shadow(0 0 5px #fff);
-}
-
-/* 🔥 Яскрава стрілка */
-.navItem.highlighted::before {
+/* Блик сверху */
+.iconContainer3D::before {
     content: '';
     position: absolute;
-    /* Піднімаємо стрілку вище */
-    top: -55px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px; /* Більша стрілка */
-    height: 40px;
-
-    /* Використовуємо SVG стрілку (або можна просто картинку) */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300DDFF'%3E%3Cpath d='M12 21l-12-18h24z'/%3E%3Cpath d='M12 21l-12-18h24z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-
-    background-size: contain;
-    background-repeat: no-repeat;
-
-    /* Тінь для стрілки */
-    filter: drop-shadow(0 0 10px var(--accent-glow)) drop-shadow(0 0 20px white);
-
-    animation: aggressive-point-down 1s infinite ease-in-out;
-    z-index: 9003;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(180deg, var(--gloss-shine) 0%, rgba(255,255,255,0.1) 100%);
+    border-radius: 12px 12px 40% 40%;
+    z-index: 1;
+    opacity: 0.8;
 }
 
-/* Агресивна анімація стрілки */
-@keyframes aggressive-point-down {
-    0%, 100% {
-        transform: translate(-50%, 0);
-    }
-    50% {
-        transform: translate(-50%, 15px); /* Амплітуда руху більша */
-    }
+.navIcon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    opacity: 0.95;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+    transition: all 0.3s ease;
+    z-index: 3;
 }
-/* Конец файла */
+
+.navLabel {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 2px rgba(0,0,0,1);
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+/* --- ЦЕНТРАЛЬНАЯ КНОПКА --- */
+.navItem.central .iconContainer3D {
+    width: 52px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--gem-gold-mid) 0%, var(--gem-gold-bot) 100%);
+    border-top-color: rgba(255,255,200,0.6);
+}
+
+.navItem.central .iconContainer3D::before {
+    background: linear-gradient(180deg, rgba(255, 240, 150, 0.8) 0%, rgba(255, 200, 0, 0.1) 100%);
+}
+
+.navItem.central .navLabel {
+    color: var(--gem-gold-top);
+}
+
+/* --- АКТИВНОЕ СОСТОЯНИЕ --- */
+/* Активная кнопка перекрывает линии соседей своим z-index */
+.navItem.active {
+    transform: translateY(-4px) scale(1.1);
+    z-index: 10;
+}
+
+.navItem.central.active {
+    transform: translateY(-6px) scale(1.15);
+}
+
+.navItem.active .iconContainer3D {
+    background: linear-gradient(180deg, var(--gem-blue-top) 0%, var(--gem-blue-mid) 100%);
+    border-top-color: rgba(255,255,255,0.9);
+    box-shadow:
+            0 10px 20px -5px rgba(0, 120, 215, 0.5),
+            0 0 15px var(--gem-blue-top),
+            inset 0 0 8px rgba(255,255,255,0.3);
+    filter: brightness(1.1);
+}
+
+.navItem.central.active .iconContainer3D {
+    background: linear-gradient(180deg, var(--gem-gold-top) 0%, var(--gem-gold-mid) 100%);
+    box-shadow:
+            0 10px 20px -5px rgba(255, 165, 0, 0.5),
+            0 0 20px var(--gem-gold-top),
+            inset 0 0 8px rgba(255,255,200,0.4);
+}
+
+.navItem.active .navIcon {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+    transform: scale(1.05);
+}
+
+.navItem.active .navLabel {
+    opacity: 1;
+    color: white;
+    text-shadow: 0 0 8px var(--gem-blue-top);
+}
+.navItem.central.active .navLabel {
+    color: var(--gem-gold-top);
+    text-shadow: 0 0 12px var(--gem-gold-mid);
+}
+
+/* При активной центральной меняем цвет света снизу */
+.navigationBar:has(.central.active) .lightPlasma {
+    background: var(--gem-gold-top);
+    box-shadow: 0 0 20px var(--gem-gold-mid);
+}
+
+/* --- КЛИК --- */
+.navItem:active {
+    transform: translateY(0px) scale(0.95) !important;
+}
+.navItem:active .iconContainer3D {
+    filter: brightness(0.8);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.8) !important;
+}
+
+/* --- ГАЙДЫ --- */
+.guideOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 998;
+}
+.navigationBar.guided { z-index: 999; }
+.navItem.disabled { opacity: 0.4; filter: grayscale(80%) brightness(0.7); cursor: default; pointer-events: none;}
+
+.navItem.highlighted .iconContainer3D {
+    animation: pulseGoldGem 1.5s infinite;
+    border-color: var(--gem-gold-top);
+}
+
+@keyframes floatUp {
+    from { transform: translateX(-50%) perspective(1000px) rotateX(30deg) translateY(200px); opacity: 0; }
+    to { transform: translateX(-50%) perspective(1000px) rotateX(10deg) translateY(0); opacity: 1; }
+}
+
+@keyframes pulseGoldGem {
+    0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+    70% { box-shadow: 0 0 0 15px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
