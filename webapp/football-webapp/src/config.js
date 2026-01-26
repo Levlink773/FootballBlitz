@@ -109,7 +109,11 @@ import schema from "./assets/public/schema.png";
 import boost_training from "./assets/public/boost_training.png";
 import boost_team from "./assets/public/boost_team.png";
 import boost_strength from "./assets/public/boost_strength.png";
-
+import imgTransfer from './assets/public/5.png';  // Стрелки
+import imgHome from './assets/public/6.png';      // Дом
+import imgLeague from './assets/public/7.png';    // Кубок (Ліга)
+import imgProfile from './assets/public/10-removebg-preview.png';  // Аватар
+import imgTeam from './assets/public/12-removebg-preview.png';     // Команда
 
 class Config {
 
@@ -219,6 +223,12 @@ class Config {
         boost_training: boost_training,
         boost_team: boost_team,
         boost_strength: boost_strength,
+        imgTransfer: imgTransfer,
+        imgHome: imgHome,
+        imgLeague: imgLeague,
+        imgTeam: imgTeam,
+        imgProfile: imgProfile,
+
     };
 
     // какие-то игровые настройки
