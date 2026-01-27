@@ -343,7 +343,10 @@ class StartBlitz:
             for win_team in winner_teams_stage:
                 for user in win_team.users:
                     if user.user_id:
-                         asyncio.create_task(SeasonPassService.add_points(user.user_id, 3))
+                        try:
+                            await SeasonPassService.add_points(user.user_id, 3)
+                        except Exception as e:
+                            logger.error(f"Failed to add season pass points for user {user.user_id}: {e}")
 
             teams = winner_teams_stage
 
@@ -391,8 +394,20 @@ class StartBlitz:
         # 1.1 Сезонный пасс за победу в финале (3 очка)
         if final_winner.users:
             for user in final_winner.users:
-                 if user.user_id:
-                     await SeasonPassService.add_points(user.user_id, 3)
+                if user.user_id:
+                    try:
+                        await SeasonPassService.add_points(user.user_id, 3)
+                    except Exception as e:
+                        logger.error(f"Failed to add season pass points for winner {user.user_id}: {e}")
+
+        # 1.2 Сезонный пасс за 2-е место в финале (2 очка)
+        if final_looser.users:
+            for user in final_looser.users:
+                if user.user_id:
+                    try:
+                        await SeasonPassService.add_points(user.user_id, 2)
+                    except Exception as e:
+                        logger.error(f"Failed to add season pass points for 2nd place {user.user_id}: {e}")
 
         # 2. Завершаем матч и отправляем финальные payload'ы (с боксами для победителя/финалиста)
         # Убедитесь, что метод finish_match тоже обновлен (как в предыдущем ответе)

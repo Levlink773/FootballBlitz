@@ -4,16 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 73">
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/10-removebg-preview.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/12-removebg-preview.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webapp/football-webapp/src/assets/public/7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/config.js" afterDir="false" />
+    <list default="true" id="27a5ffdf-e2d5-4b2b-9a7d-96746967fa22" name="Changes" comment="comi 73.1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webapp/football-webapp/src/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/webapp/football-webapp/src/api.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,14 +172,6 @@
       <workItem from="1755071398369" duration="109532000" />
       <workItem from="1755607196889" duration="17561000" />
       <workItem from="1755641855306" duration="19000" />
-    </task>
-    <task id="LOCAL-00039" summary="comi 26">
-      <option name="closed" value="true" />
-      <created>1757926949482</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1757926949482</updated>
     </task>
     <task id="LOCAL-00040" summary="comi 27">
       <option name="closed" value="true" />
@@ -572,7 +557,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769467640179</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="comi 73.1">
+      <option name="closed" value="true" />
+      <created>1769468247827</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1769468247827</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -602,7 +595,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="comi 52" />
     <MESSAGE value="comi 53" />
     <MESSAGE value="comi 53.1" />
     <MESSAGE value="comi 53.2" />
@@ -627,7 +619,8 @@
     <MESSAGE value="comi 71" />
     <MESSAGE value="comi 72" />
     <MESSAGE value="comi 73" />
-    <option name="LAST_COMMIT_MESSAGE" value="comi 73" />
+    <MESSAGE value="comi 73.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="comi 73.1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FootballBlitz$main.coverage" NAME="main Coverage Results" MODIFIED="1755631114696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

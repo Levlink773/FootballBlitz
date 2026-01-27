@@ -12,6 +12,7 @@ from bot.routers.router import main_router
 from bot.middlewares import handlers
 from load_utils import start_utils
 from services.user_service import UserService
+from startup_check import ensure_all_users_have_pass
 from utils.fix_and_fill_teams import process_teams
 from webapp.fastapi.app import app_fastapi
 from webhook_api.handlers.box_handler import MonoResultBox
@@ -46,6 +47,7 @@ async def start_polling():
 
 async def main():
     await start_utils()
+    await ensure_all_users_have_pass()
     await task_scheduler.start()
     await TeamBlitzMatchManager.clear_matches()
     await UserService.delete_all_bots()

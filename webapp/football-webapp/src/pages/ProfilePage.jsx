@@ -116,9 +116,24 @@ const ProfilePage = ({ user, setUser }) => {
 
     // --- DATA ---
     const lootBoxes = [
-        { type: 'SMALL_BOX', count: user.count_of_small_box || 0, image: Config.IMAGES.box_mini },
-        { type: 'MEDIUM_BOX', count: user.count_of_medium_box || 0, image: Config.IMAGES.box_medium },
-        { type: 'LARGE_BOX', count: user.count_of_big_box || 0, image: Config.IMAGES.box_premium }
+        {
+            type: 'box',          // Общий тип для проверки в handleItemClick
+            subType: 'SMALL_BOX', // Конкретный тип для API и картинки
+            count: user.count_of_small_box || 0,
+            image: Config.IMAGES.box_mini
+        },
+        {
+            type: 'box',
+            subType: 'MEDIUM_BOX',
+            count: user.count_of_medium_box || 0,
+            image: Config.IMAGES.box_medium
+        },
+        {
+            type: 'box',
+            subType: 'LARGE_BOX',
+            count: user.count_of_big_box || 0,
+            image: Config.IMAGES.box_premium
+        }
     ].filter(box => box.count > 0);
 
     const getBoostImage = (type) => {

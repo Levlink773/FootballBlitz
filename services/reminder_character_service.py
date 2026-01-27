@@ -76,8 +76,13 @@ class RemniderCharacterService:
                 result = await session.execute(select(ReminderCharacter).where(ReminderCharacter.character_id == character_id))
                 reminder_character = result.scalars().first()
 
-                reminder_character.time_start_training = time_start_training
-                reminder_character.time_training_seconds = time_training_seconds
+                if reminder_character is not None:
+                    reminder_character.time_start_training = time_start_training
+                    reminder_character.time_training_seconds = time_training_seconds
+                    # здесь обычно идет commit/flush
+                else:
+                    # Логируем или создаем новую запись, чтобы бот не падал
+                    print("Предупреждение: reminder_character не найден в базе!")
 
                 await session.commit()
                 return reminder_character

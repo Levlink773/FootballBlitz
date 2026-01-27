@@ -1,68 +1,102 @@
 import asyncio
+from datetime import datetime
 
 from sqlalchemy import update, select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 from database.models.season_pass import SeasonPass
 from database.models.user_bot import UserBot
 from database.session import get_session
 from logging_config import logger
 
-
+MONTH_NAMES = {
+    1: "Январский", 2: "Февральский", 3: "Мартовский", 4: "Апрельский",
+    5: "Майский", 6: "Июньский", 7: "Июльский", 8: "Августовский",
+    9: "Сентябрьский", 10: "Октябрьский", 11: "Ноябрьский", 12: "Декабрьский"
+}
 class SeasonPassService:
     @classmethod
-    async def add_points(cls, user_id: int, points: int):
+    async def add_points(cls, telegram_user_id: int, points: int):
         """
-        Додає очки до сезонного пропуску.
-        Має захист від Deadlock (помилка 1213).
-        Робить 3 спроби перед тим, як впасти.
+        Добавляет очки. Если юзера нет — создает.
+        Генерирует имя сезона по текущему месяцу.
+        Использует внутренний ID юзера (PK) для связи.
         """
         retries = 3
         while retries > 0:
             try:
                 async for session in get_session():
                     async with session.begin():
-                        # 1. Шукаємо існуючий пас
-                        stmt = select(SeasonPass).where(SeasonPass.user_id == user_id)
-                        result = await session.execute(stmt)
-                        sp = result.scalars().first()
+
+                        # 1. Сначала гарантируем наличие ЮЗЕРА, чтобы получить его внутренний ID (PK)
+                        # Ищем по telegram_user_id (который пришел в аргументах)
+                        user_stmt = select(UserBot).where(UserBot.user_id == telegram_user_id)
+                        user_res = await session.execute(user_stmt)
+                        user = user_res.scalars().first()
+
+                        if not user:
+                            # Создаем, если нет
+                            user = UserBot(user_id=telegram_user_id, user_name="Unknown Player")
+                            session.add(user)
+                            await session.flush()  # Важно: теперь у user.id есть значение!
+
+                        # Сохраняем внутренний ID для дальнейшей работы
+                        internal_db_id = user.id
+
+                        # 2. Теперь ищем ПАСС, используя внутренний ID
+                        # (так как SeasonPass.user_id ссылается на users.id)
+                        sp_stmt = select(SeasonPass).where(SeasonPass.user_id == internal_db_id)
+                        sp_res = await session.execute(sp_stmt)
+                        sp = sp_res.scalars().first()
 
                         if sp:
                             # Оновлюємо очки
-                            # Використовуємо атомарний апдейт (SQL рівень) для надійності
                             await session.execute(
                                 update(SeasonPass)
                                 .where(SeasonPass.id == sp.id)
                                 .values(points=SeasonPass.points + points)
                             )
                         else:
-                            # Якщо пасу немає - створюємо (рідкісний кейс, але можливий)
-                            # Тут був INSERT, який викликав помилку в логах
+                            # 3. Створення нового пасу (якщо не знайдено)
+
+                            # Генеруємо динамічну назву сезону
+                            current_month = datetime.now().month
+                            season_name_str = f"{MONTH_NAMES.get(current_month, 'Сезонный')} Сезонный пасс"
+
                             new_sp = SeasonPass(
-                                user_id=user_id,
-                                season_name="Current Season",  # Або логіка визначення імені
+                                user_id=internal_db_id,  # <--- Берем user.id из базы, а не аргумент метода
+                                season_name=season_name_str,  # <--- Динамическое имя
                                 points=points
                             )
                             session.add(new_sp)
 
-                # Якщо дійшли сюди без помилок - виходимо з циклу
+                logger.info(f"✅ [SeasonPass] Added {points} points for user {telegram_user_id}")
                 return
 
             except OperationalError as e:
-                # Перевіряємо, чи це Deadlock (код 1213)
-                if e.orig.args[0] == 1213:
+                # Проверяем код ошибки безопасно для pymysql/aiomysql
+                error_code = None
+                if hasattr(e, 'orig') and e.orig:
+                    if hasattr(e.orig, 'args') and e.orig.args:
+                        error_code = e.orig.args[0]
+                    elif isinstance(e.orig, tuple) and len(e.orig) > 0:
+                        error_code = e.orig[0]
+                
+                if error_code == 1213:  # Deadlock
                     retries -= 1
                     if retries == 0:
-                        print(f"❌ [SeasonPass] Deadlock failed after 3 retries for user {user_id}")
-                        raise e  # Віддаємо помилку далі, якщо не змогли пробитися
-
-                    print(f"⚠️ [SeasonPass] Deadlock detected (1213). Retrying... ({3 - retries}/3)")
-                    await asyncio.sleep(0.2)  # Чекаємо 200мс перед повтором
+                        logger.error(f"❌ [SeasonPass] Deadlock failed after 3 retries for user {telegram_user_id}")
+                        raise e
+                    logger.warning(f"⚠️ [SeasonPass] Deadlock detected for user {telegram_user_id}, retrying... ({3 - retries}/3)")
+                    await asyncio.sleep(0.2 + (0.1 * (3 - retries)))  # Progressive backoff
                     continue
                 else:
-                    # Якщо це інша помилка (не дедлок) - падаємо відразу
+                    logger.error(f"❌ [SeasonPass] OperationalError for user {telegram_user_id}: {e}")
                     raise e
+            except IntegrityError as e:
+                logger.warning(f"⚠️ [SeasonPass] IntegrityError for user {telegram_user_id}: {e}")
+                return
 
     @classmethod
     async def claim_reward(cls, user_id: int, points_milestone: int, tier: str) -> bool:

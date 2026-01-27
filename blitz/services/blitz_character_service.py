@@ -16,7 +16,7 @@ class BlitzUserService:
                     selectinload(UserBot.characters),
                     selectinload(UserBot.main_character),
                     selectinload(UserBot.statistics),
-                    selectinload(UserBot.boost)
+                    selectinload(UserBot.boosts)
                 )
             )
             return result.scalar_one_or_none()
