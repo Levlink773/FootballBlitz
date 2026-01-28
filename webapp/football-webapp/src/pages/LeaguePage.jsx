@@ -72,7 +72,7 @@ const LeaguePage = ({ user, setUser }) => {
 
                 {/* 2. SEASON HEADER (Тепер клікабельний) */}
                 {/* Додаємо обгортку або передаємо onClick всередину */}
-                <div onClick={() => setIsSeasonPassOpen(true)} style={{width: '100%', display: 'flex', justifyContent: 'center', zIndex: 10, cursor: 'pointer'}}>
+                <div onClick={() => setIsSeasonPassOpen(true)} style={{ width: '100%', display: 'flex', justifyContent: 'center', zIndex: 10, cursor: 'pointer' }}>
                     <SeasonHeader user={user} />
                 </div>
 
@@ -97,14 +97,14 @@ const LeaguePage = ({ user, setUser }) => {
                             className={`${leagueStyles.tabButton} ${activeTab === 'stats' ? leagueStyles.activeTab : ''}`}
                             onClick={() => setActiveTab('stats')}
                         >
-                            Статистика
+                            Таблиця
                         </button>
                     </div>
 
                     {/* Основний Бокс */}
                     <div className={leagueStyles.contentBox}>
                         {activeTab === 'competitions' && (
-                            <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <LeagueRegisterButton user={user} onUserUpdate={setUser} />
                                 <LeagueLeaderboard
                                     user={user}
@@ -115,7 +115,7 @@ const LeaguePage = ({ user, setUser }) => {
                                 />
                                 <LeagueHierarchy user={user} />
                                 {leaderboardFilter === 'seasonal' && leaderboardData?.user_position && (
-                                    <div style={{marginTop: '20px', paddingBottom: '10px'}}>
+                                    <div style={{ marginTop: '20px', paddingBottom: '10px' }}>
                                         <LeagueStatusWidget userPosition={leaderboardData.user_position} />
                                     </div>
                                 )}

@@ -13,7 +13,8 @@
     padding-bottom: 70px;
     position: relative;
     top: 50px;
-    align-items: center; /* Центруємо все по центру екрану */
+    align-items: center;
+    /* Центруємо все по центру екрану */
 }
 
 /* --- ЗАГОЛОВОК ТА ІНСТРУКЦІЯ --- */
@@ -62,29 +63,31 @@
 /* 🔥 НОВИЙ КОНТЕЙНЕР ДЛЯ РОЗМІЩЕННЯ ПОЛЯ І СТАТИСТИКИ В РЯД 🔥 */
 .mainLayout {
     display: flex;
-    flex-direction: row; /* Розміщуємо в рядок */
-    align-items: center; /* Центруємо по вертикалі (щоб статистика була посередині висоти поля) */
+    flex-direction: row;
+    /* Розміщуємо в рядок */
+    align-items: center;
+    /* Центруємо по вертикалі (щоб статистика була посередині висоти поля) */
     justify-content: center;
-    gap: 20px; /* Відстань між полем і статистикою */
+    gap: 20px;
+    /* Відстань між полем і статистикою */
     width: 100%;
-    max-width: 800px; /* Трохи збільшимо, щоб влізло обоє */
+    max-width: 800px;
+    /* Трохи збільшимо, щоб влізло обоє */
     margin: 0 auto;
 }
 
 /* --- ПОЛЕ (PITCH) --- */
 .pitch {
     /* ... (фон та інші стилі залишаємо як є) ... */
-    background: repeating-linear-gradient(
-            0deg,
+    background: repeating-linear-gradient(0deg,
             rgba(0, 0, 0, 0.05) 0px,
             rgba(0, 0, 0, 0.05) 15px,
             transparent 15px,
-            transparent 30px
-    ),
-    linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+            transparent 30px),
+        linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
     border: 1.5px solid rgba(255, 255, 255, 0.4);
     box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6),
-    0 6px 20px rgba(0, 0, 0, 0.5);
+        0 6px 20px rgba(0, 0, 0, 0.5);
     border-radius: 12px;
     padding: 10px 4px;
 
@@ -95,10 +98,12 @@
 
     /* 👇 ВАЖЛИВО: Прибираємо зміщення, щоб воно стало рівно в контейнері */
     position: relative;
-    left: auto; /* було -70px */
+    left: auto;
+    /* було -70px */
 
     width: 230px;
-    min-height: 250px; /* Трохи збільшимо висоту, щоб було гарніше */
+    min-height: 250px;
+    /* Трохи збільшимо висоту, щоб було гарніше */
     flex-shrink: 0;
     top: 30px;
 }
@@ -131,7 +136,8 @@
 .pitchRow {
     display: flex;
     justify-content: center;
-    gap: 12px; /* Трохи компактніше всередині поля */
+    gap: 12px;
+    /* Трохи компактніше всередині поля */
     position: relative;
     z-index: 2;
 }
@@ -172,23 +178,35 @@
 
 /* Рідкісний (Rare) - Оранжевий */
 .slotRare {
-    border-color: #f59e0b !important; /* Amber-500 */
+    border-color: #f59e0b !important;
+    /* Amber-500 */
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
-    background: rgba(245, 158, 11, 0.15); /* Легкий фон */
+    background: rgba(245, 158, 11, 0.15);
+    /* Легкий фон */
 }
 
 /* Ексклюзивний (Exclusive) - Фіолетовий */
 .slotExclusive {
-    border-color: #d946ef !important; /* Fuchsia-500 */
+    border-color: #d946ef !important;
+    /* Fuchsia-500 */
     box-shadow: 0 0 10px rgba(217, 70, 239, 0.8);
-    background: rgba(217, 70, 239, 0.15); /* Легкий фон */
+    background: rgba(217, 70, 239, 0.15);
+    /* Легкий фон */
     animation: pulseExclusive 3s infinite ease-in-out;
 }
 
 @keyframes pulseExclusive {
-    0% { box-shadow: 0 0 5px rgba(217, 70, 239, 0.6); }
-    50% { box-shadow: 0 0 12px rgba(217, 70, 239, 1); }
-    100% { box-shadow: 0 0 5px rgba(217, 70, 239, 0.6); }
+    0% {
+        box-shadow: 0 0 5px rgba(217, 70, 239, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(217, 70, 239, 1);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(217, 70, 239, 0.6);
+    }
 }
 
 .playerSlot.empty {
@@ -272,7 +290,8 @@
 /* --- 🔥 ПАНЕЛЬ СТАТИСТИКИ (Вертикальна справа) 🔥 --- */
 .statsPanel {
     display: flex;
-    flex-direction: column; /* Вертикальний список */
+    flex-direction: column;
+    /* Вертикальний список */
     gap: 8px;
     padding: 10px;
 
@@ -298,6 +317,7 @@
         opacity: 0;
         transform: translateX(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -344,7 +364,8 @@
 }
 
 .statLabel {
-    font-size: 6px; /* Менший шрифт, щоб влазив */
+    font-size: 6px;
+    /* Менший шрифт, щоб влазив */
     color: #94a3b8;
     text-transform: uppercase;
     font-weight: 600;
@@ -565,7 +586,8 @@
 
 /* Базові змінні для кожного типу */
 .rarityStandard {
-    --card-border: #94a3b8; /* Сірий */
+    --card-border: #94a3b8;
+    /* Сірий */
     --card-glow: rgba(148, 163, 184, 0.4);
     --card-bg-gradient: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     --badge-bg: rgba(148, 163, 184, 0.15);
@@ -573,7 +595,8 @@
 }
 
 .rarityRare {
-    --card-border: #f59e0b; /* Оранжевий/Золотий */
+    --card-border: #f59e0b;
+    /* Оранжевий/Золотий */
     --card-glow: rgba(245, 158, 11, 0.5);
     --card-bg-gradient: linear-gradient(180deg, #451a03 0%, #1c1917 100%);
     --badge-bg: rgba(245, 158, 11, 0.2);
@@ -581,7 +604,8 @@
 }
 
 .rarityExclusive {
-    --card-border: #d946ef; /* Фіолетовий/Неон */
+    --card-border: #d946ef;
+    /* Фіолетовий/Неон */
     --card-glow: rgba(217, 70, 239, 0.6);
     --card-bg-gradient: linear-gradient(180deg, #2e1065 0%, #020617 100%);
     --badge-bg: rgba(217, 70, 239, 0.2);
@@ -596,14 +620,15 @@
     /* 🔥 Використовуємо змінні рідкості */
     background: var(--card-bg-gradient);
     border: 1px solid var(--card-border);
-    box-shadow: 0 0 30px var(--card-glow), inset 0 0 20px rgba(0,0,0,0.5);
+    box-shadow: 0 0 30px var(--card-glow), inset 0 0 20px rgba(0, 0, 0, 0.5);
 
     border-radius: 24px;
     padding: 20px;
     position: relative;
     color: white;
     transition: all 0.3s ease;
-    overflow: hidden; /* Щоб відблиски не вилазили */
+    overflow: hidden;
+    /* Щоб відблиски не вилазили */
 }
 
 /* Ефект переливання для Ексклюзиву */
@@ -620,7 +645,9 @@
 }
 
 @keyframes rotateGlow {
-    100% { transform: rotate(360deg); }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Бейдж позиції адаптований під рідкість */
@@ -682,4 +709,134 @@
     border-bottom: 1px solid var(--card-border);
     display: inline-block;
     padding-bottom: 2px;
+}
+
+/* --- 🔥 СЕКЦІЯ СКАМЕЙКИ ЗАПАСНИХ 🔥 --- */
+.benchSection {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 0;
+    position: relative;
+    top: 30px;
+}
+
+.benchTitle {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.benchTitle span {
+    color: #ffd700;
+}
+
+.benchGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 60px;
+}
+
+.benchEmpty {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Слот гравця на скамейці */
+.benchSlot {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(3px);
+}
+
+.benchSlot:hover {
+    transform: scale(1.08);
+    border-color: #00ff88;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.benchSlot.selected {
+    border-color: #00ff88;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+    background: rgba(0, 255, 136, 0.15);
+    transform: scale(1.12);
+}
+
+.benchSlot.slotRare {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+.benchSlot.slotExclusive {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 10px rgba(217, 70, 239, 0.7);
+}
+
+.benchPlayerImg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.benchPlayerName {
+    position: absolute;
+    bottom: -12px;
+    font-size: 8px;
+    font-weight: 700;
+    color: white;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 1px 5px;
+    border-radius: 6px;
+    white-space: nowrap;
+    max-width: 55px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 4;
+}
+
+.benchPlayerPower {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #ffd700;
+    color: #000;
+    font-size: 8px;
+    font-weight: 900;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    z-index: 5;
 }

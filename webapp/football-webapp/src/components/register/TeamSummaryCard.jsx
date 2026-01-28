@@ -36,6 +36,40 @@ export const TeamSummaryCard = ({ teamName, characters, onSignContract }) => {
 
     // Розрахунок середнього рейтингу команди
     const totalPower = characters.reduce((acc, c) => acc + c.power, 0);
+
+    // --- Rarity Logic ---
+    const determineRarity = (char) => {
+        if (char.rarity) return char.rarity.toUpperCase();
+        const { talent, age } = char;
+        if (talent >= 9 && age <= 30) return 'EXCLUSIVE';
+        if ((talent >= 7 && talent <= 8) || (talent >= 9 && age > 30)) return 'RARE';
+        return 'STANDARD';
+    };
+
+    const getRarityStyle = (rarity) => {
+        switch (rarity) {
+            case 'EXCLUSIVE': // Purple Gradient
+                return {
+                    background: 'linear-gradient(180deg, #ea80fc 0%, #d500f9 40%, #aa00ff 100%)',
+                    shadow: 'drop-shadow(0 0 10px rgba(213, 0, 249, 0.6))',
+                    scale: 1.05
+                };
+            case 'RARE': // Orange Gradient
+                return {
+                    background: 'linear-gradient(180deg, #ffd180 0%, #ff9100 40%, #ff6d00 100%)',
+                    shadow: 'drop-shadow(0 0 8px rgba(255, 145, 0, 0.6))',
+                    scale: 1
+                };
+            default: // Standard Gold
+                // Use default CSS class style, or explicit gold
+                return {
+                    // background: 'linear-gradient(180deg, #F8E79C 0%, #D4AF37 40%, #8B6C18 100%)', // Default in CSS
+                    shadow: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))',
+                    scale: 1
+                };
+        }
+    };
+
     return (
         <motion.div
             className={styles.summaryContainer}
@@ -56,12 +90,18 @@ export const TeamSummaryCard = ({ teamName, characters, onSignContract }) => {
             <div className={styles.squadGrid}>
                 {sortedChars.map((char) => {
                     const isCaptain = char.id === captain.id;
+                    const rarity = determineRarity(char);
+                    const styleConfig = getRarityStyle(rarity);
 
                     return (
                         <motion.div
                             key={char.id}
                             className={`${styles.playerSlot} ${isCaptain ? styles.captainSlot : ''}`}
                             variants={cardVariants}
+                            style={!isCaptain ? { // Don't override captain style completely, or merge logic
+                                background: styleConfig.background,
+                                filter: styleConfig.shadow
+                            } : {}}
                             whileHover={{ y: -5, scale: 1.05, zIndex: 10 }} // Ефект при наведенні
                         >
                             {isCaptain && (

@@ -232,6 +232,36 @@ const StatRow = ({ label, value, icon, color }) => (
     </div>
 );
 
+// 🔥 НОВИЙ КОМПОНЕНТ: СЛОТ НА СКАМЕЙЦІ ЗАПАСНИХ
+const BenchSlot = ({ player, onClick, isSelected }) => {
+    // Визначення класу рідкості
+    let rarityClass = '';
+    if (player) {
+        const { talent, age } = player;
+        if (talent >= 9 && age <= 30) {
+            rarityClass = styles.slotExclusive;
+        } else if ((talent >= 7 && talent <= 8) || (talent >= 9 && age > 30)) {
+            rarityClass = styles.slotRare;
+        }
+    }
+
+    return (
+        <motion.div
+            className={`${styles.benchSlot} ${isSelected ? styles.selected : ''} ${rarityClass}`}
+            onClick={onClick}
+            whileTap={{ scale: 0.95 }}
+        >
+            <img
+                src={Config.IMAGES.avatar_uk}
+                alt={player.name}
+                className={styles.benchPlayerImg}
+            />
+            <span className={styles.benchPlayerName}>{player.name}</span>
+            <div className={styles.benchPlayerPower}>{Math.round(player.power)}</div>
+        </motion.div>
+    );
+};
+
 
 // --- MAIN COMPONENT ---
 
@@ -355,9 +385,33 @@ export default function TeamHub({ user, onUserUpdate }) {
             if (player) {
                 setDetailPlayer(player);
             }
+            setSelectedSlot(null);
             return;
         }
 
+        // 🔥 Нова логіка: якщо вибрано гравця зі скамейки
+        if (selectedSlot.section === 'bench') {
+            const newSquad = { ...squadMap };
+            const fieldPlayer = newSquad[section][index];
+
+            // Ставимо гравця зі скамейки на поле
+            newSquad[section][index] = selectedSlot.player;
+
+            // Оновлюємо скамейку
+            const newBench = benchPlayers.filter((_, i) => i !== selectedSlot.index);
+            if (fieldPlayer) {
+                newBench.push(fieldPlayer);
+            }
+
+            setSquadMap(newSquad);
+            setBenchPlayers(newBench.sort((a, b) => b.power - a.power));
+            setSelectedSlot(null);
+            calculateTeamStats(newSquad);
+            saveSquadAPI(user.user_id, newSquad).catch(console.error);
+            return;
+        }
+
+        // Звичайна логіка обміну між слотами на полі
         const newSquad = { ...squadMap };
         const playerA = newSquad[selectedSlot.section][selectedSlot.index];
         const playerB = newSquad[section][index];
@@ -373,6 +427,46 @@ export default function TeamHub({ user, onUserUpdate }) {
 
     const isSelected = (sec, idx) => {
         return selectedSlot && selectedSlot.section === sec && selectedSlot.index === idx;
+    };
+
+    // 🔥 НОВА ФУНКЦІЯ: Обробка кліку на гравця зі скамейки
+    const handleBenchClick = (player, index) => {
+        // Якщо нічого не вибрано - вибираємо гравця зі скамейки
+        if (!selectedSlot) {
+            setSelectedSlot({ section: 'bench', index, player });
+            return;
+        }
+
+        // Якщо клікнули на того ж гравця - показуємо деталі
+        if (selectedSlot.section === 'bench' && selectedSlot.index === index) {
+            setDetailPlayer(player);
+            setSelectedSlot(null);
+            return;
+        }
+
+        // Якщо вибрано гравця з поля - міняємо місцями
+        if (selectedSlot.section !== 'bench') {
+            const newSquad = { ...squadMap };
+            const fieldPlayer = newSquad[selectedSlot.section][selectedSlot.index];
+
+            // Ставимо гравця зі скамейки на поле
+            newSquad[selectedSlot.section][selectedSlot.index] = player;
+
+            // Оновлюємо скамейку: прибираємо гравця зі скамейки і додаємо колишнього з поля (якщо є)
+            const newBench = benchPlayers.filter((_, i) => i !== index);
+            if (fieldPlayer) {
+                newBench.push(fieldPlayer);
+            }
+
+            setSquadMap(newSquad);
+            setBenchPlayers(newBench.sort((a, b) => b.power - a.power));
+            setSelectedSlot(null);
+            calculateTeamStats(newSquad);
+            saveSquadAPI(user.user_id, newSquad).catch(console.error);
+        } else {
+            // Якщо вибрано іншого гравця зі скамейки - просто перевибираємо
+            setSelectedSlot({ section: 'bench', index, player });
+        }
     };
 
     if (isLoading) {
@@ -453,6 +547,25 @@ export default function TeamHub({ user, onUserUpdate }) {
                 <TeamStatsPanel stats={teamStats} />
 
             </div>
+
+            {/* 🔥 СЕКЦІЯ СКАМЕЙКИ ЗАПАСНИХ 🔥 */}
+            {benchPlayers.length > 0 && (
+                <div className={styles.benchSection}>
+                    <div className={styles.benchTitle}>
+                        🏟️ Скамейка Запасних <span>({benchPlayers.length})</span>
+                    </div>
+                    <div className={styles.benchGrid}>
+                        {benchPlayers.map((player, index) => (
+                            <BenchSlot
+                                key={`bench-${player.id}`}
+                                player={player}
+                                isSelected={selectedSlot?.section === 'bench' && selectedSlot?.index === index}
+                                onClick={() => handleBenchClick(player, index)}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* 🔥 БЛОК ТРЕНУВАННЯ В САМОМУ НИЗУ 🔥 */}
             <TrainingBlockTeam user={user} onUserUpdate={onUserUpdate} />

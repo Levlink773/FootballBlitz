@@ -18,15 +18,23 @@
 /* --- PAGE WRAPPER --- */
 .page {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-color: transparent;
-    display: flex; justify-content: center; align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
 
 .pageBackgroundBlur {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: -1;
     object-fit: cover;
     filter: blur(25px) brightness(0.6) saturate(1.2);
@@ -44,9 +52,10 @@
     height: 650px;
     min-height: 650px;
     max-height: 650px;
-    overflow: hidden; /* No scroll on container itself */
+    overflow: hidden;
+    /* No scroll on container itself */
     background: transparent;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -54,8 +63,10 @@
 
 .backgroundImage {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     object-position: center center;
     z-index: -1;
@@ -78,14 +89,18 @@
     overflow-x: hidden;
     scrollbar-width: none;
 }
-.scrollableContent::-webkit-scrollbar { display: none; }
+
+.scrollableContent::-webkit-scrollbar {
+    display: none;
+}
 
 
 .bannerWrapper {
     width: 95%;
     /* 🔥 ВИПРАВЛЕННЯ: Бронюємо місце під банер, щоб він не налізав на інші блоки */
     min-height: 120px;
-    margin-bottom: 20px; /* Відступ знизу до статистики */
+    margin-bottom: 20px;
+    /* Відступ знизу до статистики */
     position: relative;
     z-index: 10;
     cursor: pointer;
@@ -114,29 +129,34 @@
     background: linear-gradient(135deg, #a750df 0%, #453eba 50%, #4646f6 100%);
 
     /* ФІЗИЧНА РАМКА З ФАСКОЮ (Без змін) */
-    border-radius: 16px; /* Трохи зменшили радіус для компактності */
+    border-radius: 16px;
+    /* Трохи зменшили радіус для компактності */
     border: 2px solid rgba(255, 215, 0, 0.4);
 
     /* ГЛИБОКІ ТІНІ ТА РЕЛЬЄФ (Без змін - стиль зберігається) */
     box-shadow:
-            inset 1px 1px 0px rgba(255, 255, 255, 0.4),
-            inset -1px -1px 0px rgba(0, 0, 0, 0.6),
-            inset 0 0 30px rgba(138, 43, 226, 0.3),
-            inset 0 0 10px rgba(255, 215, 0, 0.2),
-            0 8px 20px rgba(0, 0, 0, 0.7), /* Трохи зменшили зовнішню тінь */
-            0 0 15px rgba(70, 70, 246, 0.4);
+        inset 1px 1px 0px rgba(255, 255, 255, 0.4),
+        inset -1px -1px 0px rgba(0, 0, 0, 0.6),
+        inset 0 0 30px rgba(138, 43, 226, 0.3),
+        inset 0 0 10px rgba(255, 215, 0, 0.2),
+        0 8px 20px rgba(0, 0, 0, 0.7),
+        /* Трохи зменшили зовнішню тінь */
+        0 0 15px rgba(70, 70, 246, 0.4);
 
-    padding: 0 12px; /* Трохи менші бокові відступи */
+    padding: 0 12px;
+    /* Трохи менші бокові відступи */
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 10px; /* Менший зазор між блоками */
+    gap: 10px;
+    /* Менший зазор між блоками */
 
     position: relative;
     top: -38px;
     z-index: 5;
-    margin-bottom: 15px; /* Менший відступ знизу */
+    margin-bottom: 15px;
+    /* Менший відступ знизу */
     overflow: hidden;
 }
 
@@ -144,8 +164,10 @@
 .teamStatsCompactWrapper::before {
     content: '';
     position: absolute;
-    top: -50%; left: -100%;
-    width: 50%; height: 200%;
+    top: -50%;
+    left: -100%;
+    width: 50%;
+    height: 200%;
     background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
     transform: skewX(-25deg);
     animation: goldenSheen 6s infinite ease-in-out;
@@ -154,19 +176,30 @@
 }
 
 @keyframes goldenSheen {
-    0%, 80% { left: -100%; }
-    100% { left: 200%; }
+
+    0%,
+    80% {
+        left: -100%;
+    }
+
+    100% {
+        left: 200%;
+    }
 }
 
 /* ЛІВА ЧАСТИНА: Аватар + Ім'я */
 .tscHeader {
     display: flex;
     align-items: center;
-    gap: 10px; /* Менший зазор */
-    width: auto; /* Автоматична ширина */
-    flex-grow: 1; /* Займає доступне місце */
+    gap: 10px;
+    /* Менший зазор */
+    width: auto;
+    /* Автоматична ширина */
+    flex-grow: 1;
+    /* Займає доступне місце */
     padding-right: 10px;
-    height: auto; /* Висота по контенту */
+    height: auto;
+    /* Висота по контенту */
     position: relative;
 
     /* Розділювач-канавка (Без змін) */
@@ -177,7 +210,8 @@
 /* Контейнер аватара (Зменшений) */
 .tscAvatarContainer {
     /* БУЛО 44px -> СТАЛО 38px */
-    width: 38px; height: 38px;
+    width: 38px;
+    height: 38px;
     min-width: 38px;
     border-radius: 10px;
 
@@ -185,37 +219,41 @@
 
     /* Об'єм (Без змін) */
     border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.4);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.4);
 
     display: flex;
     justify-content: center;
     align-items: center;
     color: #333;
-    font-size: 18px; /* Менша іконка (було 20px) */
+    font-size: 18px;
+    /* Менша іконка (було 20px) */
 }
 
 .tscNameContainer {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow: hidden; /* Обрізаємо довгі назви */
+    overflow: hidden;
+    /* Обрізаємо довгі назви */
 }
 
 .tscLabel {
     font-family: 'Inter', sans-serif;
-    font-size: 7px; /* Було 8px */
+    font-size: 7px;
+    /* Було 8px */
     color: #FFD700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     margin-bottom: 1px;
 }
 
 .tscTeamName {
     margin: 0;
     font-family: 'Exo 2', sans-serif;
-    font-size: 14px; /* Було 15px */
+    font-size: 14px;
+    /* Було 15px */
     font-weight: 900;
     color: #fff;
     text-transform: uppercase;
@@ -228,22 +266,27 @@
 /* ПРАВА ЧАСТИНА: Статистика (Компактна зона) */
 .tscGrid {
     display: flex;
-    justify-content: flex-end; /* Вирівнювання вправо */
+    justify-content: flex-end;
+    /* Вирівнювання вправо */
     align-items: center;
-    gap: 6px; /* Менший зазор між блоками */
+    gap: 6px;
+    /* Менший зазор між блоками */
 
     /* Підкладка зони (Без змін) */
     background: rgba(0, 0, 0, 0.2);
-    padding: 3px; /* Менші відступи */
+    padding: 3px;
+    /* Менші відступи */
     border-radius: 9px;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
-    flex-shrink: 0; /* Не стискатися */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+    /* Не стискатися */
 }
 
 /* Окремий блок статистики (Зменшений) */
 .tscStatBox {
     /* flex: 1; - Прибираємо, щоб вони були компактними */
-    width: 42px; /* Фіксована ширина для однаковості */
+    width: 42px;
+    /* Фіксована ширина для однаковості */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -256,19 +299,22 @@
 
     /* Рамка та тіні (Без змін) */
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.5);
 }
 
 .tscIconBox {
-    font-size: 10px; /* Було 11px */
-    margin-bottom: 1px; /* Мінімальний відступ */
+    font-size: 10px;
+    /* Було 11px */
+    margin-bottom: 1px;
+    /* Мінімальний відступ */
     filter: drop-shadow(0 0 6px currentColor);
 }
 
 .tscStatValue {
     font-family: 'Exo 2', sans-serif;
     font-weight: 900;
-    font-size: 12px; /* Було 13px */
+    font-size: 12px;
+    /* Було 13px */
     color: #fff;
     line-height: 1;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
@@ -276,19 +322,22 @@
 
 .tscStatLabel {
     font-family: 'Inter', sans-serif;
-    font-size: 6px; /* Було 7px - дуже дрібний тех-текст */
+    font-size: 6px;
+    /* Було 7px - дуже дрібний тех-текст */
     color: #bbb;
     font-weight: 600;
     text-transform: uppercase;
     margin-top: 1px;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
 }
+
 /* --- 4. EVENT CARD WRAPPER --- */
 .eventCardWrapperEventMain {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-bottom: 15px; /* Відступ до StatsPanel */
+    margin-bottom: 15px;
+    /* Відступ до StatsPanel */
     position: relative;
     top: -40px;
     z-index: 5;
@@ -312,7 +361,8 @@
     /* Додаємо, щоб картка точно не вилазила за ширину */
     box-sizing: border-box;
 }
-.cardContainer > * {
+
+.cardContainer>* {
     pointer-events: auto;
 }
 
@@ -328,7 +378,8 @@
     top: -100px;
     z-index: 10;
 }
-.eventCardWrapperEventMain > * {
+
+.eventCardWrapperEventMain>* {
     pointer-events: auto;
 }
 
@@ -390,7 +441,15 @@
     padding-bottom: 25px;
 }
 
-.highlightOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+.highlightOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+}
 
 .arrowContainer {
     position: absolute;
@@ -423,8 +482,15 @@
 }
 
 @keyframes simpleBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 /* 🔥 ЄДИНА ОБГОРТКА (БЕЗ СКРОЛУ) */
@@ -458,7 +524,8 @@
 
 /* 2. Верхній текст (InfoPanel) */
 .infoTextUpper {
-    width: 95%; /* Трохи вужче, щоб текст не лип до країв */
+    width: 95%;
+    /* Трохи вужче, щоб текст не лип до країв */
     display: flex;
     justify-content: center;
 
@@ -494,26 +561,30 @@
 
 .eventCardWrapperEvent {
     position: absolute;
-    top: 20px; /* регулируешь насколько ниже */
+    top: 20px;
+    /* регулируешь насколько ниже */
     left: -11px;
 }
 
 /* Обёртка для расписания — абсолютное позиционирование, центрирование */
 .eventCardWrapper {
     position: absolute;
-    top: 107px;           /* настройте по необходимости (чтобы располагалось под заголовком) */
+    top: 107px;
+    /* настройте по необходимости (чтобы располагалось под заголовком) */
     left: 50%;
     transform: translateX(-50%);
-    width: 396px;         /* 188 + 20 + 188 = 396 (две карточки + gap) */
+    width: 396px;
+    /* 188 + 20 + 188 = 396 (две карточки + gap) */
     display: flex;
     flex-direction: column;
     align-items: center;
     pointer-events: auto;
-    z-index: 2;            /* поверх фона */
+    z-index: 2;
+    /* поверх фона */
 }
 
 /* Если захотите управлять переносом/растяжением карточек внутри */
-.eventCardWrapper > div {
+.eventCardWrapper>div {
     width: 100%;
 }
 
@@ -558,9 +629,11 @@
 .contentWrapper::-webkit-scrollbar {
     width: 5px;
 }
+
 .contentWrapper::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .contentWrapper::-webkit-scrollbar-thumb {
     background-color: rgba(190, 188, 255, 0.4);
     border-radius: 10px;
@@ -716,7 +789,7 @@
 .promoCardWrapper {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     position: absolute;
-    top: 80px;
+    top: 120px;
     left: 50%;
     transform: translateX(-50%);
     width: min(400px, 90vw);
@@ -740,8 +813,8 @@
     gap: 16px;
     align-items: center;
     overflow: hidden;
-    height: calc(70vh - 1px);
-    max-height: calc(70vh - 1px);
+    height: calc(60vh - 1px);
+    max-height: calc(60vh - 1px);
     min-height: 200px;
     overflow-y: auto;
 }
@@ -757,9 +830,11 @@
 .promoCardContainer::-webkit-scrollbar {
     width: 5px;
 }
+
 .promoCardContainer::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .promoCardContainer::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
@@ -806,7 +881,7 @@
     color: #e0e0e0;
     font-size: 15px;
     line-height: 1.5;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -881,7 +956,7 @@
 
 .promoBtn:active {
     transform: translateY(1px) scale(0.98);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.3);
     transition-duration: 0.1s;
 }
 
@@ -904,29 +979,29 @@
 .energyIcon {
     width: 22px;
     height: 22px;
-    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
 
 /* --- ТАБЛО (Scoreboard) --- */
 .scoreboardContainer {
     position: absolute;
-    top: 90px;
-    left: 5%;
+    top: 70px;
+    left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 400px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: #fff;
     font-family: 'Roboto', sans-serif;
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .team {
@@ -964,8 +1039,15 @@
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* --- ТЕКСТ ПІДКАЗКИ (ArrowText) --- */
@@ -1018,8 +1100,15 @@
 }
 
 @keyframes pointAnimation {
-    0%, 100% { transform: rotate(50deg) translateX(0); }
-    50% { transform: rotate(50deg) translateX(8px); }
+
+    0%,
+    100% {
+        transform: rotate(50deg) translateX(0);
+    }
+
+    50% {
+        transform: rotate(50deg) translateX(8px);
+    }
 }
 
 @media (max-width: 360px) {
@@ -1039,9 +1128,12 @@
     /* Если нужно поднять вообще ВЕСЬ контент (включая расписание),
        можно уменьшить padding-top у главного контейнера */
     .tournamentFlexContent {
-        padding-top: 75px; /* Было 90px */
+        padding-top: 75px;
+        /* Было 90px */
     }
-}/* 🔥 НОВЫЙ КОНТЕЙНЕР ДЛЯ ТРЕНИРОВОК */
+}
+
+/* 🔥 НОВЫЙ КОНТЕЙНЕР ДЛЯ ТРЕНИРОВОК */
 .trainingScrollContent {
     width: 100%;
     height: 100%;
@@ -1072,7 +1164,8 @@
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.50);
-    margin: 5px 0; /* Небольшой отступ сверху и снизу */
+    margin: 5px 0;
+    /* Небольшой отступ сверху и снизу */
     flex-shrink: 0;
 }
 
@@ -1085,6 +1178,7 @@
     align-items: center;
     padding-bottom: 20px;
 }
+
 @media (max-width: 340px) {
     .arrowContainer {
         left: -7%;
@@ -1115,10 +1209,12 @@
     align-items: center;
     justify-content: center;
 
-    background: rgba(0, 0, 0, 0.4); /* Напівпрозорий чорний */
+    background: rgba(0, 0, 0, 0.4);
+    /* Напівпрозорий чорний */
     backdrop-filter: blur(4px);
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%; /* Кругла кнопка */
+    border-radius: 50%;
+    /* Кругла кнопка */
 
     cursor: pointer;
     z-index: 101;
@@ -1140,24 +1236,27 @@
 .tutorialIcon {
     font-size: 30px;
     color: #ffffff;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.8));
 }
 
 .tutorialLabel {
     font-size: 10px;
     font-weight: 700;
-    color: #00DDFF; /* Яскравий колір тексту */
+    color: #00DDFF;
+    /* Яскравий колір тексту */
     margin-top: -2px;
     text-shadow: 0 1px 2px black;
     letter-spacing: 0.5px;
 }
+
 /* --- Кнопка Аналітики (Стиль як у Tutorial) --- */
 .analyticsContainer {
     position: absolute;
     /* Позиція, де була стара стрілочка/скриня */
     top: 200px;
     left: 0%;
-    margin-left: 40px; /* Зміщення вправо від центру */
+    margin-left: 40px;
+    /* Зміщення вправо від центру */
 
     width: 60px;
     height: 60px;
@@ -1192,24 +1291,34 @@
 }
 
 .analyticsIcon {
-    font-size: 24px; /* Трохи менша, щоб вліз текст */
+    font-size: 24px;
+    /* Трохи менша, щоб вліз текст */
     color: #ffffff;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.8));
     margin-bottom: 2px;
 }
 
 .analyticsLabel {
     font-size: 5.5px;
     font-weight: 700;
-    color: #FFD700; /* Золотий текст */
+    color: #FFD700;
+    /* Золотий текст */
     text-transform: uppercase;
     text-shadow: 0 1px 2px black;
     letter-spacing: 0.5px;
     line-height: 1;
 }
+
 @keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Адаптація для маленьких екранів (так само як для скрині) */
@@ -1218,24 +1327,28 @@
         left: -7%;
     }
 }
+
 /* --- 4. DAILY GOALS SECTION (AQUA GLAMOUR STYLE) --- */
 /* --- 4. DAILY GOALS SECTION (HEAVY METAL AQUA) --- */
 .dailyGoalsWrapper {
     width: 95%;
     display: flex;
     justify-content: space-between;
-    gap: 15px; /* Більше простору між "плитами" */
+    gap: 15px;
+    /* Більше простору між "плитами" */
     margin-bottom: 25px;
     position: relative;
     top: 82px;
     z-index: 5;
-    perspective: 1000px; /* Для легкого 3D відчуття */
+    perspective: 1000px;
+    /* Для легкого 3D відчуття */
 }
 
 /* ЗАГАЛЬНА БАЗА ДЛЯ МЕТАЛЕВИХ КАРТОК */
 .dailyCardBase {
     flex: 1;
-    height: 80px; /* Трохи масивніше */
+    height: 80px;
+    /* Трохи масивніше */
     border-radius: 18px;
     position: relative;
     overflow: hidden;
@@ -1250,32 +1363,37 @@
 
     /* Складний тіньовий профіль для об'єму (Bevel) */
     box-shadow:
-            inset 1px 1px 0px rgba(255, 255, 255, 0.4), /* Верхній блік (фаска) */
-            inset -1px -1px 0px rgba(0, 0, 0, 0.3),    /* Нижня тінь (фаска) */
-            0 10px 20px rgba(0, 0, 0, 0.3),             /* Глибока тінь під карткою */
-            0 4px 0 rgba(0, 0, 0, 0.2);                 /* Товщина знизу */
+        inset 1px 1px 0px rgba(255, 255, 255, 0.4),
+        /* Верхній блік (фаска) */
+        inset -1px -1px 0px rgba(0, 0, 0, 0.3),
+        /* Нижня тінь (фаска) */
+        0 10px 20px rgba(0, 0, 0, 0.3),
+        /* Глибока тінь під карткою */
+        0 4px 0 rgba(0, 0, 0, 0.2);
+    /* Товщина знизу */
 }
 
 .dailyCardBase:active {
     transform: translateY(4px) scale(0.98);
     box-shadow:
-            inset 2px 2px 10px rgba(0,0,0,0.4),
-            0 2px 5px rgba(0, 0, 0, 0.2); /* Тінь зникає при натисканні */
+        inset 2px 2px 10px rgba(0, 0, 0, 0.4),
+        0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Тінь зникає при натисканні */
 }
 
 /* БЛІК (Рухомий металевий блиск) */
 .dailyCardBase::after {
     content: '';
     position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
-    background: linear-gradient(
-            90deg,
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg,
             transparent,
             rgba(255, 255, 255, 0.4),
             rgba(255, 255, 255, 0.7),
-            transparent
-    );
+            transparent);
     transform: skewX(-25deg);
     /* Дуже повільний і рідкісний блік, як на дорогій машині */
     animation: metalSheen 6s infinite ease-in-out;
@@ -1284,9 +1402,21 @@
 }
 
 @keyframes metalSheen {
-    0%, 85% { left: -100%; opacity: 0; }
-    90% { opacity: 1; }
-    100% { left: 200%; opacity: 0; }
+
+    0%,
+    85% {
+        left: -100%;
+        opacity: 0;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        left: 200%;
+        opacity: 0;
+    }
 }
 
 /* --- LEFT CARD: DAILY LOOT (MINT ALLOY) --- */
@@ -1305,7 +1435,8 @@
 
 /* Рамка для іконки (Вдавлений люк) */
 .boxFrame {
-    width: 50px; height: 50px;
+    width: 50px;
+    height: 50px;
     min-width: 50px;
     display: flex;
     justify-content: center;
@@ -1315,18 +1446,23 @@
     z-index: 2;
 
     /* Ефект впадини (Inset) */
-    background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
     box-shadow:
-            inset 2px 2px 5px rgba(0,0,0,0.5), /* Внутрішня тінь */
-            inset -1px -1px 2px rgba(255,255,255,0.2), /* Контр-світло */
-            0 2px 4px rgba(0,0,0,0.2); /* Зовнішня тінь */
+        inset 2px 2px 5px rgba(0, 0, 0, 0.5),
+        /* Внутрішня тінь */
+        inset -1px -1px 2px rgba(255, 255, 255, 0.2),
+        /* Контр-світло */
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Зовнішня тінь */
 
     border: 1px solid rgba(56, 239, 125, 0.3);
 }
 
 .boxImage {
-    width: 40px; height: 40px;
-    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.4)); /* Тінь від предмета всередині */
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.4));
+    /* Тінь від предмета всередині */
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -1346,10 +1482,11 @@
     font-family: 'Exo 2', sans-serif;
     font-weight: 800;
     font-size: 10px;
-    color: #a7ffeb; /* Світла м'ята */
+    color: #a7ffeb;
+    /* Світла м'ята */
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .boxTimer {
@@ -1358,7 +1495,7 @@
     font-size: 16px;
     color: #fff;
     /* Ефект врізаних цифр */
-    text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
     letter-spacing: 0.5px;
 }
 
@@ -1372,13 +1509,22 @@
     padding: 6px 16px;
     border-radius: 6px;
     text-transform: uppercase;
-    box-shadow: 0 3px 0 #00695c, 0 5px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 #00695c, 0 5px 10px rgba(0, 0, 0, 0.3);
     animation: pulseBtn 1.5s infinite;
 }
+
 @keyframes pulseBtn {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 
@@ -1390,10 +1536,11 @@
     /* Неонова синя підсвітка знизу */
     border-bottom: 3px solid #1a2a33;
     box-shadow:
-            inset 1px 1px 0px rgba(255, 255, 255, 0.2),
-            0 10px 20px rgba(0, 0, 0, 0.4),
-            0 4px 0 rgba(0, 0, 0, 0.3),
-            inset 0 -20px 30px rgba(0, 242, 255, 0.1); /* Світіння з глибини */
+        inset 1px 1px 0px rgba(255, 255, 255, 0.2),
+        0 10px 20px rgba(0, 0, 0, 0.4),
+        0 4px 0 rgba(0, 0, 0, 0.3),
+        inset 0 -20px 30px rgba(0, 242, 255, 0.1);
+    /* Світіння з глибини */
 
     flex-direction: column;
     padding: 10px 14px;
@@ -1430,14 +1577,16 @@
 .taskProgressContainer {
     width: 100%;
     height: 8px;
-    background: #0f181f; /* Дуже темний фон */
+    background: #0f181f;
+    /* Дуже темний фон */
     border-radius: 4px;
     margin: 6px 0;
     /* Внутрішня тінь створює ефект каналу */
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .taskProgressFill {
@@ -1453,17 +1602,18 @@
 .taskProgressFill::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    background-image: linear-gradient(
-            -45deg,
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(-45deg,
             rgba(255, 255, 255, 0.2) 25%,
             transparent 25%,
             transparent 50%,
             rgba(255, 255, 255, 0.2) 50%,
             rgba(255, 255, 255, 0.2) 75%,
             transparent 75%,
-            transparent
-    );
+            transparent);
     z-index: 1;
     background-size: 20px 20px;
     animation: moveStripes 2s linear infinite;
@@ -1471,8 +1621,13 @@
 }
 
 @keyframes moveStripes {
-    0% { background-position: 0 0; }
-    100% { background-position: 20px 20px; }
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 20px 20px;
+    }
 }
 
 .taskFooter {

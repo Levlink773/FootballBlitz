@@ -1,29 +1,29 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {motion, AnimatePresence} from 'framer-motion';
-import {Header} from "../components/Header.jsx";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Header } from "../components/Header.jsx";
 import Config from "../config.js";
-import {NavigationBar} from "../components/NavigationBar.jsx";
-import {ModalRoot, DonateEnergyModal, OutOfEnergyModal} from '../components/modal_components/ModalComponents.jsx';
+import { NavigationBar } from "../components/NavigationBar.jsx";
+import { ModalRoot, DonateEnergyModal, OutOfEnergyModal } from '../components/modal_components/ModalComponents.jsx';
 import styles from '../css_files/Main.module.css';
-import {showAlert, showTopChanceAlert} from "../alertService.jsx";
-import {api, API_BASE_URL} from "../api.js";
-import {useWebSocketPro} from "../../useWebsocket.js";
+import { showAlert, showTopChanceAlert } from "../alertService.jsx";
+import { api, API_BASE_URL } from "../api.js";
+import { useWebSocketPro } from "../../useWebsocket.js";
 import DOMPurify from 'dompurify';
-import {LootBoxOpeningModal} from "../components/modal_components/LootBoxOpeningModal.jsx";
+import { LootBoxOpeningModal } from "../components/modal_components/LootBoxOpeningModal.jsx";
 
 // --- НОВЫЙ КОМПОНЕНТ SCOREBOARD ---
 // --- ВИПРАВЛЕНИЙ КОМПОНЕНТ SCOREBOARD ---
-const Scoreboard = ({matchState}) => {
+const Scoreboard = ({ matchState }) => {
     // Не рендерим компонент, якщо даних про команди немає
     if (!matchState?.name_first_team || !matchState?.name_second_team) {
         return null;
     }
 
     const scoreVariants = {
-        initial: {opacity: 0, y: -10},
-        animate: {opacity: 1, y: 0},
-        exit: {opacity: 0, y: 10},
+        initial: { opacity: 0, y: -10 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: 10 },
     };
 
     // Очищаємо HTML перед рендерингом
@@ -33,9 +33,9 @@ const Scoreboard = ({matchState}) => {
     return (
         <motion.div
             className={styles.scoreboardContainer}
-            initial={{opacity: 0, y: -50}}
-            animate={{opacity: 1, y: 0}}
-            transition={{type: 'spring', stiffness: 100, damping: 15}}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 15 }}
         >
             <div className={styles.team}>
                 {/* Використовуємо dangerouslySetInnerHTML для першої команди */}
@@ -71,7 +71,7 @@ const Scoreboard = ({matchState}) => {
 };
 
 
-export default function MatchCard({user, setUser}) {
+export default function MatchCard({ user, setUser }) {
     const [isLoading, setIsLoading] = useState(false);
     const [activeModal, setActiveModal] = useState(null);
 
@@ -107,7 +107,7 @@ export default function MatchCard({user, setUser}) {
 
             case 'show_alert':
                 if (data.payload && data.payload.message) {
-                    showAlert(data.payload.message, {html: data.payload.html});
+                    showAlert(data.payload.message, { html: data.payload.html });
                 }
                 break;
 
@@ -126,9 +126,9 @@ export default function MatchCard({user, setUser}) {
                 if (data.payload && data.payload.reward_box) {
                     setRewardBoxType(data.payload.reward_box);
                 } else {
-                    // Если бокса нет - просто уходим
+                    // Если бокса нет - просто уходим на главную
                     showAlert(data.payload.message || "Матч завершено");
-                    navigate('/blitz');
+                    navigate('/');
                 }
                 break;
 
@@ -141,7 +141,7 @@ export default function MatchCard({user, setUser}) {
     const handleCloseReward = async () => {
         setRewardBoxType(null);
         await fetchUser(); // Обновляем баланс
-        navigate('/blitz');
+        navigate('/'); // Переход на главную страницу
     };
 
     useEffect(() => {
@@ -212,7 +212,7 @@ export default function MatchCard({user, setUser}) {
         setIsLoading(true);
         setActiveModal(null);
         try {
-            const response = await api.createEnergyPayment({userId: user.user_id, pack: item});
+            const response = await api.createEnergyPayment({ userId: user.user_id, pack: item });
             if (response && response.page_url) {
                 window.location.href = response.page_url;
             } else {
@@ -227,7 +227,7 @@ export default function MatchCard({user, setUser}) {
     };
 
     if (!isMatchStateLoading && matchState === null) {
-        return <div style={{textAlign: 'center', marginTop: '50px'}}>Перенаправлення...</div>;
+        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Перенаправлення...</div>;
     }
 
     return (
@@ -243,10 +243,10 @@ export default function MatchCard({user, setUser}) {
                         <h2>Створення платежу...</h2>
                     </div>
                 )}
-                <Header user={user}/>
+                <Header user={user} />
 
                 {/* --- ВСТАВЛЯЕМ ТАБЛО ЗДЕСЬ --- */}
-                <Scoreboard matchState={matchState}/>
+                <Scoreboard matchState={matchState} />
 
                 <img
                     src={Config.IMAGES.match_background}
@@ -259,16 +259,16 @@ export default function MatchCard({user, setUser}) {
                     matchState={matchState}
                     isMatchStateLoading={isMatchStateLoading}
                 />
-                <NavigationBar/>
+                <NavigationBar />
                 <AnimatePresence>
                     {activeModal === 'donate' && (
                         <ModalRoot>
-                            <DonateEnergyModal onClose={() => setActiveModal(null)} onConfirm={handleDonate}/>
+                            <DonateEnergyModal onClose={() => setActiveModal(null)} onConfirm={handleDonate} />
                         </ModalRoot>
                     )}
                     {activeModal === 'buy' && (
                         <ModalRoot>
-                            <OutOfEnergyModal onClose={() => setActiveModal(null)} onBuy={handlePurchaseEnergy}/>
+                            <OutOfEnergyModal onClose={() => setActiveModal(null)} onBuy={handlePurchaseEnergy} />
                         </ModalRoot>
                     )}
                     {/* 🔥 ДОДАЄМО МОДАЛКУ ВІДКРИТТЯ БОКСУ */}
@@ -285,14 +285,14 @@ export default function MatchCard({user, setUser}) {
     );
 }
 
-const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) => {
+const PromoCard = ({ onOpenDonate, onOpenBuy, matchState, isMatchStateLoading }) => {
     const cardVariants = {
-        hidden: {opacity: 0, y: 50, scale: 0.95},
+        hidden: { opacity: 0, y: 50, scale: 0.95 },
         visible: {
             opacity: 1,
             y: 0,
             scale: 1,
-            transition: {type: 'spring', damping: 20, stiffness: 200, delay: 0.2}
+            transition: { type: 'spring', damping: 20, stiffness: 200, delay: 0.2 }
         }
     };
 
@@ -304,7 +304,7 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
         if (!matchState) {
             return (
                 <div className={styles.promoText}>
-                    <h2 style={{textAlign: 'center', padding: '20px 0'}}>
+                    <h2 style={{ textAlign: 'center', padding: '20px 0' }}>
                         Перевірка участі у турнірі...
                     </h2>
                 </div>
@@ -330,15 +330,15 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                     src={imageSrc}
                     alt="football goal"
                     className={styles.promoGoal}
-                    whileHover={{scale: 1.05}}
-                    transition={{type: 'spring', stiffness: 300}}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
                 />
                 <div
                     className={styles.promoText}
-                    style={matchState.state === 'ping' ? {fontSize: '10px'} : {}}
+                    style={matchState.state === 'ping' ? { fontSize: '10px' } : {}}
                 >
                     {safeHtml ? (
-                        <div dangerouslySetInnerHTML={{__html: safeHtml}}/>
+                        <div dangerouslySetInnerHTML={{ __html: safeHtml }} />
                     ) : (
                         <p>{/* fallback */}Очікуємо на початок...</p>
                     )}
@@ -349,22 +349,22 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                             <motion.button
                                 className={`${styles.promoBtn} ${styles.boostBtn}`}
                                 onClick={onOpenDonate}
-                                whileHover={{scale: 1.05, y: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.3)'}}
-                                whileTap={{scale: 0.95}}
+                                whileHover={{ scale: 1.05, y: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
+                                whileTap={{ scale: 0.95 }}
                             >
                                 <span>ПІДСИЛИТИ</span>
                                 <img src={Config.IMAGES.energy} alt="Енергія" className={styles.energyIcon}
-                                     style={{width: 28, height: 28}}/>
+                                    style={{ width: 28, height: 28 }} />
                             </motion.button>
                             <motion.button
                                 className={`${styles.promoBtn} ${styles.buyBtn}`}
                                 onClick={onOpenBuy}
-                                whileHover={{scale: 1.05, y: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.3)'}}
-                                whileTap={{scale: 0.95}}
+                                whileHover={{ scale: 1.05, y: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}
+                                whileTap={{ scale: 0.95 }}
                             >
                                 <span>КУПИТИ</span>
                                 <img src={Config.IMAGES.energy_energy} alt="Енергія" className={styles.energyIcon}
-                                     style={{width: 18}}/>
+                                    style={{ width: 18 }} />
                             </motion.button>
                         </div>
                         <div className={styles.promoText}>
@@ -386,7 +386,7 @@ const PromoCard = ({onOpenDonate, onOpenBuy, matchState, isMatchStateLoading}) =
                 initial="hidden"
                 animate="visible"
             >
-                <div className={styles.gradientBorder}/>
+                <div className={styles.gradientBorder} />
                 <h3 className={styles.promoTitle}>МАТЧ</h3>
                 {renderContent()}
             </motion.div>

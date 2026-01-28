@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, {css, keyframes} from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { Steps } from 'intro.js-react';
 import 'intro.js/introjs.css';
 import win_sound from "../../assets/public/sounds/winner.mp3"
 import Config from "../../config.js";
-import {showAlert, showInfoModal} from "../../alertService.jsx";
+import { showAlert, showInfoModal } from "../../alertService.jsx";
 import { useWebSocketPro } from "../../../useWebsocket.js";
 import { API_BASE_URL } from "../../api.js";
 import buttonBg from '../../assets/public/vip_emblem_large.png';
@@ -51,9 +51,9 @@ const CardWrapper = styled.div`
     z-index: 10;
 
     animation: ${props => props.isHighlighted
-    ? css`${pulseHighlight} 2s infinite ease-in-out`
-    : css`${fadeIn} 0.45s ease-out forwards`
-};
+        ? css`${pulseHighlight} 2s infinite ease-in-out`
+        : css`${fadeIn} 0.45s ease-out forwards`
+    };
 
     &:hover {
         transform: translate(-50%, -4px) scale(1.02);
@@ -355,7 +355,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
     }, [user]);
 
     const handleWebSocketMessage = useCallback((data) => {
-        if(data.type === 'show_alert' && data.payload) {
+        if (data.type === 'show_alert' && data.payload) {
             if (data.payload.message === "Бліц турнір почався!") {
                 showAlert(data.payload.message, { html: data.payload.html, sound: win_sound, });
             } else {
@@ -455,7 +455,8 @@ export const EventCard = ({ user, onUserUpdate }) => {
         if (isRegistered) { showAlert("Ви вже зареєстровані на цей бліц."); return; }
 
         // Перевірка статусів
-        const allowedStatuses = ['FIRST_BLITZ', 'END_REGISTER'];
+        // 🔥 ВИПРАВЛЕНО: Додано 'HOME' для дозволу реєстрації після завершення навчання
+        const allowedStatuses = ['FIRST_BLITZ', 'END_REGISTER', 'HOME'];
         if (!user?.status_register || !allowedStatuses.includes(user.status_register)) {
             showAlert("Реєстрація на бліц-турнір наразі недоступна. Пройдіть навчання!");
             return;
@@ -534,8 +535,8 @@ export const EventCard = ({ user, onUserUpdate }) => {
                 options={{ doneLabel: 'Зрозуміло', nextLabel: 'Далі', prevLabel: 'Назад', hidePrev: true, skipLabel: 'Пропустити', showBullets: false }}
             />
             <CardWrapper onClick={handleRegisterClick} data-tutorial="blitz-register" isHighlighted={isHighlighted}>
-                <CardBackground src={Config.IMAGES.football_goal} alt="event background"/>
-                <CupIcon src={Config.IMAGES.cup} alt="tournament cup"/>
+                <CardBackground src={Config.IMAGES.football_goal} alt="event background" />
+                <CupIcon src={Config.IMAGES.cup} alt="tournament cup" />
 
                 {/* Вміст картки залежить від станів */}
                 <ContentWrapper>
@@ -550,7 +551,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                         isRegistered ? (
                             <RegistrationButton>Увійти в матч</RegistrationButton>
                         ) : (
-                            <NotRegisteredMessage>Ви не зареєстровані. <br/> Чекайте на наступний.</NotRegisteredMessage>
+                            <NotRegisteredMessage>Ви не зареєстровані. <br /> Чекайте на наступний.</NotRegisteredMessage>
                         )
                     ) : (
                         // --- ВАРІАНТ 3: ОЧІКУВАННЯ (Звичайний стан або Туторіал) ---
@@ -565,7 +566,7 @@ export const EventCard = ({ user, onUserUpdate }) => {
                                 ) : (
                                     <RegistrationButton type="button">
                                         Зареєструватись
-                                        <CostWrapper>- {registrationCost}<CurrencyIcon src={Config.IMAGES.energy}/></CostWrapper>
+                                        <CostWrapper>- {registrationCost}<CurrencyIcon src={Config.IMAGES.energy} /></CostWrapper>
                                     </RegistrationButton>
                                 )}
                             </>

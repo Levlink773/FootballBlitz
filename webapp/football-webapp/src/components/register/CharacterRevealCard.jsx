@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { FaBolt, FaStar, FaBirthdayCake } from 'react-icons/fa';
 import styles from '../../css_files/register/CharacterRevealCard.module.css';
 import Config from "../../config.js";
-import {GiGloves, GiRunningShoe, GiShield, GiSoccerBall} from "react-icons/gi";
+import { GiGloves, GiRunningShoe, GiShield, GiSoccerBall } from "react-icons/gi";
 
 // Анімація контейнера
 const containerVariants = {
@@ -47,10 +47,10 @@ const countryFlagMap = {
 };
 const positionMap = {
     'GOALKEEPER': { label: 'GK', full: 'ВОРОТАР', icon: <GiGloves /> },
-    'DEFENDER':   { label: 'DEF', full: 'ЗАХИСНИК', icon: <GiShield /> },
+    'DEFENDER': { label: 'DEF', full: 'ЗАХИСНИК', icon: <GiShield /> },
     'MIDFIELDER': { label: 'MID', full: 'ПІВЗАХИСНИК', icon: <GiRunningShoe /> },
-    'ATTACKER':   { label: 'FWD', full: 'НАПАДНИК', icon: <GiSoccerBall /> },
-    'default':    { label: 'UNK', full: 'ГРАВЕЦЬ', icon: <FaStar /> }
+    'ATTACKER': { label: 'FWD', full: 'НАПАДНИК', icon: <GiSoccerBall /> },
+    'default': { label: 'UNK', full: 'ГРАВЕЦЬ', icon: <FaStar /> }
 };
 
 // --- ✨ ОНОВЛЕНО: приймаємо counter і customButtonText ---
@@ -69,6 +69,31 @@ export const CharacterRevealCard = ({ character, onContinue, customButtonText, c
     const flag = countryFlagMap[character.country] || countryFlagMap['default'];
     const posData = positionMap[character.position] || positionMap['default'];
     const overallRating = character.power || 50;
+
+    // --- Rarity Logic ---
+    const determineRarity = (char) => {
+        if (char.rarity) return char.rarity.toUpperCase();
+        const { talent, age } = char;
+        if (talent >= 9 && age <= 30) return 'EXCLUSIVE';
+        if ((talent >= 7 && talent <= 8) || (talent >= 9 && age > 30)) return 'RARE';
+        return 'STANDARD';
+    };
+
+    const getRarityConfig = (rarity) => {
+        const r = rarity ? rarity.toUpperCase() : 'STANDARD';
+        switch (r) {
+            case 'EXCLUSIVE': // Фіолетовий неон
+                return { label: 'EXCLUSIVE', color: '#d500f9', shadowColor: '#9c27b0', bgGlow: 'rgba(213, 0, 249, 0.4)' };
+            case 'RARE': // Помаранчевий неон
+                return { label: 'RARE', color: '#ff9100', shadowColor: '#e65100', bgGlow: 'rgba(255, 145, 0, 0.4)' };
+            case 'STANDARD':
+            default: // Золотий (за замовчуванням у CSS)
+                return { label: 'STANDARD', color: '#FFD700', shadowColor: '#FFD700', bgGlow: 'rgba(255, 215, 0, 0.2)' };
+        }
+    };
+
+    const rarity = determineRarity(character);
+    const rarityStyle = getRarityConfig(rarity);
 
     // --- Розмір шрифту імені ---
     const baseSizeRem = 1.6;
@@ -110,7 +135,13 @@ export const CharacterRevealCard = ({ character, onContinue, customButtonText, c
                 className={styles.cardWrapper}
                 variants={cardVariants}
             >
-                <div className={styles.card}>
+                <div
+                    className={styles.card}
+                    style={{
+                        borderColor: rarityStyle.color,
+                        boxShadow: `0 0 40px ${rarityStyle.bgGlow}, 0 20px 50px rgba(0,0,0,0.7), inset 0 0 20px ${rarityStyle.bgGlow}`
+                    }}
+                >
                     {/* Блік */}
                     <motion.div
                         className={styles.cardSheen}
@@ -119,14 +150,14 @@ export const CharacterRevealCard = ({ character, onContinue, customButtonText, c
 
                     {/* Верх: Рейтинг, Позиція, Прапор */}
                     <div className={styles.cardTopInfo}>
-                        <div className={styles.ratingBox}>
+                        <div className={styles.ratingBox} style={{ borderBottomColor: rarityStyle.bgGlow }}>
                             <span className={styles.ratingNumber}>{overallRating}</span>
-                            <span className={styles.ratingLabel}>GEN</span>
+                            <span className={styles.ratingLabel} style={{ color: rarityStyle.color }}>GEN</span>
                         </div>
 
                         {/* Позиція */}
                         <div className={styles.positionBox}>
-                            <span className={styles.positionIcon}>{posData.icon}</span>
+                            <span className={styles.positionIcon} style={{ color: rarityStyle.color }}>{posData.icon}</span>
                             <span className={styles.positionLabel}>{posData.label}</span>
                         </div>
 
@@ -137,11 +168,15 @@ export const CharacterRevealCard = ({ character, onContinue, customButtonText, c
 
                     {/* Фото + Повна назва позиції */}
                     <div className={styles.imageContainer}>
-                        <div className={styles.imageGlow}></div>
+                        <div
+                            className={styles.imageGlow}
+                            style={{ background: `radial-gradient(circle, ${rarityStyle.bgGlow} 0%, rgba(0,0,0,0) 70%)` }}
+                        ></div>
                         <img
                             src={Config.IMAGES.avatar_uk}
                             alt={character.name}
                             className={styles.characterImage}
+                            style={{ borderColor: rarityStyle.color }}
                         />
                         <div className={styles.positionFullLabel}>
                             {posData.full}

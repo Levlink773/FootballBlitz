@@ -1,11 +1,11 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import Config from "../../config.js";
-import {motion, AnimatePresence} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import default_sound from "../../assets/public/sounds/notification.mp3"
-import {useSpring, animated} from 'react-spring';
-import {showAlert} from "../../alertService.jsx";
-import {API_BASE_URL} from "../../api.js";
+import { useSpring, animated } from 'react-spring';
+import { showAlert } from "../../alertService.jsx";
+import { API_BASE_URL } from "../../api.js";
 import DOMPurify from "dompurify";
 
 /**
@@ -44,16 +44,16 @@ const noiseURL = "data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://
 
 
 export function ModalRoot({
-                              children,
-                              onClose,
-                              backdrop = true,
-                              variant = "center",
-                              attachTo = null,
-                              className = "",
-                              style = {},
-                              animation = true,
-                              soundOnOpen = default_sound,
-                          }) {
+    children,
+    onClose,
+    backdrop = true,
+    variant = "center",
+    attachTo = null,
+    className = "",
+    style = {},
+    animation = true,
+    soundOnOpen = default_sound,
+}) {
     // ... (useEffect та useLayoutEffect залишаються без змін) ...
     useEffect(() => {
         if (soundOnOpen) {
@@ -88,17 +88,17 @@ export function ModalRoot({
                 const cy = variant === "alert"
                     ? rect.top + 20 + Math.max(24, rect.height * 0.08)
                     : rect.top + rect.height / 2;
-                setCenter({x: Math.round(cx), y: Math.round(cy)});
+                setCenter({ x: Math.round(cx), y: Math.round(cy) });
             } else {
-                setCenter({x: window.innerWidth / 2, y: window.innerHeight / 2});
+                setCenter({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
             }
         }
 
         updateCenter();
-        window.addEventListener("resize", updateCenter, {passive: true});
-        window.addEventListener("scroll", updateCenter, {passive: true});
+        window.addEventListener("resize", updateCenter, { passive: true });
+        window.addEventListener("scroll", updateCenter, { passive: true });
         const mo = new MutationObserver(updateCenter);
-        mo.observe(document.body, {childList: true, subtree: true});
+        mo.observe(document.body, { childList: true, subtree: true });
         return () => {
             window.removeEventListener("resize", updateCenter);
             window.removeEventListener("scroll", updateCenter);
@@ -108,14 +108,14 @@ export function ModalRoot({
 
     // Анімації залишаються ті самі...
     const backdropVariants = {
-        hidden: {opacity: 0},
-        visible: {opacity: 1},
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
     };
 
     const modalVariants = {
-        hidden: {opacity: 0, scale: 0.9, y: "-45%", x: "-50%"},
-        visible: {opacity: 1, scale: 1, y: "-50%", x: "-50%"},
-        exit: {opacity: 0, scale: 0.9, y: "-55%", x: "-50%"}
+        hidden: { opacity: 0, scale: 0.9, y: "-45%", x: "-50%" },
+        visible: { opacity: 1, scale: 1, y: "-50%", x: "-50%" },
+        exit: { opacity: 0, scale: 0.9, y: "-55%", x: "-50%" }
     };
 
     const overlayBase = {
@@ -158,7 +158,7 @@ export function ModalRoot({
     const modal = (
         <AnimatePresence mode="wait">
             <div style={overlayBase} className={`modal-root ${className}`}>
-                <GlobalStyles/>
+                <GlobalStyles />
                 <motion.div
                     key="backdrop"
                     style={backdropStyle}
@@ -167,7 +167,7 @@ export function ModalRoot({
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
-                    transition={{duration: 0.3, ease: "circOut"}}
+                    transition={{ duration: 0.3, ease: "circOut" }}
                 />
                 <motion.div
                     key="modal-content"
@@ -177,7 +177,7 @@ export function ModalRoot({
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    transition={{type: "spring", damping: 25, stiffness: 350}}
+                    transition={{ type: "spring", damping: 25, stiffness: 350 }}
                 >
                     {children}
                 </motion.div>
@@ -190,7 +190,7 @@ export function ModalRoot({
 
 
 // ✨ --- Box (Значно перероблений для кращого візуалу) --- ✨
-export function Box({children, style = {}, className = "", onClose}) {
+export function Box({ children, style = {}, className = "", onClose }) {
     const baseStyle = {
         position: "relative",
         // ✨ Ефект "Аврора" - напівпрозорий фон з градієнтом та шумом
@@ -251,7 +251,7 @@ export function Box({children, style = {}, className = "", onClose}) {
 
     return (
         <div style={baseStyle} className={`modal-box ${className}`}>
-            <div style={gradientBorderStyle}/>
+            <div style={gradientBorderStyle} />
             {/* ✨ Градієнтна обводка */}
             {onClose && (
                 <motion.button
@@ -265,12 +265,12 @@ export function Box({children, style = {}, className = "", onClose}) {
                         scale: 1.1,
                         rotate: 90
                     }}
-                    whileTap={{scale: 0.9}}
+                    whileTap={{ scale: 0.9 }}
                 >
                     ×
                 </motion.button>
             )}
-            <div style={{position: "relative", zIndex: 1}}> {/* Контент має бути над обводкою */}
+            <div style={{ position: "relative", zIndex: 1 }}> {/* Контент має бути над обводкою */}
                 {children}
             </div>
         </div>
@@ -280,7 +280,7 @@ export function Box({children, style = {}, className = "", onClose}) {
 
 // ✨ --- Покращені компоненти --- ✨
 
-function HeaderBar({title}) {
+function HeaderBar({ title }) {
     return (
         <div style={{
             textAlign: "center",
@@ -295,7 +295,7 @@ function HeaderBar({title}) {
     );
 }
 
-function GradientButton({children, onClick, style = {}, variant = 'primary'}) {
+function GradientButton({ children, onClick, style = {}, variant = 'primary' }) {
     const buttonStyle = {
         borderRadius: 18,
         padding: "10px 16px",
@@ -314,9 +314,9 @@ function GradientButton({children, onClick, style = {}, variant = 'primary'}) {
         <motion.button
             onClick={onClick}
             style={buttonStyle}
-            whileHover={{scale: 1.05, y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)"}}
-            whileTap={{scale: 0.98, y: 0}}
-            transition={{type: "spring", stiffness: 400, damping: 15}}
+            whileHover={{ scale: 1.05, y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }}
+            whileTap={{ scale: 0.98, y: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
         >
             {children}
         </motion.button>
@@ -410,15 +410,15 @@ export function TopChancesAlert({ teams = [] }) {
 
 /* ---------- PlayerModal (Більш виразний дизайн) ---------- */
 export function PlayerModal({
-                                player = {},
-                                isOwner = false,
-                                onBuy,
-                                onSell,
-                                onRemoveFromSale,
-                                onInstantSell,
-                                onClose,
-                                isProcessing = false,
-                            }) {
+    player = {},
+    isOwner = false,
+    onBuy,
+    onSell,
+    onRemoveFromSale,
+    onInstantSell,
+    onClose,
+    isProcessing = false,
+}) {
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Escape') onClose();
@@ -562,7 +562,7 @@ export function PlayerModal({
                         <div style={statItemStyle}>
                             <span style={statLabelStyle}>Талант:</span>
                             {/* Підсвітка таланту кольором рідкості */}
-                            <span style={{...statValueStyle, color: rarityStyle.color}}>
+                            <span style={{ ...statValueStyle, color: rarityStyle.color }}>
                                 {player.talent ?? "—"}
                             </span>
                         </div>
@@ -628,7 +628,7 @@ export function PlayerModal({
 }
 /* ---------- DonateEnergyModal & OutOfEnergyModal (Об'єднані стилі карток) ---------- */
 
-function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix = " грн"}) {
+function ShopPackCard({ pack, onAction, actionText, pricePrefix = "", priceSuffix = " грн" }) {
     return (
         <motion.div
             style={{
@@ -651,10 +651,10 @@ function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix
                 boxShadow: '0 8px 25px rgba(0,0,0,0.4)',
                 background: 'rgba(255,255,255,0.08)'
             }}
-            transition={{type: "spring", stiffness: 300, damping: 15}}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
             variants={{
-                hidden: {opacity: 0, y: 20},
-                visible: {opacity: 1, y: 0}
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
             }}
         >
             <img src={pack.img} alt={pack.label || `pack-${pack.id}`} style={{
@@ -664,8 +664,8 @@ function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix
                 objectFit: "contain",
                 marginBottom: 4,
                 filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
-            }}/>
-            <div style={{fontWeight: 800, fontSize: 15, marginBottom: 4}}>{pack.label}</div>
+            }} />
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>{pack.label}</div>
             <div style={{
                 marginBottom: 8,
                 color: "var(--text-secondary)",
@@ -674,8 +674,8 @@ function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix
             }}>{pricePrefix}{pack.price}{priceSuffix}</div>
 
             {/* Кнопка прижимается к низу */}
-            <div style={{marginTop: 'auto', width: '100%'}}>
-                <GradientButton onClick={() => onAction(pack)} style={{width: "100%", fontSize: 13, padding: "8px 0"}}>
+            <div style={{ marginTop: 'auto', width: '100%' }}>
+                <GradientButton onClick={() => onAction(pack)} style={{ width: "100%", fontSize: 13, padding: "8px 0" }}>
                     {actionText}
                 </GradientButton>
             </div>
@@ -684,22 +684,22 @@ function ShopPackCard({pack, onAction, actionText, pricePrefix = "", priceSuffix
 }
 
 /* ---------- BuyModal (Адаптивный Грид) ---------- */
-export function BuyModal({onClose, onDonate, type = 'coin'}) {
+export function BuyModal({ onClose, onDonate, type = 'coin' }) {
     const packs = type === "coin" ? [
-        {id: 1, label: "x100", price: 125, img: Config.IMAGES.coin_mini},
-        {id: 2, label: "x500", price: 200, img: Config.IMAGES.coin_medium},
-        {id: 3, label: "x1000", price: 350, img: Config.IMAGES.coin_large},
-        {id: 4, label: "x10000", price: 2500, img: Config.IMAGES.coin_premium},
+        { id: 1, label: "x100", price: 125, img: Config.IMAGES.coin_mini },
+        { id: 2, label: "x500", price: 200, img: Config.IMAGES.coin_medium },
+        { id: 3, label: "x1000", price: 350, img: Config.IMAGES.coin_large },
+        { id: 4, label: "x10000", price: 2500, img: Config.IMAGES.coin_premium },
     ] : [
-        {id: 1, label: "x100", price: 125, img: Config.IMAGES.energy_mini},
-        {id: 2, label: "x200", price: 200, img: Config.IMAGES.energy_medium},
-        {id: 3, label: "x500", price: 350, img: Config.IMAGES.energy_large},
-        {id: 4, label: "x1000", price: 600, img: Config.IMAGES.energy_premium},
+        { id: 1, label: "x100", price: 125, img: Config.IMAGES.energy_mini },
+        { id: 2, label: "x200", price: 200, img: Config.IMAGES.energy_medium },
+        { id: 3, label: "x500", price: 350, img: Config.IMAGES.energy_large },
+        { id: 4, label: "x1000", price: 600, img: Config.IMAGES.energy_premium },
     ]
 
     return (
-        <Box style={{padding: 16, width: "100%", maxWidth: 520}} onClose={onClose}>
-            <HeaderBar title={type === 'coin' ? "Купити монети" : "Купити енергію"}/>
+        <Box style={{ padding: 16, width: "100%", maxWidth: 520 }} onClose={onClose}>
+            <HeaderBar title={type === 'coin' ? "Купити монети" : "Купити енергію"} />
 
             <motion.div
                 style={{
@@ -713,15 +713,15 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
                 initial="hidden"
                 animate="visible"
                 variants={{
-                    visible: {transition: {staggerChildren: 0.07, delayChildren: 0.2}}
+                    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } }
                 }}
             >
                 {packs.map((p) => (
-                    <ShopPackCard key={p.id} pack={p} onAction={onDonate} actionText="Купити"/>
+                    <ShopPackCard key={p.id} pack={p} onAction={onDonate} actionText="Купити" />
                 ))}
             </motion.div>
 
-            <div style={{marginTop: 16, textAlign: "center"}}>
+            <div style={{ marginTop: 16, textAlign: "center" }}>
                 <motion.button
                     onClick={onClose}
                     style={{
@@ -732,7 +732,7 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
                         fontSize: 14,
                         padding: 10
                     }}
-                    whileHover={{color: 'var(--text-primary)'}}
+                    whileHover={{ color: 'var(--text-primary)' }}
                 >
                     Закрити
                 </motion.button>
@@ -742,19 +742,19 @@ export function BuyModal({onClose, onDonate, type = 'coin'}) {
 }
 
 /* ---------- OutOfEnergyModal (Адаптивный Грид) ---------- */
-export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
+export function OutOfEnergyModal({ onClose, onBuy, packs = null }) {
     const defaultPacks = [
-        {id: 1, label: "x100", price: 125, img: Config.IMAGES.energy_mini},
-        {id: 2, label: "x200", price: 200, img: Config.IMAGES.energy_medium},
-        {id: 3, label: "x500", price: 350, img: Config.IMAGES.energy_large},
-        {id: 4, label: "x1000", price: 600, img: Config.IMAGES.energy_premium},
+        { id: 1, label: "x100", price: 125, img: Config.IMAGES.energy_mini },
+        { id: 2, label: "x200", price: 200, img: Config.IMAGES.energy_medium },
+        { id: 3, label: "x500", price: 350, img: Config.IMAGES.energy_large },
+        { id: 4, label: "x1000", price: 600, img: Config.IMAGES.energy_premium },
     ];
 
     const shopPacks = packs || defaultPacks;
 
     return (
-        <Box style={{padding: 16, maxWidth: 520}} onClose={onClose}>
-            <HeaderBar title="Недостатньо енергії"/>
+        <Box style={{ padding: 16, maxWidth: 520 }} onClose={onClose}>
+            <HeaderBar title="Недостатньо енергії" />
             <div style={{
                 color: "var(--text-secondary)",
                 fontSize: 14,
@@ -773,11 +773,11 @@ export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
                 initial="hidden"
                 animate="visible"
                 variants={{
-                    visible: {transition: {staggerChildren: 0.07, delayChildren: 0.2}}
+                    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } }
                 }}
             >
                 {shopPacks.map((p) => (
-                    <ShopPackCard key={p.id} pack={p} onAction={onBuy} actionText={`Купити за ${p.price}`}/>
+                    <ShopPackCard key={p.id} pack={p} onAction={onBuy} actionText={`Купити за ${p.price}`} />
                 ))}
             </motion.div>
         </Box>
@@ -786,15 +786,15 @@ export function OutOfEnergyModal({onClose, onBuy, packs = null}) {
 
 /* ---------- AlertModal (Адаптивный) ---------- */
 export function AlertModal({
-                               message = "Повідомлення",
-                               html = false,
-                               onClose = () => {},
-                               autoCloseMs = 3000,
-                               // width = 300, // 🔥 УБРАНО: Не используем жесткую ширину
-                               height = 120,
-                               maxFont = 20, // Чуть уменьшил макс шрифт
-                               minFont = 12,
-                           }) {
+    message = "Повідомлення",
+    html = false,
+    onClose = () => { },
+    autoCloseMs = 3000,
+    // width = 300, // 🔥 УБРАНО: Не используем жесткую ширину
+    height = 120,
+    maxFont = 20, // Чуть уменьшил макс шрифт
+    minFont = 12,
+}) {
     const textRef = useRef(null);
     const [fontSize, setFontSize] = useState(maxFont);
 
@@ -853,7 +853,7 @@ export function AlertModal({
 
     return (
         <div style={alertStyle}>
-            <div style={gradientBorderStyle}/>
+            <div style={gradientBorderStyle} />
             <motion.button
                 onClick={onClose}
                 style={{
@@ -862,12 +862,12 @@ export function AlertModal({
                     fontSize: 18, cursor: "pointer", borderRadius: 10, zIndex: 2
                 }}
                 whileHover={{ background: "rgba(255,255,255,0.15)", scale: 1.1, rotate: 90 }}
-                whileTap={{scale: 0.9}}
+                whileTap={{ scale: 0.9 }}
             >
                 ×
             </motion.button>
             {html ? (
-                <div ref={textRef} style={textContainerStyle} dangerouslySetInnerHTML={{__html: message}}/>
+                <div ref={textRef} style={textContainerStyle} dangerouslySetInnerHTML={{ __html: message }} />
             ) : (
                 <div ref={textRef} style={textContainerStyle}>{message}</div>
             )}
@@ -877,7 +877,7 @@ export function AlertModal({
 
 
 // ✨--- НОВИЙ КОМПОНЕНТ ДЛЯ ВТОРИННИХ КНОПОК ---✨
-function SecondaryButton({children, onClick, style = {}}) {
+function SecondaryButton({ children, onClick, style = {} }) {
     const buttonStyle = {
         borderRadius: 18,
         padding: "10px 16px",
@@ -893,8 +893,8 @@ function SecondaryButton({children, onClick, style = {}}) {
         <motion.button
             onClick={onClick}
             style={buttonStyle}
-            whileHover={{scale: 1.05, color: 'var(--text-primary)', background: 'rgba(255,255,255,0.1)'}}
-            whileTap={{scale: 0.98}}
+            whileHover={{ scale: 1.05, color: 'var(--text-primary)', background: 'rgba(255,255,255,0.1)' }}
+            whileTap={{ scale: 0.98 }}
         >
             {children}
         </motion.button>
@@ -904,19 +904,19 @@ function SecondaryButton({children, onClick, style = {}}) {
 
 /* ---------- DonateEnergyModal (Адаптивный) ---------- */
 export function DonateEnergyModal({
-                                      balanceCoins = null,
-                                      packs = null,
-                                      onConfirm = () => {},
-                                      onClose = () => {},
-                                  }) {
+    balanceCoins = null,
+    packs = null,
+    onConfirm = () => { },
+    onClose = () => { },
+}) {
     // ... (логика defaultPacks, useEffect, useState остается без изменений) ...
     const defaultPacks = [
-        {id: 1, label: "20", energy: 20, img: Config.IMAGES.energy_mini},
-        {id: 2, label: "50", energy: 50, img: Config.IMAGES.energy_mini},
-        {id: 3, label: "100", energy: 100, img: Config.IMAGES.energy_mini},
-        {id: 4, label: "200", energy: 200, img: Config.IMAGES.energy_medium},
-        {id: 5, label: "400", energy: 500, img: Config.IMAGES.energy_large},
-        {id: 6, label: "1000", energy: 1000, img: Config.IMAGES.energy_premium},
+        { id: 1, label: "20", energy: 20, img: Config.IMAGES.energy_mini },
+        { id: 2, label: "50", energy: 50, img: Config.IMAGES.energy_mini },
+        { id: 3, label: "100", energy: 100, img: Config.IMAGES.energy_mini },
+        { id: 4, label: "200", energy: 200, img: Config.IMAGES.energy_medium },
+        { id: 5, label: "400", energy: 500, img: Config.IMAGES.energy_large },
+        { id: 6, label: "1000", energy: 1000, img: Config.IMAGES.energy_premium },
     ];
     const shopPacks = packs && packs.length ? packs : defaultPacks;
 
@@ -952,8 +952,8 @@ export function DonateEnergyModal({
     };
 
     return (
-        <Box style={{padding: 16, width: "100%", maxWidth: 520}} onClose={onClose}>
-            <HeaderBar title="Задонатити енергію"/>
+        <Box style={{ padding: 16, width: "100%", maxWidth: 520 }} onClose={onClose}>
+            <HeaderBar title="Задонатити енергію" />
 
             <div style={{
                 // 🔥 АДАПТАЦИЯ: На маленьких экранах картинка уйдет вверх
@@ -965,18 +965,18 @@ export function DonateEnergyModal({
                 marginBottom: 16
             }}>
                 <motion.div
-                    style={{flex: "0 0 80px", textAlign: 'center'}}
-                    initial={{opacity: 0, scale: 0.5}}
-                    animate={{opacity: 1, scale: 1}}
-                    transition={{delay: 0.1, type: 'spring', stiffness: 200}}
+                    style={{ flex: "0 0 80px", textAlign: 'center' }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
                 >
                     <img src={Config.IMAGES.energy_large} alt="energy" style={{
                         width: 80, height: 80, objectFit: "contain", filter: 'drop-shadow(0 5px 10px rgba(0,0,0,0.5))'
-                    }}/>
+                    }} />
                 </motion.div>
 
-                <div style={{flex: 1, minWidth: "200px"}}>
-                    <div style={{color: "var(--text-secondary)", marginBottom: 8, fontSize: 14, textAlign: "center"}}>
+                <div style={{ flex: 1, minWidth: "200px" }}>
+                    <div style={{ color: "var(--text-secondary)", marginBottom: 8, fontSize: 14, textAlign: "center" }}>
                         Оберіть кількість або введіть вручну
                     </div>
                     <motion.div
@@ -987,7 +987,7 @@ export function DonateEnergyModal({
                             gap: 8,
                             marginBottom: 12
                         }}
-                        variants={{visible: {transition: {staggerChildren: 0.05}}}}
+                        variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
                         initial="hidden" animate="visible"
                     >
                         {shopPacks.map((p) => (
@@ -998,12 +998,12 @@ export function DonateEnergyModal({
                                     padding: "8px 4px", borderRadius: 12, cursor: "pointer",
                                     fontWeight: 700, border: '2px solid transparent', fontSize: 14
                                 }}
-                                variants={{hidden: {opacity: 0, y: 10}, visible: {opacity: 1, y: 0}}}
+                                variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
                                 animate={{
                                     borderColor: p.energy === Number(energy) ? 'var(--glow-primary)' : 'transparent',
                                     background: p.energy === Number(energy) ? 'rgba(27,202,251,0.15)' : 'var(--surface-highlight)',
                                 }}
-                                whileHover={{scale: 1.05, background: 'rgba(27,202,251,0.1)'}}
+                                whileHover={{ scale: 1.05, background: 'rgba(27,202,251,0.1)' }}
                             >
                                 {p.label}
                             </motion.button>
@@ -1011,8 +1011,8 @@ export function DonateEnergyModal({
                     </motion.div>
 
                     <input ref={inputRef} value={customQty} onChange={(e) => handleCustomChange(e.target.value)}
-                           placeholder="Кількість" inputMode="numeric" style={inputStyle}
-                           onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}/>
+                        placeholder="Кількість" inputMode="numeric" style={inputStyle}
+                        onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)} />
                 </div>
             </div>
 
@@ -1025,11 +1025,11 @@ export function DonateEnergyModal({
                 alignItems: 'center',
                 marginTop: 6
             }}>
-                <div style={{marginRight: 'auto', color: "var(--text-secondary)", fontSize: 14, width: "100%", textAlign: "center", marginBottom: 5}}>
-                    Разом: <span style={{color: 'var(--text-primary)', fontWeight: 700}}>{energy} енергії</span>
+                <div style={{ marginRight: 'auto', color: "var(--text-secondary)", fontSize: 14, width: "100%", textAlign: "center", marginBottom: 5 }}>
+                    Разом: <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{energy} енергії</span>
                 </div>
-                <SecondaryButton onClick={onClose} style={{flex: 1}}>Відмінити</SecondaryButton>
-                <GradientButton onClick={handleConfirm} style={{flex: 1, minWidth: 120}}>Задонатити</GradientButton>
+                <SecondaryButton onClick={onClose} style={{ flex: 1 }}>Відмінити</SecondaryButton>
+                <GradientButton onClick={handleConfirm} style={{ flex: 1, minWidth: 120 }}>Задонатити</GradientButton>
             </div>
         </Box>
     );
@@ -1038,10 +1038,10 @@ export function DonateEnergyModal({
 
 /* ---------- SetPriceModal (Адаптивный) ---------- */
 export function SetPriceModal({
-                                  initialPrice = 1000, minPrice = 1, maxPrice = 1000000,
-                                  onConfirm = () => {}, onClose = () => {}, onBack = () => {},
-                                  isProcessing = false,
-                              }) {
+    initialPrice = 1000, minPrice = 1, maxPrice = 1000000,
+    onConfirm = () => { }, onClose = () => { }, onBack = () => { },
+    isProcessing = false,
+}) {
     // ... (логика useState и useEffect остается без изменений) ...
     const [price, setPrice] = useState(initialPrice);
     const [isInputFocused, setInputFocused] = useState(false);
@@ -1078,18 +1078,18 @@ export function SetPriceModal({
     };
 
     return (
-        <Box style={{padding: 16, width: "100%", maxWidth: 420}} onClose={onClose}>
-            <HeaderBar title="Встановити ціну"/>
-            <div style={{color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center'}}>Введіть суму в монетах</div>
+        <Box style={{ padding: 16, width: "100%", maxWidth: 420 }} onClose={onClose}>
+            <HeaderBar title="Встановити ціну" />
+            <div style={{ color: "var(--text-secondary)", marginBottom: 12, fontSize: 14, textAlign: 'center' }}>Введіть суму в монетах</div>
 
-            <div style={{position: 'relative', width: '100%'}}>
-                <span style={{position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 24}}>🪙</span>
+            <div style={{ position: 'relative', width: '100%' }}>
+                <span style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 24 }}>🪙</span>
                 <input ref={inputRef} value={price} onChange={(e) => handleChange(e.target.value)}
-                       inputMode="numeric" placeholder={`${minPrice}`} style={inputStyle}
-                       onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)}/>
+                    inputMode="numeric" placeholder={`${minPrice}`} style={inputStyle}
+                    onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)} />
             </div>
 
-            <div style={{color: "var(--text-secondary)", fontSize: 12, marginTop: 8, textAlign: 'center'}}>
+            <div style={{ color: "var(--text-secondary)", fontSize: 12, marginTop: 8, textAlign: 'center' }}>
                 Мін: {minPrice.toLocaleString('uk-UA')} · Макс: {maxPrice.toLocaleString('uk-UA')}
             </div>
 
@@ -1101,8 +1101,8 @@ export function SetPriceModal({
                 justifyContent: "flex-end",
                 marginTop: 20
             }}>
-                <SecondaryButton onClick={onBack} style={{flex: "1 1 auto"}}>Назад</SecondaryButton>
-                <GradientButton onClick={handleConfirm} variant="alt" style={{flex: "2 1 auto", minWidth: 140}}>
+                <SecondaryButton onClick={onBack} style={{ flex: "1 1 auto" }}>Назад</SecondaryButton>
+                <GradientButton onClick={handleConfirm} variant="alt" style={{ flex: "2 1 auto", minWidth: 140 }}>
                     {isProcessing ? 'Обробка...' : 'Підтвердити'}
                 </GradientButton>
             </div>
@@ -1127,10 +1127,10 @@ const VIP_OPTIONS = [
 ];
 // 1. Стандартна модалка (використовує дефолтні тексти)
 export function VipPromoModal({
-                                  onSubscribe = () => {},
-                                  onClose = () => {},
-                                  scale = 0.9,
-                              }) {
+    onSubscribe = () => { },
+    onClose = () => { },
+    scale = 0.9,
+}) {
     // Ми просто викликаємо універсальну модалку, але не передаємо title/subtitle,
     // щоб спрацювали дефолтні значення всередині
     return (
@@ -1144,12 +1144,12 @@ export function VipPromoModal({
 
 // 2. Модалка з кастомним заголовком (Використовує той самий VIP_OPTIONS)
 export function VipPromoModalWithTitle({
-                                           onSubscribe = () => {},
-                                           onClose = () => {},
-                                           scale = 0.9,
-                                           title,
-                                           subtitle
-                                       }) {
+    onSubscribe = () => { },
+    onClose = () => { },
+    scale = 0.9,
+    title,
+    subtitle
+}) {
     const banner = Config.IMAGES.bannerImage || Config.IMAGES.greenBanner;
     const s = (v) => (typeof v === "number" ? Math.max(1, Math.round(v * scale)) + "px" : v);
     const base = { buttonHeight: 52, buttonRadius: 12, priceFont: 18, padding: 16 };
@@ -1187,13 +1187,13 @@ export function VipPromoModalWithTitle({
 
                 <motion.h2
                     style={{ fontSize: s(24), fontWeight: 900, textShadow: "0 4px 12px rgba(0,0,0,0.7)", marginBottom: s(8), marginTop: 0 }}
-                    initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}}
+                    initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
                 >
                     {title || "Оберіть ваш VIP-пасс"}
                 </motion.h2>
                 <motion.p
                     style={{ fontSize: s(15), color: '#c0c0d0', marginBottom: s(24), marginTop: 0 }}
-                    initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.1}}
+                    initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 >
                     {subtitle || "Отримайте максимум переваг у грі!"}
                 </motion.p>
@@ -1220,9 +1220,9 @@ export function VipPromoModalWithTitle({
                                 position: 'relative',
                                 boxShadow: '0 5px 20px rgba(0,0,0,0.3)'
                             }}
-                            initial={{opacity: 0, y: 50}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.2 + index * 0.15}}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + index * 0.15 }}
                         >
                             {option.popular && (
                                 <div style={{
@@ -1234,12 +1234,12 @@ export function VipPromoModalWithTitle({
                                 </div>
                             )}
 
-                            <h3 style={{fontSize: s(18), fontWeight: 700, marginBottom: s(12), marginTop: s(10)}}>{option.title}</h3>
+                            <h3 style={{ fontSize: s(18), fontWeight: 700, marginBottom: s(12), marginTop: s(10) }}>{option.title}</h3>
 
                             <div style={{ margin: `${s(16)} 0`, color: "#c0c0d0", textAlign: 'left', fontSize: s(13), flexGrow: 1 }}>
                                 {option.benefits.map((b, i) => (
                                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: s(8), marginBottom: s(8) }}>
-                                        <span style={{color: '#37C35F'}}>✓</span>
+                                        <span style={{ color: '#37C35F' }}>✓</span>
                                         <span>{b}</span>
                                     </div>
                                 ))}
@@ -1254,8 +1254,8 @@ export function VipPromoModalWithTitle({
                                     boxShadow: "0 8px 25px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.2)",
                                     backgroundColor: "#10783c",
                                 }}
-                                whileHover={{scale: 1.05, filter: 'brightness(1.1)'}}
-                                whileTap={{scale: 0.97, filter: 'brightness(0.95)'}}
+                                whileHover={{ scale: 1.05, filter: 'brightness(1.1)' }}
+                                whileTap={{ scale: 0.97, filter: 'brightness(0.95)' }}
                             >
                                 <span style={{ fontWeight: 900, fontSize: s(base.priceFont), color: "#fff", textShadow: "0 2px 5px rgba(0,0,0,0.7)" }}>
                                     {option.price}
@@ -1282,21 +1282,27 @@ export function InfoModal({ title, image, text, onClose }) {
         <Box style={{ padding: '20px', textAlign: 'center', width: "100%", maxWidth: 360 }} onClose={onClose}>
             {title && <HeaderBar title={title} />}
 
-            <motion.img
-                src={image}
-                alt={title || "information icon"}
-                style={{
-                    width: '100%',
-                    maxWidth: '100px', // Чуть меньше для экономии места
-                    height: 'auto',
-                    objectFit: 'contain',
-                    margin: '8px auto 12px',
-                    filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.4))'
-                }}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-            />
+            {typeof image === 'string' ? (
+                <motion.img
+                    src={image}
+                    alt={title || "information icon"}
+                    style={{
+                        width: '100%',
+                        maxWidth: '100px', // Чуть меньше для экономии места
+                        height: 'auto',
+                        objectFit: 'contain',
+                        margin: '8px auto 12px',
+                        filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.4))'
+                    }}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+                />
+            ) : (
+                <div style={{ margin: '8px auto 12px', display: 'flex', justifyContent: 'center' }}>
+                    {image}
+                </div>
+            )}
 
             <div style={{
                 color: 'var(--text-primary)',
@@ -1319,10 +1325,10 @@ export function InfoModal({ title, image, text, onClose }) {
 }
 
 export function ReferralModal({
-                                  user, // Потрібен об'єкт user з полем `id`
-                                  onClose = () => {
-                                  },
-                              }) {
+    user, // Потрібен об'єкт user з полем `id`
+    onClose = () => {
+    },
+}) {
     // --- State ---
     const [referralCount, setReferralCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -1421,11 +1427,11 @@ export function ReferralModal({
     };
 
     return (
-        <Box style={{padding: 16, maxWidth: 460}} onClose={onClose}>
+        <Box style={{ padding: 16, maxWidth: 460 }} onClose={onClose}>
             {/* 1. Заголовок */}
-            <HeaderBar title="🌀 Реферальна система"/>
+            <HeaderBar title="🌀 Реферальна система" />
 
-            <div style={{padding: "8px 8px 0"}}>
+            <div style={{ padding: "8px 8px 0" }}>
                 <p style={{
                     textAlign: 'center',
                     fontSize: 16,
@@ -1438,18 +1444,18 @@ export function ReferralModal({
                 {/* 2. Блок з бонусами (анімований) */}
                 <motion.div
                     style={bonusBoxStyle}
-                    initial={{opacity: 0, scale: 0.9}}
-                    animate={{opacity: 1, scale: 1}}
-                    transition={{delay: 0.1, type: 'spring', stiffness: 200}}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
                 >
                     🔋 <strong>150 енергії</strong> та 💰 <strong>20 монет</strong>
-                    <div style={{fontSize: 13, marginTop: 8, fontWeight: 500, color: 'var(--text-secondary)'}}>
+                    <div style={{ fontSize: 13, marginTop: 8, fontWeight: 500, color: 'var(--text-secondary)' }}>
                         за кожного друга, який набере <strong>{REFERAL_EXP}</strong> очок досвіду! 🎮
                     </div>
                 </motion.div>
 
                 {/* 3. Статистика */}
-                <div style={{marginTop: 20, marginBottom: 20}}>
+                <div style={{ marginTop: 20, marginBottom: 20 }}>
                     <div style={statsStyle}>
                         <span>👥 Твої реферали:</span>
                         <span style={{
@@ -1497,7 +1503,7 @@ export function ReferralModal({
                     marginTop: 24
                 }}>
                     <SecondaryButton onClick={onClose}>Закрити</SecondaryButton>
-                    <GradientButton onClick={handleCopy} style={{minWidth: 160}}>
+                    <GradientButton onClick={handleCopy} style={{ minWidth: 160 }}>
                         {isCopied ? "Скопійовано!" : "Копіювати"}
                     </GradientButton>
                 </div>

@@ -18,7 +18,7 @@ import { SeasonPassBanner } from "../components/main_components/SeasonPassBanner
 import { SeasonPassPage } from "./SeasonPassPage.jsx";
 
 // Icons
-import {FaBolt, FaStar, FaBirthdayCake, FaShieldAlt, FaUsers, FaCheckCircle, FaDumbbell} from "react-icons/fa";
+import { FaBolt, FaStar, FaBirthdayCake, FaShieldAlt, FaUsers, FaCheckCircle, FaDumbbell } from "react-icons/fa";
 import TrainingBlock from "../components/main_components/TrainingBlock.jsx";
 import TeamStatsCompact from "../components/main_components/TeamStatsCompact.jsx";
 import DailyGoalSection from "../components/main_components/DailyGoalSection.jsx";
@@ -165,8 +165,18 @@ export const Main = ({ user, setUser }) => {
                         <SeasonPassBanner user={user} />
                     </div>
 
-                    {/* 3. Team Stats Compact */}
-                    <TeamStatsCompact user={user} />
+                    {/* 3. Team Stats Compact - Opens Inventory/Team Menu */}
+                    <div
+                        onClick={openInventory}
+                        style={{
+                            cursor: 'pointer',
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <TeamStatsCompact user={user} />
+                    </div>
 
                     {/* 4. Activity Block (Event Card) */}
                     <div className={styles.eventCardWrapperEventMain}>

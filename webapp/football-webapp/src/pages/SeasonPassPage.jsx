@@ -272,16 +272,14 @@ const RewardItem = ({ rewardStr, status, onClick, isVipLocked }) => {
     if (status === 'claimed') className += ` ${styles.claimed}`;
     if (isVipLocked) className += ` ${styles.tierLocked}`;
 
-    const cursorStyle = (status === 'available' || isVipLocked) ? { cursor: 'pointer' } : {};
+    const cursorStyle = { cursor: 'pointer' };
 
     return (
         <div
             className={className}
             style={cursorStyle}
             onClick={() => {
-                if (status === 'available' || isVipLocked) {
-                    onClick();
-                }
+                onClick();
             }}
         >
             <div className={styles.rewardIcon}>
@@ -339,13 +337,61 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
 
     const isVipActive = user?.vip_pass_is_active;
 
+    const roadmapRef = React.useRef(null);
+
     const allMilestones = useMemo(() => {
         const milestones = new Set([
             ...Object.keys(config.standard || {}).map(Number),
             ...Object.keys(config.vip || {}).map(Number)
         ]);
-        return Array.from(milestones).sort((a, b) => a - b);
+        // 🔥 Сортуємо як було (по зростанню), але при рендері робимо .reverse()
+        // або тут зробимо reverse, якщо хочете "знизу вгору" — 
+        // Логіка: 1 рівень знизу. Значить рендеримо: [30, 29, ..., 1]
+        return Array.from(milestones).sort((a, b) => b - a); // b - a для сортування за спаданням (30 -> 1)
     }, [config]);
+
+    // 🔥 АВТО-СКРОЛ до поточного рівня
+    React.useLayoutEffect(() => {
+        // Чекаємо трохи рендеру
+        setTimeout(() => {
+            if (roadmapRef.current) {
+                // Знаходимо елемент поточного рівня або найближчого досягнутого
+                // Ми можемо знайти по класу .reached (останній з досягнутих буде найвищим числом, але в DOM він вище)
+                // Оскільки ми рендеримо зверху-вниз (30 -> 1), то найвищий рівень (наприклад 10) буде вище, ніж 1.
+
+                // Але прогрес йде знизу вгору.
+                // points = 50. milestone = 50.
+                // render order: 600, ..., 50, ..., 20.
+
+                // Спробуємо знайти елемент з Id "milestone-X"
+                // Треба додати ID до row
+
+                let targetScroll = roadmapRef.current.scrollHeight; // За замовчуванням низ (рівень 1)
+
+                // Логіка: знайти перший не пройдений рівень (знизу вгору) або поточний.
+                // Оскільки масив [600, ..., 20], то current level десь посередині.
+
+                // Якщо 0 очок - скролимо в самий низ.
+                if (points === 0) {
+                    roadmapRef.current.scrollTop = roadmapRef.current.scrollHeight;
+                    return;
+                }
+
+                // Знаходимо найвищий досягнутий майлстоун
+                const reached = allMilestones.filter(m => points >= m);
+                const currentLevel = reached.length > 0 ? reached[0] : allMilestones[allMilestones.length - 1];
+                // reached[0] бо сортування 600->20. Якщо points=50, reached=[50, 40, 20]. reached[0]=50.
+
+                const el = document.getElementById(`milestone-${currentLevel}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // Fallback to bottom
+                    roadmapRef.current.scrollTop = roadmapRef.current.scrollHeight;
+                }
+            }
+        }, 100);
+    }, [allMilestones, points]);
 
     // 3. Розраховуємо точний відсоток прогресу (ПЛАВНА ЛІНІЯ)
     const progressPercentage = useMemo(() => {
@@ -394,6 +440,36 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
         }
     };
 
+    const handleRewardClick = (tier, rewardStr, milestone, status, isTierActive) => {
+        // 1. Отримуємо дані для модалки/відображення
+        const modalData = getRewardModalData(rewardStr);
+
+        // 2. Якщо нагорода доступна для отримання - пробуємо забрати (або купити VIP)
+        if (status === 'available') {
+            handleClaim(milestone, tier);
+            return;
+        }
+
+        // 3. Якщо це VIP і він заблокований (користувач на Free) -> пропонуємо купити
+        if (!isTierActive && tier === 'vip' && status !== 'claimed') {
+            // Можна показати інфо про нагороду АБО зразу відкрити покупку.
+            // Логічніше відкрити покупку, але користувач просив "що це таке".
+            // Давайте покажемо інфо, але з кнопкою "Купити VIP" в модалці?
+            // Поки що просто інфо, а покупка - через кнопку зверху.
+            // АБО: якщо user клікає на замок в VIP рядку - відкриваємо VIP
+            onOpenVip();
+            return;
+        }
+
+        // 4. В інших випадках (Locked, Claimed, TierLocked) - показуємо INFO
+        showInfoModal({
+            title: status === 'locked' ? 'Нагорода заблокована' :
+                status === 'claimed' ? 'Вже отримано' : 'Інформація',
+            text: `Це ${modalData.text}. \n${status === 'locked' ? 'Досягніть необхідного рівня, щоб отримати.' : ''}`,
+            image: modalData.image
+        });
+    };
+
     return (
         <div className={styles.overlay}>
             <div className={styles.modalContainer}>
@@ -410,9 +486,9 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
                         <FaClock /> {timeDisplay}
                     </div>
                     <div className={styles.userPoints}>
-                        <span style={{marginRight: '6px', color: '#ccc', fontSize: '12px'}}>POINTS:</span>
-                        <span style={{fontSize: '16px', color: '#fff'}}>{points}</span>
-                        <FaTrophy color="#FFD700" style={{marginLeft: '6px'}}/>
+                        <span style={{ marginRight: '6px', color: '#ccc', fontSize: '12px' }}>POINTS:</span>
+                        <span style={{ fontSize: '16px', color: '#fff' }}>{points}</span>
+                        <FaTrophy color="#FFD700" style={{ marginLeft: '6px' }} />
                     </div>
                 </div>
 
@@ -432,7 +508,10 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
                 </div>
 
                 {/* SCROLLABLE TRACK */}
-                <div className={styles.roadmapContainer}>
+                <div
+                    className={styles.roadmapContainer}
+                    ref={roadmapRef}
+                >
                     <div className={styles.roadmapContent}>
 
                         <div className={styles.trackBackground}>
@@ -467,7 +546,7 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
                                 const vipStatus = getStatus('vip', vipReward, isVipActive);
 
                                 return (
-                                    <div key={milestone} className={styles.milestoneRow}>
+                                    <div key={milestone} id={`milestone-${milestone}`} className={styles.milestoneRow}>
                                         {/* LEFT: VIP */}
                                         <div className={styles.sideColumn}>
                                             {vipReward && (
@@ -477,13 +556,7 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
                                                         rewardStr={vipReward}
                                                         status={vipStatus}
                                                         isVipLocked={!isVipActive && vipStatus !== 'claimed'}
-                                                        onClick={() => {
-                                                            if (!isVipActive && vipStatus !== 'claimed') {
-                                                                onOpenVip();
-                                                            } else {
-                                                                handleClaim(milestone, 'vip');
-                                                            }
-                                                        }}
+                                                        onClick={() => handleRewardClick('vip', vipReward, milestone, vipStatus, isVipActive)}
                                                     />
                                                 </>
                                             )}
@@ -504,7 +577,7 @@ export const SeasonPassPage = ({ user, onClose, setUser, onOpenVip }) => {
                                                     <RewardItem
                                                         rewardStr={standardReward}
                                                         status={standardStatus}
-                                                        onClick={() => handleClaim(milestone, 'standard')}
+                                                        onClick={() => handleRewardClick('standard', standardReward, milestone, standardStatus, true)}
                                                     />
                                                 </>
                                             )}
